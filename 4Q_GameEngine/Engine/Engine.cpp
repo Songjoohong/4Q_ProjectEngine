@@ -1,19 +1,19 @@
 #include "pch.h"
 #include "Engine.h"
 
-//Engine* Engine::m_pInstance = nullptr;
-//HWND Engine::m_hWnd;
-
+#include "TimeSystem.h"
+#include "InputSystem.h"
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 Engine::Engine(HINSTANCE hInstance)
-	: m_hInstance(hInstance)
-	, m_szTitle{L"4Q_Engine"}
-	, m_szWindowClass{L"DefaultWindowClass"}
+	: m_hWnd()
+	, m_hInstance(hInstance)
+	, m_Msg()
+	, m_szTitle{ L"4Q_Engine" }
+	, m_szWindowClass{ L"DefaultWindowClass" }
 	, m_ClientWidth(1024)
 	, m_ClientHeight(768)
 {
-	//Engine::m_pInstance = this;
 	m_Wcex.hInstance = hInstance;
 	m_Wcex.cbSize = sizeof(WNDCLASSEX);
 	m_Wcex.style = CS_HREDRAW | CS_VREDRAW;
@@ -29,14 +29,15 @@ Engine::~Engine()
 {
 }
 
-bool Engine::Initialize(UINT Width, UINT Height)
+bool Engine::Initialize(const UINT width, const UINT height)
 {
-	m_ClientWidth = Width;
-	m_ClientHeight = Height;
+	// 윈도우 초기화
+	m_ClientWidth = width;
+	m_ClientHeight = height;
 
 	RegisterClassExW(&m_Wcex);
 
-	RECT rcClient = { 0,0,static_cast<LONG>(Width), static_cast<LONG>(Height) };
+	RECT rcClient = { 0,0,static_cast<LONG>(width), static_cast<LONG>(height) };
 	AdjustWindowRect(&rcClient, WS_OVERLAPPEDWINDOW, FALSE);
 
 	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_OVERLAPPEDWINDOW,
@@ -49,6 +50,10 @@ bool Engine::Initialize(UINT Width, UINT Height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
+	// 시스템 초기화
+
+	m_Time = std::make_unique<TimeSystem>();
+	m_Input = new InputSystem;
 	return true;
 }
 
@@ -56,7 +61,7 @@ void Engine::Run()
 {
 	while(TRUE)
 	{
-		if(PeekMessage(&m_Msg, NULL, 0, 0, PM_REMOVE))
+		if(PeekMessage(&m_Msg, nullptr, 0, 0, PM_REMOVE))
 		{
 			if (m_Msg.message == WM_QUIT)
 				break;
@@ -74,10 +79,13 @@ void Engine::Run()
 
 void Engine::Update()
 {
+	m_Time->Update();
+	m_Input->Update(m_Time->GetDeltaTime());
 }
 
 void Engine::Render()
 {
+
 }
 
 

@@ -1,13 +1,13 @@
 #pragma once
 #include <Windows.h>
 
+class InputSystem;
+class TimeSystem;
 constexpr int MAX_LOADSTRING = 100;
 
 class Engine
 {
 public:
-	//static Engine* m_pInstance;
-	//static HWND m_hWnd;
 	Engine(HINSTANCE hInstance);
 	virtual ~Engine();
 
@@ -22,11 +22,14 @@ private:
 	UINT m_ClientWidth;
 	UINT m_ClientHeight;
 
+	std::unique_ptr<TimeSystem> m_Time = nullptr;
+	InputSystem* m_Input = nullptr;
 public:
-	virtual bool Initialize(UINT Width, UINT Height);
+	virtual bool Initialize(UINT width, UINT height);
 	virtual void Run();
 	virtual void Update();
 	virtual void Render();
+
 
 	
 };
