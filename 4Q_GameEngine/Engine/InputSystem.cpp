@@ -17,14 +17,14 @@ void InputSystem::Update(float deltaTime)
 	HWND hWnd = GetFocus();
 	if(hWnd != nullptr)
 	{
-		for (int i = 0; i < static_cast<int>(Key::KEY_END); i++)
+		for (int i = 0; i < Key::KEY_END; i++)
 		{
 			isPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
 		}
 	}
 	
 
-	for (int i = 0; i < static_cast<int>(Key::KEY_END); i++)
+	for (int i = 0; i < Key::KEY_END; i++)
 	{
 		if(isPressed[i])
 		{
@@ -65,11 +65,11 @@ void InputSystem::Update(float deltaTime)
 		}
 	}
 
-	for (int i = 0; i < static_cast<int>(Key::KEY_END); i++)
+	for (int i = 0; i < Key::KEY_END; i++)
 	{
 		isPressed[i] = false;
 	}
-	for (int i = 0; i < static_cast<int>(Key::KEY_END); i++)
+	for (int i = 0; i < Key::KEY_END; i++)
 	{
 		if (m_CurrentKeyState[i].KeyState == KeyState::STAY)
 			std::cout << "KeyDown " << i << std::endl;
