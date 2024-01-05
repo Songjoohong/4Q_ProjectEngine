@@ -139,17 +139,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Component.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="IOnTirgger.h" />
+    <ClInclude Include="ISingleton.h" />
+    <ClInclude Include="MovementComponent.h" />
+    <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="TimeSystem.h" />
+    <ClInclude Include="TransformComponent.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Component.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="MovementComponent.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -158,6 +168,9 @@
     </ClCompile>
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="TimeSystem.cpp" />
+    <ClCompile Include="TransformComponent.cpp" />
+    <ClCompile Include="Vector3D.h" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="IOnCollision.h" />

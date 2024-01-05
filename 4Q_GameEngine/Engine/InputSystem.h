@@ -1,4 +1,5 @@
 #pragma once
+#include "ISingleton.h"
 
 enum Key
 {
@@ -28,12 +29,9 @@ struct KeyInfo
 	KeyState KeyState;
 	float Duration = 0.f;
 };
-class InputSystem
+class InputSystem : public ISingleton<InputSystem>
 {
 public:
-	InputSystem() = default;
-	~InputSystem() = default;
-
 	InputSystem(const InputSystem&) = delete;
 	void operator=(const InputSystem&) = delete;
 	InputSystem(const InputSystem&&) = delete;
