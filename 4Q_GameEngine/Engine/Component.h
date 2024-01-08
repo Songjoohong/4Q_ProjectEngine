@@ -10,9 +10,13 @@ public:
 
 private:
 	GameObject* m_pOwner = nullptr;
+
+protected:
+	int m_Code = 0;
+
 public:
 	void SetOwner(GameObject* owner);
+	void SetCode(GameObject* owner) const ;
 	GameObject* GetOwner() const { return m_pOwner; }
-	virtual void Update();
 };
 

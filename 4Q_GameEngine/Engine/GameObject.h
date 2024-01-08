@@ -15,6 +15,7 @@ public:
 	GameObject* m_ParentObject = nullptr;
 	vector<Component*> m_pComponents;
 	std::string m_Name = "NoName";
+	int m_ComponentCode = 0;
 public:
 	template<typename T>
 	std::shared_ptr<T> GetComponent()
@@ -23,6 +24,7 @@ public:
 		assert(bIsComponent);
 		std::shared_ptr<T> newComponent = new T();
 		newComponent->SetOwner(this);
+		newComponent->SetCode(this);
 		m_pComponents.push_back(newComponent);
 		return newComponent;
 	}

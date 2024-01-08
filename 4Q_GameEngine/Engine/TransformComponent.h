@@ -6,7 +6,7 @@ class TransformComponent :
     public Component
 {
 public:
-    TransformComponent() = default;
+    TransformComponent();
     ~TransformComponent() override = default;
 
 private:

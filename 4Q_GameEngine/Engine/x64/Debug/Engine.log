@@ -1,2 +1,4 @@
-﻿  InputSystem.cpp
-  Engine.vcxproj -> D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\x64\Debug\Engine.lib
+﻿  pch.cpp
+D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\pch.h(17,10): error C1083: 포함 파일을 열 수 없습니다. 'ComponentCode.h': No such file or directory
+  (소스 파일 'pch.cpp'을(를) 컴파일하는 중)
+  

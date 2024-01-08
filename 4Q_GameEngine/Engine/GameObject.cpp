@@ -18,6 +18,6 @@ void GameObject::Update() const
 {
 	for(auto& component : m_pComponents)
 	{
-		component->Update();
+		
 	}
 }

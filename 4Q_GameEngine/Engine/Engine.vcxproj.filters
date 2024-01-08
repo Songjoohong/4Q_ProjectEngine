@@ -22,12 +22,6 @@
     <Filter Include="Component">
       <UniqueIdentifier>{7d6c694d-e54f-4ec7-945c-e68e12bdf4f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Component\Transform">
-      <UniqueIdentifier>{dd562853-bdc8-4bed-bc7c-39643e6475fc}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Component\Movement">
-      <UniqueIdentifier>{0b076c5d-bc14-4ebe-a5de-8fc33cdc75a2}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -57,20 +51,20 @@
     <ClInclude Include="nlohmann\json.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="World.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Component.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="ISingleton.h">
       <Filter>Interface</Filter>
     </ClInclude>
-    <ClInclude Include="TransformComponent.h">
-      <Filter>Component\Transform</Filter>
+    <ClInclude Include="RenderComponent.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MovementComponent.h">
-      <Filter>Component\Movement</Filter>
+    <ClInclude Include="ECS.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Movement.h">
+      <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -92,20 +86,11 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="World.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Component.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
     <ClCompile Include="Vector3D.h">
       <Filter>헤더 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TransformComponent.cpp">
-      <Filter>Component\Transform</Filter>
-    </ClCompile>
-    <ClCompile Include="MovementComponent.cpp">
-      <Filter>Component\Movement</Filter>
+    <ClCompile Include="RenderComponent.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
