@@ -34,11 +34,11 @@ SOFTWARE.
 //////////////////////////////////////////////////////////////////////////
 
 
-// Define what you want to pass to the tick() function by defining ECS_TICK_TYPE before including this header,
+// Define what you want to pass to the Tick() function by defining ECS_TICK_TYPE before including this header,
 // or leave it as default (float).
 // This is really messy to do but the alternative is some sort of slow custom event setup for ticks, which is silly.
 
-// Add this before including this header if you don't want to pass anything to tick()
+// Add this before including this header if you don't want to pass anything to Tick()
 //#define ECS_TICK_TYPE_VOID
 #ifndef ECS_TICK_TYPE
 #define ECS_TICK_TYPE ECS::DefaultTickData
@@ -50,7 +50,7 @@ SOFTWARE.
 #endif
 
 // Define ECS_TICK_NO_CLEANUP if you don't want the world to automatically cleanup dead entities
-// at the beginning of each tick. This will require you to call cleanup() manually to prevent memory
+// at the beginning of each Tick. This will require you to call cleanup() manually to prevent memory
 // leaks.
 //#define ECS_TICK_NO_CLEANUP
 
@@ -310,13 +310,13 @@ namespace ECS
 		}
 
 		/**
-		* Called when World::tick() is called. See ECS_TICK_TYPE at the top of this file for more
-		* information about passing data to tick.
+		* Called when World::Tick() is called. See ECS_TICK_TYPE at the top of this file for more
+		* information about passing data to Tick.
 		*/
 #ifdef ECS_TICK_TYPE_VOID
-		virtual void tick(World* world)
+		virtual void Tick(World* world)
 #else
-		virtual void tick(World* world, ECS_TICK_TYPE data)
+		virtual void Tick(World* world, ECS_TICK_TYPE data)
 #endif
 		{
 		}
@@ -601,7 +601,7 @@ namespace ECS
 		* Destroy an entity. This will emit the OnEntityDestroy event.
 		*
 		* If immediate is false (recommended), then the entity won't be immediately
-		* deleted but instead will be removed at the beginning of the next tick() or
+		* deleted but instead will be removed at the beginning of the next Tick() or
 		* when cleanup() is called. OnEntityDestroyed will still be called immediately.
 		*
 		* This function is safe to call multiple times on a single entity. Note that calling
@@ -782,12 +782,12 @@ namespace ECS
 
 		/**
 		* Tick the world. See the definition for ECS_TICK_TYPE at the top of this file for more information on
-		* passing data through tick().
+		* passing data through Tick().
 		*/
 #ifdef ECS_TICK_TYPE_VOID
-		void tick()
+		void Tick()
 #else
-		void tick(ECS_TICK_TYPE data)
+		void Tick(ECS_TICK_TYPE data)
 #endif
 		{
 #ifndef ECS_TICK_NO_CLEANUP
@@ -796,9 +796,9 @@ namespace ECS
 			for (auto* system : systems)
 			{
 #ifdef ECS_TICK_TYPE_VOID
-				system->tick(this);
+				system->Tick(this);
 #else
-				system->tick(this, data);
+				system->Tick(this, data);
 #endif
 			}
 		}
