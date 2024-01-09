@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "TimeSystem.h"
 
-TimeSystem::TimeSystem()
+void TimeSystem::Initialize()
 {
 	QueryPerformanceFrequency(&m_Frequency);
 	QueryPerformanceCounter(&m_CurrentTime);

@@ -26,11 +26,15 @@ enum class KeyState
 
 struct KeyInfo
 {
-	KeyState KeyState;
+	KeyState KeyState = KeyState::NONE;
 	float Duration = 0.f;
 };
 class InputSystem : public ISingleton<InputSystem>
 {
+public:
+	InputSystem() = default;
+	virtual ~InputSystem() override = default;
+
 public:
 	InputSystem(const InputSystem&) = delete;
 	void operator=(const InputSystem&) = delete;
@@ -40,7 +44,7 @@ public:
 private:
 	bool isPressed[Key::KEY_END] = {};
 	KeyInfo m_CurrentKeyState[Key::KEY_END] = {};
-	KeyState m_PreviousKeyState[Key::KEY_END] = {};
+	KeyState m_PreviousKeyState[Key::KEY_END] = { KeyState::NONE, };
 
 public:
 	void Update(float deltaTime);

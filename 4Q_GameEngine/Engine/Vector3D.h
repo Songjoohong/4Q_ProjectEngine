@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include <cmath>
 
 class Vector3D

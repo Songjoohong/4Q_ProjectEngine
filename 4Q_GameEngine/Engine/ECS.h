@@ -356,6 +356,20 @@ namespace ECS
 			Entity* entity;
 		};
 
+		struct EntityUpdate
+		{
+			ECS_DECLARE_TYPE
+
+			Entity* entity;
+		};
+
+		
+		struct EntityFixedUpdate
+		{
+			ECS_DECLARE_TYPE
+
+			Entity* entity;
+		};
 		// Called when a component is assigned (not necessarily created).
 		template<typename T>
 		struct OnComponentAssigned
@@ -472,7 +486,7 @@ namespace ECS
 		*/
 		void removeAll()
 		{
-			for (auto pair : components)
+			for (auto& pair : components)
 			{
 				pair.second->removed(this);
 				pair.second->destroy(world);
@@ -708,7 +722,7 @@ namespace ECS
 		*/
 		void unsubscribeAll(void* subscriber)
 		{
-			for (auto kv : subscribers)
+			for (auto& kv : subscribers)
 			{
 				kv.second.erase(std::remove(kv.second.begin(), kv.second.end(), subscriber), kv.second.end());
 				if (kv.second.size() == 0)

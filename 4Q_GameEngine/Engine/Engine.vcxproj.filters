@@ -22,6 +22,21 @@
     <Filter Include="Component">
       <UniqueIdentifier>{7d6c694d-e54f-4ec7-945c-e68e12bdf4f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Input">
+      <UniqueIdentifier>{f02e9943-7d0b-421d-9527-d7ee6cb04985}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Movement">
+      <UniqueIdentifier>{6d314a24-c87e-4376-b3ca-aeb76cf73a7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Time">
+      <UniqueIdentifier>{80ee3770-4e9a-4d4e-b388-f1044c8d4f2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{a9a9f40c-90dd-4982-ac8c-4b0c06ee1c3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Script">
+      <UniqueIdentifier>{6522a474-3bdd-4b4d-9346-42295a7f232d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -30,32 +45,14 @@
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Engine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeSystem.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="InputSystem.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="IOnTirgger.h">
       <Filter>Interface</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GameObject.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="nlohmann\json.hpp">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ISingleton.h">
       <Filter>Interface</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderComponent.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ECS.h">
       <Filter>헤더 파일</Filter>
@@ -66,9 +63,6 @@
     <ClInclude Include="Movement.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerInputSystem.h">
-      <Filter>System</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Component</Filter>
     </ClInclude>
@@ -78,34 +72,58 @@
     <ClInclude Include="SkinnedMesh.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="InputSystem.h">
+      <Filter>System\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerInputSystem.h">
+      <Filter>System\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="MovementSystem.h">
+      <Filter>System\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeSystem.h">
+      <Filter>System\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollider.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBody.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptSystem.h">
+      <Filter>System\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Engine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="TimeSystem.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="InputSystem.cpp">
-      <Filter>System</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="GameObject.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Vector3D.h">
       <Filter>헤더 파일</Filter>
     </ClCompile>
-    <ClCompile Include="RenderComponent.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="InputSystem.cpp">
+      <Filter>System\Input</Filter>
     </ClCompile>
     <ClCompile Include="PlayerInputSystem.cpp">
-      <Filter>System</Filter>
+      <Filter>System\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="MovementSystem.cpp">
+      <Filter>System\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeSystem.cpp">
+      <Filter>System\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptSystem.cpp">
+      <Filter>System\Script</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -51,9 +51,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	UpdateWindow(m_hWnd);
 
 	// 시스템 초기화
-
-	m_Time = std::make_unique<TimeSystem>();
-	m_Input = new InputSystem;
+	TimeSystem::GetInstance()->Initialize();
 	return true;
 }
 
@@ -79,8 +77,9 @@ void Engine::Run()
 
 void Engine::Update()
 {
-	m_Time->Update();
-	m_Input->Update(m_Time->GetDeltaTime());
+	TimeSystem::GetInstance()->Update();
+	const float deltaTime = TimeSystem::GetInstance()->GetDeltaTime();
+	InputSystem::GetInstance()->Update(deltaTime);
 }
 
 void Engine::Render()
