@@ -99,6 +99,9 @@
     <ClInclude Include="ScriptSystem.h">
       <Filter>System\Script</Filter>
     </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

@@ -78,6 +78,8 @@ SOFTWARE.
 // CODE //
 //////////////////////////////////////////////////////////////////////////
 
+struct Script;
+
 namespace ECS
 {
 #ifndef ECS_NO_RTTI
@@ -287,7 +289,7 @@ namespace ECS
 	/**
 	* A system that acts on entities. Generally, this will act on a subset of entities using World::each().
 	*
-	* Systems often will respond to events by subclassing EventSubscriber. You may use configure() to subscribe to events,
+	* Systems often will respond to events by subclassing EventSubscriber. You may use Configure() to subscribe to events,
 	* but remember to unsubscribe in unconfigure().
 	*/
 	class EntitySystem
@@ -298,14 +300,14 @@ namespace ECS
 		/**
 		* Called when this system is added to a world.
 		*/
-		virtual void configure(World* world)
+		virtual void Configure(World* world)
 		{
 		}
 
 		/**
 		* Called when this system is being removed from a world.
 		*/
-		virtual void unconfigure(World* world)
+		virtual void Deconfigure(World* world)
 		{
 		}
 
@@ -459,7 +461,10 @@ namespace ECS
 		* any of the above, wrap it in a struct.
 		*/
 		template<typename T, typename... Args>
-		ComponentHandle<T> assign(Args&&... args);
+		ComponentHandle<T> Assign(Args&&... args);
+
+		template<typename T, typename... Args>
+		ComponentHandle<Script> AssignScript(Args&&... args);
 
 		/**
 		* Remove a component of a specific type. Returns whether a component was removed.
@@ -644,7 +649,7 @@ namespace ECS
 		EntitySystem* registerSystem(EntitySystem* system)
 		{
 			systems.push_back(system);
-			system->configure(this);
+			system->Configure(this);
 
 			return system;
 		}
@@ -655,7 +660,7 @@ namespace ECS
 		void unregisterSystem(EntitySystem* system)
 		{
 			systems.erase(std::remove(systems.begin(), systems.end(), system), systems.end());
-			system->unconfigure(this);
+			system->Deconfigure(this);
 		}
 
 		void enableSystem(EntitySystem* system)
@@ -957,7 +962,7 @@ namespace ECS
 	{
 		for (auto* system : systems)
 		{
-			system->unconfigure(this);
+			system->Deconfigure(this);
 		}
 
 		for (auto* ent : entities)
@@ -1083,7 +1088,7 @@ namespace ECS
 	}
 
 	template<typename T, typename... Args>
-	ComponentHandle<T> Entity::assign(Args&&... args)
+	ComponentHandle<T> Entity::Assign(Args&&... args)
 	{
 		using ComponentAllocator = std::allocator_traits<World::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
 
@@ -1108,6 +1113,38 @@ namespace ECS
 
 			auto handle = ComponentHandle<T>(&container->data);
 			world->emit<Events::OnComponentAssigned<T>>({ this, handle });
+			return handle;
+		}
+	}
+
+	template <typename T, typename ... Args>
+	ComponentHandle<Script> Entity::AssignScript(Args&&... args)
+	{
+		static_assert(std::is_base_of<Script, T>::value, "Errors while running the AssignScript");
+
+		using ComponentAllocator = std::allocator_traits<World::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
+
+		auto found = components.find(getTypeIndex<Script>());
+		if (found != components.end())
+		{
+			Internal::ComponentContainer<T>* container = reinterpret_cast<Internal::ComponentContainer<T>*>(found->second);
+			container->data = T(args...);
+
+			const auto handle = ComponentHandle<Script>(&container->data);
+			world->emit<Events::OnComponentAssigned<Script>>({ this, handle });
+			return handle;
+		}
+		else
+		{
+			ComponentAllocator alloc(world->getPrimaryAllocator());
+
+			Internal::ComponentContainer<T>* container = std::allocator_traits<ComponentAllocator>::allocate(alloc, 1);
+			std::allocator_traits<ComponentAllocator>::construct(alloc, container, T(args...));
+
+			components.insert({ getTypeIndex<Script>(), container });
+
+			auto handle = ComponentHandle<Script>(&container->data);
+			world->emit<Events::OnComponentAssigned<Script>>({ this, handle });
 			return handle;
 		}
 	}

@@ -2,16 +2,4 @@
   PlayerInputSystem.cpp
   ScriptSystem.cpp
   코드를 생성하고 있습니다...
-D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\ScriptSystem.h(7,31): error C2882: 'Events': 식에서 네임스페이스 식별자를 잘못 사용했습니다.
-  (소스 파일 '/ScriptSystem.cpp'을(를) 컴파일하는 중)
-  
-D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\ScriptSystem.h(7,9): error C2974: 'ECS::EventSubscriber': 'T'의 템플릿 인수가 잘못되었습니다. 형식이 필요합니다.
-  (소스 파일 '/ScriptSystem.cpp'을(를) 컴파일하는 중)
-  D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\ECS.h(330,2):
-  'ECS::EventSubscriber' 선언을 참조하십시오.
-  
-D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\ScriptSystem.h(7,9): error C2955: 'ECS::EventSubscriber': 클래스 템플릿을(를) 사용하려면 템플릿 인수 목록이 필요합니다.
-  (소스 파일 '/ScriptSystem.cpp'을(를) 컴파일하는 중)
-  D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\ECS.h(330,2):
-  'ECS::EventSubscriber' 선언을 참조하십시오.
-  
+  Engine.vcxproj -> D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\x64\Debug\Engine.lib

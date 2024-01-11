@@ -154,6 +154,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlayerInputSystem.h" />
     <ClInclude Include="RigidBody.h" />
+    <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptSystem.h" />
     <ClInclude Include="SkinnedMesh.h" />
     <ClInclude Include="StaticMesh.h" />
