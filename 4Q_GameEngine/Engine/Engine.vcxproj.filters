@@ -81,9 +81,6 @@
     <ClInclude Include="MovementSystem.h">
       <Filter>System\Movement</Filter>
     </ClInclude>
-    <ClInclude Include="TimeSystem.h">
-      <Filter>System\Time</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
       <Filter>Component</Filter>
     </ClInclude>
@@ -100,6 +97,12 @@
       <Filter>System\Script</Filter>
     </ClInclude>
     <ClInclude Include="Script.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeSystem.h">
+      <Filter>System\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="SampleScript.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>

@@ -34,6 +34,11 @@ class ScriptSystem : public EntitySystem,
 	virtual void receive(class World* world, const Events::OnEntityDestroyed& event) override
 	{
 		std::cout << "An entity was destroyed!" << std::endl;
+		world->each<Script>([&](Entity* entity, ComponentHandle<Script> script)->void
+			{
+				script->OnDestroyed();
+			});
+
 	}
 
 	virtual void Tick(World* world, ECS::DefaultTickData data) override

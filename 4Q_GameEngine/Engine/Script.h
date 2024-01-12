@@ -17,4 +17,8 @@ public:
 
 	virtual void Update() {}
 	virtual void Awake() {}
+	virtual void LateUpdate() {}
+	virtual void FixedUpdate() {}
+	virtual void Start() {}
+	virtual void OnDestroyed(){}
 };
