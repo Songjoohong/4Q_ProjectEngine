@@ -37,16 +37,13 @@
     <Filter Include="System\Script">
       <UniqueIdentifier>{6522a474-3bdd-4b4d-9346-42295a7f232d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\FSM">
+      <UniqueIdentifier>{9352beb5-1053-4d58-bf62-e49fe22cbcc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IOnTirgger.h">
-      <Filter>Interface</Filter>
     </ClInclude>
     <ClInclude Include="nlohmann\json.hpp">
       <Filter>헤더 파일</Filter>
@@ -105,6 +102,21 @@
     <ClInclude Include="SampleScript.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="FSMSystem.h">
+      <Filter>System\FSM</Filter>
+    </ClInclude>
+    <ClInclude Include="FSM.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -131,10 +143,11 @@
     <ClCompile Include="ScriptSystem.cpp">
       <Filter>System\Script</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="IOnCollision.h">
-      <Filter>Interface</Filter>
-    </None>
+    <ClCompile Include="FSMSystem.cpp">
+      <Filter>System\FSM</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

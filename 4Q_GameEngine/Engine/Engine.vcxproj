@@ -139,13 +139,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CollisionSystem.h" />
     <ClInclude Include="ECS.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="FSM.h" />
+    <ClInclude Include="FSMSystem.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="InputSystem.h" />
-    <ClInclude Include="IOnTirgger.h" />
     <ClInclude Include="ISingleton.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Movement.h" />
@@ -163,7 +166,9 @@
     <ClInclude Include="Transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="FSMSystem.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="pch.cpp">
@@ -176,9 +181,6 @@
     <ClCompile Include="ScriptSystem.cpp" />
     <ClCompile Include="TimeSystem.cpp" />
     <ClCompile Include="Vector3D.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="IOnCollision.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
