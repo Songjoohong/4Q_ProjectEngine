@@ -29,6 +29,8 @@ SOFTWARE.
 #include <stdint.h>
 #include <type_traits>
 
+#include "State.h"
+
 //////////////////////////////////////////////////////////////////////////
 // SETTINGS //
 //////////////////////////////////////////////////////////////////////////
@@ -337,7 +339,7 @@ namespace ECS
 		/**
 		* Called when an event is emitted by the world.
 		*/
-		virtual void receive(World* world, const T& event) = 0;
+		virtual void Receive(World* world, const T& event) = 0;
 	};
 
 	namespace Events
@@ -463,9 +465,11 @@ namespace ECS
 		template<typename T, typename... Args>
 		ComponentHandle<T> Assign(Args&&... args);
 
-		template<typename T, typename... Args>
-		ComponentHandle<Script> AssignScript(Args&&... args);
+		template<typename T, typename... Args> requires std::is_base_of_v<Script, T>
+		ComponentHandle<Script> Assign(Args&&... args);
 
+		template <typename T, typename ... Args> requires std::is_base_of_v<Component::State, T>
+		ComponentHandle<Component::State> Assign(Args&&... args);
 		/**
 		* Remove a component of a specific type. Returns whether a component was removed.
 		*/
@@ -560,26 +564,26 @@ namespace ECS
 		/**
 		* Use this function to construct the world with a custom allocator.
 		*/
-		static World* createWorld(Allocator alloc)
+		static World* CreateWorld(Allocator alloc, std::string& fileName)
 		{
 			WorldAllocator worldAlloc(alloc);
 			World* world = std::allocator_traits<WorldAllocator>::allocate(worldAlloc, 1);
 			std::allocator_traits<WorldAllocator>::construct(worldAlloc, world, alloc);
-
+			//world->Serialize(fileName);
 			return world;
 		}
 
 		/**
 		* Use this function to construct the world with the default allocator.
 		*/
-		static World* createWorld()
+		static World* CreateWorld(std::string& fileName)
 		{
-			return createWorld(Allocator());
+			return CreateWorld(Allocator(), fileName);
 		}
 
 		// Use this to destroy the world instead of calling delete.
 		// This will emit OnEntityDestroyed events and call EntitySystem::unconfigure as appropriate.
-		void destroyWorld()
+		void DestroyWorld()
 		{
 			WorldAllocator alloc(entAlloc);
 			std::allocator_traits<WorldAllocator>::destroy(alloc, this);
@@ -597,7 +601,7 @@ namespace ECS
 		/**
 		* Destroying the world will emit OnEntityDestroyed events and call EntitySystem::unconfigure() as appropriate.
 		*
-		* Use World::destroyWorld to destroy and deallocate the world, do not manually delete the world!
+		* Use World::DestroyWorld to destroy and deallocate the world, do not manually delete the world!
 		*/
 		~World();
 
@@ -749,10 +753,11 @@ namespace ECS
 				for (auto* base : found->second)
 				{
 					auto* sub = reinterpret_cast<EventSubscriber<T>*>(base);
-					sub->receive(this, event);
+					sub->Receive(this, event);
 				}
 			}
 		}
+
 
 		/**
 		* Run a function on each entity with a specific set of components. This is useful for implementing an EntitySystem.
@@ -1117,8 +1122,8 @@ namespace ECS
 		}
 	}
 
-	template <typename T, typename ... Args>
-	ComponentHandle<Script> Entity::AssignScript(Args&&... args)
+	template <typename T, typename ... Args> requires std::is_base_of_v<Script, T>
+	ComponentHandle<Script> Entity::Assign(Args&&... args)
 	{
 		static_assert(std::is_base_of<Script, T>::value, "Errors while running the AssignScript");
 
@@ -1145,6 +1150,38 @@ namespace ECS
 
 			auto handle = ComponentHandle<Script>(&container->data);
 			world->emit<Events::OnComponentAssigned<Script>>({ this, handle });
+			return handle;
+		}
+	}
+
+	template <typename T, typename ... Args> requires std::is_base_of_v<Component::State, T>
+	ComponentHandle<Component::State> Entity::Assign(Args&&... args)
+	{
+		static_assert(std::is_base_of<Component::State, T>::value, "Errors while running the AssignState");
+
+		using ComponentAllocator = std::allocator_traits<World::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
+
+		auto found = components.find(getTypeIndex<Component::State>());
+		if (found != components.end())
+		{
+			Internal::ComponentContainer<T>* container = reinterpret_cast<Internal::ComponentContainer<T>*>(found->second);
+			container->data = T(args...);
+
+			const auto handle = ComponentHandle<Component::State>(&container->data);
+			world->emit<Events::OnComponentAssigned<Component::State>>({ this, handle });
+			return handle;
+		}
+		else
+		{
+			ComponentAllocator alloc(world->getPrimaryAllocator());
+
+			Internal::ComponentContainer<T>* container = std::allocator_traits<ComponentAllocator>::allocate(alloc, 1);
+			std::allocator_traits<ComponentAllocator>::construct(alloc, container, T(args...));
+
+			components.insert({ getTypeIndex<Component::State>(), container });
+
+			const auto handle = ComponentHandle<Component::State>(&container->data);
+			world->emit<Events::OnComponentAssigned<Component::State>>({ this, handle });
 			return handle;
 		}
 	}

@@ -1,8 +1,11 @@
 #include "pch.h"
 #include "Engine.h"
 
-#include "TimeSystem.h"
-#include "InputSystem.h"
+#include "BoxCollider.h"
+#include "TimeManager.h"
+#include "InputManager.h"
+#include "Script.h"
+#include "WorldManager.h"
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 Engine::Engine(HINSTANCE hInstance)
@@ -50,8 +53,10 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
+	std::cout << std::is_standard_layout<Component::Script>::value << std::endl;
+
 	// 시스템 초기화
-	TimeSystem::GetInstance()->Initialize();
+	TimeManager::GetInstance()->Initialize();
 	return true;
 }
 
@@ -77,9 +82,10 @@ void Engine::Run()
 
 void Engine::Update()
 {
-	TimeSystem::GetInstance()->Update();
-	const float deltaTime = TimeSystem::GetInstance()->GetDeltaTime();
-	InputSystem::GetInstance()->Update(deltaTime);
+	TimeManager::GetInstance()->Update();
+	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
+	WorldManager::GetInstance()->Update(deltaTime);
+	InputManager::GetInstance()->Update(deltaTime);
 }
 
 void Engine::Render()

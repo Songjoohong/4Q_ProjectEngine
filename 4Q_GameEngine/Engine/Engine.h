@@ -1,8 +1,8 @@
 #pragma once
 #include <Windows.h>
 
-class InputSystem;
-class TimeSystem;
+class InputManager;
+class TimeManager;
 constexpr int MAX_LOADSTRING = 100;
 
 class Engine
@@ -22,8 +22,8 @@ private:
 	UINT m_ClientWidth;
 	UINT m_ClientHeight;
 
-	std::unique_ptr<TimeSystem> m_Time = nullptr;
-	InputSystem* m_Input = nullptr;
+	std::unique_ptr<TimeManager> m_Time = nullptr;
+	InputManager* m_Input = nullptr;
 public:
 	virtual bool Initialize(UINT width, UINT height);
 	virtual void Run();

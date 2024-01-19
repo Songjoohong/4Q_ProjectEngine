@@ -11,7 +11,8 @@
 #include <Windows.h>
 #include <iostream>
 #include <cassert>
-
+#include <vector>
 
 #include "framework.h"
+
 #endif //PCH_H

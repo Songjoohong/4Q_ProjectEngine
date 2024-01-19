@@ -1,9 +1,19 @@
 #pragma once
-struct FSM
+#include <typeindex>
+#include <unordered_map>
+
+class State;
+
+namespace Component
 {
+	struct FSM
+	{
+		State* m_CurrentState;
 
-	FSM() {}
+		void AddState(ECS::ComponentHandle<State> state)
+		{
+			//m_States[typeid(State)] = ECS::ComponentHandle<State>;
+		}
 
-	std::string m_CurrentState = "";
-	 
-};
+	};
+}

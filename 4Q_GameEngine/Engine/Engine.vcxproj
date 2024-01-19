@@ -112,6 +112,10 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -129,6 +133,10 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
+      <UseStandardPreprocessor>true</UseStandardPreprocessor>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -148,7 +156,7 @@
     <ClInclude Include="FSM.h" />
     <ClInclude Include="FSMSystem.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="InputManager.h" />
     <ClInclude Include="ISingleton.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Movement.h" />
@@ -161,15 +169,17 @@
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptSystem.h" />
     <ClInclude Include="SkinnedMesh.h" />
+    <ClInclude Include="State.h" />
     <ClInclude Include="StaticMesh.h" />
-    <ClInclude Include="TimeSystem.h" />
+    <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FSMSystem.cpp" />
-    <ClCompile Include="InputSystem.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -179,8 +189,9 @@
     </ClCompile>
     <ClCompile Include="PlayerInputSystem.cpp" />
     <ClCompile Include="ScriptSystem.cpp" />
-    <ClCompile Include="TimeSystem.cpp" />
+    <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="Vector3D.h" />
+    <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

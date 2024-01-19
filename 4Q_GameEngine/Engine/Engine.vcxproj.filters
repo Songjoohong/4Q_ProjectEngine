@@ -28,9 +28,6 @@
     <Filter Include="System\Movement">
       <UniqueIdentifier>{6d314a24-c87e-4376-b3ca-aeb76cf73a7c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="System\Time">
-      <UniqueIdentifier>{80ee3770-4e9a-4d4e-b388-f1044c8d4f2a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{a9a9f40c-90dd-4982-ac8c-4b0c06ee1c3c}</UniqueIdentifier>
     </Filter>
@@ -39,6 +36,21 @@
     </Filter>
     <Filter Include="System\FSM">
       <UniqueIdentifier>{9352beb5-1053-4d58-bf62-e49fe22cbcc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Collision">
+      <UniqueIdentifier>{c8bb73c1-1871-4f4b-a1c1-adbfc1e52928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{a7ba5dbe-ad40-4c61-af3f-40ab55401725}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\Input">
+      <UniqueIdentifier>{5796e7a7-2830-48ea-8733-a9f8ddf80870}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\Time">
+      <UniqueIdentifier>{b2cba285-1fd0-4d46-8110-3fc30b09724c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\World">
+      <UniqueIdentifier>{a09fdccc-3753-49c1-8bac-082b09597ab9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -69,9 +81,6 @@
     <ClInclude Include="SkinnedMesh.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="InputSystem.h">
-      <Filter>System\Input</Filter>
-    </ClInclude>
     <ClInclude Include="PlayerInputSystem.h">
       <Filter>System\Input</Filter>
     </ClInclude>
@@ -96,9 +105,6 @@
     <ClInclude Include="Script.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="TimeSystem.h">
-      <Filter>System\Time</Filter>
-    </ClInclude>
     <ClInclude Include="SampleScript.h">
       <Filter>Component</Filter>
     </ClInclude>
@@ -108,14 +114,26 @@
     <ClInclude Include="FSMSystem.h">
       <Filter>System\FSM</Filter>
     </ClInclude>
-    <ClInclude Include="FSM.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="CollisionSystem.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>System\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="State.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="FSM.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Manager\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeManager.h">
+      <Filter>Manager\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldManager.h">
+      <Filter>Manager\World</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -125,17 +143,11 @@
     <ClCompile Include="Vector3D.h">
       <Filter>헤더 파일</Filter>
     </ClCompile>
-    <ClCompile Include="InputSystem.cpp">
-      <Filter>System\Input</Filter>
-    </ClCompile>
     <ClCompile Include="PlayerInputSystem.cpp">
       <Filter>System\Input</Filter>
     </ClCompile>
     <ClCompile Include="MovementSystem.cpp">
       <Filter>System\Movement</Filter>
-    </ClCompile>
-    <ClCompile Include="TimeSystem.cpp">
-      <Filter>System\Time</Filter>
     </ClCompile>
     <ClCompile Include="Engine.cpp">
       <Filter>Engine</Filter>
@@ -147,7 +159,16 @@
       <Filter>System\FSM</Filter>
     </ClCompile>
     <ClCompile Include="CollisionSystem.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>System\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Manager\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeManager.cpp">
+      <Filter>Manager\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldManager.cpp">
+      <Filter>Manager\World</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
