@@ -8,7 +8,6 @@
 #include "WorldManager.h"
 #include "IdleState.h"
 #include "SampleScript.h"
-#include "StaticMesh.h"
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 Engine::Engine(HINSTANCE hInstance)
@@ -62,7 +61,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	TimeManager::GetInstance()->Initialize();
 	World* world = World::CreateWorld("");
 	Entity* ent = world->create();
-	auto staticMesh = ent->Assign<Component::StaticMesh>("cerberus2.fbx");
 	auto state = ent->Assign<IdleState>();
 	auto script = ent->Assign<SampleScript>(ent);
 	std::cout << state->m_Name << std::endl;

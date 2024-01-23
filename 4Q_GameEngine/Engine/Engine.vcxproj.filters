@@ -52,9 +52,6 @@
     <Filter Include="Manager\World">
       <UniqueIdentifier>{a09fdccc-3753-49c1-8bac-082b09597ab9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Manager\RenderManager">
-      <UniqueIdentifier>{ba31c937-4f08-4583-a8b5-1dee093e3a42}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -141,9 +138,6 @@
     <ClInclude Include="IdleState.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="RenderManager.h">
-      <Filter>Manager\RenderManager</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -178,9 +172,6 @@
     </ClCompile>
     <ClCompile Include="WorldManager.cpp">
       <Filter>Manager\World</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
-      <Filter>Manager\RenderManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
