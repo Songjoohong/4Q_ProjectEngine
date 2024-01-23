@@ -1,13 +1,7 @@
 ﻿  모듈 종속성의 소스를 검사하는 중...
   Engine.cpp
-D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\Script.h(5,7): warning C4099: 'Script': 처음에는 'struct'을(를) 사용하여 형식 이름을 표시했는데 이제는 'class'을(를) 사용하여 표시합니다.
-  (소스 파일 '/Engine.cpp'을(를) 컴파일하는 중)
-  D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\Script.h(5,7):
-  'Script' 선언을 참조하십시오.
-  
-D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\FSM.h(5,7): warning C4099: 'State': 처음에는 'struct'을(를) 사용하여 형식 이름을 표시했는데 이제는 'class'을(를) 사용하여 표시합니다.
-  (소스 파일 '/Engine.cpp'을(를) 컴파일하는 중)
-  D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\State.h(5,8):
-  'State' 선언을 참조하십시오.
-  
-  Engine.vcxproj -> D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\x64\Debug\Engine.lib
+D:\Git\4Q_Engine\4Q_PersonalEngine\4Q_GameEngine\Engine\Script.h(6,1): warning C4099: 'Script': 처음에는 'struct'을(를) 사용하여 형식 이름을 표시했는데 이제는 'class'을(를) 사용하여 표시합니다.
+D:\Git\4Q_Engine\4Q_PersonalEngine\4Q_GameEngine\Engine\Script.h(5,7): message : 'Script' 선언을 참조하십시오.
+D:\Git\4Q_Engine\4Q_PersonalEngine\4Q_GameEngine\Engine\FSM.h(5,12): warning C4099: 'State': 처음에는 'struct'을(를) 사용하여 형식 이름을 표시했는데 이제는 'class'을(를) 사용하여 표시합니다.
+D:\Git\4Q_Engine\4Q_PersonalEngine\4Q_GameEngine\Engine\State.h(5,8): message : 'State' 선언을 참조하십시오.
+  Engine.vcxproj -> D:\Git\4Q_Engine\4Q_PersonalEngine\4Q_GameEngine\x64\Debug\Engine.lib
