@@ -55,6 +55,9 @@
     <Filter Include="Manager\Render">
       <UniqueIdentifier>{5c804c77-1a81-4ac6-b6b2-b5722c1a96ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Render">
+      <UniqueIdentifier>{888dee73-ae54-48ec-8baa-86dde0443b97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -144,6 +147,9 @@
     <ClInclude Include="RenderManager.h">
       <Filter>Manager\Render</Filter>
     </ClInclude>
+    <ClInclude Include="RenderSystem.h">
+      <Filter>System\Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -181,6 +187,9 @@
     </ClCompile>
     <ClCompile Include="RenderManager.cpp">
       <Filter>Manager\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderSystem.cpp">
+      <Filter>System\Render</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

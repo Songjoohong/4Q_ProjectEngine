@@ -291,7 +291,7 @@ namespace ECS
 	/**
 	* A system that acts on entities. Generally, this will act on a subset of entities using World::each().
 	*
-	* Systems often will respond to events by subclassing EventSubscriber. You may use Configure() to subscribe to events,
+	* Systems often will respond to events by subclassing EventSubscriber. You may use Configure() to Subscribe to events,
 	* but remember to unsubscribe in unconfigure().
 	*/
 	class EntitySystem
@@ -327,8 +327,8 @@ namespace ECS
 	};
 
 	/**
-	* Subclass this as EventSubscriber<EventType> and then call World::subscribe() in order to subscribe to events. Make sure
-	* to call World::unsubscribe() or World::unsubscribeAll() when your subscriber is deleted!
+	* Subclass this as EventSubscriber<EventType> and then call World::Subscribe() in order to Subscribe to events. Make sure
+	* to call World::unsubscribe() or World::UnsubscribeAll() when your subscriber is deleted!
 	*/
 	template<typename T>
 	class EventSubscriber : public Internal::BaseEventSubscriber
@@ -691,7 +691,7 @@ namespace ECS
 		* Subscribe to an event.
 		*/
 		template<typename T>
-		void subscribe(EventSubscriber<T>* subscriber)
+		void Subscribe(EventSubscriber<T>* subscriber)
 		{
 			auto index = getTypeIndex<T>();
 			auto found = subscribers.find(index);
@@ -729,7 +729,7 @@ namespace ECS
 		/**
 		* Unsubscribe from all events. Don't be afraid of the void pointer, just pass in your subscriber as normal.
 		*/
-		void unsubscribeAll(void* subscriber)
+		void UnsubscribeAll(void* subscriber)
 		{
 			for (auto& kv : subscribers)
 			{

@@ -166,6 +166,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlayerInputSystem.h" />
     <ClInclude Include="RenderManager.h" />
+    <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="SampleScript.h" />
     <ClInclude Include="Script.h" />
@@ -191,6 +192,7 @@
     </ClCompile>
     <ClCompile Include="PlayerInputSystem.cpp" />
     <ClCompile Include="RenderManager.cpp" />
+    <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ScriptSystem.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="Vector3D.h" />

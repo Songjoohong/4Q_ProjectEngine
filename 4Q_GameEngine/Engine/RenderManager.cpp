@@ -13,12 +13,12 @@ void RenderManager::Initialize(HWND* hwnd, UINT width, UINT height)
 
 void RenderManager::Render()
 {
-	m_Renderer->Instance->Render();
+	Renderer::Instance->Render();
 }
 
-void RenderManager::AddStaticMesh(std::string filename, Vector3D pos, Vector3D rot)
+void RenderManager::AddStaticMesh(const std::string& fileName, Vector3D pos, Vector3D rot) const
 {
-	m_Renderer->Instance->AddStaticModel(filename);
+	Renderer::Instance->AddStaticModel(fileName);
 }
 
 

@@ -8,7 +8,9 @@
 #include "Script.h"
 #include "WorldManager.h"
 #include "IdleState.h"
+#include "RenderSystem.h"
 #include "SampleScript.h"
+#include "StaticMesh.h"
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 Engine::Engine(HINSTANCE hInstance)
@@ -56,15 +58,13 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
-	std::cout << std::is_standard_layout<Script>::value << std::endl;
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	// 시스템 초기화
 	TimeManager::GetInstance()->Initialize();
 	World* world = World::CreateWorld("");
+	EntitySystem* renderSystem = world->registerSystem(new RenderSystem());
 	Entity* ent = world->create();
-	auto state = ent->Assign<IdleState>(ent);
-	auto script = ent->Assign<SampleScript>(ent);
-	//std::cout << state->GetName() << std::endl;
+	ent->Assign<Component::StaticMesh>();
 	return true;
 }
 

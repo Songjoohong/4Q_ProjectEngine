@@ -12,14 +12,14 @@ class ScriptSystem : public EntitySystem,
 
 	virtual void Configure(World* world) override
 	{
-		world->subscribe<Events::OnEntityCreated>(this);
-		world->subscribe<Events::OnEntityDestroyed>(this);
+		world->Subscribe<Events::OnEntityCreated>(this);
+		world->Subscribe<Events::OnEntityDestroyed>(this);
 
 	}
 
 	virtual void Deconfigure(World* world) override
 	{
-		world->unsubscribeAll(this);
+		world->UnsubscribeAll(this);
 	}
 
 	virtual void Receive(class World* world, const Events::OnEntityCreated& event) override

@@ -13,12 +13,12 @@ class FSMSystem : public EntitySystem,
 
 	virtual void Configure(World* world) override
 	{
-		world->subscribe<Events::OnComponentAssigned<State>>(this);
+		world->Subscribe<Events::OnComponentAssigned<State>>(this);
 	}
 
 	virtual void Deconfigure(World* world) override
 	{
-		world->unsubscribeAll(this);
+		world->UnsubscribeAll(this);
 	}
 
 	virtual void Receive(World* world, const Events::OnComponentAssigned<State>& event) override

@@ -16,7 +16,7 @@ public:
 	
 	void Render();
 
-	void AddStaticMesh(std::string filename, Vector3D pos, Vector3D rot);
+	void AddStaticMesh(const std::string& fileName, Vector3D pos, Vector3D rot) const;
 
 private:
 	Renderer* m_Renderer;
