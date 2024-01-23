@@ -3,6 +3,7 @@
 
 class InputManager;
 class TimeManager;
+class RenderManager;
 constexpr int MAX_LOADSTRING = 100;
 
 class Engine
@@ -24,6 +25,7 @@ private:
 
 	std::unique_ptr<TimeManager> m_Time = nullptr;
 	InputManager* m_Input = nullptr;
+	RenderManager* m_Render = nullptr;
 public:
 	virtual bool Initialize(UINT width, UINT height);
 	virtual void Run();

@@ -4,6 +4,7 @@
 #include "BoxCollider.h"
 #include "TimeManager.h"
 #include "InputManager.h"
+#include "RenderManager.h"
 #include "Script.h"
 #include "WorldManager.h"
 #include "IdleState.h"
@@ -56,7 +57,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	UpdateWindow(m_hWnd);
 
 	std::cout << std::is_standard_layout<Script>::value << std::endl;
-
+	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	// 시스템 초기화
 	TimeManager::GetInstance()->Initialize();
 	World* world = World::CreateWorld("");
@@ -97,7 +98,7 @@ void Engine::Update()
 
 void Engine::Render()
 {
-
+	RenderManager::GetInstance()->Render();
 }
 
 
