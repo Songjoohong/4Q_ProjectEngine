@@ -5,7 +5,7 @@ using namespace ECS;
 class Script
 {
 public:
-	Script(ECS::Entity* owner)
+	explicit Script(ECS::Entity* owner)
 		: m_pOwner(owner)
 	{}
 	virtual ~Script() = default;

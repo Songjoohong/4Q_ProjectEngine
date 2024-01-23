@@ -12,7 +12,7 @@ namespace Component
 		std::unordered_map<const char*, State*> m_States;
 		void AddState(ECS::ComponentHandle<State> state)
 		{
-			m_States[state->m_Name] = &state.get();
+			m_States[state->GetName()] = &state.get();
 		}
 
 		void ChangeState(const char* stateName)

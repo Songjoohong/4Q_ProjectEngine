@@ -61,9 +61,9 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	TimeManager::GetInstance()->Initialize();
 	World* world = World::CreateWorld("");
 	Entity* ent = world->create();
-	auto state = ent->Assign<IdleState>();
+	auto state = ent->Assign<IdleState>(ent);
 	auto script = ent->Assign<SampleScript>(ent);
-	std::cout << state->m_Name << std::endl;
+	//std::cout << state->GetName() << std::endl;
 	return true;
 }
 

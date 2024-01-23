@@ -5,11 +5,15 @@
 struct IdleState : public State
 {
 	ECS_DECLARE_TYPE
+
+	explicit IdleState(Entity* ent)
+		: State(ent)
+	{}
 	virtual ~IdleState() override = default;
 
 	virtual void Enter() override
 	{
-		
+
 	}
 
 	virtual void Execute() override

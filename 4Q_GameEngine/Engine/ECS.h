@@ -80,7 +80,7 @@ SOFTWARE.
 // CODE //
 //////////////////////////////////////////////////////////////////////////
 
-struct Script;
+class Script;
 
 namespace ECS
 {
@@ -1125,11 +1125,9 @@ namespace ECS
 	template <typename T, typename ... Args> requires std::is_base_of_v<Script, T>
 	ComponentHandle<Script> Entity::Assign(Args&&... args)
 	{
-		static_assert(std::is_base_of<Script, T>::value, "Errors while running the AssignScript");
-
 		using ComponentAllocator = std::allocator_traits<World::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
 
-		auto found = components.find(getTypeIndex<Script>());
+		const auto found = components.find(getTypeIndex<Script>());
 		if (found != components.end())
 		{
 			Internal::ComponentContainer<T>* container = reinterpret_cast<Internal::ComponentContainer<T>*>(found->second);
@@ -1164,11 +1162,10 @@ namespace ECS
 		Internal::ComponentContainer<T>* container = std::allocator_traits<ComponentAllocator>::allocate(alloc, 1);
 		std::allocator_traits<ComponentAllocator>::construct(alloc, container, T(args...));
 
-		components.insert({ getTypeIndex<T>(), container });
+		components.insert({ getTypeIndex<State>(), container });
 
 		const auto handle = ComponentHandle<State>(&container->data);
-		handle->m_Name = typeid(decltype(container->data)).name();
-		std::cout << handle->m_Name << std::endl;
+		handle->SetName(typeid(decltype(container->data)).name());
 		world->emit<Events::OnComponentAssigned<State>>({ this, handle });
 		return handle;
 
