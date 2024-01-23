@@ -45,12 +45,12 @@ public:
 					{
 						if (collider->m_CurrentState == Component::CollisionState::NONE || collider->m_CurrentState == Component::CollisionState::EXIT)
 						{
-							entity->get<Component::Script>()->OnCollisionEnter();
+							entity->get<Script>()->OnCollisionEnter();
 							collider->m_CurrentState = Component::CollisionState::ENTER;
 						}
 						else
 						{
-							entity->get<Component::Script>()->OnCollisionStay();
+							entity->get<Script>()->OnCollisionStay();
 							collider->m_CurrentState = Component::CollisionState::STAY;
 						}
 					}
@@ -58,7 +58,7 @@ public:
 					{
 						if(collider->m_CurrentState == Component::CollisionState::ENTER || collider->m_CurrentState == Component::CollisionState::STAY)
 						{
-							entity->get<Component::Script>()->OnCollisionExit();
+							entity->get<Script>()->OnCollisionExit();
 							collider->m_CurrentState = Component::CollisionState::EXIT;
 						}
 						else

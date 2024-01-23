@@ -364,15 +364,15 @@ namespace ECS
 		{
 			ECS_DECLARE_TYPE
 
-			Entity* entity;
+				Entity* entity;
 		};
 
-		
+
 		struct EntityFixedUpdate
 		{
 			ECS_DECLARE_TYPE
 
-			Entity* entity;
+				Entity* entity;
 		};
 		// Called when a component is assigned (not necessarily created).
 		template<typename T>
@@ -468,8 +468,8 @@ namespace ECS
 		template<typename T, typename... Args> requires std::is_base_of_v<Script, T>
 		ComponentHandle<Script> Assign(Args&&... args);
 
-		template <typename T, typename ... Args> requires std::is_base_of_v<Component::State, T>
-		ComponentHandle<Component::State> Assign(Args&&... args);
+		template <typename T, typename ... Args> requires std::is_base_of_v<State, T>
+		ComponentHandle<State> Assign(Args&&... args);
 		/**
 		* Remove a component of a specific type. Returns whether a component was removed.
 		*/
@@ -564,7 +564,7 @@ namespace ECS
 		/**
 		* Use this function to construct the world with a custom allocator.
 		*/
-		static World* CreateWorld(Allocator alloc, std::string& fileName)
+		static World* CreateWorld(Allocator alloc, const char* fileName)
 		{
 			WorldAllocator worldAlloc(alloc);
 			World* world = std::allocator_traits<WorldAllocator>::allocate(worldAlloc, 1);
@@ -576,7 +576,7 @@ namespace ECS
 		/**
 		* Use this function to construct the world with the default allocator.
 		*/
-		static World* CreateWorld(std::string& fileName)
+		static World* CreateWorld(const char* fileName)
 		{
 			return CreateWorld(Allocator(), fileName);
 		}
@@ -1154,36 +1154,24 @@ namespace ECS
 		}
 	}
 
-	template <typename T, typename ... Args> requires std::is_base_of_v<Component::State, T>
-	ComponentHandle<Component::State> Entity::Assign(Args&&... args)
+	template <typename T, typename ... Args> requires std::is_base_of_v<State, T>
+	ComponentHandle<State> Entity::Assign(Args&&... args)
 	{
-		static_assert(std::is_base_of<Component::State, T>::value, "Errors while running the AssignState");
-
 		using ComponentAllocator = std::allocator_traits<World::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
 
-		auto found = components.find(getTypeIndex<Component::State>());
-		if (found != components.end())
-		{
-			Internal::ComponentContainer<T>* container = reinterpret_cast<Internal::ComponentContainer<T>*>(found->second);
-			container->data = T(args...);
+		ComponentAllocator alloc(world->getPrimaryAllocator());
 
-			const auto handle = ComponentHandle<Component::State>(&container->data);
-			world->emit<Events::OnComponentAssigned<Component::State>>({ this, handle });
-			return handle;
-		}
-		else
-		{
-			ComponentAllocator alloc(world->getPrimaryAllocator());
+		Internal::ComponentContainer<T>* container = std::allocator_traits<ComponentAllocator>::allocate(alloc, 1);
+		std::allocator_traits<ComponentAllocator>::construct(alloc, container, T(args...));
 
-			Internal::ComponentContainer<T>* container = std::allocator_traits<ComponentAllocator>::allocate(alloc, 1);
-			std::allocator_traits<ComponentAllocator>::construct(alloc, container, T(args...));
+		components.insert({ getTypeIndex<T>(), container });
 
-			components.insert({ getTypeIndex<Component::State>(), container });
+		const auto handle = ComponentHandle<State>(&container->data);
+		handle->m_Name = typeid(decltype(container->data)).name();
+		std::cout << handle->m_Name << std::endl;
+		world->emit<Events::OnComponentAssigned<State>>({ this, handle });
+		return handle;
 
-			const auto handle = ComponentHandle<Component::State>(&container->data);
-			world->emit<Events::OnComponentAssigned<Component::State>>({ this, handle });
-			return handle;
-		}
 	}
 
 	template<typename T>

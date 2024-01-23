@@ -14,7 +14,7 @@ private:
 public:
 	[[nodiscard]]ECS::World* GetCurrentWorld() const { return m_CurrentWorld; }
 
-	void Update(const float deltaTime) const { m_CurrentWorld->Tick(deltaTime); }
+	void Update(const float deltaTime) const {if(m_CurrentWorld != nullptr) m_CurrentWorld->Tick(deltaTime); }
 	void ChangeWorld(ECS::World* world);
 };
 

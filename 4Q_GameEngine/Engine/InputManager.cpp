@@ -4,8 +4,8 @@
 int VK_key[static_cast<int>(Key::KEY_END)] =
 {
 	VK_LBUTTON,
-	VK_RBUTTON,
 	VK_MBUTTON,
+	VK_RBUTTON,
 	VK_UP,
 	VK_DOWN,
 	'W',
@@ -107,51 +107,17 @@ bool InputManager::GetKeyUp(Key key) const
 
 bool InputManager::GetMouseButton(int key) const
 {
-	switch (key)
-	{
-	case 0:
-		return m_CurrentKeyState[LBUTTON].KeyState == KeyState::ENTER
-			|| m_CurrentKeyState[LBUTTON].KeyState == KeyState::STAY
-			|| m_CurrentKeyState[LBUTTON].KeyState == KeyState::EXIT;
-	case 1:
-		return m_CurrentKeyState[MBUTTON].KeyState == KeyState::ENTER
-			|| m_CurrentKeyState[MBUTTON].KeyState == KeyState::STAY
-			|| m_CurrentKeyState[MBUTTON].KeyState == KeyState::EXIT;
-	case 2:
-		return m_CurrentKeyState[RBUTTON].KeyState == KeyState::ENTER
-			|| m_CurrentKeyState[RBUTTON].KeyState == KeyState::STAY
-			|| m_CurrentKeyState[RBUTTON].KeyState == KeyState::EXIT;
-	default:
-		return false;
-	}
+	return m_CurrentKeyState[key].KeyState == KeyState::ENTER
+		|| m_CurrentKeyState[key].KeyState == KeyState::STAY
+		|| m_CurrentKeyState[key].KeyState == KeyState::EXIT;
 }
 
 bool InputManager::GetMouseButtonDown(int key) const
 {
-	switch (key)
-	{
-	case 0:
-		return m_CurrentKeyState[LBUTTON].KeyState == KeyState::ENTER;
-	case 1:
-		return m_CurrentKeyState[MBUTTON].KeyState == KeyState::ENTER;
-	case 2:
-		return m_CurrentKeyState[RBUTTON].KeyState == KeyState::ENTER;
-	default:
-		return false;
-	}
+	return m_CurrentKeyState[key].KeyState == KeyState::ENTER;
 }
 
 bool InputManager::GetMouseButtonUp(int key) const
 {
-	switch (key)
-	{
-	case 0:
-		return m_CurrentKeyState[LBUTTON].KeyState == KeyState::EXIT;
-	case 1:
-		return  m_CurrentKeyState[MBUTTON].KeyState == KeyState::EXIT;
-	case 2:
-		return  m_CurrentKeyState[RBUTTON].KeyState == KeyState::EXIT;
-	default:
-		return false;
-	}
+	return m_CurrentKeyState[key].KeyState == KeyState::EXIT;
 }

@@ -156,6 +156,7 @@
     <ClInclude Include="FSM.h" />
     <ClInclude Include="FSMSystem.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="IdleState.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="ISingleton.h" />
     <ClInclude Include="Light.h" />

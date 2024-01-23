@@ -7,13 +7,13 @@
 using namespace ECS;
 
 class FSMSystem : public EntitySystem,
-	public EventSubscriber<Events::OnComponentAssigned<Component::State>>
+	public EventSubscriber<Events::OnComponentAssigned<State>>
 {
 	virtual ~FSMSystem() override = default;
 
 	virtual void Configure(World* world) override
 	{
-		world->subscribe<Events::OnComponentAssigned<Component::State>>(this);
+		world->subscribe<Events::OnComponentAssigned<State>>(this);
 	}
 
 	virtual void Deconfigure(World* world) override
@@ -21,8 +21,10 @@ class FSMSystem : public EntitySystem,
 		world->unsubscribeAll(this);
 	}
 
-	virtual void Receive(World* world, const Events::OnComponentAssigned<Component::State>& event) override
+	virtual void Receive(World* world, const Events::OnComponentAssigned<State>& event) override
 	{
+		assert(event.entity->has<Component::FSM>());
+
 		const auto fsm = event.entity->get<Component::FSM>();
 		const auto state = event.component;
 		fsm->AddState(state);

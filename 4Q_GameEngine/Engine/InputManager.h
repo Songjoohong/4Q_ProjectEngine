@@ -6,8 +6,8 @@
 enum Key
 {
 	LBUTTON = 0,
-	RBUTTON,
 	MBUTTON,
+	RBUTTON,
 	UP,
 	DOWN,
 	W,

@@ -1,18 +1,16 @@
 #pragma once
 #include "ECS.h"
 
-namespace Component
+
+struct State
 {
-	struct State
-	{
-		//ECS_DECLARE_TYPE
+	
+	virtual ~State() = default;
 
-		virtual ~State() = default;
+	virtual void Enter() {}
+	virtual void Execute() {}
+	virtual void Exit() {}
 
-		virtual void Enter() {}
-		virtual void Execute() {}
-		virtual void Exit() {}
-	};
+	const char* m_Name = "";
+};
 
-	//ECS_DEFINE_TYPE(State)
-}
