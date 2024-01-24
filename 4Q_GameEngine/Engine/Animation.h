@@ -1,20 +1,17 @@
 #pragma once
 #include "ECS.h"
 
-namespace Component
+struct Animation
 {
-	struct Animation
-	{
-		ECS_DECLARE_TYPE
+	ECS_DECLARE_TYPE
 
-			Animation() {}
+	Animation() {}
 
-		std::string m_AnimationName = ""; // POD À§¹Ý
+	const char* m_AnimationName = "";
 
-		unsigned int m_AnimationIndex = 0;
-		unsigned int m_ProgressTime = 0;
-		bool m_IsRepeat = false;
-	};
+	unsigned int m_AnimationIndex = 0;
+	unsigned int m_ProgressTime = 0;
+	bool m_IsRepeat = false;
+};
 
-	ECS_DEFINE_TYPE(Animation)
-}
+ECS_DEFINE_TYPE(Animation)
