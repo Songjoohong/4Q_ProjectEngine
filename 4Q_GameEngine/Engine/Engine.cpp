@@ -10,6 +10,7 @@
 #include "IdleState.h"
 #include "RenderSystem.h"
 #include "SampleScript.h"
+#include "SoundManager.h"
 #include "StaticMesh.h"
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -58,13 +59,27 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
+	// 매니저 초기화
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
-	// 시스템 초기화
 	TimeManager::GetInstance()->Initialize();
+<<<<<<< Updated upstream
 	World* world = World::CreateWorld("");
 	EntitySystem* renderSystem = world->registerSystem(new RenderSystem());
 	Entity* ent = world->create();
 	ent->Assign<Component::StaticMesh>();
+=======
+	SoundManager::GetInstance()->Initialize();
+
+	//Test
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
+	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
+	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent->Assign<StaticMesh>();
+	ent->Assign<IdleState>(ent);
+
+	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);
+	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+>>>>>>> Stashed changes
 	return true;
 }
 
@@ -91,6 +106,7 @@ void Engine::Run()
 void Engine::Update()
 {
 	TimeManager::GetInstance()->Update();
+	SoundManager::GetInstance()->Update();
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
