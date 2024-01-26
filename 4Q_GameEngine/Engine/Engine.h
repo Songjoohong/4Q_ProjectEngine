@@ -12,8 +12,9 @@ public:
 	Engine(HINSTANCE hInstance);
 	virtual ~Engine();
 
-private:
+protected:
 	HWND m_hWnd;
+private:
 	HINSTANCE m_hInstance;
 	MSG m_Msg;
 	WCHAR m_szTitle[MAX_LOADSTRING];
@@ -23,7 +24,7 @@ private:
 	UINT m_ClientWidth;
 	UINT m_ClientHeight;
 
-	std::unique_ptr<TimeManager> m_Time = nullptr;
+	//std::unique_ptr<TimeManager> m_Time = nullptr;
 	InputManager* m_Input = nullptr;
 	RenderManager* m_Render = nullptr;
 public:
