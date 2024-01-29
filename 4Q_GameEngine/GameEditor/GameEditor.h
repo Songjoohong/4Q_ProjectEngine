@@ -1,6 +1,5 @@
 #pragma once
 #include "../Engine/Engine.h"
-
 class Renderer;
 class GameEditor : public Engine
 {
@@ -21,9 +20,8 @@ public:
 	void ShutDownImGui();
 
 	//Save/Load
-
-	//void SaveScene(const wstring& _strRelativePath);
-	//void LoadScene(const wstring& _strRelativePath);
+	void SaveScene(const std::wstring& _strRelativePath);
+	void LoadScene(const std::wstring& _strRelativePath);
 private:
 	Renderer* m_Renderer = nullptr;
 };

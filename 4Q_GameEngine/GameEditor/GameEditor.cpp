@@ -2,9 +2,6 @@
 #include "GameEditor.h"
 #include "framework.h"
 #include "../D3D_Graphics/D3D_Graphics.h"
-#include "nlohmann/adl_serializer.hpp"
-#include "nlohmann/json.hpp"
-#include "nlohmann/json_fwd.hpp"
 #include "Test.h"
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
@@ -32,6 +29,8 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	{
 		std::cout << a->GetName();
 	}
+
+	SaveScene(L"w");
 
 	if (!InitImGui())
 	{
@@ -150,6 +149,11 @@ void GameEditor::RenderImGui()
 					Close();
 				}
 
+				if (ImGui::MenuItem("Save"))
+				{
+					SaveScene(L"MyScene\\TestScene1");
+				}
+
 				ImGui::EndMenu();
 			}
 
@@ -198,21 +202,22 @@ void GameEditor::ShutDownImGui()
 	ImGui::DestroyContext();
 }
 
-//void GameEditor::SaveScene(const wstring& _strRelativePath)
-//{
-//	FILE* pFile = nullptr;
-//
-//	//_wfopen_s(&pFile, );
-//
-//	if (pFile == nullptr)
-//	{
-//		assert(pFile, "Scene File이 로드되지 않았습니다");
-//	}
-//
-//	fclose(pFile);
-//}
-//
-//void GameEditor::LoadScene(const wstring& _strRelativePath)
-//{
-//
-//}
+void GameEditor::SaveScene(const std::wstring& _strRelativePath)
+{
+	std::wstring basePath = L"C:\\Users\\user\\Documents\\GitHub\\4Q_ProjectEngine\\4Q_GameEngine\\Test\\";
+
+	std::wstring fullPath = basePath + _strRelativePath;
+
+	FILE* pFile = nullptr;
+
+	_wfopen_s(&pFile, fullPath.c_str(), L"w");
+
+	assert(pFile != nullptr && "Scene File이 로드되지 않았습니다");
+
+	fclose(pFile);
+}
+
+void GameEditor::LoadScene(const std::wstring& _strRelativePath)
+{
+
+}
