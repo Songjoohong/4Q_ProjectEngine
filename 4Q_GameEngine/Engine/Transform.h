@@ -3,24 +3,22 @@
 #include "ECS.h"
 #include "Vector3D.h"
 
-namespace Component
+struct Transform
 {
-	struct Transform
+	ECS_DECLARE_TYPE
+
+		Transform() = default;
+	explicit Transform(const Vector3D xyz_Position, const Vector3D xyz_Rotation = { 0.f, 0.f, 0.f }, const Vector3D xyz_Scale = { 1.f, 1.f, 1.f })
+		: m_Position(xyz_Position)
+		, m_Rotation(xyz_Rotation)
+		, m_Scale(xyz_Scale)
 	{
-		ECS_DECLARE_TYPE
+	}
 
-			Transform() = default;
-		explicit Transform(const Vector3D xyz_Position, const Vector3D xyz_Rotation = { 0.f, 0.f, 0.f }, const Vector3D xyz_Scale = { 1.f, 1.f, 1.f })
-			: m_Position(xyz_Position)
-			, m_Rotation(xyz_Rotation)
-			, m_Scale(xyz_Scale)
-		{
-		}
+	Vector3D m_Position;
+	Vector3D m_Rotation;
+	Vector3D m_Scale;
+};
 
-		Vector3D m_Position;
-		Vector3D m_Rotation;
-		Vector3D m_Scale;
-	};
+ECS_DEFINE_TYPE(Transform)
 
-	ECS_DEFINE_TYPE(Transform)
-}

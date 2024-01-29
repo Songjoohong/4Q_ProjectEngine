@@ -1165,8 +1165,8 @@ namespace ECS
 		components.insert({ getTypeIndex<State>(), container });
 
 		const auto handle = ComponentHandle<State>(&container->data);
-		handle->SetName(typeid(decltype(container->data)).name());
-		world->emit<Events::OnComponentAssigned<State>>({ this, handle });
+		handle->SetName(typeid(decltype(container->data)).name() + 7);
+   		world->emit<Events::OnComponentAssigned<State>>({ this, handle });
 		return handle;
 
 	}

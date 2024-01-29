@@ -1,7 +1,7 @@
 #pragma once
 #include "ECS.h"
-#include "FSM.h"
 
+#include "FSM.h"
 #include "State.h"
 
 using namespace ECS;
@@ -23,16 +23,19 @@ class FSMSystem : public EntitySystem,
 
 	virtual void Receive(World* world, const Events::OnComponentAssigned<State>& event) override
 	{
-		assert(event.entity->has<Component::FSM>());
+		assert(event.entity->has< FSM>());
 
-		const auto fsm = event.entity->get<Component::FSM>();
+		const auto fsm = event.entity->get< FSM>();
 		const auto state = event.component;
 		fsm->AddState(state);
 	}
 
 	virtual void Tick(World* world, DefaultTickData data) override
 	{
-		
+		world->each<FSM>([&](Entity* ent, ComponentHandle<FSM> fsm)->void
+			{
+				fsm->m_CurrentState->Execute();
+			});
 	}
 
 

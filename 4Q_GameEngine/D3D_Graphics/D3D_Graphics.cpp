@@ -65,9 +65,7 @@ void Renderer::StaticModelRender()
     for (auto staticModel : m_pStaticModels)
     {
         staticModel->Render();
-        delete staticModel;
     }
-    m_pStaticModels.clear();
 }
 
 void Renderer::Render()
