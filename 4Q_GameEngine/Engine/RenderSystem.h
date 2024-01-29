@@ -4,8 +4,8 @@
 #include "StaticMesh.h"
 
 class RenderSystem : public ECS::EntitySystem,
-	public ECS::EventSubscriber<ECS::Events::OnComponentAssigned<Component::StaticMesh>>,
-	public ECS::EventSubscriber<ECS::Events::OnComponentAssigned<Component::SkinnedMesh>>
+	public ECS::EventSubscriber<ECS::Events::OnComponentAssigned<StaticMesh>>,
+	public ECS::EventSubscriber<ECS::Events::OnComponentAssigned<SkinnedMesh>>
 {
 public:
 	virtual ~RenderSystem() override = default;
@@ -15,7 +15,7 @@ public:
 
 	virtual void Tick(ECS::World* world, ECS::DefaultTickData data) override;
 
-	virtual void Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<Component::SkinnedMesh>& event) override;
-	virtual void Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<Component::StaticMesh>& event) override;
+	virtual void Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<SkinnedMesh>& event) override;
+	virtual void Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<StaticMesh>& event) override;
 };
 

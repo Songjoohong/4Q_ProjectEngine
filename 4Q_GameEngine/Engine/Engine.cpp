@@ -62,12 +62,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	// 매니저 초기화
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
-<<<<<<< Updated upstream
-	World* world = World::CreateWorld("");
-	EntitySystem* renderSystem = world->registerSystem(new RenderSystem());
-	Entity* ent = world->create();
-	ent->Assign<Component::StaticMesh>();
-=======
 	SoundManager::GetInstance()->Initialize();
 
 	//Test
@@ -79,7 +73,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
->>>>>>> Stashed changes
+
 	return true;
 }
 
