@@ -1,11 +1,9 @@
 #pragma once
-#include "RigidInstance.h"
 
 using namespace physx;
 
 class Model;
 class DynamicRigidInstance
-	:public RigidInstance
 {
 public:
 	DynamicRigidInstance()=default;

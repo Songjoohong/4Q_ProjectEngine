@@ -25,8 +25,6 @@ public:
 
 	Physics* GetInstance();
 	void StepPhysics();
-	void AddStaticActor(Model* model);
-	void AddDynamicActor(Model* model);
 
 private:
 	vector<StaticRigidInstance*> m_StaticRigidInstances;

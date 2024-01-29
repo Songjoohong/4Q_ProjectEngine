@@ -53,12 +53,3 @@ void Physics::StepPhysics()
 	m_pScene->simulate(1.f / 60.f);
 	m_pScene->fetchResults(true);
 }
-
-void Physics::AddStaticActor(Model* model)
-{
-	
-}
-
-void Physics::AddDynamicActor(Model* model)
-{
-}
