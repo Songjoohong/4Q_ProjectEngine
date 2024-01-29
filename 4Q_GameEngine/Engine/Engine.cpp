@@ -11,6 +11,14 @@
 #include "RenderSystem.h"
 #include "SampleScript.h"
 #include "StaticMesh.h"
+#include "imgui.h"
+
+#define ENGINE_DEBUG
+
+#ifdef ENGINE_DEBUG
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#endif
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 Engine::Engine(HINSTANCE hInstance)
@@ -31,6 +39,7 @@ Engine::Engine(HINSTANCE hInstance)
 	m_Wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	m_Wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
 	m_Wcex.lpszClassName = m_szWindowClass;
+	m_bIsRunning = true;
 }
 
 Engine::~Engine()
@@ -72,7 +81,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 void Engine::Run()
 {
-	while(TRUE)
+	while(m_bIsRunning)
 	{
 		if(PeekMessage(&m_Msg, nullptr, 0, 0, PM_REMOVE))
 		{
@@ -103,9 +112,17 @@ void Engine::Render()
 	RenderManager::GetInstance()->Render();
 }
 
+void Engine::Close()
+{
+	m_bIsRunning = false;
+}
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
 	switch (message)
 	{
 	case WM_DESTROY:

@@ -26,5 +26,5 @@ void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssi
 
 void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned< StaticMesh>& event)
 {
-	RenderManager::GetInstance()->AddStaticMesh("FBXLoad_Test/fbx/box.fbx", Vector3D(0.f, 0.f, 100.f), Vector3D(0.f, 0.f, 0.f));
+	RenderManager::GetInstance()->AddStaticMesh("FBXLoad_Test/fbx/zeldaPosed001.fbx", Vector3D(0.f, 0.f, 100.f), Vector3D(0.f, 0.f, 0.f));
 }
