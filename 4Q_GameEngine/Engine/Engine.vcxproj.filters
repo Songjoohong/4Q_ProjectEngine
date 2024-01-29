@@ -22,9 +22,6 @@
     <Filter Include="Component">
       <UniqueIdentifier>{7d6c694d-e54f-4ec7-945c-e68e12bdf4f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="System\Input">
-      <UniqueIdentifier>{f02e9943-7d0b-421d-9527-d7ee6cb04985}</UniqueIdentifier>
-    </Filter>
     <Filter Include="System\Movement">
       <UniqueIdentifier>{6d314a24-c87e-4376-b3ca-aeb76cf73a7c}</UniqueIdentifier>
     </Filter>
@@ -58,6 +55,12 @@
     <Filter Include="System\Render">
       <UniqueIdentifier>{888dee73-ae54-48ec-8baa-86dde0443b97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Manager\PhysX">
+      <UniqueIdentifier>{a47efb48-6871-42ce-8ad3-71c25ad602d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\FSM\Input">
+      <UniqueIdentifier>{f02e9943-7d0b-421d-9527-d7ee6cb04985}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -88,7 +91,7 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="PlayerInputSystem.h">
-      <Filter>System\Input</Filter>
+      <Filter>System\FSM\Input</Filter>
     </ClInclude>
     <ClInclude Include="MovementSystem.h">
       <Filter>System\Movement</Filter>
@@ -150,6 +153,9 @@
     <ClInclude Include="RenderSystem.h">
       <Filter>System\Render</Filter>
     </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Manager\PhysX</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -159,7 +165,7 @@
       <Filter>헤더 파일</Filter>
     </ClCompile>
     <ClCompile Include="PlayerInputSystem.cpp">
-      <Filter>System\Input</Filter>
+      <Filter>System\FSM\Input</Filter>
     </ClCompile>
     <ClCompile Include="MovementSystem.cpp">
       <Filter>System\Movement</Filter>
@@ -190,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
       <Filter>System\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Manager\PhysX</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

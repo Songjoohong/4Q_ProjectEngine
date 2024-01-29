@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include "ISingleton.h"
 
 #define Input InputManager::GetInstance()

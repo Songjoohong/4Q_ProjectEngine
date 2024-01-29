@@ -14,5 +14,5 @@
 #include <vector>
 
 #include "framework.h"
-
+#include "PxPhysicsAPI.h"
 #endif //PCH_H
