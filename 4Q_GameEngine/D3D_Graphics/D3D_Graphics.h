@@ -71,6 +71,7 @@ public:
 
 	void StaticModelRender();
 	void Render();
+	void RenderEnd();
 private:
 	string BasePath = "../Resource/";
 };

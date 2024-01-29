@@ -72,6 +72,7 @@ void Renderer::StaticModelRender()
 
 void Renderer::Render()
 {
+    Clear();
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     SetCamera();
     if(!m_pViewBuffer)
@@ -93,6 +94,11 @@ void Renderer::Render()
     m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     StaticModelRender();
+   
+}
+
+void Renderer::RenderEnd()
+{
     m_pSwapChain->Present(0, 0);
 }
 

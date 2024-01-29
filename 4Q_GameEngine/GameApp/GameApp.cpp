@@ -18,7 +18,6 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-
 	return true;
 }
 

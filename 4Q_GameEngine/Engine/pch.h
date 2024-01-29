@@ -15,4 +15,5 @@
 
 #include "framework.h"
 
+#include "nlohmann/json.hpp"
 #endif //PCH_H

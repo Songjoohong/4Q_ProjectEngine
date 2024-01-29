@@ -11,4 +11,8 @@
 #include "framework.h"
 #include <string>
 #include <vector>
+#include <iostream>
+#include <filesystem>
+#include "nlohmann/json.hpp"
+
 #endif //PCH_H

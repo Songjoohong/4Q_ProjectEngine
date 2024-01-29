@@ -14,8 +14,16 @@ public:
 	virtual void Render();
 
 	//ImGui
-
 	bool InitImGui();
+	void BeginRenderImGui();
+	void RenderImGui();
+	void EndRenderImGui();
+	void ShutDownImGui();
+
+	//Save/Load
+
+	//void SaveScene(const wstring& _strRelativePath);
+	//void LoadScene(const wstring& _strRelativePath);
 private:
-	Renderer* m_Renderer;
+	Renderer* m_Renderer = nullptr;
 };
