@@ -7,7 +7,6 @@ void RenderSystem::Configure(ECS::World* world)
 {
 	world->Subscribe<ECS::Events::OnComponentAssigned<StaticMesh>>(this);
 	world->Subscribe<ECS::Events::OnComponentAssigned<SkinnedMesh>>(this);
-n
 }
 
 void RenderSystem::Deconfigure(ECS::World* world)

@@ -163,7 +163,7 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="SoundSystem.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>System\Sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -210,7 +210,7 @@
       <Filter>Manager\Sound</Filter>
     </ClCompile>
     <ClCompile Include="SoundSystem.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>System\Sound</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
