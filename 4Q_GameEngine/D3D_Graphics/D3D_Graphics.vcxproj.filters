@@ -25,9 +25,6 @@
     <Filter Include="Model\Mesh\SkeletalMesh">
       <UniqueIdentifier>{6b874a8c-352b-4da3-9705-e2f9228e65ee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Model\Mesh\Instance">
-      <UniqueIdentifier>{7607cfd5-5dc5-42d9-b4ac-a82a001515a0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Model\Material">
       <UniqueIdentifier>{b22e442d-ac23-4d11-a2f7-5f77db39ce46}</UniqueIdentifier>
     </Filter>

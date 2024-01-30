@@ -5,8 +5,14 @@
 class StaticMeshResource;
 class StaticModel;
 class Material;
+class StaticMeshInstance;
 
 const size_t BUFFER_SIZE = 2;
+
+struct cbWorld
+{
+	Math::Matrix mWorld;
+};
 
 struct cbView
 {
@@ -35,10 +41,17 @@ public:
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
 
+	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
 	
-	list<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
+	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
+
+	list<StaticMeshInstance*>m_pMeshInstance;	//렌더링 할 메쉬 인스턴스 리스트
+
+	//월드 행렬
+	Math::Matrix m_worldMatrix;
+	cbWorld m_worldMatrixCB;
 
 	//카메라 행렬
 	Math::Vector3 m_cameraPos, m_cameraEye, m_cameraUp;
@@ -61,16 +74,30 @@ public:
 	void SetPath(string filePath) { BasePath = filePath; }
 	string GetPath() { return BasePath; }
 
+	//빈 모델에 정보 입력
+	void AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale);
+
+	//메쉬 인스턴스 렌더큐에 추가
+	void AddMeshInstance(StaticModel* model);
+	
 	//모델 만들어서 모델 리스트에 추가
+	void CreateModel(string filename);
+
+
+
 	StaticModel* LoadStaticModel(string filename);
-	void AddStaticModel(string filename);
 
 	void SetCamera(Math::Vector3 position={0,0,-100},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
 
 	void ApplyMaterial(Material* pMaterial);
 
-	void StaticModelRender();
+	void MeshRender();
+
+	
+
+	void RenderBegin();
 	void Render();
+	void RenderEnd();
 private:
 	string BasePath = "../Resource/";
 };

@@ -161,6 +161,7 @@ StyleCopReport.xml
 *.scc
 *.idb
 *.cso
+
 # Chutzpah Test files
 _Chutzpah*
 

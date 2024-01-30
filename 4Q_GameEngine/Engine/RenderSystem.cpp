@@ -1,7 +1,12 @@
 #include "pch.h"
+#include "ECS.h"
 #include "RenderSystem.h"
+#include "StaticMesh.h"
+#include "Transform.h"
 
 #include "RenderManager.h"
+
+using namespace ECS;
 
 void RenderSystem::Configure(ECS::World* world)
 {
@@ -27,5 +32,5 @@ void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssi
 void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<StaticMesh>& event)
 
 {
-	RenderManager::GetInstance()->AddStaticMesh("FBXLoad_Test/fbx/box.fbx", Vector3D(0.f, 0.f, 100.f), Vector3D(0.f, 0.f, 0.f));
+	
 }

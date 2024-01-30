@@ -64,6 +64,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
 
+
 	//Test
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
@@ -74,6 +75,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
   
+
 	return true;
 }
 
@@ -104,6 +106,9 @@ void Engine::Update()
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
+
+	RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
+
 	if (InputManager::GetInstance()->GetMouseButtonDown(0))
 	{
 		SoundManager::GetInstance()->RemoveChannel("better-day-186374.mp3");
@@ -112,11 +117,14 @@ void Engine::Update()
 	{
 		SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
 	}
+
 }
 
 void Engine::Render()
 {
+	RenderManager::GetInstance()->RenderBegin();
 	RenderManager::GetInstance()->Render();
+	RenderManager::GetInstance()->RenderEnd();
 }
 
 
