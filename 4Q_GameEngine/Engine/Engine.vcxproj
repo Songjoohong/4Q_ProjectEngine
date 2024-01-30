@@ -157,7 +157,9 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="CollisionSystem.h" />
+    <ClInclude Include="DynamicCollider.h" />
     <ClInclude Include="ECS.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FSM.h" />
@@ -181,13 +183,16 @@
     <ClInclude Include="ScriptSystem.h" />
     <ClInclude Include="SkinnedMesh.h" />
     <ClInclude Include="State.h" />
+    <ClInclude Include="StaticCollider.h" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />
+    <ClCompile Include="DynamicCollider.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FSMSystem.cpp" />
     <ClCompile Include="InputManager.cpp" />
@@ -203,6 +208,7 @@
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ScriptSystem.cpp" />
+    <ClCompile Include="StaticCollider.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="Vector3D.h" />
     <ClCompile Include="WorldManager.cpp" />

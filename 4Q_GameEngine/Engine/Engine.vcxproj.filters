@@ -61,6 +61,9 @@
     <Filter Include="System\FSM\Input">
       <UniqueIdentifier>{f02e9943-7d0b-421d-9527-d7ee6cb04985}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Instance">
+      <UniqueIdentifier>{90bc4681-c72e-488d-b165-2ed7780ac434}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -156,6 +159,15 @@
     <ClInclude Include="PhysicsManager.h">
       <Filter>Manager\PhysX</Filter>
     </ClInclude>
+    <ClInclude Include="StaticCollider.h">
+      <Filter>Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicCollider.h">
+      <Filter>Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Instance</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -199,6 +211,15 @@
     </ClCompile>
     <ClCompile Include="PhysicsManager.cpp">
       <Filter>Manager\PhysX</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticCollider.cpp">
+      <Filter>Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicCollider.cpp">
+      <Filter>Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Instance</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

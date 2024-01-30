@@ -15,7 +15,7 @@ namespace Component
 	{
 		ECS_DECLARE_TYPE
 
-			BoxCollider() = default;
+		BoxCollider() = default;
 
 		CollisionState m_CurrentState = CollisionState::NONE;
 		Vector3D m_Center = { 0.f,0.f,0.f };
