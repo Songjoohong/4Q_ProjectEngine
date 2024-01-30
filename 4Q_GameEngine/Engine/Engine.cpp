@@ -66,6 +66,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
+	ent->Assign<Transform>();
 	ent->Assign<IdleState>(ent);
 	return true;
 }
@@ -96,11 +97,14 @@ void Engine::Update()
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
+	RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
 }
 
 void Engine::Render()
 {
+	RenderManager::GetInstance()->RenderBegin();
 	RenderManager::GetInstance()->Render();
+	RenderManager::GetInstance()->RenderEnd();
 }
 
 

@@ -5,7 +5,6 @@
 
 StaticModel::~StaticModel()
 {
-	 int a = 0; 
 }
 
 void StaticModel::SetSceneResource(shared_ptr<StaticSceneResource> sceneResource)
@@ -32,28 +31,17 @@ bool StaticModel::Load(string filename)
 	return true;
 }
 
+void StaticModel::MeshInstancePushBack()
+{
+	for (auto mesh : m_meshInstance)
+	{
+		Renderer::Instance->m_pMeshInstance.push_back(&mesh);
+	}
+}
+
 void StaticModel::RenderInit()
 {
 	m_meshInstance[0].Initialize();
 }
 
-void StaticModel::Render()
-{
-	Material* pPrevMaterial = nullptr;
-	for (auto it : m_meshInstance)
-	{
-		if (pPrevMaterial != it.m_pMaterial)
-		{
-			Renderer::Instance->m_pDeviceContext->PSSetShader(it.m_pMaterial->m_pixelShader.m_pPixelShader.Get(), nullptr, 0);
-			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 
-			Renderer::Instance->ApplyMaterial(it.m_pMaterial);	// 머터리얼 적용
-			pPrevMaterial = it.m_pMaterial;
-		}
-
-		it.m_worldTransfromCB.worldTransform = m_worldTransform.Transpose();
-
-
-		it.Render(Renderer::Instance->m_pDeviceContext.Get());
-	}
-}

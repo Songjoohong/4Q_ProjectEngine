@@ -28,6 +28,52 @@ void Renderer::Clear(Math::Vector3 color)
     m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
+void Renderer::AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale)
+{
+    Vector4 quaternion = Math::Quaternion::CreateFromYawPitchRoll(rot);
+    Math::Matrix worldTM = Math::Matrix::CreateScale(scale) * Math::Matrix::CreateFromQuaternion(quaternion) * Math::Matrix::CreateTranslation(pos);
+    for (auto& model : m_pStaticModels)
+    {
+        if (nullptr == model->GetSceneResource())
+        {
+            model->m_worldTransform = worldTM;
+            model->Load(filename);
+            break;
+        }
+        AddMeshInstance(model);
+    }
+}
+
+void Renderer::AddMeshInstance(StaticModel* model)
+{
+    for (auto& mesh : model->m_meshInstance)
+    {
+        m_pMeshInstance.push_back(&mesh);
+    }
+}
+
+void Renderer::CreateModel(string filename)
+{
+    ResourceManager::Instance->CreateModel(filename);
+    StaticModel* pModel = new StaticModel();
+    m_pStaticModels.push_back(pModel);
+}
+
+void Renderer::StaticMeshRender()
+{
+    for (const auto& mesh : m_pMeshInstance)
+    {
+        Renderer::Instance->m_pDeviceContext->PSSetShader(mesh->m_pMaterial->m_pixelShader.m_pPixelShader.Get(), nullptr, 0);
+        Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+
+        Renderer::Instance->ApplyMaterial(mesh->m_pMaterial);	// 머터리얼 적용
+        m_worldMatrixCB.mWorld = mesh->m_pNodeWorldTransform->Transpose();
+        m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+        mesh->Render(Renderer::Instance->m_pDeviceContext.Get());
+    }
+    
+}
+
 StaticModel* Renderer::LoadStaticModel(string filename)
 {
     StaticModel* staticModel = new StaticModel();
@@ -60,27 +106,41 @@ void Renderer::ApplyMaterial(Material* pMaterial)
         m_pDeviceContext->PSSetShaderResources(6, 1, pMaterial->m_pRoughnessRV->m_pTextureRV.GetAddressOf());
 }
 
-void Renderer::StaticModelRender()
+void Renderer::MeshRender()
 {
-    for (auto staticModel : m_pStaticModels)
+    m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+    
+    Material* pPrevMaterial = nullptr;
+    for (auto it : m_pMeshInstance)
     {
-        staticModel->Render();
+        if (pPrevMaterial != it->m_pMaterial)
+        {
+            Renderer::Instance->m_pDeviceContext->PSSetShader(it->m_pMaterial->m_pixelShader.m_pPixelShader.Get(), nullptr, 0);
+            Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+
+            Renderer::Instance->ApplyMaterial(it->m_pMaterial);	// 머터리얼 적용
+            pPrevMaterial = it->m_pMaterial;
+        }
+        m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
+        m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+        it->Render(Renderer::Instance->m_pDeviceContext.Get());
+        //delete it;
     }
+    
+}
+
+
+void Renderer::RenderBegin()
+
+{
+    Clear();
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Renderer::Render()
 {
-    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    SetCamera();
-    if(!m_pViewBuffer)
-    {
-        D3D11_BUFFER_DESC bd = {};
-        bd.Usage = D3D11_USAGE_DEFAULT;
-        bd.ByteWidth = sizeof(cbView);
-        bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        bd.CPUAccessFlags = 0;
-        HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pViewBuffer));
-    }
     
     m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
 
@@ -90,14 +150,17 @@ void Renderer::Render()
 
     m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
-    StaticModelRender();
-    m_pSwapChain->Present(0, 0);
+    MeshRender();
+    //m_pMeshInstance.clear();
 }
 
-void Renderer::AddStaticModel(string filename)
+void Renderer::RenderEnd()
 {
-    m_pStaticModels.push_back(LoadStaticModel(filename));
+    m_pSwapChain->Present(0, 0);
+    m_pMeshInstance.clear();
 }
+
+
 
 void Renderer::SetCamera(Math::Vector3 position, Math::Vector3 eye, Math::Vector3 up)
 {
@@ -196,6 +259,26 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     viewport.MinDepth = 0.f;
     viewport.MaxDepth = 1.f;
     m_pDeviceContext->RSSetViewports(1, &viewport);
+
+    //월드 상수버퍼
+    D3D11_BUFFER_DESC worldbd;
+    worldbd.Usage = D3D11_USAGE_DEFAULT;
+    worldbd.ByteWidth = static_cast<UINT>(sizeof(Math::Matrix));
+    worldbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    worldbd.CPUAccessFlags = 0;
+    worldbd.MiscFlags = 0;
+
+    HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&worldbd, nullptr, &m_pWorldBuffer));
+
+    //뷰 상수버퍼
+    D3D11_BUFFER_DESC viewbd;
+    viewbd.Usage = D3D11_USAGE_DEFAULT;
+    viewbd.ByteWidth = static_cast<UINT>(sizeof(Math::Matrix));
+    viewbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    viewbd.CPUAccessFlags = 0;
+    viewbd.MiscFlags = 0;
+
+    HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&viewbd, nullptr, &m_pViewBuffer));
 
     //프로젝션 상수버퍼
     D3D11_BUFFER_DESC bd = {};

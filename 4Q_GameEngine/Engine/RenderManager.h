@@ -13,10 +13,21 @@ public:
 
 public:
 	void Initialize(HWND* hwnd,UINT width,UINT height);
-	
-	void Render();
 
-	void AddStaticMesh(const std::string& fileName, Vector3D pos, Vector3D rot) const;
+	void RenderBegin();
+	void Render();
+	void RenderEnd();
+
+	void CreateModel(std::string filename);
+
+	void AddStaticMesh(const std::string& fileName, Vector3D& pos, Vector3D& rot, Vector3D& scale) const;
+
+	void SetBasePath(std::string filePath);
+
+	void SetCameraPos(Vector3D pos, Vector3D rot);
+
+	void SetCameraPos(Vector3D pos, Vector3D eye, Vector3D up);
+	
 
 private:
 	Renderer* m_Renderer;
