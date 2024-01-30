@@ -9,13 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="소스 파일\ImGui">
-      <UniqueIdentifier>{0ec93f5f-c359-4e10-a5c0-00eb1830428a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="소스 파일\Reflection">
       <UniqueIdentifier>{9567da2c-a2c6-4e46-9d3b-3daa42ad0eb0}</UniqueIdentifier>
     </Filter>
@@ -27,6 +20,12 @@
     </Filter>
     <Filter Include="소스 파일\Reflection\TypeInfo">
       <UniqueIdentifier>{f597cdf4-d809-46f9-964b-5ca8055de1d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Panels">
+      <UniqueIdentifier>{b5103d3b-87ae-4af1-a322-d5280842eb18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\ImGui">
+      <UniqueIdentifier>{0ec93f5f-c359-4e10-a5c0-00eb1830428a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +65,9 @@
     <ClInclude Include="TypeInfo.h">
       <Filter>소스 파일\Reflection\TypeInfo</Filter>
     </ClInclude>
+    <ClInclude Include="SceneHierarchyPanel.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameEditor.cpp">
@@ -97,6 +99,9 @@
     </ClCompile>
     <ClCompile Include="TypeInfo.cpp">
       <Filter>소스 파일\Reflection\TypeInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneHierarchyPanel.cpp">
+      <Filter>Panels</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
