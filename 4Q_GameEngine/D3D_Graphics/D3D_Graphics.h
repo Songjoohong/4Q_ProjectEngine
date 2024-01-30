@@ -2,6 +2,7 @@
 #include "pch.h"
 
 
+class RenderTextureClass;
 class StaticMeshResource;
 class StaticModel;
 class Material;
@@ -34,6 +35,8 @@ public:
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//·»´õ Å¸°Ù ºä
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//µª½º ½ºÅÙ½Ç ºä
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//»ùÇÃ·¯
+
+	RenderTextureClass* m_RenderTexture = nullptr;	// ¼ö¹Î Ãß°¡.
 
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
@@ -71,6 +74,8 @@ public:
 
 	void StaticModelRender();
 	void Render();
+	void RenderScene();	// ¼ö¹Î
+	void RenderToTexture();	// ¼ö¹Î
 	void RenderEnd();
 private:
 	string BasePath = "../Resource/";

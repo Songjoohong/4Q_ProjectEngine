@@ -3,6 +3,7 @@
 #include "StaticMeshResource.h"
 #include "ResourceManager.h"
 #include "StaticModel.h"
+#include "RenderTextureClass.h"
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -70,10 +71,22 @@ void Renderer::StaticModelRender()
 
 void Renderer::Render()
 {
+    // 전체 장면을 먼저 텍스처로 렌더링합니다.
+    RenderToTexture();
+
+    // 씬을 그리기 위해 버퍼를 지웁니다
+    Clear();
+
+    // 백 버퍼의 장면을 정상적으로 렌더링합니다.
+    RenderScene();
+}
+
+void Renderer::RenderScene()
+{
     Clear();
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     SetCamera();
-    if(!m_pViewBuffer)
+    if (!m_pViewBuffer)
     {
         D3D11_BUFFER_DESC bd = {};
         bd.Usage = D3D11_USAGE_DEFAULT;
@@ -82,17 +95,31 @@ void Renderer::Render()
         bd.CPUAccessFlags = 0;
         HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pViewBuffer));
     }
-    
+
     m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
 
     m_viewMatrixCB.mView = m_viewMatrix.Transpose();
-    
+
     m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
 
     m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     StaticModelRender();
-   
+}
+
+void Renderer::RenderToTexture()
+{
+    // 렌더링 대상을 렌더링에 맞게 설정합니다.
+    m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
+
+    // 렌더링을 텍스처에 지웁니다.
+    m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.0f, 0.0f, 1.0f, 1.0f);
+
+    // 이제 장면을 렌더링하면 백 버퍼 대신 텍스처로 렌더링됩니다.
+    RenderScene();
+
+    // 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 }
 
 void Renderer::RenderEnd()
@@ -220,6 +247,10 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
+
+    // 수민
+    m_RenderTexture = new RenderTextureClass;
+    m_RenderTexture->Initialize(m_pDevice.Get(), Width, Height);
 
     return true;
 }

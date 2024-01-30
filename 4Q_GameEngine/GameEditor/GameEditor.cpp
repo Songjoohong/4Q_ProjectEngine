@@ -6,6 +6,8 @@
 #include "nlohmann/json.hpp"
 #include "nlohmann/json_fwd.hpp"
 #include "Test.h"
+#include "../D3D_Graphics/RenderTextureClass.h"
+
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
 {
@@ -161,9 +163,15 @@ void GameEditor::RenderImGui()
 
 		ImGui::End();
 
-		ImGui::Begin("Test");
-		//ImGui::Image((void*)D3DRenderer::GetInstance()->shaderResourceView, ImVec2 { 256.0f, 256.0f });
+		/* Viewport ------------------------ */
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
+		ImGui::Begin("Viewport");
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
+		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
 		ImGui::End();
+		ImGui::PopStyleVar();
+
 	}
 	else
 	{
