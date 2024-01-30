@@ -8,9 +8,10 @@ namespace ECS
 	class Entity;
 }
 
-struct State
+class State
 {
-	State(ECS::Entity* ent)
+public:
+	explicit State(ECS::Entity* ent)
 		: m_pOwner(ent)
 	{}
 	virtual ~State() = default;

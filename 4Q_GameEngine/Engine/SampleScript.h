@@ -11,8 +11,10 @@ public:
 
 	virtual void Update() override
 	{
-		Entity* owner = GetOwner(); // ÀÌ ½ºÅ©¸³Æ®ÀÇ ¿£Æ¼Æ¼¸¦ °¡¸®Å´
-		World* world = GetOwner()->getWorld(); // ¿£Æ¼Æ¼ÀÇ ¿ùµå
-		ComponentHandle<Transform> transformComponent = owner->get<Transform>(); // ¿£Æ¼Æ¼ÀÇ ÄÄÆ÷³ÍÆ®¿¡ Á¢±Ù
+		Entity* owner = GetOwner(); // ì´ ìŠ¤í¬ë¦½íŠ¸ì˜ ì—”í‹°í‹°ë¥¼ ê°€ë¦¬í‚´
+		World* world = GetOwner()->getWorld(); // ì—”í‹°í‹°ì˜ ì›”ë“œ
+		ComponentHandle<Transform> transformComponent = owner->get<Transform>(); // ì—”í‹°í‹°ì˜ ì»´í¬ë„ŒíŠ¸ì— ì ‘ê·¼
 	}
+
+
 };

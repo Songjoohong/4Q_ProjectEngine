@@ -40,7 +40,7 @@ Engine::~Engine()
 
 bool Engine::Initialize(const UINT width, const UINT height)
 {
-	// À©µµ¿ì ÃÊ±âÈ­
+	// ìœˆë„ìš° ì´ˆê¸°í™”
 	m_ClientWidth = width;
 	m_ClientHeight = height;
 
@@ -59,7 +59,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
-	// ¸Å´ÏÀú ÃÊ±âÈ­
+	// ë§¤ë‹ˆì € ì´ˆê¸°í™”
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
@@ -71,14 +71,9 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent->Assign<StaticMesh>();
 	ent->Assign<IdleState>(ent);
 
-	
-	
-	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);
-
-	
+	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
-
-
+  
 	return true;
 }
 

@@ -7,6 +7,7 @@ void RenderSystem::Configure(ECS::World* world)
 {
 	world->Subscribe<ECS::Events::OnComponentAssigned<StaticMesh>>(this);
 	world->Subscribe<ECS::Events::OnComponentAssigned<SkinnedMesh>>(this);
+n
 }
 
 void RenderSystem::Deconfigure(ECS::World* world)
@@ -25,6 +26,7 @@ void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssi
 }
 
 void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<StaticMesh>& event)
+
 {
 	RenderManager::GetInstance()->AddStaticMesh("FBXLoad_Test/fbx/box.fbx", Vector3D(0.f, 0.f, 100.f), Vector3D(0.f, 0.f, 0.f));
 }

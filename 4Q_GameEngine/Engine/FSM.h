@@ -4,7 +4,6 @@
 
 class State;
 
-
 struct FSM
 {
 	State* m_CurrentState;

@@ -23,7 +23,6 @@ private:
 	UINT m_ClientWidth;
 	UINT m_ClientHeight;
 
-	std::unique_ptr<TimeManager> m_Time = nullptr;
 	InputManager* m_Input = nullptr;
 	RenderManager* m_Render = nullptr;
 public:
