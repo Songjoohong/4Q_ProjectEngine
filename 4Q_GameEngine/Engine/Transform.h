@@ -6,8 +6,8 @@
 struct Transform
 {
 	ECS_DECLARE_TYPE
-
-		Transform() = default;
+    
+	Transform() = default;
 	explicit Transform(const Vector3D xyz_Position, const Vector3D xyz_Rotation = { 0.f, 0.f, 0.f }, const Vector3D xyz_Scale = { 1.f, 1.f, 1.f })
 		: m_Position(xyz_Position)
 		, m_Rotation(xyz_Rotation)
