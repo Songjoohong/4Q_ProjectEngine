@@ -62,12 +62,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	// 시스템 초기화
 	TimeManager::GetInstance()->Initialize();
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
-	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<StaticMesh>();
-	ent->Assign<Transform>();
-	ent->Assign<IdleState>(ent);
+	
 	return true;
 }
 

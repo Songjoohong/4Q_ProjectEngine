@@ -59,20 +59,6 @@ void Renderer::CreateModel(string filename)
     m_pStaticModels.push_back(pModel);
 }
 
-void Renderer::StaticMeshRender()
-{
-    for (const auto& mesh : m_pMeshInstance)
-    {
-        Renderer::Instance->m_pDeviceContext->PSSetShader(mesh->m_pMaterial->m_pixelShader.m_pPixelShader.Get(), nullptr, 0);
-        Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
-
-        Renderer::Instance->ApplyMaterial(mesh->m_pMaterial);	// 머터리얼 적용
-        m_worldMatrixCB.mWorld = mesh->m_pNodeWorldTransform->Transpose();
-        m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
-        mesh->Render(Renderer::Instance->m_pDeviceContext.Get());
-    }
-    
-}
 
 StaticModel* Renderer::LoadStaticModel(string filename)
 {
@@ -124,7 +110,6 @@ void Renderer::MeshRender()
         m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
         m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
         it->Render(Renderer::Instance->m_pDeviceContext.Get());
-        //delete it;
     }
     
 }
@@ -151,7 +136,6 @@ void Renderer::Render()
     m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     MeshRender();
-    //m_pMeshInstance.clear();
 }
 
 void Renderer::RenderEnd()

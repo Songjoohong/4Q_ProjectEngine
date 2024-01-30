@@ -83,7 +83,6 @@ public:
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
-	void StaticMeshRender();
 
 
 	StaticModel* LoadStaticModel(string filename);
