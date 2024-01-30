@@ -145,6 +145,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameEditor.h" />
     <ClInclude Include="ImGuiLayer.h" />
+    <ClInclude Include="jsonSerializer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Property.h" />
     <ClInclude Include="PropertyMacro.h" />

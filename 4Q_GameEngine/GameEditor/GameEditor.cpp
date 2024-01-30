@@ -3,6 +3,8 @@
 #include "framework.h"
 #include "../D3D_Graphics/D3D_Graphics.h"
 #include "Test.h"
+#include "jsonSerializer.h"
+#include "nlohmann/json.hpp"
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
 {
@@ -202,22 +204,35 @@ void GameEditor::ShutDownImGui()
 	ImGui::DestroyContext();
 }
 
-void GameEditor::SaveScene(const std::wstring& _strRelativePath)
+// jsonFile 이름 넘기기
+void GameEditor::SaveScene(const std::wstring& _filename )
 {
-	std::wstring basePath = L"C:\\Users\\user\\Documents\\GitHub\\4Q_ProjectEngine\\4Q_GameEngine\\Test\\";
 
-	std::wstring fullPath = basePath + _strRelativePath;
+	std::wstring fullPath = basePath + _filename;
 
 	FILE* pFile = nullptr;
 
-	_wfopen_s(&pFile, fullPath.c_str(), L"w");
+	//"wb"는 파일을 와이드 문자 바이너리 모드로 열겠다는 의미
+	_wfopen_s(&pFile, fullPath.c_str(), L"wb");
 
-	assert(pFile != nullptr && "Scene File이 로드되지 않았습니다");
+	assert(pFile != nullptr && "Filepath is invalid, couldn't save");
+
+	// 데이터 저장
+	
 
 	fclose(pFile);
 }
 
 void GameEditor::LoadScene(const std::wstring& _strRelativePath)
 {
+	std::wstring fullPath = basePath + _strRelativePath;
 
+	FILE* pFile = nullptr;
+
+	// "rb"는 파일을 와이드 문자 바이너리 모드로 읽겠다는 의미
+	_wfopen_s(&pFile, fullPath.c_str(), L"rb");
+
+	assert(pFile != nullptr && "Filepath is invalid, couldn't load");
+
+	fclose(pFile);
 }

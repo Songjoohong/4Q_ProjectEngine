@@ -24,4 +24,7 @@ public:
 	void LoadScene(const std::wstring& _strRelativePath);
 private:
 	Renderer* m_Renderer = nullptr;
+
+	std::wstring basePath = L"C:\\Users\\user\\Documents\\GitHub\\4Q_ProjectEngine\\4Q_GameEngine\\Test\\";
+
 };
