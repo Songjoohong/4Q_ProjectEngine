@@ -2,10 +2,11 @@
 #include "GameEditor.h"
 #include "framework.h"
 #include "../D3D_Graphics/D3D_Graphics.h"
-#include "nlohmann/adl_serializer.hpp"
-#include "nlohmann/json.hpp"
-#include "nlohmann/json_fwd.hpp"
+
 #include "Test.h"
+#include "jsonSerializer.h"
+#include "nlohmann/json.hpp"
+
 #include "../D3D_Graphics/RenderTextureClass.h"
 
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -34,6 +35,8 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	{
 		std::cout << a->GetName();
 	}
+
+	SaveScene(L"w");
 
 	if (!InitImGui())
 	{
@@ -152,6 +155,11 @@ void GameEditor::RenderImGui()
 					Close();
 				}
 
+				if (ImGui::MenuItem("Save"))
+				{
+					SaveScene(L"MyScene\\TestScene1");
+				}
+
 				ImGui::EndMenu();
 			}
 
@@ -206,21 +214,35 @@ void GameEditor::ShutDownImGui()
 	ImGui::DestroyContext();
 }
 
-//void GameEditor::SaveScene(const wstring& _strRelativePath)
-//{
-//	FILE* pFile = nullptr;
-//
-//	//_wfopen_s(&pFile, );
-//
-//	if (pFile == nullptr)
-//	{
-//		assert(pFile, "Scene File이 로드되지 않았습니다");
-//	}
-//
-//	fclose(pFile);
-//}
-//
-//void GameEditor::LoadScene(const wstring& _strRelativePath)
-//{
-//
-//}
+// jsonFile 이름 넘기기
+void GameEditor::SaveScene(const std::wstring& _filename )
+{
+
+	std::wstring fullPath = basePath + _filename;
+
+	FILE* pFile = nullptr;
+
+	//"wb"는 파일을 와이드 문자 바이너리 모드로 열겠다는 의미
+	_wfopen_s(&pFile, fullPath.c_str(), L"wb");
+
+	assert(pFile != nullptr && "Filepath is invalid, couldn't save");
+
+	// 데이터 저장
+	
+
+	fclose(pFile);
+}
+
+void GameEditor::LoadScene(const std::wstring& _strRelativePath)
+{
+	std::wstring fullPath = basePath + _strRelativePath;
+
+	FILE* pFile = nullptr;
+
+	// "rb"는 파일을 와이드 문자 바이너리 모드로 읽겠다는 의미
+	_wfopen_s(&pFile, fullPath.c_str(), L"rb");
+
+	assert(pFile != nullptr && "Filepath is invalid, couldn't load");
+
+	fclose(pFile);
+}
