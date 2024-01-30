@@ -3,6 +3,8 @@
 
 struct Sound
 {
+	ECS_DECLARE_TYPE
+
 	Sound(const char* fileName, bool isLoop)
 		: m_FileName(fileName)
 		, m_IsLoop(isLoop)
@@ -13,3 +15,5 @@ struct Sound
 	bool m_IsPlaying = false;
 	bool m_IsLoop;
 };
+
+ECS_DEFINE_TYPE(Sound)
