@@ -12,8 +12,8 @@ using namespace std;
 */
 
 class Model;
-class StaticRigidInstance;
-class DynamicRigidInstance;
+class StaticCollider;
+class DynamicCollider;
 class Physics
 {
 public:
@@ -21,14 +21,14 @@ public:
 
 public:
 	void Initialize();
-	void Update();
+	void Update(float deltatime);
 
 	Physics* GetInstance();
-	void StepPhysics();
+	void StepPhysics(float deltatime);
 
 private:
-	vector<StaticRigidInstance*> m_StaticRigidInstances;
-	vector<DynamicRigidInstance*> m_DynamicRigidInstances;
+	vector<StaticCollider*> m_StaticColliders;
+	vector<DynamicCollider*> m_DynamicColliders;
 
 private:
 	//PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> 시각화 하여 디버깅 할 수 있는 프로그램?

@@ -10,6 +10,9 @@
 // 여기에 미리 컴파일하려는 헤더 추가
 #include <cassert>
 
+#include "..\Engine\Vector3D.h"
+#include "..\Engine\BoxCollider.h"
+
 #include "framework.h"
 #include "PxPhysicsAPI.h"
 #endif //PCH_H

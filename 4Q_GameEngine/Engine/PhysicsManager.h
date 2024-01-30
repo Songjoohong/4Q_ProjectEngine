@@ -13,8 +13,6 @@ public:
 	void Initialize();
 	void Update();
 
-	void AddStaticActor();
-	void AddDynamicActor();
 public:
 	Physics* m_Physics;
 };

@@ -1,8 +1,8 @@
 ﻿#include "pch.h"
 #include "D3D_PhysX.h"
 
-#include "StaticRigidInstance.h"
-#include "DynamicRigidInstance.h"
+#include "StaticCollider.h"
+#include "DynamicCollider.h"
 
 #include "..\D3D_Graphics\Model.h"
 
@@ -39,17 +39,17 @@ void Physics::Initialize()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
-	m_pMaterial = m_pPhysics->createMaterial(0.5f, 0.5f, 0.f);
+	m_pMaterial = m_pPhysics->createMaterial(0.5f, 0.5f, 0.6f);
 }
 
-void Physics::Update()
+void Physics::Update(float deltatime)
 {
-	StepPhysics();
+	StepPhysics(deltatime);
 }
 
 
-void Physics::StepPhysics()
+void Physics::StepPhysics(float deltatime)
 {
-	m_pScene->simulate(1.f / 60.f);
+	m_pScene->simulate(deltatime);
 	m_pScene->fetchResults(true);
 }
