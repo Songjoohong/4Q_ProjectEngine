@@ -5,11 +5,6 @@
 
 #include "ISingleton.h"
 
-struct ChannelInfo
-{
-	const char* m_ChannelName;
-	FMOD::Channel* m_Channel;
-};
 namespace ECS
 {
 	class Entity;
@@ -19,12 +14,16 @@ class SoundManager : public ISingleton<SoundManager>
 {
 public:
 	SoundManager() = default;
-	virtual ~SoundManager() override = default;
+	virtual ~SoundManager() override;
 
 	void Initialize();
 	void Update() const;
 	void CreateSound(const char* name, bool isLoop);
 	void PlayBackSound(const char* name);
+	void SetPaused(const char* name, bool isPlaying);
+	void SetVolume(const char* name, float vol);
+	void RemoveChannel(const char* name);
+	void StopSound(const char* name);
 
 private:
 	FMOD::System* m_System = nullptr;

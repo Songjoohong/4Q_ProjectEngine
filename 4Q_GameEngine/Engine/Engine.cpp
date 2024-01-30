@@ -71,8 +71,13 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent->Assign<StaticMesh>();
 	ent->Assign<IdleState>(ent);
 
+	
+	
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);
+
+	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+
 
 	return true;
 }
@@ -104,6 +109,14 @@ void Engine::Update()
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
+	if (InputManager::GetInstance()->GetMouseButtonDown(0))
+	{
+		SoundManager::GetInstance()->RemoveChannel("better-day-186374.mp3");
+	}
+	else if(InputManager::GetInstance()->GetMouseButtonDown(2))
+	{
+		SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+	}
 }
 
 void Engine::Render()

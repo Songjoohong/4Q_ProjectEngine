@@ -61,6 +61,9 @@
     <Filter Include="Manager\Sound">
       <UniqueIdentifier>{8a82d2a4-65ed-4fbd-88b8-05a009c8984f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Sound">
+      <UniqueIdentifier>{b8066904-18ec-4f48-ac15-3d1b920a6ad0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -156,6 +159,12 @@
     <ClInclude Include="SoundManager.h">
       <Filter>Manager\Sound</Filter>
     </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -199,6 +208,9 @@
     </ClCompile>
     <ClCompile Include="SoundManager.cpp">
       <Filter>Manager\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundSystem.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

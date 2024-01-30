@@ -180,7 +180,9 @@
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptSystem.h" />
     <ClInclude Include="SkinnedMesh.h" />
+    <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundManager.h" />
+    <ClInclude Include="SoundSystem.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="TimeManager.h" />
@@ -204,6 +206,7 @@
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ScriptSystem.cpp" />
     <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="SoundSystem.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="Vector3D.h" />
     <ClCompile Include="WorldManager.cpp" />
