@@ -10,6 +10,7 @@
 #include "IdleState.h"
 #include "RenderSystem.h"
 #include "SampleScript.h"
+#include "SoundManager.h"
 #include "StaticMesh.h"
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -39,7 +40,7 @@ Engine::~Engine()
 
 bool Engine::Initialize(const UINT width, const UINT height)
 {
-	// À©µµ¿ì ÃÊ±âÈ­
+	// ìœˆë„ìš° ì´ˆê¸°í™”
 	m_ClientWidth = width;
 	m_ClientHeight = height;
 
@@ -58,11 +59,23 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
+	// ë§¤ë‹ˆì € ì´ˆê¸°í™”
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
-	// ½Ã½ºÅÛ ÃÊ±âÈ­
 	TimeManager::GetInstance()->Initialize();
+	SoundManager::GetInstance()->Initialize();
 
-	
+
+	//Test
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
+	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
+	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent->Assign<StaticMesh>();
+	ent->Assign<IdleState>(ent);
+
+	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
+	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+  
+
 	return true;
 }
 
@@ -89,10 +102,22 @@ void Engine::Run()
 void Engine::Update()
 {
 	TimeManager::GetInstance()->Update();
+	SoundManager::GetInstance()->Update();
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
+
 	RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
+
+	if (InputManager::GetInstance()->GetMouseButtonDown(0))
+	{
+		SoundManager::GetInstance()->RemoveChannel("better-day-186374.mp3");
+	}
+	else if(InputManager::GetInstance()->GetMouseButtonDown(2))
+	{
+		SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+	}
+
 }
 
 void Engine::Render()

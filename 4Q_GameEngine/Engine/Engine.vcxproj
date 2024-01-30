@@ -70,6 +70,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\core\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\core\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\core\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\Engine\core\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -172,6 +180,9 @@
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptSystem.h" />
     <ClInclude Include="SkinnedMesh.h" />
+    <ClInclude Include="Sound.h" />
+    <ClInclude Include="SoundManager.h" />
+    <ClInclude Include="SoundSystem.h" />
     <ClInclude Include="State.h" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="TimeManager.h" />
@@ -194,6 +205,8 @@
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ScriptSystem.cpp" />
+    <ClCompile Include="SoundManager.cpp" />
+    <ClCompile Include="SoundSystem.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="Vector3D.h" />
     <ClCompile Include="WorldManager.cpp" />

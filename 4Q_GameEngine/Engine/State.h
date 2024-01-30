@@ -1,7 +1,7 @@
 #pragma once
 #include "ECS.h"
 
-#define GetFSM GetOwner()->get< FSM>()
+#define GetFSM GetOwner()->get<FSM>()
 
 namespace ECS
 {
