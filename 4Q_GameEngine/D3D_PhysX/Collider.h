@@ -4,14 +4,13 @@ using namespace physx;
 	Todo : 석영
 	Engine 에서 BoxCollider가 생성될 때 넘겨받아서 안에 있는 값을 가지고 이케저케하기.
 */
-
-struct BoxCollider;
+#include "../Engine/BoxCollider.h"
 class Vector3D;
 class Collider
 {
 public:
-	Collider(BoxCollider* owner);
-	~Collider()=default;
+	Collider(Component::BoxCollider* owner);
+	virtual ~Collider() = default;
 
 public:
 	/*
@@ -20,11 +19,11 @@ public:
 	virtual void Initialize(); 
 
 public:
-	BoxCollider* m_pOwner;
+	Component::BoxCollider* m_pOwner;
 	Vector3D m_Scale;
 
 	PxShape* m_pShape;
 	PxTransform m_Transform;
-	PxBoxGeometry m_BoxGeoMetry;
+	PxBoxGeometry m_BoxGeometry;
 };
 

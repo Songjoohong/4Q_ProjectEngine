@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Collider.h"
 
-Collider::Collider(BoxCollider* owner)
+Collider::Collider(Component::BoxCollider* owner)
 {
 	m_pOwner = owner;
 	Initialize();
@@ -9,8 +9,8 @@ Collider::Collider(BoxCollider* owner)
 
 void Collider::Initialize()
 {
-	m_Scale = m_pOwner->mScale;
-	m_Transform.p.x = m_pOwner->m_Center.x;
-	m_Transform.p.y = m_pOwner->m_Center.y;
-	m_Transform.p.z = m_pOwner->m_Center.z;
+	m_Scale = m_pOwner->m_Center;
+	m_Transform.p.x = m_pOwner->m_Center.GetX();
+	m_Transform.p.y = m_pOwner->m_Center.GetY();
+	m_Transform.p.z = m_pOwner->m_Center.GetZ();
 }

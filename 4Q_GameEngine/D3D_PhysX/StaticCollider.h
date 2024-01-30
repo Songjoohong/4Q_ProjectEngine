@@ -9,7 +9,7 @@ class StaticCollider
 {
 public: 
 	StaticCollider(BoxCollider* owner);
-	~StaticCollider() = default;
+	virtual ~StaticCollider() = default;
 
 public:
 	/*

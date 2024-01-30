@@ -170,8 +170,14 @@
     <ResourceCompile Include="D3D_PhysX.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\D3D_Graphics\D3D_Graphics.vcxproj">
+      <Project>{c1eef062-45a1-44a9-88b0-404737ba039f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Engine\Engine.vcxproj">
       <Project>{a0628b57-f105-4981-ad73-c6ce12592b7a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\GameApp\GameApp.vcxproj">
+      <Project>{6cb0ffc0-d828-4a71-bf3b-b6286c8c04df}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

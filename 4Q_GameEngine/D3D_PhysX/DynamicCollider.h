@@ -10,7 +10,7 @@ class DynamicCollider
 {
 public:
 	DynamicCollider(BoxCollider* owner);
-	~DynamicCollider()=default;
+	virtual ~DynamicCollider()=default;
 
 public:
 	/*
