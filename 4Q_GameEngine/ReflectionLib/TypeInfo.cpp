@@ -1,5 +1,5 @@
-#include "TypeInfo.h"
 #include "pch.h"
+#include "TypeInfo.h"
 //#include "Method.h"
 #include "Property.h"
 

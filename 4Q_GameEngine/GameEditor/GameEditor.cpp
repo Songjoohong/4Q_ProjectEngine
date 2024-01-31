@@ -165,15 +165,23 @@ void GameEditor::RenderImGui()
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Exit"))
-				{
-					Close();
-				}
+				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
+					LoadWorld(L"MyScene\\TestScene1");	// Test
 
-				if (ImGui::MenuItem("Save"))
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
+					NewScene();
+
+				if (ImGui::MenuItem("Save World"))
 				{
 					SaveWorld(L"TestScene1.json");
 					LoadWorld(L"TestScene1.json");
+				}
+
+				if (ImGui::MenuItem("Exit"))
+				{
+					Close();
 				}
 
 				ImGui::EndMenu();
@@ -181,6 +189,10 @@ void GameEditor::RenderImGui()
 
 			ImGui::EndMenuBar();
 		}
+
+
+		m_SceneHierarchyPanel.RenderImGui();
+		m_ContentsBrowserPanel.RenderImGui();
 
 		static bool show = true;
 		ImGui::ShowDemoWindow();
@@ -267,4 +279,11 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 		std::cout << "rotation : { " << data.m_Rotation.GetX() << data.m_Rotation.GetY() << data.m_Rotation.GetZ() << " }\n";
 		std::cout << "scale    : { " << data.m_Scale.GetX() << data.m_Scale.GetY() << data.m_Scale.GetZ() << " }\n";
 	}
+}
+
+void GameEditor::NewScene()
+{
+	m_ActiveWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_SceneHierarchyPanel.SetContext(m_ActiveWorld);
+
 }
