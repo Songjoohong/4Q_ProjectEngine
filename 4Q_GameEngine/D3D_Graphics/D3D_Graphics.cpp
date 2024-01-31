@@ -3,6 +3,7 @@
 #include "StaticMeshResource.h"
 #include "ResourceManager.h"
 #include "StaticModel.h"
+#include "../Engine/Debug.h"
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -52,11 +53,45 @@ void Renderer::AddMeshInstance(StaticModel* model)
     }
 }
 
+void Renderer::AddDebugInformation(const int id, const std::string& text, const Vector3D& position)
+{
+    const DirectX::XMFLOAT3 conversion = ConversionToNDC(position);
+    const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
+    const float depth = conversion.z;
+
+    const DebugInformation newDebug = { id, text, pos, depth };
+    m_debugs.push_back(newDebug);
+}
+
+void Renderer::EditDebugInformation(int id, const std::string& text, const Vector3D& position)
+{
+    const DirectX::XMFLOAT3 conversion = ConversionToNDC(position);
+    const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
+    const float depth = conversion.z;
+
+    auto it = std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+        {
+            return id == debug.entityID;
+        });
+    it->mPosition = pos;
+    it->depth = depth;
+    it->mText = text;
+}
+
 void Renderer::CreateModel(string filename)
 {
     ResourceManager::Instance->CreateModel(filename);
     StaticModel* pModel = new StaticModel();
     m_pStaticModels.push_back(pModel);
+}
+
+DirectX::XMFLOAT3 Renderer::ConversionToNDC(const Vector3D& pos) const
+{
+    Math::Matrix matrix;
+    matrix.Translation(Vector3(pos.GetX(), pos.GetY(), pos.GetZ()));
+    matrix = matrix * m_viewMatrix * m_projectionMatrix;
+
+    return { matrix._41, matrix._42, matrix._43 };
 }
 
 
@@ -124,6 +159,25 @@ void Renderer::RenderBegin()
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
+void Renderer::RenderText() const
+{
+    m_spriteBatch->Begin();
+    for (int i = 0; i < m_debugs.size(); i++)
+    {
+        const std::string text = m_debugs[i].mText;
+        const int bufferSize = MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, nullptr, 0);
+        const auto finalText = new wchar_t[bufferSize];
+
+        // string wchar_t로 변환
+        MultiByteToWideChar(CP_UTF8, 0, text.c_str(), -1, finalText, bufferSize);
+
+        m_spriteFont->DrawString(m_spriteBatch.get(), finalText, m_debugs[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f,0.f), 0.5f);
+
+    }
+    m_spriteBatch->End();
+
+}
+
 void Renderer::Render()
 {
     
@@ -136,6 +190,7 @@ void Renderer::Render()
     m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     MeshRender();
+    RenderText();
 }
 
 void Renderer::RenderEnd()
@@ -194,6 +249,11 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
 
     //디바이스, 스왑체인, 디바이스 컨텍스트 생성
     HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext));
+
+    m_spriteFont = std::make_unique<DirectX::SpriteFont>(m_pDevice.Get()
+        , m_fontFilePath);
+    m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(m_pDeviceContext.Get());
+
 
     //렌더타겟 뷰 생성
     ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
@@ -282,5 +342,6 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
 
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
+    SetCamera();
     return true;
 }

@@ -24,6 +24,13 @@ struct cbProjection
 	Math::Matrix mProjcetion;
 };
 
+struct DebugInformation
+{
+	int entityID;
+	string mText;
+	DirectX::XMFLOAT2 mPosition;
+	float depth;
+};
 class Renderer
 {
 public:
@@ -48,6 +55,10 @@ public:
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
 	list<StaticMeshInstance*>m_pMeshInstance;	//렌더링 할 메쉬 인스턴스 리스트
+
+	//spritefont 렌더용
+	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
+	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 
 	//월드 행렬
 	Math::Matrix m_worldMatrix;
@@ -79,20 +90,27 @@ public:
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
-	
+
+	//디버그 정보 추가
+	void AddDebugInformation(int id, const std::string& text, const Vector3D& position);
+
+	// 디버그 정보 수정
+	void EditDebugInformation(int id, const std::string& text, const Vector3D& position);
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
+	//월드 좌표 ndc로 변환
+	DirectX::XMFLOAT3 ConversionToNDC(const Vector3D& pos) const;
 
 
 	StaticModel* LoadStaticModel(string filename);
 
-	void SetCamera(Math::Vector3 position={0,0,-100},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
+	void SetCamera(Math::Vector3 position={300.f,100.f,-100},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
 
 	void ApplyMaterial(Material* pMaterial);
 
 	void MeshRender();
-
+	void RenderText() const;
 	
 
 	void RenderBegin();
@@ -100,4 +118,6 @@ public:
 	void RenderEnd();
 private:
 	string BasePath = "../Resource/";
+	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
+	vector<DebugInformation> m_debugs;
 };

@@ -1,7 +1,11 @@
 #include "pch.h"
 #include "Engine.h"
 
+#include <directxtk/SimpleMath.h>
+
 #include "BoxCollider.h"
+#include "Debug.h"
+#include "DebugSystem.h"
 #include "TimeManager.h"
 #include "InputManager.h"
 #include "RenderManager.h"
@@ -68,14 +72,16 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	//Test
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
+	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
-	ent->Assign<IdleState>(ent);
+	ent->Assign<Transform>(Vector3D(500.f, 500.f, 500.f));
+	ent->Assign<Debug>();
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
   
-
+	
 	return true;
 }
 
@@ -107,7 +113,7 @@ void Engine::Update()
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
 
-	RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
+	
 
 	if (InputManager::GetInstance()->GetMouseButtonDown(0))
 	{

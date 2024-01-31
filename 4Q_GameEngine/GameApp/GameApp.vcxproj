@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\GameApp\core\inc;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\GameApp\core\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>D:\SVN\4학기\3D 그래픽스 엔진 제작 Assignment\Solutions\송주홍\4Q_PersonalEngine\4Q_GameEngine\GameApp\core\inc;$(IncludePath)</IncludePath>

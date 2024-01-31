@@ -55,4 +55,16 @@ void RenderManager::SetCameraPos(Vector3D pos, Vector3D eye, Vector3D up)
 	Renderer::Instance->SetCamera(Vector3(pos.GetX(), pos.GetY(), pos.GetZ()), Vector3(eye.GetX(), eye.GetY(), eye.GetZ()), Vector3(up.GetX(), up.GetY(), up.GetZ()));
 }
 
+void RenderManager::AddDebug(int entID, const std::string& text, const Vector3D& pos)
+{
+	Renderer::Instance->AddDebugInformation(entID, text, pos);
+}
+
+void RenderManager::EditDebug(int entID, const std::string& text, const Vector3D& pos)
+{
+	Renderer::Instance->EditDebugInformation(entID, text, pos);
+}
+
+
+
 
