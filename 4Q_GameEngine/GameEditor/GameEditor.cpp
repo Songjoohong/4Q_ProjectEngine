@@ -284,6 +284,6 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 void GameEditor::NewScene()
 {
 	m_ActiveWorld = ECS::World::CreateWorld(L"TestScene1.json");
-	m_SceneHierarchyPanel.SetContext(m_ActiveWorld);
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
 
 }

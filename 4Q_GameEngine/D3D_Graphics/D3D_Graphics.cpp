@@ -113,7 +113,7 @@ void Renderer::RenderToTexture()
     m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
 
     // 렌더링을 텍스처에 지웁니다.
-    m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.0f, 0.0f, 1.0f, 1.0f);
+    m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
 
     // 이제 장면을 렌더링하면 백 버퍼 대신 텍스처로 렌더링됩니다.
     RenderScene();

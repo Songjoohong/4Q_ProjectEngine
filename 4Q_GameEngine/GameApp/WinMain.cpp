@@ -1,7 +1,4 @@
 #include "pch.h"
-
-
-
 #include "GameApp.h"
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -22,11 +19,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     freopen_s(&pCerr, "CONOUT$", "w", stderr);
 #endif
 
-    Engine Engine(hInstance);
+    GameApp gameApp(hInstance);  // 생성자에서 아이콘,윈도우 이름만 바꾼다
+    if (!gameApp.Initialize(1920, 1080))
+        return -1;
+    gameApp.Run();
+
+ /*   Engine Engine(hInstance);
     if (!Engine.Initialize(1280, 960))
         return -1;
 
-    Engine.Run();
+    Engine.Run();*/
 
 #ifdef _DEBUG
     FreeConsole();
