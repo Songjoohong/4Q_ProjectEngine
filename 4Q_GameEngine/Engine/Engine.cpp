@@ -75,6 +75,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
+
 	ent->Assign<Transform>(Vector3D(500.f, 500.f, 500.f));
 	ent->Assign<Debug>();
 
