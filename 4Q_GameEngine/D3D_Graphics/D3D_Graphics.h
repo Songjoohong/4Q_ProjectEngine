@@ -61,6 +61,11 @@ public:
 	//프로젝션 행렬
 	Math::Matrix m_projectionMatrix;
 	cbProjection m_projectionMatrixCB;
+
+	DirectX::BoundingFrustum m_frustumCmaera;
+
+
+	
 public:
 	//d3d객체 초기화
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
@@ -83,16 +88,16 @@ public:
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
-
-
-	StaticModel* LoadStaticModel(string filename);
+	void FrustumCulling(StaticModel* model);
 
 	void SetCamera(Math::Vector3 position={0,0,-100},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
 
 	void ApplyMaterial(Material* pMaterial);
 
+	//메쉬 렌더큐에 들어온 메쉬 렌더
 	void MeshRender();
 
+	void MakeModelEmpty();
 	
 
 	void RenderBegin();

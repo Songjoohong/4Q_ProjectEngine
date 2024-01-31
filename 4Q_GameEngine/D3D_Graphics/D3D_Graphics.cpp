@@ -4,6 +4,7 @@
 #include "ResourceManager.h"
 #include "StaticModel.h"
 
+
 Renderer* Renderer::Instance = nullptr;
 
 Renderer::Renderer()
@@ -59,13 +60,16 @@ void Renderer::CreateModel(string filename)
     m_pStaticModels.push_back(pModel);
 }
 
-
-StaticModel* Renderer::LoadStaticModel(string filename)
+void Renderer::FrustumCulling(StaticModel* model)
 {
-    StaticModel* staticModel = new StaticModel();
-    staticModel->Load(filename);
-    return staticModel;
+    if (m_frustumCmaera.Intersects(model->m_boundingBox))
+    {
+        AddMeshInstance(model);
+    }
 }
+
+
+
 
 
 void Renderer::ApplyMaterial(Material* pMaterial)
@@ -114,10 +118,32 @@ void Renderer::MeshRender()
     
 }
 
+void Renderer::MakeModelEmpty()
+{
+    for (auto& model : m_pStaticModels)
+    {
+        if (model->GetSceneResource() != nullptr)
+        {
+            model->SetSceneResource(nullptr);
+            model->m_meshInstance.clear();
+            model->m_boundingBox = {};
+            model->m_worldTransform = {};
+        }
+    }
+}
+
 
 void Renderer::RenderBegin()
 
 {
+    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
+    m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
+    for (auto& model : m_pStaticModels)
+    {
+        if (model->GetSceneResource() == nullptr)
+            break;
+        FrustumCulling(model);
+    }
     Clear();
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
@@ -142,6 +168,7 @@ void Renderer::RenderEnd()
 {
     m_pSwapChain->Present(0, 0);
     m_pMeshInstance.clear();
+    MakeModelEmpty();
 }
 
 
@@ -281,6 +308,8 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
+
+    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 
     return true;
 }

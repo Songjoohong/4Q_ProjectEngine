@@ -22,6 +22,7 @@ void StaticSceneResource::Create(const std::string& path)
 		aiProcess_GenNormals |                              // 노말 생성
 		aiProcess_GenUVCoords |                             // UV 생성
 		aiProcess_CalcTangentSpace |                        // 탄젠트 생성
+		aiProcess_GenBoundingBoxes |						// 바운딩 박스 생성
 		aiProcess_LimitBoneWeights |                        // 본의 영향을 받는 정점의 최대 개수를 4개로 제한
 		aiProcess_ConvertToLeftHanded;                      // 왼손 좌표계로 변환
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
@@ -41,6 +42,22 @@ void StaticSceneResource::Create(const std::string& path)
 		m_materials[i].SetFileName(m_fileName);
 		m_materials[i].Create(scene->mMaterials[i]);
 	}
+	m_AABBmin = Math::Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
+	m_AABBmax = Math::Vector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	float absMax = 0.0f;
+	for (UINT i = 0; i < scene->mNumMeshes; i++)
+	{
+		aiMesh* pMesh = scene->mMeshes[i];
+		Math::Vector3 meshMin = Math::Vector3(pMesh->mAABB.mMin.x, pMesh->mAABB.mMin.y, pMesh->mAABB.mMin.z);
+		Math::Vector3 meshMax = Math::Vector3(pMesh->mAABB.mMax.x, pMesh->mAABB.mMax.y, pMesh->mAABB.mMax.z);
+
+		m_AABBmin = Math::Vector3::Min(m_AABBmin, meshMin);
+		m_AABBmax = Math::Vector3::Max(m_AABBmax, meshMax);
+	}
+	absMax = max(m_AABBmax.Length(), m_AABBmin.Length());
+	m_BoundingBoxMin = Math::Vector3(-absMax, -absMax, -absMax);
+	m_BoundingBoxMax = Math::Vector3(absMax, absMax, absMax);
 
 	importer.FreeScene();
 	
@@ -54,8 +71,11 @@ void StaticMeshResource::Create(ID3D11Device* device, aiMesh* mesh)
 	for (UINT i = 0; i < mesh->mNumVertices; i++)
 	{
 		m_vertices[i].Position = Vector3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-		m_vertices[i].Texcoord = Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-		m_vertices[i].Normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		if(mesh->mTextureCoords[0])
+			m_vertices[i].Texcoord = Vector2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+		if (mesh->mNormals)
+			m_vertices[i].Normal = Vector3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		if (mesh->mTangents)
 		m_vertices[i].Tangent = Vector3(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
 	}
 	CreateVertexBuffer(device, m_vertices, mesh->mNumVertices);
@@ -128,4 +148,16 @@ Material* StaticSceneResource::GetMeshMaterial(UINT index)
 	UINT matIndex = m_meshes[index].m_materialIndex;
 	assert(matIndex < m_materials.size());
 	return &m_materials[matIndex];
+}
+
+void StaticSceneResource::GetAABB(DirectX::XMFLOAT3& center, DirectX::XMFLOAT3& Extents)
+{
+	center = (m_AABBmin + m_AABBmax) * 0.5f;
+	Extents = (m_AABBmax - m_AABBmin) * 0.5f;
+}
+
+void StaticSceneResource::GetBoundingBox(DirectX::XMFLOAT3& center, DirectX::XMFLOAT3& Extents)
+{
+	center = (m_BoundingBoxMin + m_BoundingBoxMax) * 0.5f;
+	Extents = (m_BoundingBoxMax - m_BoundingBoxMin) * 0.5f;
 }

@@ -56,7 +56,15 @@ public:
 	std::vector<StaticMeshResource>m_meshes;
 	std::vector<Material> m_materials;
 
+	Math::Vector3 m_AABBmin;
+	Math::Vector3 m_AABBmax;
+	Math::Vector3 m_BoundingBoxMin;	// 회전을 고려한 느슨한AABB
+	Math::Vector3 m_BoundingBoxMax;	// 회전을 고려한 느슨한AABB
+
 public:
 	void Create(const std::string& path);
 	Material* GetMeshMaterial(UINT index);
+
+	void GetAABB(DirectX::XMFLOAT3& center, DirectX::XMFLOAT3& Extents);
+	void GetBoundingBox(DirectX::XMFLOAT3& center, DirectX::XMFLOAT3& Extents);
 };
