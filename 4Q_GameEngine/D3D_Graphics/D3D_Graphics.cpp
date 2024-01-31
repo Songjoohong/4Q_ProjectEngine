@@ -88,7 +88,6 @@ void Renderer::SetViewport(UINT width, UINT height)
 	m_shadowViewport.Height = (float)SHADOWMAP_SIZE;
 	m_shadowViewport.MinDepth = 0.f;
 	m_shadowViewport.MaxDepth = 1.f;
-	//m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
 }
 
 void Renderer::SetDepthStencilView(UINT width, UINT height)
@@ -199,6 +198,9 @@ void Renderer::MeshRender()
 
 void Renderer::Update()
 {
+	//Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 700.f, 4000.f);
+	//Vector3 shadowLookAt = m_viewMatrix.Translation() + m_viewMatrix.Forward() * 1000;
+	//Vector3 shadowPos = shadowLookAt + (-)
 }
 
 void Renderer::RenderBegin()
@@ -211,6 +213,7 @@ void Renderer::RenderBegin()
 
 void Renderer::Render()
 {
+	//뷰 매트릭스를 버퍼에 업데이트
 	m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
 
 	m_viewMatrixCB.mView = m_viewMatrix.Transpose();
@@ -219,6 +222,13 @@ void Renderer::Render()
 
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
+
+	//라이트 방향을 버퍼에 업데이트
+	m_pDeviceContext->UpdateSubresource(m_pLightBuffer.Get(), 0, nullptr, &m_lightCB, 0, 0);
+
+	m_pDeviceContext->VSSetConstantBuffers(3, 1, m_pLightBuffer.GetAddressOf());
+	m_pDeviceContext->PSSetConstantBuffers(3, 1, m_pLightBuffer.GetAddressOf());
+
 	MeshRender();
 	RenderImgui();
 }
@@ -272,13 +282,13 @@ void Renderer::RenderImgui()
 		ImGui::Text("Position");
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##cpx", &x, -100.f, 100.f);
+		ImGui::SliderFloat("##cpx", &x, -10000.f, 10000.f);
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##cpy", &y, -100.f, 100.f);
+		ImGui::SliderFloat("##cpy", &y, -10000.f, 10000.f);
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##cpz", &z, -100.f, 100.f);
+		ImGui::SliderFloat("##cpz", &z, -10000.f, 10000.f);
 		m_cameraPos = DirectX::XMVectorSet(x, y, z, 0.0f);
 		ImGui::End();
 	}
@@ -379,7 +389,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pProjectionBuffer));
-	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, width / (FLOAT)height, 0.1, 10000);
+	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, width / (FLOAT)height, 0.1, 100000);
 
 	m_projectionMatrixCB.mProjection = m_projectionMatrix.Transpose();
 
@@ -390,6 +400,17 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
+	//라이트 상수버퍼
+	D3D11_BUFFER_DESC lightbd;
+	lightbd.Usage = D3D11_USAGE_DEFAULT;
+	lightbd.ByteWidth = sizeof(cbLight);
+	lightbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightbd.CPUAccessFlags = 0;
+	lightbd.MiscFlags = 0;
+
+	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&lightbd, nullptr, &m_pLightBuffer));
+
+	//Imgui
 	if (!InitImgui(*hWnd))
 		return false;
 

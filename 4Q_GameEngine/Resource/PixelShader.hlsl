@@ -2,7 +2,10 @@
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float4 BaseColor = txDiffuse.Sample(samplerState, input.Texcoord);
+    float3 Normal = normalize(input.NorWorld);
+    float3 LightDirection = normalize(Direction.xyz);
+    float NDotL = max(dot(Normal, -LightDirection), 0);
+    float4 BaseColor = NDotL * txDiffuse.Sample(samplerState, input.Texcoord);
 
     //// 그림자처리 부분
 	// 광원NDC 좌표계에서의 좌표는 계산해주지 않으므로 계산한다.

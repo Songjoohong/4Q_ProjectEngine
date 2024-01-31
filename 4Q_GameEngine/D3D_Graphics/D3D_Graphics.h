@@ -26,6 +26,11 @@ struct cbProjection
 	Math::Matrix mShadowProjection;
 };
 
+struct cbLight
+{
+	Vector4 mDirection = {0.f, 0.f, 1.f, 1.f};
+};
+
 class Renderer
 {
 public:
@@ -53,6 +58,7 @@ public:
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
+	ComPtr<ID3D11Buffer> m_pLightBuffer = nullptr;
 	
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
@@ -70,6 +76,10 @@ public:
 	//프로젝션 행렬
 	Math::Matrix m_projectionMatrix;
 	cbProjection m_projectionMatrixCB;
+
+	//라이트
+	cbLight m_lightCB;
+
 public:
 	//d3d객체 초기화
 	bool Initialize(HWND* hWnd, UINT width, UINT height);
