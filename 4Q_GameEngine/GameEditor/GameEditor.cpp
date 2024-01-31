@@ -5,7 +5,6 @@
 
 #include "Test.h"
 #include "../ReflectionLib/jsonSerializer.h"
-#include "nlohmann/json.hpp"
 #include "../D3D_Graphics/RenderTextureClass.h"
 #include "../Engine/ECS.h"
 #include "../Engine/Transform.h"
@@ -29,10 +28,10 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	__super::Initialize(width, height);
 	m_Renderer = Renderer::Instance;
 	
-	m_CurrentWorld = ECS::World::CreateWorld(L"TestScene1.json");
-	m_Box = m_CurrentWorld->create();
-	m_Pot = m_CurrentWorld->create();
-	m_Wall = m_CurrentWorld->create();
+	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_Box = m_EditorWorld->create();
+	m_Pot = m_EditorWorld->create();
+	m_Wall = m_EditorWorld->create();
 
 	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
 	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
@@ -255,8 +254,8 @@ void GameEditor::SaveWorld(const std::wstring& _filename)
 
 void GameEditor::LoadWorld(const std::wstring& _filename)
 {
-	m_CurrentWorld = ECS::World::CreateWorld(_filename);
-	m_ActiveWorld = m_CurrentWorld;
+	m_EditorWorld = ECS::World::CreateWorld(_filename);
+	m_ActiveWorld = m_EditorWorld;
 
 	std::wstring fullPath = basePath + _filename;
 

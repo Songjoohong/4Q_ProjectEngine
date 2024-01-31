@@ -6,6 +6,10 @@
 class ContentsBrowserPanel;
 class SceneHierarchyPanel;
 class Renderer;
+
+namespace ECS { class Entity; }
+namespace ECS { class World; }
+
 class GameEditor : public Engine
 {
 public:
@@ -25,8 +29,8 @@ public:
 	void ShutDownImGui();
 
 	//Save/Load
-	void SaveScene(const std::wstring& _strRelativePath);
-	void LoadScene(const std::wstring& _strRelativePath);
+	void SaveWorld(const std::wstring& _strRelativePath);
+	void LoadWorld(const std::wstring& _strRelativePath);
 
 	void NewScene();
 private:
@@ -39,6 +43,11 @@ private:
 	ContentsBrowserPanel m_ContentsBrowserPanel;
 
 	// Scenes
-	ECS::World* m_ActiveScene;
-	ECS::World* m_EditorScene;
+	ECS::World* m_ActiveWorld;
+	ECS::World* m_EditorWorld;
+
+	// TextEntities
+	ECS::Entity* m_Box;
+	ECS::Entity* m_Pot;
+	ECS::Entity* m_Wall;
 };
