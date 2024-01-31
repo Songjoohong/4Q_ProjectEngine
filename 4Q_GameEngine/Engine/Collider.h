@@ -3,6 +3,11 @@
 using namespace physx; 
 using namespace Component; // 석영 : main 에서는 지워도 된다.
 
+/*
+	석영 : AddActor 해주기! 어떻게 해줄지..?
+	PxTranform 위치로 부터 아래방향으로 콜라이더가 생성된다.
+*/
+
 class Collider
 {
 public:

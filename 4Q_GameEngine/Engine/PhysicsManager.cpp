@@ -22,7 +22,7 @@ void PhysicsManager::Update(float deltatime)
 	m_pCurrentPxScene->simulate(deltatime);
 	m_pCurrentPxScene->fetchResults(true);
 
-	// 석영 : 결과로 나온 위치값을 오브젝트로 넣어주기
+	// 석영 : 결과로 나온 값을 오브젝트로 넣어주기
 	for (auto& collider : m_pDynamicColliders)
 		if (collider->m_pOwner->m_IsTrigger == false)
 			collider->UpdatePhysics();
@@ -34,7 +34,7 @@ void PhysicsManager::ChangePxScene(ECS::World* world)
 	m_pCurrentPxScene = m_pPxScenes[world];
 
 	/*
-		석영 : 추가적으로 작업해야함.
+		석영 : 추가적으로 작업해야함. -> Scene이 여러개로 된다는 가정하에 작업해야함.
 		 ex) 플레이어 또는 사물이 Scene을 이동하는 경우
 		 이전 PxScene 에서 removeActor를 해준 후
 		 현재 PxScene 에 AddActor를 해줘야한다.

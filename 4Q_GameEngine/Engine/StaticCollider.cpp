@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "StaticCollider.h"
 
+#include "PhysicsManager.h"
+
 StaticCollider::StaticCollider(BoxCollider* owner)
 	:Collider(owner)
 {
@@ -8,14 +10,13 @@ StaticCollider::StaticCollider(BoxCollider* owner)
 
 void StaticCollider::Initailize()
 {
-	/*
+	__super::Initialize();
+
 	m_Rigid = PxCreateStatic(
-		*m_pPhys->m_pPhysics,
-		PxTransform(PxVec3(m_ObjectTransform.x, -300.f, 0)),
-		PxBoxGeometry(1000.f, 2.f, 1000.f),
-		*m_pPhys->m_pMaterial
-	);
-	*/
+		*(PhysicsManager::GetInstance()->m_pPhysics),
+		m_Transform,
+		m_BoxGeometry,
+		*(PhysicsManager::GetInstance()->m_pMaterial));
 }
 
 void StaticCollider::UpdateTransform()

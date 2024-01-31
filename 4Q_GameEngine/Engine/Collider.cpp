@@ -4,7 +4,6 @@
 Collider::Collider(BoxCollider* owner)
 {
 	m_pOwner = owner;
-	Initialize();
 }
 
 void Collider::Initialize()

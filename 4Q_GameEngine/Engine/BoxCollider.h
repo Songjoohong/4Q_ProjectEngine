@@ -20,6 +20,7 @@ namespace Component
 		CollisionState m_CurrentState = CollisionState::NONE;
 		Vector3D m_Center = { 0.f,0.f,0.f };
 		Vector3D m_Size = { 1.f,1.f,1.f };
+		Vector3D m_Rotation = { 0.f,0.f,0.f };
 		bool m_IsTrigger = false;
 	};
 
