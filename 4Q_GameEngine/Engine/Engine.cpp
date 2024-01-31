@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Engine.h"
 
+#include <imgui.h>
+
 #include "BoxCollider.h"
 #include "TimeManager.h"
 #include "InputManager.h"
@@ -75,6 +77,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	//SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
   
+	RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
 
 	return true;
 }
@@ -107,7 +110,7 @@ void Engine::Update()
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
 
-	RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
+	//RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
 
 	if (InputManager::GetInstance()->GetMouseButtonDown(0))
 	{
@@ -118,6 +121,7 @@ void Engine::Update()
 		//SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
 	}
 
+	RenderManager::GetInstance()->Update();
 }
 
 void Engine::Render()
@@ -127,9 +131,12 @@ void Engine::Render()
 	RenderManager::GetInstance()->RenderEnd();
 }
 
-
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
 	switch (message)
 	{
 	case WM_DESTROY:

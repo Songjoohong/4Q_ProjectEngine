@@ -22,7 +22,7 @@ struct cbView
 
 struct cbProjection
 {
-	Math::Matrix mProjcetion;
+	Math::Matrix mProjection;
 	Math::Matrix mShadowProjection;
 };
 
@@ -32,7 +32,7 @@ public:
 	static Renderer* Instance;
 	
 	Renderer();
-	~Renderer() {  }
+	~Renderer();
 public:
 	ComPtr<IDXGIFactory4> m_pDXGIFactory;		// DXGI팩토리
 	ComPtr<IDXGIAdapter3> m_pDXGIAdapter;		// 비디오카드 정보에 접근 가능한 인터페이스
@@ -42,6 +42,13 @@ public:
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
+
+	// shadow 위한 객체
+	ComPtr<ID3D11Texture2D> m_pShadowMap;
+	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
+	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
+	D3D11_VIEWPORT m_viewport;
+	D3D11_VIEWPORT m_shadowViewport;
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
@@ -65,7 +72,7 @@ public:
 	cbProjection m_projectionMatrixCB;
 public:
 	//d3d객체 초기화
-	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
+	bool Initialize(HWND* hWnd, UINT width, UINT height);
 
 
 	//화면 클리어
@@ -85,7 +92,8 @@ public:
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
-
+	void SetViewport(UINT width, UINT height);
+	void SetDepthStencilView(UINT width, UINT height);
 
 	StaticModel* LoadStaticModel(string filename);
 
@@ -95,11 +103,15 @@ public:
 
 	void MeshRender();
 
-	
+	void Update();
 
 	void RenderBegin();
 	void Render();
 	void RenderEnd();
+
+	bool InitImgui(HWND hWnd);
+	void RenderImgui();
+	void UnInitImgui();
 private:
 	string BasePath = "../Resource/";
 };

@@ -11,6 +11,11 @@ void RenderManager::Initialize(HWND* hwnd, UINT width, UINT height)
 	m_Renderer->Instance->Initialize(hwnd,width,height);
 }
 
+void RenderManager::Update()
+{
+	Renderer::Instance->Update();
+}
+
 void RenderManager::RenderBegin()
 {
 	Renderer::Instance->RenderBegin();
