@@ -14,6 +14,7 @@ struct SkinnedMesh
 
 	std::string m_FileName = "";
 	std::string m_AnimationName = "";
+
 };
 
 ECS_DEFINE_TYPE(SkinnedMesh)

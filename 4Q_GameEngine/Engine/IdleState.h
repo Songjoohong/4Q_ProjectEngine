@@ -26,6 +26,5 @@ struct IdleState : public State
 		
 	}
 
-
 };
 ECS_DEFINE_TYPE(IdleState)

@@ -9,18 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="소스 파일\Reflection">
-      <UniqueIdentifier>{9567da2c-a2c6-4e46-9d3b-3daa42ad0eb0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Reflection\Property">
-      <UniqueIdentifier>{7db21aad-d496-49ca-a3f4-aae26678c766}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Serialize">
-      <UniqueIdentifier>{f8fa13fa-9567-48fa-a368-984825476969}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Reflection\TypeInfo">
-      <UniqueIdentifier>{f597cdf4-d809-46f9-964b-5ca8055de1d0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Panels">
       <UniqueIdentifier>{b5103d3b-87ae-4af1-a322-d5280842eb18}</UniqueIdentifier>
     </Filter>
@@ -44,32 +32,11 @@
     <ClInclude Include="GameEditor.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Property.h">
-      <Filter>소스 파일\Reflection\Property</Filter>
-    </ClInclude>
     <ClInclude Include="Test.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Serialize.h">
-      <Filter>소스 파일\Serialize</Filter>
-    </ClInclude>
-    <ClInclude Include="deserialize.h">
-      <Filter>소스 파일\Serialize</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertyMacro.h">
-      <Filter>소스 파일\Reflection\Property</Filter>
-    </ClInclude>
-    <ClInclude Include="TypeInfoMacro.h">
-      <Filter>소스 파일\Reflection\TypeInfo</Filter>
-    </ClInclude>
-    <ClInclude Include="TypeInfo.h">
-      <Filter>소스 파일\Reflection\TypeInfo</Filter>
-    </ClInclude>
     <ClInclude Include="SceneHierarchyPanel.h">
       <Filter>Panels</Filter>
-    </ClInclude>
-    <ClInclude Include="jsonSerializer.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -88,20 +55,8 @@
     <ClCompile Include="EditorMain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Property.cpp">
-      <Filter>소스 파일\Reflection\Property</Filter>
-    </ClCompile>
     <ClCompile Include="Test.cpp">
       <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Serialize.cpp">
-      <Filter>소스 파일\Serialize</Filter>
-    </ClCompile>
-    <ClCompile Include="deserialize.cpp">
-      <Filter>소스 파일\Serialize</Filter>
-    </ClCompile>
-    <ClCompile Include="TypeInfo.cpp">
-      <Filter>소스 파일\Reflection\TypeInfo</Filter>
     </ClCompile>
     <ClCompile Include="SceneHierarchyPanel.cpp">
       <Filter>Panels</Filter>
