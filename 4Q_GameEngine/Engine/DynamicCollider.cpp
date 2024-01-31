@@ -15,8 +15,10 @@ void DynamicCollider::Initialize()
 		*(PhysicsManager::GetInstance()->m_pPhysics),
 		m_Transform,
 		m_BoxGeometry,
-		*(PhysicsManager::GetInstance()->m_pMaterial),
+		*m_pMaterial, 
 		10.f);
+
+	SetMass(0.3f); // 석영 : 기본값으로 넣어주기.
 }
 
 void DynamicCollider::UpdatePhysics()
@@ -48,6 +50,18 @@ void DynamicCollider::UpdateTransform()
 	m_Transform.q.x = m_pOwner->m_Rotation.GetX();
 	m_Transform.q.y = m_pOwner->m_Rotation.GetY();
 	m_Transform.q.z = m_pOwner->m_Rotation.GetZ();
+}
+
+void DynamicCollider::SetMass(float mass)
+{
+	m_Rigid->setMass(mass);
+	PxRigidBodyExt::updateMassAndInertia(*m_Rigid, mass);
+}
+
+void DynamicCollider::AddForce(Vector3D dir)
+{
+	PxVec3 direction(dir.GetX(), dir.GetY(), dir.GetZ());
+	m_Rigid->addForce(direction);
 }
 
 void DynamicCollider::FreezeRotationX(bool active)

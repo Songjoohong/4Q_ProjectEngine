@@ -37,7 +37,6 @@ public:
 	PxDefaultCpuDispatcher* m_pDispatcher = nullptr;
 
 	PxPhysics* m_pPhysics = nullptr;
-	PxMaterial* m_pMaterial = nullptr;
 
 	// PxScene ฐüทร
 	std::map<ECS::World*,PxScene*> m_pPxScenes; 

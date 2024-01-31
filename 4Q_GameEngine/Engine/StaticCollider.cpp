@@ -16,7 +16,7 @@ void StaticCollider::Initailize()
 		*(PhysicsManager::GetInstance()->m_pPhysics),
 		m_Transform,
 		m_BoxGeometry,
-		*(PhysicsManager::GetInstance()->m_pMaterial));
+		*m_pMaterial);
 }
 
 void StaticCollider::UpdateTransform()
