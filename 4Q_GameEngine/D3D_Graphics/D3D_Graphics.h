@@ -17,11 +17,13 @@ struct cbWorld
 struct cbView
 {
 	Math::Matrix mView;
+	Math::Matrix mShadowView;
 };
 
 struct cbProjection
 {
 	Math::Matrix mProjcetion;
+	Math::Matrix mShadowProjection;
 };
 
 class Renderer

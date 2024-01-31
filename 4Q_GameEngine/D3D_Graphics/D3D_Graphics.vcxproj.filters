@@ -162,5 +162,8 @@
     <FxCompile Include="..\Resource\PixelShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="ShadowPixelShader.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

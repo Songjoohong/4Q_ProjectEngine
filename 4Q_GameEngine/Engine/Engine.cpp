@@ -70,10 +70,10 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
-	ent->Assign<IdleState>(ent);
+	ent->Assign<Transform>();
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
-	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+	//SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
   
 
 	return true;
@@ -115,7 +115,7 @@ void Engine::Update()
 	}
 	else if(InputManager::GetInstance()->GetMouseButtonDown(2))
 	{
-		SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+		//SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
 	}
 
 }
