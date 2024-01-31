@@ -30,7 +30,6 @@ void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssi
 }
 
 void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<StaticMesh>& event)
-
 {
 	
 }
