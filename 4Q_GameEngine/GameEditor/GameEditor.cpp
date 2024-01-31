@@ -9,6 +9,10 @@
 
 #include "../D3D_Graphics/RenderTextureClass.h"
 
+
+#include "ContentsBrowserPanel.h"
+#include "SceneHierarchyPanel.h"
+
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
 {
@@ -36,12 +40,16 @@ bool GameEditor::Initialize(UINT width, UINT height)
 		std::cout << a->GetName();
 	}
 
-	SaveScene(L"w");
+	//SaveScene(L"w");
 
 	if (!InitImGui())
 	{
 		return false;
 	}
+
+	m_EditorScene = ECS::World::CreateWorld("filenameSample1.txt");
+	m_ActiveScene = m_EditorScene;
+
 	return true;
 }
 
@@ -150,15 +158,19 @@ void GameEditor::RenderImGui()
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Exit"))
-				{
-					Close();
-				}
+				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
+					LoadScene(L"MyScene\\TestScene1");	// Test
 
-				if (ImGui::MenuItem("Save"))
-				{
-					SaveScene(L"MyScene\\TestScene1");
-				}
+				ImGui::Separator();
+
+				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
+					NewScene();
+
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
+					SaveScene(L"MyScene\\TestScene1");	// Test
+
+				if (ImGui::MenuItem("Exit"))
+					Close();
 
 				ImGui::EndMenu();
 			}
@@ -166,12 +178,14 @@ void GameEditor::RenderImGui()
 			ImGui::EndMenuBar();
 		}
 
-		static bool show = true;
-		ImGui::ShowDemoWindow();
+		m_SceneHierarchyPanel.RenderImGui();
+		m_ContentsBrowserPanel.RenderImGui();
+
+		//ImGui::ShowDemoWindow();	// for test
 
 		ImGui::End();
 
-		/* Viewport ------------------------ */
+		/* Viewport 렌더 ------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
 		ImGui::Begin("Viewport");
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
@@ -245,4 +259,11 @@ void GameEditor::LoadScene(const std::wstring& _strRelativePath)
 	assert(pFile != nullptr && "Filepath is invalid, couldn't load");
 
 	fclose(pFile);
+}
+
+void GameEditor::NewScene()
+{
+	m_ActiveScene = ECS::World::CreateWorld("filenameSample2.txt");
+	m_SceneHierarchyPanel.SetContext(m_ActiveScene);
+
 }

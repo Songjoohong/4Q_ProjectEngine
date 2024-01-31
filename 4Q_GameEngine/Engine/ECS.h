@@ -416,6 +416,8 @@ namespace ECS
 
 		const static size_t InvalidEntityId = 0;
 
+		Entity() = default;
+
 		// Do not create entities yourself, use World::create().
 		Entity(World* world, size_t id)
 			: world(world), id(id)
@@ -830,6 +832,17 @@ namespace ECS
 		EntityAllocator& getPrimaryAllocator()
 		{
 			return entAlloc;
+		}
+
+		// 24.01.30 추가한 것.
+		std::vector<Entity*> GetEntities()
+		{
+			std::vector<Entity*> ent;
+			for (auto& it : entities)
+			{
+				ent.push_back(it);
+			}
+			return ent;
 		}
 
 	private:

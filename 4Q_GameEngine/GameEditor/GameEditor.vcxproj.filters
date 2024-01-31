@@ -71,6 +71,9 @@
     <ClInclude Include="jsonSerializer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ContentsBrowserPanel.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameEditor.cpp">
@@ -104,6 +107,9 @@
       <Filter>소스 파일\Reflection\TypeInfo</Filter>
     </ClCompile>
     <ClCompile Include="SceneHierarchyPanel.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentsBrowserPanel.cpp">
       <Filter>Panels</Filter>
     </ClCompile>
   </ItemGroup>
