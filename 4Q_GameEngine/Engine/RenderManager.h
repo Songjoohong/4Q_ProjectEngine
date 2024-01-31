@@ -28,6 +28,10 @@ public:
 
 	void SetCameraPos(Vector3D pos, Vector3D eye, Vector3D up);
 	
+	void AddDebug(int entID, const std::string& text, const Vector3D& pos);
+
+	void EditDebug(int entID, const std::string& text, const Vector3D& pos);
+
 
 private:
 	Renderer* m_Renderer;
