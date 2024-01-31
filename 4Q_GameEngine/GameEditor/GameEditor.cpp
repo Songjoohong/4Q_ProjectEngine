@@ -181,7 +181,7 @@ void GameEditor::RenderImGui()
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
 
-		//ImGui::ShowDemoWindow();	// for test
+		ImGui::ShowDemoWindow();	// for test
 
 		ImGui::End();
 

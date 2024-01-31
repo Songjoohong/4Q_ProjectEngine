@@ -416,8 +416,6 @@ namespace ECS
 
 		const static size_t InvalidEntityId = 0;
 
-		Entity() = default;
-
 		// Do not create entities yourself, use World::create().
 		Entity(World* world, size_t id)
 			: world(world), id(id)

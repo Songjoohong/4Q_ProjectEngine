@@ -16,6 +16,8 @@ public:
 	ECS::Entity* GetSelectedEntity() const { return m_SelectionContext; }
 	void SetSelectedEntity(ECS::Entity* entity) { m_SelectionContext = entity; }
 
+	void DragDropEntity(ECS::Entity* entity);
+
 private:
 	template <typename T>
 	void DisplayAddComponentEntry(const std::string& entryName);
