@@ -150,6 +150,9 @@
     <ClInclude Include="RenderSystem.h">
       <Filter>System\Render</Filter>
     </ClInclude>
+    <ClInclude Include="EntityIdentifer.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

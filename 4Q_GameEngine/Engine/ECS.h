@@ -28,9 +28,12 @@ SOFTWARE.
 #include <algorithm>
 #include <stdint.h>
 #include <type_traits>
-
+#include <filesystem>
+#include <fstream>
 #include "State.h"
+#include "../ReflectionLib/jsonSerializer.h"
 
+using json = nlohmann::json;
 //////////////////////////////////////////////////////////////////////////
 // SETTINGS //
 //////////////////////////////////////////////////////////////////////////
@@ -81,6 +84,7 @@ SOFTWARE.
 //////////////////////////////////////////////////////////////////////////
 
 class Script;
+class Transform;
 
 namespace ECS
 {
@@ -436,6 +440,12 @@ namespace ECS
 			return world;
 		}
 
+		void SetParent(Entity* parent)
+		{
+			this->m_parentId = parent->id;
+			parent->childernId.push_back(this->id);
+		}
+
 		/**
 		* Does this entity have a component?
 		*/
@@ -542,6 +552,8 @@ namespace ECS
 		World* world;
 
 		size_t id;
+		size_t m_parentId;
+		std::vector<int> childernId;
 		bool bPendingDestroy = false;
 	};
 
@@ -564,23 +576,31 @@ namespace ECS
 		/**
 		* Use this function to construct the world with a custom allocator.
 		*/
-		static World* CreateWorld(Allocator alloc, const char* fileName)
+		static World* CreateWorld(Allocator alloc, std::wstring fileName)
 		{
 			WorldAllocator worldAlloc(alloc);
 			World* world = std::allocator_traits<WorldAllocator>::allocate(worldAlloc, 1);
 			std::allocator_traits<WorldAllocator>::construct(worldAlloc, world, alloc);
-			//world->Serialize(fileName);
+
+			//world->Deserialize(fileName);
 			return world;
 		}
+
 
 		/**
 		* Use this function to construct the world with the default allocator.
 		*/
-		static World* CreateWorld(const char* fileName)
+		static World* CreateWorld(std::wstring fileName)
 		{
 			return CreateWorld(Allocator(), fileName);
 		}
 
+		void Deserialize(std::wstring _filename)
+		{
+			//std::wstring fullPath = basePath + _filename;
+
+			//auto deserializedTransform = DeserializeContainerFromFile<std::array<Transform, 3>>(fullPath);
+		}
 		// Use this to destroy the world instead of calling delete.
 		// This will emit OnEntityDestroyed events and call EntitySystem::unconfigure as appropriate.
 		void DestroyWorld()
@@ -832,7 +852,6 @@ namespace ECS
 			return entAlloc;
 		}
 
-		// 24.01.30 추가한 것.
 		std::vector<Entity*> GetEntities()
 		{
 			std::vector<Entity*> ent;
@@ -857,6 +876,8 @@ namespace ECS
 			SubscriberPairAllocator> subscribers;
 
 		size_t lastEntityId = 0;
+
+		std::wstring basePath = L"C:\\Users\\user\\Documents\\GitHub\\4Q_ProjectEngine\\4Q_GameEngine\\Test\\MyScene\\";
 	};
 
 	namespace Internal
@@ -1177,7 +1198,7 @@ namespace ECS
 
 		const auto handle = ComponentHandle<State>(&container->data);
 		handle->SetName(typeid(decltype(container->data)).name() + 7);
-   		world->emit<Events::OnComponentAssigned<State>>({ this, handle });
+		world->emit<Events::OnComponentAssigned<State>>({ this, handle });
 		return handle;
 
 	}

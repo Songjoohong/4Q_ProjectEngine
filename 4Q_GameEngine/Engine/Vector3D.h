@@ -45,4 +45,6 @@ public:
 	float GetX() const { return m_X; }
 	float GetY() const { return m_Y; }
 	float GetZ() const { return m_Z; }
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Vector3D, m_X, m_Y, m_Z)
 };

@@ -1,6 +1,6 @@
 #pragma once
-#include "PropertyMacro.h"
-#include "TypeInfoMacro.h"
+#include "../ReflectionLib/PropertyMacro.h"
+#include "../ReflectionLib/TypeInfoMacro.h"
 
 class Test
 {
@@ -20,3 +20,12 @@ public:
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Test, a, b, c)
 };
 
+struct
+{
+
+};
+
+struct
+{
+
+};

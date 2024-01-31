@@ -71,7 +71,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	// 시스템 초기화
 	TimeManager::GetInstance()->Initialize();
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"TestScene1.json"));
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
@@ -104,7 +104,7 @@ void Engine::Update()
 	TimeManager::GetInstance()->Update();
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
-	InputManager::GetInstance()->Update(deltaTime);
+	//InputManager::GetInstance()->Update(deltaTime);
 }
 
 void Engine::Render()

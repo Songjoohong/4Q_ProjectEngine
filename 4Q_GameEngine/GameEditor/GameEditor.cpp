@@ -4,18 +4,17 @@
 #include "../D3D_Graphics/D3D_Graphics.h"
 
 #include "Test.h"
-#include "jsonSerializer.h"
-#include "nlohmann/json.hpp"
-
+#include "../ReflectionLib/jsonSerializer.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
-
-
-#include "ContentsBrowserPanel.h"
-#include "SceneHierarchyPanel.h"
+#include "../Engine/ECS.h"
+#include "../Engine/Transform.h"
+#include "../Engine/EntityIdentifer.h"
+using json = nlohmann::json;
 
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
 {
+	//NLOHMANN_DEFINE_TYPE_INTRUSIVE
 }
 
 GameEditor::~GameEditor()
@@ -29,27 +28,35 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	__super::Initialize(width, height);
 	m_Renderer = Renderer::Instance;
 	
-	//NLOHMANN_DEFINE_TYPE_INTRUSIVE
+	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_Box = m_EditorWorld->create();
+	m_Pot = m_EditorWorld->create();
+	m_Wall = m_EditorWorld->create();
 
-	Test test;
+	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
+	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
+	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
+	m_Box->Assign<EntityIdentifer>(m_Box->getEntityId(), "Box");
+	m_Pot->Assign<EntityIdentifer>(m_Pot->getEntityId(), "Pot");
 
-	// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
-	// 값은 어떻게 넣지?
-	for (const auto& a : test.GetTypeInfo().GetProperties())
-	{
-		std::cout << a->GetName();
-	}
+	m_Pot->SetParent(m_Box);
+	m_Wall->Assign<EntityIdentifer>(m_Wall->getEntityId(), "Wall");
+	m_Box->Assign<Transform>(m_Box->getEntityId(), pos1);
+	m_Pot->Assign<Transform>(m_Pot->getEntityId(), pos2);
+	m_Wall->Assign<Transform>(m_Wall->getEntityId(), pos3);
+	//Test test;
 
-	//SaveScene(L"w");
+	//// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
+	//// 값은 어떻게 넣지?
+	//for (const auto& a : test.GetTypeInfo().GetProperties())
+	//{
+	//	std::cout << a->GetName();
+	//}
 
 	if (!InitImGui())
 	{
 		return false;
 	}
-
-	m_EditorScene = ECS::World::CreateWorld("filenameSample1.txt");
-	m_ActiveScene = m_EditorScene;
-
 	return true;
 }
 
@@ -158,19 +165,16 @@ void GameEditor::RenderImGui()
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
-					LoadScene(L"MyScene\\TestScene1");	// Test
-
-				ImGui::Separator();
-
-				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
-					NewScene();
-
-				if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
-					SaveScene(L"MyScene\\TestScene1");	// Test
-
 				if (ImGui::MenuItem("Exit"))
+				{
 					Close();
+				}
+
+				if (ImGui::MenuItem("Save"))
+				{
+					SaveWorld(L"TestScene1.json");
+					LoadWorld(L"TestScene1.json");
+				}
 
 				ImGui::EndMenu();
 			}
@@ -178,14 +182,12 @@ void GameEditor::RenderImGui()
 			ImGui::EndMenuBar();
 		}
 
-		m_SceneHierarchyPanel.RenderImGui();
-		m_ContentsBrowserPanel.RenderImGui();
-
-		ImGui::ShowDemoWindow();	// for test
+		static bool show = true;
+		ImGui::ShowDemoWindow();
 
 		ImGui::End();
 
-		/* Viewport 렌더 ------------------------ */
+		/* Viewport ------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
 		ImGui::Begin("Viewport");
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
@@ -228,42 +230,41 @@ void GameEditor::ShutDownImGui()
 	ImGui::DestroyContext();
 }
 
+
+
 // jsonFile 이름 넘기기
-void GameEditor::SaveScene(const std::wstring& _filename )
+void GameEditor::SaveWorld(const std::wstring& _filename)
 {
+	std::wstring fullPath = basePath + _filename;
+
+	std::ofstream outputFile(fullPath);
+	json jsonObject;
+	outputFile << jsonObject;
+	outputFile.close();
+	std::string serializedTransform;
+
+	/*for (const auto& entity : m_CurrentWorld->GetEntities())
+	{
+		entity->get<Transform>().get();
+		serializedTransform = SerializeContainer();
+	}*/
+
+	std::cout << serializedTransform << std::endl;
+}
+
+void GameEditor::LoadWorld(const std::wstring& _filename)
+{
+	m_EditorWorld = ECS::World::CreateWorld(_filename);
+	m_ActiveWorld = m_EditorWorld;
 
 	std::wstring fullPath = basePath + _filename;
 
-	FILE* pFile = nullptr;
+	auto deserializedTransform = DeserializeContainerFromFile<std::array<Transform, 3>>(fullPath);
 
-	//"wb"는 파일을 와이드 문자 바이너리 모드로 열겠다는 의미
-	_wfopen_s(&pFile, fullPath.c_str(), L"wb");
-
-	assert(pFile != nullptr && "Filepath is invalid, couldn't save");
-
-	// 데이터 저장
-	
-
-	fclose(pFile);
-}
-
-void GameEditor::LoadScene(const std::wstring& _strRelativePath)
-{
-	std::wstring fullPath = basePath + _strRelativePath;
-
-	FILE* pFile = nullptr;
-
-	// "rb"는 파일을 와이드 문자 바이너리 모드로 읽겠다는 의미
-	_wfopen_s(&pFile, fullPath.c_str(), L"rb");
-
-	assert(pFile != nullptr && "Filepath is invalid, couldn't load");
-
-	fclose(pFile);
-}
-
-void GameEditor::NewScene()
-{
-	m_ActiveScene = ECS::World::CreateWorld("filenameSample2.txt");
-	m_SceneHierarchyPanel.SetContext(m_ActiveScene);
-
+	for (const auto& data : deserializedTransform)
+	{
+		std::cout << "position : { " << data.m_Position.GetX() << data.m_Position.GetY() << data.m_Position.GetZ() << " }\n";
+		std::cout << "rotation : { " << data.m_Rotation.GetX() << data.m_Rotation.GetY() << data.m_Rotation.GetZ() << " }\n";
+		std::cout << "scale    : { " << data.m_Scale.GetX() << data.m_Scale.GetY() << data.m_Scale.GetZ() << " }\n";
+	}
 }
