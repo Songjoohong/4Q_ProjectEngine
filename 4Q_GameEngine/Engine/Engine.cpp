@@ -104,6 +104,7 @@ void Engine::Run()
 			Render();
 		}
 	}
+	RenderManager::GetInstance()->UnInitialize();
 }
 
 void Engine::Update()

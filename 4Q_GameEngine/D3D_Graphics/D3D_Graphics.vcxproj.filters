@@ -108,6 +108,9 @@
     <ClInclude Include="DebugDraw.h">
       <Filter>0.Helper</Filter>
     </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D_Graphics.cpp">
@@ -154,6 +157,9 @@
     </ClCompile>
     <ClCompile Include="DebugDraw.cpp">
       <Filter>0.Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

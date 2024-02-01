@@ -3,9 +3,11 @@
 #include "StaticMeshResource.h"
 #include "ResourceManager.h"
 #include "StaticModel.h"
-#include "../Engine/Debug.h"
 
 #include "DebugDraw.h"
+
+#include "../Engine/Debug.h"
+
 
 #include "../Engine/TimeManager.h"
 
@@ -232,7 +234,15 @@ void Renderer::RenderBegin()
             break;
         FrustumCulling(model);
     }
-    
+    m_pointLightCB.mPos = m_pointLight.GetPosition();
+    m_pointLightCB.mRadius = m_pointLight.GetRadius();
+    m_pointLightCB.mLightColor = m_pointLight.GetColor();
+    m_pointLightCB.mCameraPos = m_cameraPos;
+
+    m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
+
+    m_pDeviceContext->VSSetConstantBuffers(3, 1, m_pPointLightBuffer.GetAddressOf());
+    m_pDeviceContext->PSSetConstantBuffers(3, 1, m_pPointLightBuffer.GetAddressOf());
     Clear();
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
@@ -282,10 +292,10 @@ void Renderer::Render()
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
 	MeshRender();
-  RenderDebugDraw();
+    RenderDebugDraw();
     
-  RenderText();
-  m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+    RenderText();
+    m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	
 }
 
@@ -474,6 +484,7 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
 
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
+    //래스터라이저 스테이트 초기화
     D3D11_RASTERIZER_DESC rasterizerDesc = {};
     rasterizerDesc.AntialiasedLineEnable = true;
     rasterizerDesc.MultisampleEnable = true;
@@ -486,6 +497,30 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 
     DebugDraw::Initialize(m_pDevice, m_pDeviceContext);
+    
+    D3D11_BUFFER_DESC pbd = {};
+    pbd.Usage = D3D11_USAGE_DEFAULT;
+    pbd.ByteWidth = sizeof(cbPointLight);
+    pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    pbd.CPUAccessFlags = 0;
+    HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
+
+    //포인트 라이트 테스트용
+    m_pointLight.SetPosition(Vector3(480, 00, 1000));
+    m_pointLight.SetRadius(500);
+    m_pointLight.SetColor();
+
+    
   
     return true;
+}
+
+void Renderer::UnInitialize()
+{
+    for (int i = 0; i < m_pStaticModels.size(); i++)
+    {
+        delete m_pStaticModels[i];
+    }
+    m_pStaticModels.clear();
+    m_pStaticModels.shrink_to_fit();
 }

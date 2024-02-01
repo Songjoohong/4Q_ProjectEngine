@@ -13,6 +13,7 @@ public:
 
 public:
 	void Initialize(HWND* hwnd,UINT width,UINT height);
+	void UnInitialize();
 
 	void RenderBegin();
 	void Render();

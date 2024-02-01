@@ -21,6 +21,15 @@ cbuffer WorldBuffer : register(b2)
 {
     matrix World;
 }
+cbuffer PointLight : register(b3)
+{
+    float3 LightPos;
+    float Radius;
+    float3 LightColor;
+    float pad;
+    float3 CameraPos;
+    float pad2;
+}
 
 struct STATIC_INPUT
 {

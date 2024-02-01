@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-
+#include "PointLight.h"
 
 class StaticMeshResource;
 class StaticModel;
@@ -8,6 +8,16 @@ class Material;
 class StaticMeshInstance;
 
 const size_t BUFFER_SIZE = 2;
+
+struct cbPointLight
+{
+	Math::Vector3 mPos;
+	float mRadius;
+	Math::Vector3 mLightColor;
+	float pad;
+	Math::Vector3 mCameraPos;
+	float pad2;
+};
 
 struct cbWorld
 {
@@ -56,6 +66,7 @@ public:
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
+	ComPtr<ID3D11Buffer> m_pPointLightBuffer = nullptr;
 	
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
@@ -66,6 +77,10 @@ public:
 	//spritefont 렌더용
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+
+	//빛 테스트용
+	PointLight m_pointLight;
+	cbPointLight m_pointLightCB;
 
 	//월드 행렬
 	Math::Matrix m_worldMatrix;
@@ -87,6 +102,8 @@ public:
 public:
 	//d3d객체 초기화
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
+
+	void UnInitialize();
 
 
 	//화면 클리어
