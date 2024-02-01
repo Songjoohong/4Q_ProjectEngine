@@ -15,6 +15,8 @@ public:
 	void Initialize(HWND* hwnd,UINT width,UINT height);
 	void UnInitialize();
 
+	void Update();
+
 	void RenderBegin();
 	void Render();
 	void RenderEnd();
@@ -30,9 +32,13 @@ public:
 	void SetCameraPos(Vector3D pos, Vector3D eye, Vector3D up);
 	
 	void AddDebug(int entID, const std::string& text, const Vector3D& pos);
+	void AddSprite(int entID, const std::string& filePath, POINT pos, float layer);
 
 	void EditDebug(int entID, const std::string& text, const Vector3D& pos);
+	void EditSprite(int entID, bool isRendered);
 
+	void DeleteDebug(int entID);
+	void DeleteSprite(int entID);
 
 private:
 	Renderer* m_Renderer;

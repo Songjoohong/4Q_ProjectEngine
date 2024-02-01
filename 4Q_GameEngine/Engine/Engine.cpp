@@ -1,7 +1,11 @@
 #include "pch.h"
 #include "Engine.h"
 
+
+#include <imgui.h>
+
 #include <directxtk/SimpleMath.h>
+
 
 #include "BoxCollider.h"
 #include "Debug.h"
@@ -15,6 +19,7 @@
 #include "RenderSystem.h"
 #include "SampleScript.h"
 #include "SoundManager.h"
+#include "SpriteSystem.h"
 #include "StaticMesh.h"
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -73,16 +78,21 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
+	
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
-
 	ent->Assign<Transform>(Vector3D(500.f, 0.f, 1000.f));
 	ent->Assign<Debug>();
+
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
   
-	
+	RenderManager::GetInstance()->AddSprite(1, "../Resource/UI/image.jpg", { 0,0 }, 0);
+	RenderManager::GetInstance()->AddSprite(2, "../Resource/UI/image2.jpg", { 50,0 }, 1);
+
+	RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
+
 	return true;
 }
 
@@ -115,7 +125,7 @@ void Engine::Update()
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
 
-	
+
 
 	if (InputManager::GetInstance()->GetMouseButtonDown(0))
 	{
@@ -123,9 +133,10 @@ void Engine::Update()
 	}
 	else if(InputManager::GetInstance()->GetMouseButtonDown(2))
 	{
-		SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+		//SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
 	}
 
+	RenderManager::GetInstance()->Update();
 }
 
 void Engine::Render()
@@ -135,9 +146,12 @@ void Engine::Render()
 	RenderManager::GetInstance()->RenderEnd();
 }
 
-
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+		return true;
+
 	switch (message)
 	{
 	case WM_DESTROY:

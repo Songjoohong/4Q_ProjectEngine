@@ -21,6 +21,7 @@ public:
     //std::map<std::string, std::weak_ptr<SkeletalMeshResource>> m_skeletalMeshMap;
     std::map<std::wstring, std::weak_ptr<MaterialTexture>> m_materialMap;
     //std::map<std::string, std::weak_ptr<Animation>> m_animationMap;
+    std::map<std::string, ComPtr<ID3D11ShaderResourceView>> m_sprite;
 
     std::shared_ptr<StaticSceneResource> CreateStaticMeshResource(std::string filePath);
     //std::shared_ptr<SkeletalMeshResource> CreateSkeletalMeshResource(std::string filePath);

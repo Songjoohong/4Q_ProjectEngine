@@ -11,9 +11,15 @@ void RenderManager::Initialize(HWND* hwnd, UINT width, UINT height)
 	m_Renderer->Instance->Initialize(hwnd,width,height);
 }
 
+L
 void RenderManager::UnInitialize()
 {
 	m_Renderer->Instance->UnInitialize();
+}
+void RenderManager::Update()
+{
+	Renderer::Instance->Update();
+
 }
 
 void RenderManager::RenderBegin()
@@ -65,9 +71,29 @@ void RenderManager::AddDebug(int entID, const std::string& text, const Vector3D&
 	Renderer::Instance->AddDebugInformation(entID, text, pos);
 }
 
+void RenderManager::AddSprite(int entID, const std::string& filePath, POINT pos, float layer)
+{
+	Renderer::Instance->AddSpriteInformation(entID, filePath, DirectX::XMFLOAT2{static_cast<float>(pos.x), static_cast<float>(pos.y)}, layer);
+}
+
 void RenderManager::EditDebug(int entID, const std::string& text, const Vector3D& pos)
 {
 	Renderer::Instance->EditDebugInformation(entID, text, pos);
+}
+
+void RenderManager::EditSprite(int entID, bool isRendered)
+{
+	Renderer::Instance->EditSpriteInformation(entID, isRendered);
+}
+
+void RenderManager::DeleteDebug(int entID)
+{
+	Renderer::Instance->DeleteDebugInformation(entID);
+}
+
+void RenderManager::DeleteSprite(int entID)
+{
+	Renderer::Instance->DeleteSpriteInformation(entID);
 }
 
 

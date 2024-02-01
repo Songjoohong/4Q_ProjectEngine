@@ -5,16 +5,20 @@ Texture2D txEmissive : register(t3);
 Texture2D txOpacity : register(t4);
 Texture2D txMetalic : register(t5);
 Texture2D txRoughness : register(t6);
-SamplerState samplerState : register(s0);
+Texture2D txShadow : register(t7);
+SamplerState samplerLinear : register(s0);
+SamplerState samplerMirror : register(s1);
 
 cbuffer ProjectionBuffer : register(b0)
 {
     matrix Projection;
+    matrix ShadowProjection;
 }
 
 cbuffer ViewBuffer : register(b1)
 {
     matrix View;
+    matrix ShadowView;
     
 }
 cbuffer WorldBuffer : register(b2)
@@ -29,6 +33,11 @@ cbuffer PointLight : register(b3)
     float pad;
     float3 CameraPos;
     float pad2;
+}
+
+cbuffer LightBuffer : register(b3)
+{
+    float4 Direction;
 }
 
 struct STATIC_INPUT
@@ -46,4 +55,5 @@ struct PS_INPUT
     float2 Texcoord : TEXCOORD0;
     float3 NorWorld : NORMAL;
     float3 TanWorld : TANGENT;
+    float4 PosShadow : TEXCOORD1;
 };

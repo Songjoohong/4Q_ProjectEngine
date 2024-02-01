@@ -7,6 +7,7 @@ class StaticModel;
 class Material;
 class StaticMeshInstance;
 
+
 const size_t BUFFER_SIZE = 2;
 
 struct cbPointLight
@@ -27,11 +28,18 @@ struct cbWorld
 struct cbView
 {
 	Math::Matrix mView;
+	Math::Matrix mShadowView;
 };
 
 struct cbProjection
 {
-	Math::Matrix mProjcetion;
+	Math::Matrix mProjection;
+	Math::Matrix mShadowProjection;
+};
+
+struct cbLight
+{
+	Vector4 mDirection = {0.f, 0.f, 1.f, 1.f};
 };
 
 struct DebugInformation
@@ -41,13 +49,23 @@ struct DebugInformation
 	DirectX::XMFLOAT2 mPosition;
 	float depth;
 };
+
+struct SpriteInformation
+{
+	int mEntityID;
+	float mLayer;
+	bool IsRendered;
+	DirectX::XMFLOAT2 mPosition;
+	ComPtr<ID3D11ShaderResourceView> mSprite;
+};
 class Renderer
 {
 public:
 	static Renderer* Instance;
 	
 	Renderer();
-	~Renderer() {  }
+	~Renderer();
+
 public:
 	ComPtr<IDXGIFactory4> m_pDXGIFactory;		// DXGI팩토리
 	ComPtr<IDXGIAdapter3> m_pDXGIAdapter;		// 비디오카드 정보에 접근 가능한 인터페이스
@@ -63,10 +81,22 @@ public:
 	ComPtr<ID3D11PixelShader>ps;
 
 
+	// shadow ���� ��ü
+	ComPtr<ID3D11PixelShader> m_pShadowPS;
+	ComPtr<ID3D11Texture2D> m_pShadowMap;
+	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
+	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
+	ComPtr<ID3D11SamplerState> m_pShadowSampler;
+	D3D11_VIEWPORT m_viewport;
+	D3D11_VIEWPORT m_shadowViewport;
+
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
+
 	ComPtr<ID3D11Buffer> m_pPointLightBuffer = nullptr;
+	ComPtr<ID3D11Buffer> m_pLightBuffer = nullptr;
+
 	
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
@@ -95,6 +125,12 @@ public:
 	Math::Matrix m_projectionMatrix;
 	cbProjection m_projectionMatrixCB;
 
+
+	cbLight m_lightCB;
+
+	Vector3 m_shadowDirection;
+
+
 	DirectX::BoundingFrustum m_frustumCmaera;
 
 
@@ -108,6 +144,7 @@ public:
 
 	//화면 클리어
 	void Clear(float r=0,float g=0,float b=0);
+
 	void Clear(Math::Vector3 color);
 
 	//리소스 경로 설정 및 리턴
@@ -122,12 +159,22 @@ public:
 
 	//디버그 정보 추가
 	void AddDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
 
 	// 디버그 정보 수정
 	void EditDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void EditSpriteInformation(int id, bool isRendered);
+
+	void DeleteDebugInformation(int id);
+	void DeleteSpriteInformation(int id);
 
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
+
+
+	void CreateViewport(UINT width, UINT height);
+	void CreateDepthStencilView(UINT width, UINT height);
+	void CreateSamplerState();
 
 	void GetVideoMemoryInfo(std::string& out) const;
 	void GetSystemMemoryInfo(std::string& out) const;
@@ -137,9 +184,10 @@ public:
 
 	const wchar_t* ConvertToWchar(const string& str) const;
 
+
 	void FrustumCulling(StaticModel* model);
 
-	void SetCamera(Math::Vector3 position={500.f,0.f,-100.f},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
+	void SetCamera(Math::Vector3 position={200.f,0.f,-100.f},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
 
 	void ApplyMaterial(Material* pMaterial);
 
@@ -147,18 +195,31 @@ public:
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
 	void MeshRender();
+	void ShadowRender();
+
+
+	void Update();
 
 	void RenderText() const;
-
+	void RenderSprite() const;
 	void MakeModelEmpty();
 
 	void RenderDebugDraw();
 
+
 	void RenderBegin();
 	void Render();
 	void RenderEnd();
+
+	bool InitImgui(HWND hWnd);
+	void RenderImgui();
+	void UnInitImgui();
+
+	void CreateShadowPS();
+
 private:
 	string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
 	vector<DebugInformation> m_debugs;
+	vector<SpriteInformation> m_sprites;
 };
