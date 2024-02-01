@@ -67,6 +67,9 @@
     <Filter Include="System\Debug">
       <UniqueIdentifier>{e92f1956-2673-4e65-815e-35cf5af77dd0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Sprite">
+      <UniqueIdentifier>{b1765cf5-84dc-4dbb-b8c2-bb8076bddba8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -174,6 +177,12 @@
     <ClInclude Include="Debug.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="Sprite2D.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteSystem.h">
+      <Filter>System\Sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -223,6 +232,9 @@
     </ClCompile>
     <ClCompile Include="DebugSystem.cpp">
       <Filter>System\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteSystem.cpp">
+      <Filter>System\Sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

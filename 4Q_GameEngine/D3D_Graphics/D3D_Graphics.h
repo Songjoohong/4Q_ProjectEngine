@@ -31,6 +31,15 @@ struct DebugInformation
 	DirectX::XMFLOAT2 mPosition;
 	float depth;
 };
+
+struct SpriteInformation
+{
+	int mEntityID;
+	float mLayer;
+	bool IsRendered;
+	DirectX::XMFLOAT2 mPosition;
+	ComPtr<ID3D11ShaderResourceView> mSprite;
+};
 class Renderer
 {
 public:
@@ -38,6 +47,7 @@ public:
 	
 	Renderer();
 	~Renderer() {  }
+
 public:
 	ComPtr<IDXGIFactory4> m_pDXGIFactory;		// DXGI팩토리
 	ComPtr<IDXGIAdapter3> m_pDXGIAdapter;		// 비디오카드 정보에 접근 가능한 인터페이스
@@ -105,9 +115,14 @@ public:
 
 	//디버그 정보 추가
 	void AddDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
 
 	// 디버그 정보 수정
 	void EditDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void EditSpriteInformation(int id, bool isRendered);
+
+	void DeleteDebugInformation(int id);
+	void DeleteSpriteInformation(int id);
 
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
@@ -122,7 +137,7 @@ public:
 
 	void FrustumCulling(StaticModel* model);
 
-	void SetCamera(Math::Vector3 position={500.f,0.f,-100.f},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
+	void SetCamera(Math::Vector3 position={200.f,0.f,-100.f},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
 
 	void ApplyMaterial(Material* pMaterial);
 
@@ -132,7 +147,7 @@ public:
 	void MeshRender();
 
 	void RenderText() const;
-
+	void RenderSprite() const;
 	void MakeModelEmpty();
 
 	void RenderDebugDraw();
@@ -144,4 +159,5 @@ private:
 	string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
 	vector<DebugInformation> m_debugs;
+	vector<SpriteInformation> m_sprites;
 };

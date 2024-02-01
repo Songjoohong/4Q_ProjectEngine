@@ -70,6 +70,14 @@ void Renderer::AddDebugInformation(const int id, const std::string& text, const 
 	m_debugs.push_back(newDebug);
 }
 
+void Renderer::AddSpriteInformation(int id, const std::string& filePath, const XMFLOAT2 position, float layer)
+{
+    ComPtr<ID3D11ShaderResourceView> texture;
+    const wchar_t* filePathT = ConvertToWchar(filePath);
+    CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture);
+    m_sprites.push_back(SpriteInformation{ id, layer, true, position, texture });
+}
+
 void Renderer::EditDebugInformation(int id, const std::string& text, const Vector3D& position)
 {
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
@@ -83,6 +91,31 @@ void Renderer::EditDebugInformation(int id, const std::string& text, const Vecto
 	it->mPosition = pos;
 	it->depth = depth;
 	it->mText = text;
+}
+
+void Renderer::EditSpriteInformation(int id, bool isRendered)
+{
+   const auto it = std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
+        {
+            return id == sprite.mEntityID;
+        });
+    it->IsRendered = isRendered;
+}
+
+void Renderer::DeleteDebugInformation(int id)
+{
+    m_debugs.erase(std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+        {
+            return id == debug.entityID;
+        }));
+}
+
+void Renderer::DeleteSpriteInformation(int id)
+{
+    m_sprites.erase(std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
+        {
+            return id == sprite.mEntityID;
+        }));
 }
 
 void Renderer::CreateModel(string filename)
@@ -99,7 +132,8 @@ DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
 	matrix.Translation(Vector3(pos.GetX(), pos.GetY(), pos.GetZ()));
 	matrix = matrix * m_viewMatrix * m_projectionMatrix;
 
-	return { matrix._41, matrix._42, matrix._43 };
+	return {  matrix._41 + 960.f, 
+        (540.f - matrix._42), matrix._43 };
 }
 
 const wchar_t* Renderer::ConvertToWchar(const string& str) const
@@ -267,8 +301,22 @@ void Renderer::RenderText() const
 	const wchar_t* wFPS = ConvertToWchar(strFPS);
 	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
 	delete[] wFPS;
-	m_spriteBatch->End();
+	
 
+}
+
+void Renderer::RenderSprite() const
+{
+    /*std::sort(m_sprites.begin(), m_sprites.end(), [](const SpriteInformation& lhs, const SpriteInformation& rhs)
+        {
+            return lhs.mLayer < rhs.mLayer;
+        });*/
+
+    for(const auto& it : m_sprites)
+    {
+        m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0,0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
+    }
+    m_spriteBatch->End();
 }
 
 void Renderer::Render()
@@ -282,10 +330,10 @@ void Renderer::Render()
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
 	m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
 	MeshRender();
-  RenderDebugDraw();
-    
-  RenderText();
-  m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	RenderDebugDraw();
+	RenderText();
+    RenderSprite();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	
 }
 

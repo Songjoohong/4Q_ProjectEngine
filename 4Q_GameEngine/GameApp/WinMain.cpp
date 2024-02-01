@@ -23,7 +23,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 #endif
 
     Engine Engine(hInstance);
-    if (!Engine.Initialize(1280, 960))
+    if (!Engine.Initialize(1920, 1080))
         return -1;
 
     Engine.Run();
