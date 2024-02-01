@@ -150,7 +150,7 @@
     <ClInclude Include="RenderSystem.h">
       <Filter>System\Render</Filter>
     </ClInclude>
-    <ClInclude Include="EntityIdentifer.h">
+    <ClInclude Include="EntityIdentifier.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>

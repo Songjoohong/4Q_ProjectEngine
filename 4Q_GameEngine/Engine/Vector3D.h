@@ -13,21 +13,21 @@ public:
 	{}
 private:
 	float m_X = 0;
-	float m_Y= 0;
+	float m_Y = 0;
 	float m_Z = 0;
 
 public:
 	Vector3D operator+(const Vector3D& other) const
 	{
-		return Vector3D{m_X + other.m_X, m_Y + other.m_Y, m_Z + other.m_Z};
+		return Vector3D{ m_X + other.m_X, m_Y + other.m_Y, m_Z + other.m_Z };
 	}
 	Vector3D operator-(const Vector3D& other) const
 	{
-		return Vector3D{m_X - other.m_X, m_Y - other.m_Y, m_Z - other.m_Z};
+		return Vector3D{ m_X - other.m_X, m_Y - other.m_Y, m_Z - other.m_Z };
 	}
 	Vector3D operator*(const float scalar) const
 	{
-		return Vector3D{m_X * scalar, m_Y * scalar, m_Z * scalar};
+		return Vector3D{ m_X * scalar, m_Y * scalar, m_Z * scalar };
 	}
 	void operator+=(const Vector3D& other)
 	{
@@ -45,6 +45,9 @@ public:
 	float GetX() const { return m_X; }
 	float GetY() const { return m_Y; }
 	float GetZ() const { return m_Z; }
+	void SetX(float x) { m_X = x; }
+	void SetY(float y) { m_Y = y; }
+	void SetZ(float z) { m_Z = z; }
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Vector3D, m_X, m_Y, m_Z)
 };

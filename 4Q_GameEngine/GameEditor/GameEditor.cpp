@@ -7,10 +7,20 @@
 #include "../ReflectionLib/jsonSerializer.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
 #include "../Engine/ECS.h"
-#include "../Engine/Transform.h"
-#include "../Engine/EntityIdentifer.h"
-using json = nlohmann::json;
 
+// Component Headers
+#include "../Engine/Transform.h"
+#include "../Engine/BoxCollider.h"
+#include "../Engine/Camera.h"
+#include "../Engine/Light.h"
+#include "../Engine/EntityIdentifier.h"
+#include "../Engine/Movement.h"
+#include "../Engine/Script.h"
+#include "../Engine/SampleScript.h"
+#include "../Engine/StaticMesh.h"
+
+using json = nlohmann::json;
+namespace ECS { class Entity; }
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
 {
@@ -19,6 +29,7 @@ GameEditor::GameEditor(HINSTANCE hInstance)
 
 GameEditor::~GameEditor()
 {
+	m_EditorWorld->DestroyWorld();
 	delete m_Renderer;
 	ShutDownImGui();
 }
@@ -29,6 +40,7 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	m_Renderer = Renderer::Instance;
 	
 	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_ActiveWorld = m_EditorWorld;
 	m_Box = m_EditorWorld->create();
 	m_Pot = m_EditorWorld->create();
 	m_Wall = m_EditorWorld->create();
@@ -36,14 +48,18 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
 	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
-	m_Box->Assign<EntityIdentifer>(m_Box->getEntityId(), "Box");
-	m_Pot->Assign<EntityIdentifer>(m_Pot->getEntityId(), "Pot");
+	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
+	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
 
-	m_Pot->SetParent(m_Box);
-	m_Wall->Assign<EntityIdentifer>(m_Wall->getEntityId(), "Wall");
-	m_Box->Assign<Transform>(m_Box->getEntityId(), pos1);
-	m_Pot->Assign<Transform>(m_Pot->getEntityId(), pos2);
-	m_Wall->Assign<Transform>(m_Wall->getEntityId(), pos3);
+	// 부모자식관계 안됨...
+	SetParent(m_Pot, m_Box);
+	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
+	m_Box->Assign<Transform>(pos1);
+	m_Pot->Assign<Transform>(pos2);
+	m_Wall->Assign<Transform>(pos3);
+	m_Wall->Assign<Camera>();
+
+
 	//Test test;
 
 	//// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
@@ -166,7 +182,7 @@ void GameEditor::RenderImGui()
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
-					LoadWorld(L"MyScene\\TestScene1");	// Test
+					LoadWorld(L"TestScene1");	// Test
 
 				ImGui::Separator();
 
@@ -176,6 +192,10 @@ void GameEditor::RenderImGui()
 				if (ImGui::MenuItem("Save World"))
 				{
 					SaveWorld(L"TestScene1.json");
+				}
+
+				if (ImGui::MenuItem("Load World"))
+				{
 					LoadWorld(L"TestScene1.json");
 				}
 
@@ -243,42 +263,139 @@ void GameEditor::ShutDownImGui()
 }
 
 
-
 // jsonFile 이름 넘기기
 void GameEditor::SaveWorld(const std::wstring& _filename)
 {
 	std::wstring fullPath = basePath + _filename;
 
 	std::ofstream outputFile(fullPath);
-	json jsonObject;
-	outputFile << jsonObject;
-	outputFile.close();
-	std::string serializedTransform;
 
-	/*for (const auto& entity : m_CurrentWorld->GetEntities())
+	json worldData;
+	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
-		entity->get<Transform>().get();
-		serializedTransform = SerializeContainer();
-	}*/
+		SaveComponents<EntityIdentifier>(entity, worldData, fullPath);
+		SaveComponents<Transform>(entity, worldData, fullPath);
+		SaveComponents<StaticMesh>(entity, worldData, fullPath);
+		SaveComponents<BoxCollider>(entity, worldData, fullPath);
+		SaveComponents<Camera>(entity, worldData, fullPath);
+		SaveComponents<Light>(entity, worldData, fullPath);
+		SaveComponents<Movement>(entity, worldData, fullPath);
+		SaveComponents<Script>(entity, worldData, fullPath);
 
-	std::cout << serializedTransform << std::endl;
+
+	}
+
+	outputFile << std::setw(4) << worldData << std::endl;
+
+	outputFile.close();
+
 }
 
 void GameEditor::LoadWorld(const std::wstring& _filename)
 {
 	m_EditorWorld = ECS::World::CreateWorld(_filename);
-	m_ActiveWorld = m_EditorWorld;
 
 	std::wstring fullPath = basePath + _filename;
 
-	auto deserializedTransform = DeserializeContainerFromFile<std::array<Transform, 3>>(fullPath);
+	std::ifstream inputFile(fullPath);
+	json jsonObject;
+	inputFile >> jsonObject;
+	inputFile.close();
 
-	for (const auto& data : deserializedTransform)
+	for (const auto& entity : jsonObject["WorldEntities"])
+	{
+		for (auto it = entity.begin(); it != entity.end(); ++it)
+		{
+			const int entityId = std::stoi(it.key());
+			int tempId = entityId - 1;
+			for (const auto& component : it.value())
+			{
+				auto myEntity = m_EditorWorld->create();
+				if (myEntity->getEntityId() == entityId)
+				{
+					if (component.contains("EntityIdentifier"))
+					{
+						myEntity->Assign<EntityIdentifier>();
+
+						const auto& Identifier = component["EntityIdentifier"][tempId];
+						myEntity->get<EntityIdentifier>().get().m_EntityId = Identifier["m_EntityId"];
+						myEntity->get<EntityIdentifier>().get().m_EntityName = Identifier["m_EntityName"];
+					}
+
+					if (component.contains("Transform"))
+					{
+						myEntity->Assign<Transform>();
+
+						const auto& trans = component["Transform"][tempId];
+
+						myEntity->get<Transform>().get().m_Position = trans["m_Position"];
+						myEntity->get<Transform>().get().m_Rotation = trans["m_Rotation"];
+						myEntity->get<Transform>().get().m_Scale = trans["m_Scale"];
+					}
+
+					if (component.contains("BoxCollider"))
+					{
+						myEntity->Assign<BoxCollider>();
+
+						const auto& collider = component["BoxCollider"][tempId];
+						myEntity->get<BoxCollider>().get().m_CurrentState = collider["m_CurrentStae"];
+						myEntity->get<BoxCollider>().get().m_Center = collider["m_Center"];
+						myEntity->get<BoxCollider>().get().m_Size = collider["m_Size"];
+						myEntity->get<BoxCollider>().get().m_IsTrigger = collider["m_IsTrigger"];
+					}
+
+					if (component.contains("Camera"))
+					{
+						myEntity->Assign<Camera>();
+
+						const auto& camera = component["Camera"][tempId];
+						myEntity->get<Camera>().get().m_FOV = camera["m_FOV"];
+						myEntity->get<Camera>().get().m_Near = camera["m_Near"];
+						myEntity->get<Camera>().get().m_Far = camera["m_Far"];
+					}
+
+					if (component.contains("Light"))
+					{
+						myEntity->Assign<Light>();
+
+						const auto& light = component["Light"];
+						myEntity->get<Light>().get().m_Type = light["m_Type"];
+						myEntity->get<Light>().get().m_Color = light["m_Color"];
+						myEntity->get<Light>().get().m_Intensity = light["m_Intensity"];
+					}
+
+					if (component.contains("Movement"))
+					{
+						myEntity->Assign<Movement>();
+
+						const auto& movement = component["Movement"];
+						myEntity->get<Movement>().get().m_Speed = movement["m_Speed"];
+						myEntity->get<Movement>().get().m_DirectionVector = movement["m_DirectionVector"];
+					}
+
+					if (component.contains("SampleScript"))
+					{
+						myEntity->Assign<SampleScript>();
+					}
+
+					if (component.contains("StaticMesh"))
+					{
+						myEntity->Assign<StaticMesh>();
+
+						const auto& staticMesh = component["StaticMesh"];
+						myEntity->get<StaticMesh>().get().m_FileName = staticMesh["m_FileName"];
+					}
+				}
+			}
+		}
+	}
+
+	/*for (const auto& data : deserializedTransform)
 	{
 		std::cout << "position : { " << data.m_Position.GetX() << data.m_Position.GetY() << data.m_Position.GetZ() << " }\n";
 		std::cout << "rotation : { " << data.m_Rotation.GetX() << data.m_Rotation.GetY() << data.m_Rotation.GetZ() << " }\n";
 		std::cout << "scale    : { " << data.m_Scale.GetX() << data.m_Scale.GetY() << data.m_Scale.GetZ() << " }\n";
-	}
+	}*/
 }
 
 void GameEditor::NewScene()
@@ -286,4 +403,10 @@ void GameEditor::NewScene()
 	m_ActiveWorld = ECS::World::CreateWorld(L"TestScene1.json");
 	m_SceneHierarchyPanel.SetContext(m_ActiveWorld);
 
+}
+
+void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
+{
+	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
+	parent->childernId.push_back(child->getEntityId());
 }

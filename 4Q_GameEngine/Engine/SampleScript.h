@@ -7,7 +7,7 @@ class SampleScript : public Script
 {
 public:
 	SampleScript() = default;
-	SampleScript(int entityId, int parentEntityId = 0) : Script(entityId, parentEntityId) {}
+	SampleScript(int parentEntityId) : Script(parentEntityId) {}
 
 	virtual void Update() override
 	{
@@ -15,6 +15,6 @@ public:
 		//World* world = GetOwner()->getWorld(); // 엔티티의 월드
 		//ComponentHandle< Transform> transformComponent = owner->get<Transform>(); // 엔티티의 컴포넌트에 접근
 	}
-
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SampleScript, m_EntityId, m_ParentEntityId)
+	std::string m_ComponentName = "SampleScript";
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SampleScript, m_ParentEntityId)
 };

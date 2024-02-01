@@ -148,6 +148,7 @@ namespace ECS
 		class EntityComponentView;
 
 		class EntityView;
+		class EntityIdentifer;
 
 		struct BaseComponentContainer
 		{
@@ -440,11 +441,7 @@ namespace ECS
 			return world;
 		}
 
-		void SetParent(Entity* parent)
-		{
-			this->m_parentId = parent->id;
-			parent->childernId.push_back(this->id);
-		}
+
 
 		/**
 		* Does this entity have a component?
@@ -547,13 +544,18 @@ namespace ECS
 			return bPendingDestroy;
 		}
 
+		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> GetComponentContainer()
+		{
+			return components;
+		}
+
+		std::vector<int> childernId;
 	private:
 		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> components;
 		World* world;
 
 		size_t id;
 		size_t m_parentId;
-		std::vector<int> childernId;
 		bool bPendingDestroy = false;
 	};
 
@@ -877,7 +879,6 @@ namespace ECS
 
 		size_t lastEntityId = 0;
 
-		std::wstring basePath = L"C:\\Users\\user\\Documents\\GitHub\\4Q_ProjectEngine\\4Q_GameEngine\\Test\\MyScene\\";
 	};
 
 	namespace Internal

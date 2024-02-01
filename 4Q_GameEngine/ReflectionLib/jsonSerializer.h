@@ -10,23 +10,22 @@ concept SerializeableContainer = requires(const T & container) {
 
 
 template<typename Container>
-std::string SerializeContainer(const Container& myContainer) requires SerializeableContainer<Container>
+std::string SerializeContainer(const Container& myContainer, std::wstring& filename) requires SerializeableContainer<Container>
 {
 	nlohmann::json jsonObject = myContainer;
+
 	return jsonObject.dump(2);
 }
 
-// vector 리턴 
 template <typename Container>
-Container DeserializeContainerFromFile(const std::wstring& filename)
-{
+Container DeserializeContainerFromFile(const std::wstring& filename) requires SerializeableContainer<Container> {
 	std::ifstream inputFile(filename);
 	nlohmann::json jsonObject;
 	inputFile >> jsonObject;
 	inputFile.close();
+
 	return jsonObject.get<Container>();
 }
-
 
 // 내가 하고 싶은건 GameObject vector를 넘겼을 때 
 // 그 오브젝트들이 가지고 있는 Component Class들도 직력화가 되고
