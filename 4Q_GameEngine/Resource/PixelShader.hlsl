@@ -43,9 +43,9 @@ float4 main(PS_INPUT input) : SV_TARGET
     {
         float3 NL = LightVector / len;
         att = 2000 / (len * len);
-        
+        BaseColor = BaseColor * att;
     }
 
-    return float4(final, 1.0f);
+    return BaseColor;
 
 }

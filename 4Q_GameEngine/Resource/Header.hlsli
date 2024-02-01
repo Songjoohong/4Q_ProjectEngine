@@ -25,7 +25,13 @@ cbuffer WorldBuffer : register(b2)
 {
     matrix World;
 }
-cbuffer PointLight : register(b3)
+
+cbuffer LightBuffer : register(b3)
+{
+    float4 Direction;
+}
+
+cbuffer PointLight : register(b4)
 {
     float3 LightPos;
     float Radius;
@@ -34,12 +40,6 @@ cbuffer PointLight : register(b3)
     float3 CameraPos;
     float pad2;
 }
-
-cbuffer LightBuffer : register(b3)
-{
-    float4 Direction;
-}
-
 struct STATIC_INPUT
 {
     float3 pos : POSITION;
