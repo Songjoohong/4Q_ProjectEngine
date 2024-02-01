@@ -19,7 +19,7 @@
 #include "../Engine/SampleScript.h"
 #include "../Engine/StaticMesh.h"
 
-#include "../Engine/RenderManager.h"
+
 using json = nlohmann::json;
 namespace ECS { class Entity; }
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -63,6 +63,7 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 
 	//Test test;
+
 
 	//// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
 	//// 값은 어떻게 넣지?

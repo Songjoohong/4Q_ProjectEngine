@@ -3,6 +3,8 @@
 #include <imgui_stdlib.h>
 #include "../Engine/ECS.h"
 
+struct StaticMesh;
+
 class SceneHierarchyPanel
 {
 public:
