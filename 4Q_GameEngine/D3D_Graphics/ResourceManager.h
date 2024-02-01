@@ -2,6 +2,8 @@
 
 class StaticSceneResource;
 class MaterialTexture;
+class Model;
+
 class ResourceManager
 {
 public:
@@ -9,6 +11,10 @@ public:
 
 	ResourceManager();
 	~ResourceManager();
+
+    void CreateModel(string fileName);
+
+    std::map<std::string, shared_ptr<Model>> m_pOriginalModels;
 
 public:
     std::map<std::string, std::weak_ptr<StaticSceneResource>> m_staticMeshMap;

@@ -2,6 +2,8 @@
 #include "ResourceManager.h"
 #include "StaticMeshResource.h"
 #include "Material.h"
+#include "Model.h"
+#include "StaticModel.h"
 
 ResourceManager* ResourceManager::Instance = nullptr;
 
@@ -13,6 +15,26 @@ ResourceManager::ResourceManager()
 
 ResourceManager::~ResourceManager()
 {
+}
+
+void ResourceManager::CreateModel(string fileName)
+{
+    auto it = m_pOriginalModels.find(fileName);
+    if (it != m_pOriginalModels.end())
+    {
+        if (nullptr != it->second)
+        {
+            return;
+        }
+        else
+        {
+            m_pOriginalModels.erase(it);
+        }
+    }
+    shared_ptr<Model> pModel = make_shared<StaticModel>();
+    dynamic_cast<StaticModel*>(pModel.get())->Load(fileName);
+    m_pOriginalModels[fileName] = pModel;
+
 }
 
 std::shared_ptr<StaticSceneResource> ResourceManager::CreateStaticMeshResource(std::string filePath)

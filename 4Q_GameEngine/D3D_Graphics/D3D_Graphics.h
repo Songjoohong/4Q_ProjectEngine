@@ -6,8 +6,14 @@ class RenderTextureClass;
 class StaticMeshResource;
 class StaticModel;
 class Material;
+class StaticMeshInstance;
 
 const size_t BUFFER_SIZE = 2;
+
+struct cbWorld
+{
+	Math::Matrix mWorld;
+};
 
 struct cbView
 {
@@ -19,6 +25,13 @@ struct cbProjection
 	Math::Matrix mProjcetion;
 };
 
+struct DebugInformation
+{
+	int entityID;
+	string mText;
+	DirectX::XMFLOAT2 mPosition;
+	float depth;
+};
 class Renderer
 {
 public:
@@ -27,56 +40,101 @@ public:
 	Renderer();
 	~Renderer() {  }
 public:
-	ComPtr<IDXGIFactory4> m_pDXGIFactory;		// DXGIÆÑÅä¸®
-	ComPtr<IDXGIAdapter3> m_pDXGIAdapter;		// ºñµğ¿ÀÄ«µå Á¤º¸¿¡ Á¢±Ù °¡´ÉÇÑ ÀÎÅÍÆäÀÌ½º
-	ComPtr<ID3D11Device> m_pDevice = nullptr;						//µğ¹ÙÀÌ½º
-	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;			//µğ¹ÙÀÌ½ºÄÁÅØ½ºÆ®
-	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;					//½º¿ÒÃ¼ÀÎ
-	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//·»´õ Å¸°Ù ºä
-	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//µª½º ½ºÅÙ½Ç ºä
-	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//»ùÇÃ·¯
+	ComPtr<IDXGIFactory4> m_pDXGIFactory;		// DXGIíŒ©í† ë¦¬
+	ComPtr<IDXGIAdapter3> m_pDXGIAdapter;		// ë¹„ë””ì˜¤ì¹´ë“œ ì •ë³´ì— ì ‘ê·¼ ê°€ëŠ¥í•œ ì¸í„°í˜ì´ìŠ¤
+	ComPtr<ID3D11Device> m_pDevice = nullptr;						//ë””ë°”ì´ìŠ¤
+	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;			//ë””ë°”ì´ìŠ¤ì»¨í…ìŠ¤íŠ¸
+	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;					//ìŠ¤ì™‘ì²´ì¸
+	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//ë Œë” íƒ€ê²Ÿ ë·°
+	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//ëìŠ¤ ìŠ¤í…ì‹¤ ë·°
+	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//ìƒ˜í”ŒëŸ¬
 
-	RenderTextureClass* m_RenderTexture = nullptr;	// ¼ö¹Î Ãß°¡.
+	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
+	RenderTextureClass* m_RenderTexture = nullptr;	// ìˆ˜ë¯¼ ì¶”ê°€.
 
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
 	
-	list<StaticModel*> m_pStaticModels;			//·»´õ¸µ ÇÒ ½ºÅÂÆ½ ¸ğµ¨ ¸®½ºÆ®
+	vector<StaticModel*> m_pStaticModels;			//ë Œë”ë§ í•  ìŠ¤íƒœí‹± ëª¨ë¸ ë¦¬ìŠ¤íŠ¸
 
-	//Ä«¸Ş¶ó Çà·Ä
+	list<StaticMeshInstance*>m_pMeshInstance;	//ë Œë”ë§ í•  ë©”ì‰¬ ì¸ìŠ¤í„´ìŠ¤ ë¦¬ìŠ¤íŠ¸
+
+	//spritefont ë Œë”ìš©
+	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
+	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+
+	//ì›”ë“œ í–‰ë ¬
+	Math::Matrix m_worldMatrix;
+	cbWorld m_worldMatrixCB;
+
+	//ì¹´ë©”ë¼ í–‰ë ¬
 	Math::Vector3 m_cameraPos, m_cameraEye, m_cameraUp;
 	Math::Matrix m_viewMatrix;
 	cbView m_viewMatrixCB;
 
-	//ÇÁ·ÎÁ§¼Ç Çà·Ä
+	//í”„ë¡œì ì…˜ í–‰ë ¬
 	Math::Matrix m_projectionMatrix;
 	cbProjection m_projectionMatrixCB;
+
+	DirectX::BoundingFrustum m_frustumCmaera;
+
+
+	
 public:
-	//d3d°´Ã¼ ÃÊ±âÈ­
+	//d3dê°ì²´ ì´ˆê¸°í™”
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
 
 
-	//È­¸é Å¬¸®¾î
+	//í™”ë©´ í´ë¦¬ì–´
 	void Clear(float r=0,float g=0,float b=0);
 	void Clear(Math::Vector3 color);
 
-	//¸®¼Ò½º °æ·Î ¼³Á¤ ¹× ¸®ÅÏ
+	//ë¦¬ì†ŒìŠ¤ ê²½ë¡œ ì„¤ì • ë° ë¦¬í„´
 	void SetPath(string filePath) { BasePath = filePath; }
 	string GetPath() { return BasePath; }
 
-	//¸ğµ¨ ¸¸µé¾î¼­ ¸ğµ¨ ¸®½ºÆ®¿¡ Ãß°¡
-	StaticModel* LoadStaticModel(string filename);
-	void AddStaticModel(string filename);
+	//ë¹ˆ ëª¨ë¸ì— ì •ë³´ ì…ë ¥
+	void AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale);
 
-	void SetCamera(Math::Vector3 position={0,0,-100},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
+	//ë©”ì‰¬ ì¸ìŠ¤í„´ìŠ¤ ë Œë”íì— ì¶”ê°€
+	void AddMeshInstance(StaticModel* model);
+
+	//ë””ë²„ê·¸ ì •ë³´ ì¶”ê°€
+	void AddDebugInformation(int id, const std::string& text, const Vector3D& position);
+
+	// ë””ë²„ê·¸ ì •ë³´ ìˆ˜ì •
+	void EditDebugInformation(int id, const std::string& text, const Vector3D& position);
+	//ëª¨ë¸ ë§Œë“¤ì–´ì„œ ëª¨ë¸ ë¦¬ìŠ¤íŠ¸ì— ì¶”ê°€
+	void CreateModel(string filename);
+
+	void GetVideoMemoryInfo(std::string& out) const;
+	void GetSystemMemoryInfo(std::string& out) const;
+
+	//ì›”ë“œ ì¢Œí‘œ ndcë¡œ ë³€í™˜
+	DirectX::XMFLOAT3 ConvertToNDC(const Vector3D& pos) const;
+
+	const wchar_t* ConvertToWchar(const string& str) const;
+
+	void FrustumCulling(StaticModel* model);
+
+	void SetCamera(Math::Vector3 position={300.f,100.f,-100},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
 
 	void ApplyMaterial(Material* pMaterial);
 
-	void StaticModelRender();
+	//ë©”ì‰¬ ë Œë”íì— ë“¤ì–´ì˜¨ ë©”ì‰¬ ë Œë”
+	void MeshRender();
+
+	void RenderText() const;
+
+	void MakeModelEmpty();
+
+	void RenderBegin();
 	void Render();
-	void RenderScene();	// ¼ö¹Î
-	void RenderToTexture();	// ¼ö¹Î
+	void RenderScene();	// ìˆ˜ë¯¼
+	void RenderToTexture();	// ìˆ˜ë¯¼
 	void RenderEnd();
 private:
 	string BasePath = "../Resource/";
+	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
+	vector<DebugInformation> m_debugs;
 };
