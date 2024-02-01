@@ -1,7 +1,11 @@
 #include "pch.h"
 #include "Engine.h"
 
+#include <directxtk/SimpleMath.h>
+
 #include "BoxCollider.h"
+#include "Debug.h"
+#include "DebugSystem.h"
 #include "TimeManager.h"
 #include "InputManager.h"
 #include "RenderManager.h"
@@ -10,6 +14,7 @@
 #include "IdleState.h"
 #include "RenderSystem.h"
 #include "SampleScript.h"
+#include "SoundManager.h"
 #include "StaticMesh.h"
 #include "imgui.h"
 
@@ -48,7 +53,7 @@ Engine::~Engine()
 
 bool Engine::Initialize(const UINT width, const UINT height)
 {
-	// À©µµ¿ì ÃÊ±âÈ­
+	// ìœˆë„ìš° ì´ˆê¸°í™”
 	m_ClientWidth = width;
 	m_ClientHeight = height;
 
@@ -67,15 +72,25 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
+	// ë§¤ë‹ˆì € ì´ˆê¸°í™”
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
-	// ½Ã½ºÅÛ ÃÊ±âÈ­
 	TimeManager::GetInstance()->Initialize();
+	SoundManager::GetInstance()->Initialize();
 
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"TestScene1.json"));
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
+	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
-	ent->Assign<IdleState>(ent);
+
+	//ent->Assign<Transform>(Vector3D(500.f, 500.f, 500.f));
+	ent->Assign<Transform>();
+	ent->Assign<Debug>();
+
+	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
+	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+  
+	
 	return true;
 }
 
@@ -102,14 +117,29 @@ void Engine::Run()
 void Engine::Update()
 {
 	TimeManager::GetInstance()->Update();
+	SoundManager::GetInstance()->Update();
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	//InputManager::GetInstance()->Update(deltaTime);
+
+	
+
+	if (InputManager::GetInstance()->GetMouseButtonDown(0))
+	{
+		SoundManager::GetInstance()->RemoveChannel("better-day-186374.mp3");
+	}
+	else if(InputManager::GetInstance()->GetMouseButtonDown(2))
+	{
+		SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+	}
+
 }
 
 void Engine::Render()
 {
+	RenderManager::GetInstance()->RenderBegin();
 	RenderManager::GetInstance()->Render();
+	RenderManager::GetInstance()->RenderEnd();
 }
 
 void Engine::Close()

@@ -23,9 +23,8 @@ class FSMSystem : public EntitySystem,
 
 	virtual void Receive(World* world, const Events::OnComponentAssigned<State>& event) override
 	{
-		assert(event.entity->has< FSM>());
-
-		const auto fsm = event.entity->get< FSM>();
+		assert(event.entity->has<FSM>());
+		const auto fsm = event.entity->get<FSM>();
 		const auto state = event.component;
 		fsm->AddState(state);
 	}

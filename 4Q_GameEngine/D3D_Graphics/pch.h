@@ -29,6 +29,9 @@
 #include <directxtk/WICTextureLoader.h>
 #include <d3dcompiler.h>
 #include <filesystem>
+#include <directxtk/SpriteBatch.h>
+#include <directxtk/SpriteFont.h>
+#include <Psapi.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -40,6 +43,7 @@
 #pragma comment(lib,"d3dcompiler.lib")
 
 #include "Helper.h"
+#include "../Engine/Vector3D.h"
 
 namespace Math = DirectX::SimpleMath;
 

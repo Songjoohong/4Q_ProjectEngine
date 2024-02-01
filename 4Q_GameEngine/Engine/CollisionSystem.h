@@ -26,14 +26,16 @@ public:
 
 	
 
-	bool CheckCollision(ComponentHandle< BoxCollider> lhs, ComponentHandle< BoxCollider> rhs)
+
+	bool CheckCollision(ComponentHandle<BoxCollider> lhs, ComponentHandle<BoxCollider> rhs)
 	{
-		return true; // °ÔÀÓ¿¡ µû¶ó AABB¸¸ »ç¿ëÇÒÁö, SAT »ç¿ëÇÒÁö Á¤ÇØÁú µí
+		return true; // ê²Œìž„ì— ë”°ë¼ AABBë§Œ ì‚¬ìš©í• ì§€, SAT ì‚¬ìš©í• ì§€ ì •í•´ì§ˆ ë“¯
 	}
 
 	virtual void Tick(World* world, ECS::DefaultTickData data) override
 	{
-		world->each< BoxCollider,  Transform>([&](Entity* entity,const ComponentHandle< BoxCollider> collider, ComponentHandle< Transform> transform)->void
+		world->each<BoxCollider, Transform>([&](Entity* entity,const ComponentHandle<BoxCollider> collider, ComponentHandle<Transform> transform)->void
+
 			{
 				collider->m_Center = transform->m_Position;
 				for (const auto& rhs : m_Entities)
@@ -41,30 +43,31 @@ public:
 					if (entity == rhs)
 						continue;
 
-					if (CheckCollision(collider, rhs->get< BoxCollider>()))
+					if (CheckCollision(collider, rhs->get<BoxCollider>()))
 					{
-						if (collider->m_CurrentState ==  CollisionState::NONE || collider->m_CurrentState ==  CollisionState::EXIT)
+						if (collider->m_CurrentState == CollisionState::NONE || collider->m_CurrentState == CollisionState::EXIT)
 						{
 							entity->get<Script>()->OnCollisionEnter();
-							collider->m_CurrentState =  CollisionState::ENTER;
+							collider->m_CurrentState = CollisionState::ENTER;
 						}
 						else
 						{
 							entity->get<Script>()->OnCollisionStay();
-							collider->m_CurrentState =  CollisionState::STAY;
+
+							collider->m_CurrentState = CollisionState::STAY;
 						}
 					}
 					else
 					{
-						if(collider->m_CurrentState ==  CollisionState::ENTER || collider->m_CurrentState ==  CollisionState::STAY)
+						if(collider->m_CurrentState == CollisionState::ENTER || collider->m_CurrentState == CollisionState::STAY)
 						{
 							entity->get<Script>()->OnCollisionExit();
-							collider->m_CurrentState = 
-								CollisionState::EXIT;
+							collider->m_CurrentState = CollisionState::EXIT;
 						}
 						else
 						{
-							collider->m_CurrentState =  CollisionState::NONE;
+							collider->m_CurrentState = CollisionState::NONE;
+
 						}
 
 					}
@@ -75,7 +78,7 @@ public:
 
 	virtual void Receive(World* world, const Events::OnEntityCreated& event) override
 	{
-		if(event.entity->has< BoxCollider>())
+		if(event.entity->has<BoxCollider>())
 		{
 			m_Entities.push_back(event.entity);
 		}
@@ -83,7 +86,7 @@ public:
 
 	virtual void Receive(World* world, const Events::OnEntityDestroyed& event) override
 	{
-		if(event.entity->has< BoxCollider>())
+		if(event.entity->has<BoxCollider>())
 		{
 			m_Entities.erase(std::remove_if(m_Entities.begin(), m_Entities.end(), [&event](const Entity* entity)
 				{

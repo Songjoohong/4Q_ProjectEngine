@@ -19,6 +19,7 @@
 #include "../Engine/SampleScript.h"
 #include "../Engine/StaticMesh.h"
 
+#include "../Engine/RenderManager.h"
 using json = nlohmann::json;
 namespace ECS { class Entity; }
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -83,7 +84,8 @@ void GameEditor::Update()
 
 void GameEditor::Render()
 {
-	__super::Render();
+	m_Renderer->Instance->RenderBegin();
+	m_Renderer->Instance->Render();
 	RenderImGui();
 	m_Renderer->Instance->RenderEnd();
 }
@@ -401,7 +403,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 void GameEditor::NewScene()
 {
 	m_ActiveWorld = ECS::World::CreateWorld(L"TestScene1.json");
-	m_SceneHierarchyPanel.SetContext(m_ActiveWorld);
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
 
 }
 

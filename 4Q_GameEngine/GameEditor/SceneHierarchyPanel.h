@@ -27,7 +27,7 @@ private:
 
 private:
 	ECS::World* m_Context;
-	ECS::Entity* m_SelectionContext;		// TODO: 포인터로 가질지 실 객체로 가질지 고민좀..
+	ECS::Entity* m_SelectionContext;
 };
 
 template <typename T>

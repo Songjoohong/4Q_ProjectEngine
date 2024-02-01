@@ -3,6 +3,7 @@
 
 #include "../Engine/Transform.h"
 #include "../Engine/Camera.h"
+#include "../Engine/EntityIdentifer.h"
 #include "../Engine/Light.h"
 // TODO: 엔진에 있는 모든 컴포넌트를 인클루드 해야한다. 더 나은 방법이?
 
@@ -32,7 +33,6 @@ void SceneHierarchyPanel::RenderImGui()
 			//ImGui::Text(std::to_string(entity->getEntityId()).c_str());		// 토글 없이 그냥 출력
 		}
 
-
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 			m_SelectionContext = nullptr;
 
@@ -42,26 +42,22 @@ void SceneHierarchyPanel::RenderImGui()
 			if (ImGui::MenuItem("Create Empty Entity"))
 			{
 				ECS::Entity* entity = m_Context->create();
-				entity->Assign<Transform>();	// Transform은 기본적으로 생성해준다.
+				entity->Assign<EntityIdentifer>();	// 기본적으로 생성한다. (이름정보 때문)
+				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Editor에서는 Transform을 기본적으로 생성해준다.
 			}
 
 			ImGui::EndPopup();
 		}
 	}
+	ImGui::End();	/* Hierarchy End */
 
-	ImGui::End();	// Hierarchy End
-
-
-	ImGui::Begin("Properties");
-	// 하이어라키 창에서 선택된 오브젝트가 있다면
-	// 해당 오브젝트가 가진 모든 컴포넌트 정보를 출력한다.
+	ImGui::Begin("Properties");		
+	// 선택된 오브젝트가 가진 모든 컴포넌트 정보를 출력한다. 
 	if (m_SelectionContext)
 	{
 		DrawComponents(m_SelectionContext);
 	}
-
-	ImGui::End();	// Properties End
-
+	ImGui::End();	/* Properties End */
 }
 
 void SceneHierarchyPanel::DragDropEntity(ECS::Entity* entity)
@@ -72,16 +68,12 @@ void SceneHierarchyPanel::DragDropEntity(ECS::Entity* entity)
 void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지 않으면 함수 종료시 객체의 소멸자가 호출되어서 오류가 뜰 수 있음.
 {
 	std::string entID = std::to_string(entity->getEntityId());
-	static std::string entityName = "entityName";
-	std::string imguiID = "entity" + entID;
-
-
+	auto entityName = entity->get<EntityIdentifer>()->m_EntityName;
+	std::string imguiID = "entt" + entID + " " + entityName;
 
 	ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;		// 클릭하여 선택한 아이템 하이라이트 + 화살표 클릭시 노드 펼쳐지게
 	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
-
 	bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, imguiID.c_str());
-
 	if (ImGui::IsItemClicked())
 	{
 		m_SelectionContext = entity;
@@ -115,6 +107,7 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 		ImGui::TreePop();
 	}
 
+	// Entity 삭제
 	if (entityDeleted)
 	{
 		m_Context->destroy(entity);
@@ -125,20 +118,24 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 
 }
 
+template <typename T, typename UIFunction>
+static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFunction uiFunction)
+{
+
+}
+
 void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 {
 	// Entity 이름입력칸
 	ImGui::SetNextItemWidth(100.f);
+	auto& testentityID = entity->get<EntityIdentifer>()->m_EntityName;
 
-	std::string entID = std::to_string(entity->getEntityId());
-	static std::string entityName = "object name";
 	char buffer[256];
-
 	memset(buffer, 0, sizeof(buffer));
-	strncpy_s(buffer, sizeof(buffer), entityName.c_str(), sizeof(buffer));
-	if (ImGui::InputText(("name" + entID).c_str(), buffer, sizeof(buffer)))
+	strncpy_s(buffer, sizeof(buffer), testentityID.c_str(), sizeof(buffer));
+	if (ImGui::InputText("name", buffer, sizeof(buffer)))
 	{
-		entityName = buffer;
+		testentityID = buffer;
 	}
 
 	ImGui::PushItemWidth(-1);
@@ -148,7 +145,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	if (ImGui::BeginPopup("AddComponent"))
 	{
-		// 선택할 수 있는 모든 컴포넌트 목록을 출력한다.
+		// 추가할 수 있는 모든 컴포넌트 목록을 출력한다.
 		DisplayAddComponentEntry<Transform>("Transform");
 		DisplayAddComponentEntry<Camera>("Camera");
 		DisplayAddComponentEntry<Light>("Light");
@@ -158,5 +155,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	ImGui::PopItemWidth();
 
-
+	DrawComponent<Transform>("Transform", entity, [](auto& component)
+	{
+		//component.m_Position;
+	});
 }
+
