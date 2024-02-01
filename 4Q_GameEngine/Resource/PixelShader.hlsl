@@ -1,7 +1,9 @@
 #include "Header.hlsli"
 
+
 float4 main(PS_INPUT input) : SV_TARGET
 {
+
     // Diffuse�� DirectionalLight ����
     float3 Normal = normalize(input.NorWorld);
     float3 LightDirection = normalize(Direction.xyz);
@@ -32,9 +34,18 @@ float4 main(PS_INPUT input) : SV_TARGET
     
 
     float3 final = directionLighting + BaseColor;
+    
+    float3 LightVector = LightPos - input.PosWorld;
+    float4 light=1.f;
+    float len = length(LightVector);
+    float att = 1;
+    if(len<Radius)
+    {
+        float3 NL = LightVector / len;
+        att = 2000 / (len * len);
+        
+    }
 
     return float4(final, 1.0f);
-
-
 
 }

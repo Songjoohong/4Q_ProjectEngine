@@ -3,9 +3,11 @@
 #include "StaticMeshResource.h"
 #include "ResourceManager.h"
 #include "StaticModel.h"
-#include "../Engine/Debug.h"
 
 #include "DebugDraw.h"
+
+#include "../Engine/Debug.h"
+
 
 #include "../Engine/TimeManager.h"
 
@@ -401,7 +403,15 @@ void Renderer::RenderBegin()
             break;
         FrustumCulling(model);
     }
-    
+    m_pointLightCB.mPos = m_pointLight.GetPosition();
+    m_pointLightCB.mRadius = m_pointLight.GetRadius();
+    m_pointLightCB.mLightColor = m_pointLight.GetColor();
+    m_pointLightCB.mCameraPos = m_cameraPos;
+
+    m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
+
+    m_pDeviceContext->VSSetConstantBuffers(3, 1, m_pPointLightBuffer.GetAddressOf());
+    m_pDeviceContext->PSSetConstantBuffers(3, 1, m_pPointLightBuffer.GetAddressOf());
     Clear();
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
@@ -482,6 +492,7 @@ void Renderer::Render()
 
 	//메쉬 렌더
 	MeshRender();
+
 	RenderDebugDraw();
 	RenderText();
     RenderSprite();
@@ -729,6 +740,59 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
     HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
 
+
+    //뷰포트 설정
+    D3D11_VIEWPORT viewport = {};
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = (float)Width;
+    viewport.Height = (float)Height;
+    viewport.MinDepth = 0.f;
+    viewport.MaxDepth = 1.f;
+    m_baseViewport = viewport;
+    m_pDeviceContext->RSSetViewports(1, &m_baseViewport);
+
+    //월드 상수버퍼
+    D3D11_BUFFER_DESC worldbd;
+    worldbd.Usage = D3D11_USAGE_DEFAULT;
+    worldbd.ByteWidth = static_cast<UINT>(sizeof(Math::Matrix));
+    worldbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    worldbd.CPUAccessFlags = 0;
+    worldbd.MiscFlags = 0;
+
+    HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&worldbd, nullptr, m_pWorldBuffer.GetAddressOf()));
+
+    //뷰 상수버퍼
+    D3D11_BUFFER_DESC viewbd;
+    viewbd.Usage = D3D11_USAGE_DEFAULT;
+    viewbd.ByteWidth = static_cast<UINT>(sizeof(Math::Matrix));
+    viewbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    viewbd.CPUAccessFlags = 0;
+    viewbd.MiscFlags = 0;
+
+    HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&viewbd, nullptr, m_pViewBuffer.GetAddressOf()));
+
+    //프로젝션 상수버퍼
+    D3D11_BUFFER_DESC bd = {};
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(cbProjection);
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags = 0;
+    HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pProjectionBuffer.GetAddressOf()));
+    m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, Width / (FLOAT)Height, 1, 10000);
+
+    m_projectionMatrixCB.mProjcetion = m_projectionMatrix.Transpose();
+
+    m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
+
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+    m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+
+    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
+
+    //래스터라이저 스테이트 초기화
     D3D11_RASTERIZER_DESC rasterizerDesc = {};
     rasterizerDesc.AntialiasedLineEnable = true;
     rasterizerDesc.MultisampleEnable = true;
@@ -745,6 +809,20 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 
     DebugDraw::Initialize(m_pDevice, m_pDeviceContext);
+    
+    D3D11_BUFFER_DESC pbd = {};
+    pbd.Usage = D3D11_USAGE_DEFAULT;
+    pbd.ByteWidth = sizeof(cbPointLight);
+    pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    pbd.CPUAccessFlags = 0;
+    HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
+
+    //포인트 라이트 테스트용
+    m_pointLight.SetPosition(Vector3(480, 00, 1000));
+    m_pointLight.SetRadius(500);
+    m_pointLight.SetColor();
+
+    
   
   	//Imgui
 	if (!InitImgui(*hWnd))
@@ -752,4 +830,14 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
   
     return true;
 
+}
+
+void Renderer::UnInitialize()
+{
+    for (int i = 0; i < m_pStaticModels.size(); i++)
+    {
+        delete m_pStaticModels[i];
+    }
+    m_pStaticModels.clear();
+    m_pStaticModels.shrink_to_fit();
 }
