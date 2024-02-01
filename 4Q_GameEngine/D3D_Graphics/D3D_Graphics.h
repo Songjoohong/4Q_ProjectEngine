@@ -1,11 +1,11 @@
 #pragma once
 #include "pch.h"
 
-
 class StaticMeshResource;
 class StaticModel;
 class Material;
 class StaticMeshInstance;
+
 
 const size_t BUFFER_SIZE = 2;
 
@@ -17,11 +17,18 @@ struct cbWorld
 struct cbView
 {
 	Math::Matrix mView;
+	Math::Matrix mShadowView;
 };
 
 struct cbProjection
 {
-	Math::Matrix mProjcetion;
+	Math::Matrix mProjection;
+	Math::Matrix mShadowProjection;
+};
+
+struct cbLight
+{
+	Vector4 mDirection = {0.f, 0.f, 1.f, 1.f};
 };
 
 struct DebugInformation
@@ -46,7 +53,7 @@ public:
 	static Renderer* Instance;
 	
 	Renderer();
-	~Renderer() {  }
+	~Renderer();
 
 public:
 	ComPtr<IDXGIFactory4> m_pDXGIFactory;		// DXGI팩토리
@@ -63,9 +70,19 @@ public:
 	ComPtr<ID3D11PixelShader>ps;
 
 
+	// shadow ���� ��ü
+	ComPtr<ID3D11PixelShader> m_pShadowPS;
+	ComPtr<ID3D11Texture2D> m_pShadowMap;
+	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
+	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
+	ComPtr<ID3D11SamplerState> m_pShadowSampler;
+	D3D11_VIEWPORT m_viewport;
+	D3D11_VIEWPORT m_shadowViewport;
+
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
+	ComPtr<ID3D11Buffer> m_pLightBuffer = nullptr;
 	
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
@@ -90,6 +107,12 @@ public:
 	Math::Matrix m_projectionMatrix;
 	cbProjection m_projectionMatrixCB;
 
+
+	cbLight m_lightCB;
+
+	Vector3 m_shadowDirection;
+
+
 	DirectX::BoundingFrustum m_frustumCmaera;
 
 
@@ -101,6 +124,7 @@ public:
 
 	//화면 클리어
 	void Clear(float r=0,float g=0,float b=0);
+
 	void Clear(Math::Vector3 color);
 
 	//리소스 경로 설정 및 리턴
@@ -127,6 +151,11 @@ public:
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
+
+	void CreateViewport(UINT width, UINT height);
+	void CreateDepthStencilView(UINT width, UINT height);
+	void CreateSamplerState();
+
 	void GetVideoMemoryInfo(std::string& out) const;
 	void GetSystemMemoryInfo(std::string& out) const;
 
@@ -134,6 +163,7 @@ public:
 	DirectX::XMFLOAT3 ConvertToNDC(const Vector3D& pos) const;
 
 	const wchar_t* ConvertToWchar(const string& str) const;
+
 
 	void FrustumCulling(StaticModel* model);
 
@@ -145,6 +175,10 @@ public:
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
 	void MeshRender();
+	void ShadowRender();
+
+
+	void Update();
 
 	void RenderText() const;
 	void RenderSprite() const;
@@ -152,9 +186,17 @@ public:
 
 	void RenderDebugDraw();
 
+
 	void RenderBegin();
 	void Render();
 	void RenderEnd();
+
+	bool InitImgui(HWND hWnd);
+	void RenderImgui();
+	void UnInitImgui();
+
+	void CreateShadowPS();
+
 private:
 	string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";

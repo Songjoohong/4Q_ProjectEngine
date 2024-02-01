@@ -14,6 +14,8 @@ public:
 public:
 	void Initialize(HWND* hwnd,UINT width,UINT height);
 
+	void Update();
+
 	void RenderBegin();
 	void Render();
 	void RenderEnd();
