@@ -3,7 +3,7 @@
 
 #include "../Engine/Transform.h"
 #include "../Engine/Camera.h"
-#include "../Engine/EntityIdentifer.h"
+#include "../Engine/EntityIdentifier.h"
 #include "../Engine/Light.h"
 // TODO: 엔진에 있는 모든 컴포넌트를 인클루드 해야한다. 더 나은 방법이?
 
@@ -42,7 +42,7 @@ void SceneHierarchyPanel::RenderImGui()
 			if (ImGui::MenuItem("Create Empty Entity"))
 			{
 				ECS::Entity* entity = m_Context->create();
-				entity->Assign<EntityIdentifer>();	// 기본적으로 생성한다. (이름정보 때문)
+				entity->Assign<EntityIdentifier>();	// 기본적으로 생성한다. (이름정보 때문)
 				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Editor에서는 Transform을 기본적으로 생성해준다.
 			}
 
@@ -68,7 +68,7 @@ void SceneHierarchyPanel::DragDropEntity(ECS::Entity* entity)
 void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지 않으면 함수 종료시 객체의 소멸자가 호출되어서 오류가 뜰 수 있음.
 {
 	std::string entID = std::to_string(entity->getEntityId());
-	auto entityName = entity->get<EntityIdentifer>()->m_EntityName;
+	auto entityName = entity->get<EntityIdentifier>()->m_EntityName;
 	std::string imguiID = "entt" + entID + " " + entityName;
 
 	ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;		// 클릭하여 선택한 아이템 하이라이트 + 화살표 클릭시 노드 펼쳐지게
@@ -128,7 +128,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 {
 	// Entity 이름입력칸
 	ImGui::SetNextItemWidth(100.f);
-	auto& testentityID = entity->get<EntityIdentifer>()->m_EntityName;
+	auto& testentityID = entity->get<EntityIdentifier>()->m_EntityName;
 
 	char buffer[256];
 	memset(buffer, 0, sizeof(buffer));

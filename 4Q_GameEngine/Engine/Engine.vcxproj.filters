@@ -174,7 +174,8 @@
     <ClInclude Include="Debug.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="EntityIdentifer.h">      <Filter>Component</Filter>
+    <ClInclude Include="EntityIdentifier.h">
+      <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

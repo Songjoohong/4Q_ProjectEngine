@@ -85,6 +85,7 @@ using json = nlohmann::json;
 
 class Script;
 class Transform;
+using json = nlohmann::json;
 
 namespace ECS
 {
@@ -442,7 +443,6 @@ namespace ECS
 		}
 
 
-
 		/**
 		* Does this entity have a component?
 		*/
@@ -549,7 +549,12 @@ namespace ECS
 			return components;
 		}
 
-		std::vector<int> childernId;
+		void addChild(Entity* child)
+		{
+			m_children.push_back(child);
+		}
+
+		std::vector<Entity*> m_children;
 	private:
 		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> components;
 		World* world;
