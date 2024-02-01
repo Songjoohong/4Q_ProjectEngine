@@ -112,9 +112,13 @@ public:
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
+	void GetVideoMemoryInfo(std::string& out) const;
+	void GetSystemMemoryInfo(std::string& out) const;
 
 	//월드 좌표 ndc로 변환
-	DirectX::XMFLOAT3 ConversionToNDC(const Vector3D& pos) const;
+	DirectX::XMFLOAT3 ConvertToNDC(const Vector3D& pos) const;
+
+	const wchar_t* ConvertToWchar(const string& str) const;
 
 	void FrustumCulling(StaticModel* model);
 

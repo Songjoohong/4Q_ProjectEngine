@@ -31,6 +31,7 @@
 #include <filesystem>
 #include <directxtk/SpriteBatch.h>
 #include <directxtk/SpriteFont.h>
+#include <Psapi.h>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
