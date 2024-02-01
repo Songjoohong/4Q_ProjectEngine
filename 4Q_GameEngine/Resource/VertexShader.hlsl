@@ -13,8 +13,8 @@ PS_INPUT main(STATIC_INPUT input)
     pos = mul(pos, matWorld);
     output.PosWorld = pos.xyz;
 
-    pos = mul(pos, View);
-    pos = mul(pos, Projection);
+    pos = mul(pos, ShadowView);
+    pos = mul(pos, ShadowProjection);
     output.PosProjection = pos;
 
     // 텍스처 로드
@@ -24,6 +24,10 @@ PS_INPUT main(STATIC_INPUT input)
     // 스케일 변환에 영향을 받지 않는 노멀 벡터를 구하기 위함
     output.NorWorld = normalize(mul(input.normal, (float3x3) matWorld));
     output.TanWorld = normalize(mul(input.tangent, (float3x3) matWorld));
+
+    // 그림자 위치
+    output.PosShadow = mul(float4(output.PosWorld, 1.0f), ShadowView);
+    output.PosShadow = mul(output.PosShadow, ShadowProjection);
 
     return output;
 }
