@@ -4,6 +4,7 @@
 #include "ResourceManager.h"
 #include "StaticModel.h"
 #include "../Engine/Debug.h"
+#include "DebugDraw.h"
 
 
 Renderer* Renderer::Instance = nullptr;
@@ -59,8 +60,9 @@ void Renderer::AddDebugInformation(const int id, const std::string& text, const 
     const DirectX::XMFLOAT3 conversion = ConversionToNDC(position);
     const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
     const float depth = conversion.z;
-
-    const DebugInformation newDebug = { id, text, pos, depth };
+    
+    //DirectX::XMFLOAT2 pos = { position.GetX(),position.GetY() };
+    const DebugInformation newDebug = { id, text, pos, position.GetZ()};
     m_debugs.push_back(newDebug);
 }
 
@@ -136,8 +138,10 @@ void Renderer::ApplyMaterial(Material* pMaterial)
 
 void Renderer::MeshRender()
 {
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
-    
+    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);	// 설정해제 , 다른옵션은 기본값\
+
     Material* pPrevMaterial = nullptr;
     for (auto it : m_pMeshInstance)
     {
@@ -170,10 +174,42 @@ void Renderer::MakeModelEmpty()
     }
 }
 
+void Renderer::RenderDebugDraw()
+{
+    m_pDeviceContext->OMSetBlendState(DebugDraw::g_States->Opaque(), nullptr, 0xFFFFFFFF);
+    //m_pDeviceContext->RSSetState(DebugDraw::g_States->CullNone());
+
+    DebugDraw::g_BatchEffect->Apply(m_pDeviceContext.Get());
+    DebugDraw::g_BatchEffect->SetView(m_viewMatrix);
+    DebugDraw::g_BatchEffect->SetProjection(m_projectionMatrix);
+
+    m_pDeviceContext->IASetInputLayout(DebugDraw::g_pBatchInputLayout.Get());
+
+    DebugDraw::g_Batch->Begin();
+
+    for (auto& model : m_pStaticModels)
+    {
+        DebugDraw::Draw(DebugDraw::g_Batch.get(), model->m_boundingBox,
+            model->m_bIsCulled ? Colors::Red : Colors::Blue);
+    }
+
+    DebugDraw::g_Batch->End();
+}
+
 
 void Renderer::RenderBegin()
 
 {
+    m_projectionMatrixCB.mProjcetion = m_projectionMatrix.Transpose();
+
+    m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
+
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+    m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+
+    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+
+    SetCamera();
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
     m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
     for (auto& model : m_pStaticModels)
@@ -182,15 +218,18 @@ void Renderer::RenderBegin()
             break;
         FrustumCulling(model);
     }
+    
     Clear();
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Renderer::RenderText() const
 {
     m_spriteBatch->Begin();
+    
     for (int i = 0; i < m_debugs.size(); i++)
     {
         const std::string text = m_debugs[i].mText;
@@ -210,6 +249,7 @@ void Renderer::RenderText() const
 void Renderer::Render()
 {
     
+
     m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
 
     m_viewMatrixCB.mView = m_viewMatrix.Transpose();
@@ -219,7 +259,11 @@ void Renderer::Render()
     m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
     MeshRender();
+    RenderDebugDraw();
+    
     RenderText();
+    m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+    
 }
 
 void Renderer::RenderEnd()
@@ -278,7 +322,7 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
 #endif
 
     //디바이스, 스왑체인, 디바이스 컨텍스트 생성
-    HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext));
+    HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, m_pSwapChain.GetAddressOf(), m_pDevice.GetAddressOf(), NULL, m_pDeviceContext.GetAddressOf()));
 
     m_spriteFont = std::make_unique<DirectX::SpriteFont>(m_pDevice.Get()
         , m_fontFilePath);
@@ -288,7 +332,7 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     //렌더타겟 뷰 생성
     ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
     HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
-    HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, &m_pRenderTargetView));
+    HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
     
     //sampler 초기화
     D3D11_SAMPLER_DESC sd = {};
@@ -299,7 +343,7 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
     sd.MinLOD = 0;
     sd.MaxLOD = D3D11_FLOAT32_MAX;
-    HR_T(m_pDevice->CreateSamplerState(&sd, &m_pSampler));
+    HR_T(m_pDevice->CreateSamplerState(&sd, m_pSampler.GetAddressOf()));
 
     //DepthStencilView 초기화
     D3D11_TEXTURE2D_DESC descDepth = {};
@@ -322,7 +366,26 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     descDSV.Format = descDepth.Format;
     descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     descDSV.Texture2D.MipSlice = 0;
-    HR_T(m_pDevice->CreateDepthStencilView(textureDepthStencil.Get(), &descDSV, &m_pDepthStencilView));
+    HR_T(m_pDevice->CreateDepthStencilView(textureDepthStencil.Get(), &descDSV, m_pDepthStencilView.GetAddressOf()));
+
+    //뎁스 스텐실 스테이트 초기화
+    D3D11_DEPTH_STENCIL_DESC dsd = {};
+    dsd.DepthEnable = true;
+    dsd.StencilEnable = false;
+    dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    dsd.DepthFunc = D3D11_COMPARISON_LESS;
+    dsd.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+    dsd.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+    dsd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+    dsd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+    dsd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+    dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
 
     //뷰포트 설정
     D3D11_VIEWPORT viewport = {};
@@ -332,7 +395,8 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     viewport.Height = (float)Height;
     viewport.MinDepth = 0.f;
     viewport.MaxDepth = 1.f;
-    m_pDeviceContext->RSSetViewports(1, &viewport);
+    m_baseViewport = viewport;
+    m_pDeviceContext->RSSetViewports(1, &m_baseViewport);
 
     //월드 상수버퍼
     D3D11_BUFFER_DESC worldbd;
@@ -342,7 +406,7 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     worldbd.CPUAccessFlags = 0;
     worldbd.MiscFlags = 0;
 
-    HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&worldbd, nullptr, &m_pWorldBuffer));
+    HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&worldbd, nullptr, m_pWorldBuffer.GetAddressOf()));
 
     //뷰 상수버퍼
     D3D11_BUFFER_DESC viewbd;
@@ -352,7 +416,7 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     viewbd.CPUAccessFlags = 0;
     viewbd.MiscFlags = 0;
 
-    HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&viewbd, nullptr, &m_pViewBuffer));
+    HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&viewbd, nullptr, m_pViewBuffer.GetAddressOf()));
 
     //프로젝션 상수버퍼
     D3D11_BUFFER_DESC bd = {};
@@ -360,8 +424,8 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     bd.ByteWidth = sizeof(cbProjection);
     bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     bd.CPUAccessFlags = 0;
-    HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pProjectionBuffer));
-    m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, Width / (FLOAT)Height, 0.1, 10000);
+    HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pProjectionBuffer.GetAddressOf()));
+    m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, Width / (FLOAT)Height, 1, 10000);
 
     m_projectionMatrixCB.mProjcetion = m_projectionMatrix.Transpose();
 
@@ -370,9 +434,22 @@ bool Renderer::Initialize(HWND* Hwnd, UINT Width, UINT Height)
     m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
+    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
+    D3D11_RASTERIZER_DESC rasterizerDesc = {};
+    rasterizerDesc.AntialiasedLineEnable = true;
+    rasterizerDesc.MultisampleEnable = true;
+    rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+    rasterizerDesc.CullMode = D3D11_CULL_BACK;
+    rasterizerDesc.FrontCounterClockwise = false;
+    rasterizerDesc.DepthClipEnable = true;
+    HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
+
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
+
+    DebugDraw::Initialize(m_pDevice, m_pDeviceContext);
   
     return true;
 }

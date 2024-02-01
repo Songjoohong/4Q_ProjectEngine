@@ -46,7 +46,12 @@ public:
 	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;					//스왑체인
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
+	ComPtr<ID3D11DepthStencilState>m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
+	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
+
+	ComPtr<ID3D11PixelShader>ps;
+
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
@@ -55,6 +60,8 @@ public:
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
 	list<StaticMeshInstance*>m_pMeshInstance;	//렌더링 할 메쉬 인스턴스 리스트
+
+	D3D11_VIEWPORT m_baseViewport;
 
 	//spritefont 렌더용
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
@@ -101,6 +108,7 @@ public:
 
 	// 디버그 정보 수정
 	void EditDebugInformation(int id, const std::string& text, const Vector3D& position);
+
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
@@ -110,9 +118,11 @@ public:
 
 	void FrustumCulling(StaticModel* model);
 
-	void SetCamera(Math::Vector3 position={300.f,100.f,-100},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
+	void SetCamera(Math::Vector3 position={500.f,0.f,-100.f},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
 
 	void ApplyMaterial(Material* pMaterial);
+
+	
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
 	void MeshRender();
@@ -120,6 +130,8 @@ public:
 	void RenderText() const;
 
 	void MakeModelEmpty();
+
+	void RenderDebugDraw();
 
 	void RenderBegin();
 	void Render();
