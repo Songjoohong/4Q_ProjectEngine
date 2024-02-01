@@ -4,7 +4,7 @@
 #include "ResourceManager.h"
 #include "StaticModel.h"
 #include "RenderTextureClass.h"
-
+#include "../Engine/TimeManager.h"
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -230,7 +230,18 @@ void Renderer::RenderText() const
 
 void Renderer::Render()
 {
+	// 전체 장면을 먼저 텍스처로 렌더링합니다.
+	RenderToTexture();
 
+	// 씬을 그리기 위해 버퍼를 지웁니다
+	//Clear();
+
+	// 백 버퍼의 장면을 정상적으로 렌더링합니다.
+	RenderScene();
+}
+
+void Renderer::RenderScene()
+{
 	m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
 
 	m_viewMatrixCB.mView = m_viewMatrix.Transpose();
@@ -250,7 +261,20 @@ void Renderer::RenderEnd()
 	MakeModelEmpty();
 }
 
+void Renderer::RenderToTexture()
+{
+	// 렌더링 대상을 렌더링에 맞게 설정합니다.
+	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
 
+	// 렌더링을 텍스처에 지웁니다.
+	m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
+
+	// 이제 장면을 렌더링하면 백 버퍼 대신 텍스처로 렌더링됩니다.
+	RenderScene();
+
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+}
 
 void Renderer::SetCamera(Math::Vector3 position, Math::Vector3 eye, Math::Vector3 up)
 {

@@ -9,6 +9,7 @@
 #include "../Engine/ECS.h"
 #include "../Engine/Transform.h"
 #include "../Engine/EntityIdentifer.h"
+#include "../Engine/RenderManager.h"
 using json = nlohmann::json;
 
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -67,7 +68,8 @@ void GameEditor::Update()
 
 void GameEditor::Render()
 {
-	__super::Render();
+	m_Renderer->Instance->RenderBegin();
+	m_Renderer->Instance->Render();
 	RenderImGui();
 	m_Renderer->Instance->RenderEnd();
 }
