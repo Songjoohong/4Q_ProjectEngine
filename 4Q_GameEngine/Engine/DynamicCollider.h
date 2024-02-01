@@ -23,9 +23,8 @@ public:
 	virtual void Initialize();
 
 	void UpdatePhysics();
-	void UpdateTransform();
 
-	// 석영 : 물체 질량 설정 -> 기본 0.3f 로 설정.
+	// 석영 : 물체 질량 설정 -> 기본 60.f 로 설정.
 	void SetMass(float mass);
 
 	// 석영 : 이동을 위한 함수

@@ -10,7 +10,6 @@ public:
 
 public:
 	virtual void Initailize();
-	void UpdateTransform();
 
 public:
 	PxRigidStatic* m_Rigid;

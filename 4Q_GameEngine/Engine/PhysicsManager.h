@@ -12,6 +12,12 @@
 	2. 물리 컴포넌트 씬 바뀔때마다 삭제 / 추가 기능 하기.
 */
 
+enum PhysicsType
+{
+	DYNAMIC,
+	STATIC
+};
+
 using namespace physx;
 using namespace std;
 
@@ -27,10 +33,12 @@ public:
 	void Initialize();
 	void Update(float deltatime);
 
-	void ChangePxScene(ECS::World* world);
+	void ChangePxScene();
+	void CreateCollider(BoxCollider* boxcollider,PhysicsType type);
+	void DebugSetUp();
 
 public:
-	//PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> 시각화 하여 디버깅 할 수 있는 프로그램?
+	PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> 시각화 하여 디버깅 할 수 있는 프로그램
 	PxFoundation* m_pFoundation = nullptr;
 	PxDefaultAllocator		m_Allocator;
 	PxDefaultErrorCallback	m_ErrorCallback;
@@ -40,7 +48,7 @@ public:
 
 	// PxScene 관련
 	std::map<ECS::World*,PxScene*> m_pPxScenes; 
-	PxScene* m_pCurrentPxScene;
+	PxScene* m_pCurrentPxScene=nullptr;
 
 	// Colliders
 	vector<DynamicCollider*> m_pDynamicColliders;
