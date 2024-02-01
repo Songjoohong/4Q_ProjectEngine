@@ -164,10 +164,7 @@
     <ClInclude Include="DebugSystem.h" />
     <ClInclude Include="ECS.h" />
     <ClInclude Include="Engine.h" />
-    <ClInclude Include="FSM.h" />
-    <ClInclude Include="FSMSystem.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="IdleState.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="ISingleton.h" />
     <ClInclude Include="Light.h" />
@@ -182,12 +179,10 @@
     <ClInclude Include="SampleScript.h" />
     <ClInclude Include="Script.h" />
     <ClInclude Include="ScriptSystem.h" />
-    <ClInclude Include="SkinnedMesh.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="SoundManager.h" />
     <ClInclude Include="SoundSystem.h" />
     <ClInclude Include="SpriteSystem.h" />
-    <ClInclude Include="State.h" />
     <ClInclude Include="StaticMesh.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Transform.h" />
@@ -197,7 +192,6 @@
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="DebugSystem.cpp" />
     <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="FSMSystem.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="pch.cpp">

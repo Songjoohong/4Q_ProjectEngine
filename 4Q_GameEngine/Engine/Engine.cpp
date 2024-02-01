@@ -124,18 +124,6 @@ void Engine::Update()
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
-
-
-
-	if (InputManager::GetInstance()->GetMouseButtonDown(0))
-	{
-		SoundManager::GetInstance()->RemoveChannel("better-day-186374.mp3");
-	}
-	else if(InputManager::GetInstance()->GetMouseButtonDown(2))
-	{
-		//SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
-	}
-
 	RenderManager::GetInstance()->Update();
 }
 

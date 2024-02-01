@@ -96,9 +96,6 @@
     <ClInclude Include="StaticMesh.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="SkinnedMesh.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="PlayerInputSystem.h">
       <Filter>System\Input</Filter>
     </ClInclude>
@@ -129,20 +126,11 @@
     <ClInclude Include="framework.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="FSMSystem.h">
-      <Filter>System\FSM</Filter>
-    </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="CollisionSystem.h">
       <Filter>System\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="State.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="FSM.h">
-      <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>Manager\Input</Filter>
@@ -152,9 +140,6 @@
     </ClInclude>
     <ClInclude Include="WorldManager.h">
       <Filter>Manager\World</Filter>
-    </ClInclude>
-    <ClInclude Include="IdleState.h">
-      <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="RenderManager.h">
       <Filter>Manager\Render</Filter>
@@ -202,9 +187,6 @@
     </ClCompile>
     <ClCompile Include="ScriptSystem.cpp">
       <Filter>System\Script</Filter>
-    </ClCompile>
-    <ClCompile Include="FSMSystem.cpp">
-      <Filter>System\FSM</Filter>
     </ClCompile>
     <ClCompile Include="CollisionSystem.cpp">
       <Filter>System\Collision</Filter>
