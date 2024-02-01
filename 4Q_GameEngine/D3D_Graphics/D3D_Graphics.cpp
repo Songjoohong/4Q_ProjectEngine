@@ -288,6 +288,7 @@ void Renderer::MeshRender()
 	{
 		if (pPrevMaterial != it->m_pMaterial)
 		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(it->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetShader(it->m_pMaterial->m_pixelShader.m_pPixelShader.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 
@@ -309,6 +310,7 @@ void Renderer::ShadowRender()
 	{
 		if (pPrevMaterial != it->m_pMaterial)
 		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(m_pShadowVS.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pShadowPS.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetSamplers(1, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 
@@ -394,7 +396,7 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    SetCamera();
+    //SetCamera();
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
     m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
     for (auto& model : m_pStaticModels)
@@ -534,8 +536,17 @@ void Renderer::UnInitImgui()
 	ImGui::DestroyContext();
 }
 
+void Renderer::CreateShadowVS()
+{
+	// minjeong : CreateShadowVS
+	ID3D10Blob* vertexShaderBuffer = nullptr;
+	HR_T(CompileShaderFromFile(L"../Resource/ShadowVertexShader.hlsl", 0, "main", "vs_5_0", &vertexShaderBuffer));
+	HR_T(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, m_pShadowVS.GetAddressOf()));
+}
+
 void Renderer::CreateShadowPS()
 {
+	// minjeong : CreateShadowPS
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 	HR_T(CompileShaderFromFile(L"../Resource/ShadowDepthPS.hlsl", 0, "main", "ps_5_0", &pixelShaderBuffer));
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, m_pShadowPS.GetAddressOf()));
@@ -716,11 +727,10 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&lightbd, nullptr, &m_pLightBuffer));
 
-	//그림자 픽셀쉐이더
+	// minjeong : Create VS & PS
 	CreateShadowPS();
+	CreateShadowVS();
 
-
-  
     //뎁스 스텐실 스테이트 초기화
     D3D11_DEPTH_STENCIL_DESC dsd = {};
     dsd.DepthEnable = true;

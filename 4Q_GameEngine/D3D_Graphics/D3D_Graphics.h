@@ -78,10 +78,8 @@ public:
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 
-	ComPtr<ID3D11PixelShader>ps;
-
-
-	// shadow ���� ��ü
+	// minjeong : shadow Interface
+	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
@@ -215,6 +213,8 @@ public:
 	void RenderImgui();
 	void UnInitImgui();
 
+	// minjeong : Create Shadow VS & PS
+	void CreateShadowVS();
 	void CreateShadowPS();
 
 private:
