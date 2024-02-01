@@ -171,6 +171,7 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
+}
 
 DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
 {
@@ -348,7 +349,7 @@ void Renderer::Update()
 
 void Renderer::RenderBegin()
 {
-    m_projectionMatrixCB.mProjcetion = m_projectionMatrix.Transpose();
+    m_projectionMatrixCB.mProjection = m_projectionMatrix.Transpose();
 
     m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
 
@@ -534,6 +535,7 @@ void Renderer::RenderImgui()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
 
 void Renderer::GetVideoMemoryInfo(std::string& out) const 
 {

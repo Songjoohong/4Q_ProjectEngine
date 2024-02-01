@@ -36,6 +36,8 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> collider, ComponentHandle<Transform> transform)->void
 		{
 			RenderManager::GetInstance()->AddStaticMesh("FBXLoad_Test/fbx/Character.fbx", p, r, s);
+		});
+
 
 	
 	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> collider, ComponentHandle<Transform> transform)->void
