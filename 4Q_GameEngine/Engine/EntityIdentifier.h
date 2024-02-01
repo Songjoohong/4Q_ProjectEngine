@@ -14,7 +14,7 @@ struct EntityIdentifier
 	std::string m_EntityName = " ";
 	int			m_EntityId = 0;
 	int			m_ParentEntityId = 0;
-
+	std::vector<Entity*> m_children;
 	std::string m_ComponentName = "EntityIdentifier";
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(EntityIdentifier, m_EntityId, m_EntityName, m_ParentEntityId)
 };

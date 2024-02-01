@@ -51,7 +51,7 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
-	SetParent(m_Pot, m_Box);
+	//SetParent(m_Pot, m_Box);
 
 	// 부모자식관계 안됨...
 	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
@@ -406,8 +406,8 @@ void GameEditor::NewScene()
 
 }
 
-void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
-{
-	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
-	parent->childernId.push_back(child->getEntityId());
-}
+//void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
+//{
+//	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
+//	parent->childernId.push_back(child->getEntityId());
+//}
