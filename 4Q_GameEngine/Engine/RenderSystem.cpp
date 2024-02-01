@@ -21,6 +21,7 @@ void RenderSystem::Deconfigure(ECS::World* world)
 
 void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 {
+
 	static Vector3D p1 = Vector3D(0, 0, 0);
 	Vector3D r1 = Vector3D(0, 80, 0);
 	Vector3D s1 = Vector3D(200, 200, 200);
@@ -35,6 +36,11 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> collider, ComponentHandle<Transform> transform)->void
 		{
 			RenderManager::GetInstance()->AddStaticMesh("FBXLoad_Test/fbx/Character.fbx", p, r, s);
+
+	
+	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> collider, ComponentHandle<Transform> transform)->void
+		{
+			RenderManager::GetInstance()->AddStaticMesh("FBXLoad_Test/fbx/zeldaPosed001.fbx", transform->m_Position, transform->m_Rotation, transform->m_Scale);
 		});
 }
 
@@ -45,6 +51,9 @@ void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssi
 
 void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<StaticMesh>& event)
 {
+
 	RenderManager::GetInstance()->CreateModel("FBXLoad_Test/fbx/plane.fbx");
 	RenderManager::GetInstance()->CreateModel("FBXLoad_Test/fbx/Character.fbx");
+	RenderManager::GetInstance()->CreateModel("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+
 }

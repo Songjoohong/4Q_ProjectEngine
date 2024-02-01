@@ -3,6 +3,13 @@
 #include "StaticMeshResource.h"
 #include "ResourceManager.h"
 #include "StaticModel.h"
+#include "../Engine/Debug.h"
+
+#include "DebugDraw.h"
+
+#include "../Engine/TimeManager.h"
+
+
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -26,12 +33,16 @@ Renderer::~Renderer()
 void Renderer::Clear(float r, float g, float b)
 {
 	const float clearColor[4] = { r,g,b,1 };
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
 void Renderer::Clear(Math::Vector3 color)
 {
 	const float clearColor[4] = { color.x,color.y,color.z,1 };
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
@@ -57,6 +68,32 @@ void Renderer::AddMeshInstance(StaticModel* model)
 	{
 		m_pMeshInstance.push_back(&mesh);
 	}
+}
+
+void Renderer::AddDebugInformation(const int id, const std::string& text, const Vector3D& position)
+{
+
+	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
+	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
+	const float depth = conversion.z;
+
+	const DebugInformation newDebug = { id, text, pos, depth };
+	m_debugs.push_back(newDebug);
+}
+
+void Renderer::EditDebugInformation(int id, const std::string& text, const Vector3D& position)
+{
+	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
+	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
+	const float depth = conversion.z;
+
+	auto it = std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+		{
+			return id == debug.entityID;
+		});
+	it->mPosition = pos;
+	it->depth = depth;
+	it->mText = text;
 }
 
 void Renderer::CreateModel(string filename)
@@ -134,6 +171,25 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
+
+DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
+{
+	Math::Matrix matrix;
+	matrix.Translation(Vector3(pos.GetX(), pos.GetY(), pos.GetZ()));
+	matrix = matrix * m_viewMatrix * m_projectionMatrix;
+
+	return { matrix._41, matrix._42, matrix._43 };
+}
+
+const wchar_t* Renderer::ConvertToWchar(const string& str) const
+{
+	const int bufferSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
+	const auto finalText = new wchar_t[bufferSize];
+
+	// string wchar_t로 변환
+	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, finalText, bufferSize);
+
+	return finalText;
 }
 
 void Renderer::CreateSamplerState()
@@ -148,25 +204,18 @@ void Renderer::CreateSamplerState()
 	sd.MinLOD = 0;
 	sd.MaxLOD = D3D11_FLOAT32_MAX;
 	HR_T(m_pDevice->CreateSamplerState(&sd, m_pSampler.GetAddressOf()));
-
-	//shadow sampler 초기화
-	//sd = {};
-	//sd.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-	//sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-	//sd.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
-	//sd.ComparisonFunc = D3D11_COMPARISON_LESS;
-	//sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	//sd.MaxLOD = 0;
-	//sd.MaxLOD = D3D11_FLOAT32_MAX;
-	//HR_T(m_pDevice->CreateSamplerState(&sd, m_pShadowSampler.GetAddressOf()));
 }
 
-StaticModel* Renderer::LoadStaticModel(string filename)
+void Renderer::FrustumCulling(StaticModel* model)
 {
-	StaticModel* staticModel = new StaticModel();
-	staticModel->Load(filename);
-	return staticModel;
+	if (m_frustumCmaera.Intersects(model->m_boundingBox))
+	{
+		AddMeshInstance(model);
+	}
 }
+
+
+
 
 
 void Renderer::ApplyMaterial(Material* pMaterial)
@@ -235,6 +284,43 @@ void Renderer::ShadowRender()
 	}
 }
 
+void Renderer::MakeModelEmpty()
+{
+	for (auto& model : m_pStaticModels)
+	{
+		if (model->GetSceneResource() != nullptr)
+		{
+			model->SetSceneResource(nullptr);
+			model->m_meshInstance.clear();
+			model->m_boundingBox = {};
+			model->m_worldTransform = Math::Matrix{};
+		}
+	}
+}
+
+void Renderer::RenderDebugDraw()
+{
+    m_pDeviceContext->OMSetBlendState(DebugDraw::g_States->Opaque(), nullptr, 0xFFFFFFFF);
+    //m_pDeviceContext->RSSetState(DebugDraw::g_States->CullNone());
+
+    DebugDraw::g_BatchEffect->Apply(m_pDeviceContext.Get());
+    DebugDraw::g_BatchEffect->SetView(m_viewMatrix);
+    DebugDraw::g_BatchEffect->SetProjection(m_projectionMatrix);
+
+    m_pDeviceContext->IASetInputLayout(DebugDraw::g_pBatchInputLayout.Get());
+
+    DebugDraw::g_Batch->Begin();
+
+    for (auto& model : m_pStaticModels)
+    {
+        DebugDraw::Draw(DebugDraw::g_Batch.get(), model->m_boundingBox,
+            model->m_bIsCulled ? Colors::Red : Colors::Blue);
+    }
+
+    DebugDraw::g_Batch->End();
+
+}
+
 void Renderer::Update()
 {
 	//라이트 방향 업데이트
@@ -262,8 +348,60 @@ void Renderer::Update()
 
 void Renderer::RenderBegin()
 {
-	Clear();
-	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_projectionMatrixCB.mProjcetion = m_projectionMatrix.Transpose();
+
+    m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
+
+    m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+    m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+
+    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+
+    SetCamera();
+    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
+    m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
+    for (auto& model : m_pStaticModels)
+    {
+        if (model->GetSceneResource() == nullptr)
+            break;
+        FrustumCulling(model);
+    }
+    
+    Clear();
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+void Renderer::RenderText() const
+{
+	m_spriteBatch->Begin();
+	for (int i = 0; i < m_debugs.size(); i++)
+	{
+		const wchar_t* text = ConvertToWchar(m_debugs[i].mText);
+		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_debugs[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f);
+
+		delete[] text;
+	}
+	string Memory;
+	GetVideoMemoryInfo(Memory);
+	const wchar_t* videoMemory = ConvertToWchar(Memory);
+	m_spriteFont->DrawString(m_spriteBatch.get(), videoMemory, DirectX::XMFLOAT2(0.f,0.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
+	delete[] videoMemory;
+
+	GetSystemMemoryInfo(Memory);
+	const wchar_t* systemMemory = ConvertToWchar(Memory);
+	m_spriteFont->DrawString(m_spriteBatch.get(), systemMemory, DirectX::XMFLOAT2(0.f, 20.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
+	delete[] systemMemory;
+
+	float FPS = TimeManager::GetInstance()->GetFPS();
+	string strFPS = "Frame per Second : " + std::to_string(FPS);
+	const wchar_t* wFPS = ConvertToWchar(strFPS);
+	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
+	delete[] wFPS;
+	m_spriteBatch->End();
+
 }
 
 void Renderer::Render()
@@ -296,6 +434,11 @@ void Renderer::Render()
 	//메쉬 렌더
 	MeshRender();
 
+  RenderDebugDraw();
+  
+  RenderText();
+  m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+  
 	//임구이 렌더
 	RenderImgui();
 }
@@ -304,6 +447,7 @@ void Renderer::RenderEnd()
 {
 	m_pSwapChain->Present(0, 0);
 	m_pMeshInstance.clear();
+	MakeModelEmpty();
 }
 
 bool Renderer::InitImgui(HWND hWnd)
@@ -315,6 +459,7 @@ bool Renderer::InitImgui(HWND hWnd)
 	// ImGui 스타일 설정
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
+
 
 	// 플랫폼, 렌더러 설정
 	ImGui_ImplWin32_Init(hWnd);
@@ -389,6 +534,21 @@ void Renderer::RenderImgui()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+void Renderer::GetVideoMemoryInfo(std::string& out) const 
+{
+	DXGI_QUERY_VIDEO_MEMORY_INFO videoMemoryInfo;
+	m_pDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &videoMemoryInfo);
+	out = "Video Memory : " + std::to_string(videoMemoryInfo.CurrentUsage / 1024 / 1024) + " MB" + " / " + std::to_string(videoMemoryInfo.Budget / 1024 / 1024) + " MB";
+}
+
+void Renderer::GetSystemMemoryInfo(std::string& out) const
+{
+	HANDLE hProcess = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	pmc.cb = sizeof(PROCESS_MEMORY_COUNTERS_EX);
+	GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+	out = "System Memory : " + std::to_string((pmc.PagefileUsage) / 1024 / 1024) + " MB";
 }
 
 void Renderer::SetCamera(Math::Vector3 position, Math::Vector3 eye, Math::Vector3 up)
@@ -414,11 +574,14 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapDesc.OutputWindow = *hWnd;
 
+
 	swapDesc.Windowed = true;
 	swapDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 
+
 	swapDesc.BufferDesc.Width = width;
 	swapDesc.BufferDesc.Height = height;
+
 
 	swapDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapDesc.BufferDesc.RefreshRate.Denominator = 1;
@@ -433,14 +596,21 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-	//디바이스, 스왑체인, 디바이스 컨텍스트 생성
-	HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, &m_pSwapChain, &m_pDevice, NULL, &m_pDeviceContext));
 
-	//렌더타겟 뷰 생성
-	ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
-	HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
-	HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, &m_pRenderTargetView));
 
+  //디바이스, 스왑체인, 디바이스 컨텍스트 생성
+  HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, m_pSwapChain.GetAddressOf(), m_pDevice.GetAddressOf(), NULL, m_pDeviceContext.GetAddressOf()));
+
+  m_spriteFont = std::make_unique<DirectX::SpriteFont>(m_pDevice.Get()
+      , m_fontFilePath);
+  m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(m_pDeviceContext.Get());
+
+
+  //렌더타겟 뷰 생성
+  ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
+  HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
+  HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
+  
 	//뷰포트, 뎁스 스텐실 뷰, 샘플러 상태 설정
 	CreateViewport(width, height);
 	CreateDepthStencilView(width, height);
@@ -489,9 +659,48 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	//그림자 픽셀쉐이더
 	CreateShadowPS();
 
-	//Imgui
+
+  
+    //뎁스 스텐실 스테이트 초기화
+    D3D11_DEPTH_STENCIL_DESC dsd = {};
+    dsd.DepthEnable = true;
+    dsd.StencilEnable = false;
+    dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    dsd.DepthFunc = D3D11_COMPARISON_LESS;
+    dsd.StencilReadMask = D3D11_DEFAULT_STENCIL_READ_MASK;
+    dsd.StencilWriteMask = D3D11_DEFAULT_STENCIL_WRITE_MASK;
+    dsd.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsd.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+    dsd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+    dsd.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    dsd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+    dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
+
+    D3D11_RASTERIZER_DESC rasterizerDesc = {};
+    rasterizerDesc.AntialiasedLineEnable = true;
+    rasterizerDesc.MultisampleEnable = true;
+    rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+    rasterizerDesc.CullMode = D3D11_CULL_BACK;
+    rasterizerDesc.FrontCounterClockwise = false;
+    rasterizerDesc.DepthClipEnable = true;
+    HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
+    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
+
+   
+    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
+
+    DebugDraw::Initialize(m_pDevice, m_pDeviceContext);
+  
+  	//Imgui
 	if (!InitImgui(*hWnd))
 		return false;
+  
+    return true;
 
-	return true;
 }

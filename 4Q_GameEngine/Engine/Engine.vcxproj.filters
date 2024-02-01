@@ -64,6 +64,9 @@
     <Filter Include="System\Sound">
       <UniqueIdentifier>{b8066904-18ec-4f48-ac15-3d1b920a6ad0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Debug">
+      <UniqueIdentifier>{e92f1956-2673-4e65-815e-35cf5af77dd0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -165,6 +168,12 @@
     <ClInclude Include="SoundSystem.h">
       <Filter>System\Sound</Filter>
     </ClInclude>
+    <ClInclude Include="DebugSystem.h">
+      <Filter>System\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -211,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="SoundSystem.cpp">
       <Filter>System\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugSystem.cpp">
+      <Filter>System\Debug</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -15,6 +15,13 @@ void TimeManager::Update()
 
 	m_DeltaTime = static_cast<float>(m_CurrentTime.QuadPart - m_PreviousTime.QuadPart) / static_cast<float>(m_Frequency.QuadPart);
 
+	m_ElapsedTime += m_DeltaTime;
+	if(m_ElapsedTime >= 1.f)
+	{
+		m_FPS = 1.f / m_DeltaTime;
+		m_ElapsedTime = 0.f;
+	}
+
 	if (m_IsPaused)
 	{
 		m_PausedTime += m_DeltaTime;
@@ -46,4 +53,9 @@ void TimeManager::Resume()
 float TimeManager::GetDeltaTime() const
 {
 	return m_DeltaTime;
+}
+
+float TimeManager::GetFPS() const
+{
+	return m_FPS;
 }

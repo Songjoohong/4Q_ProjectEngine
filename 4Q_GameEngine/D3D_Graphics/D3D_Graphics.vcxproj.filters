@@ -101,6 +101,9 @@
     <ClInclude Include="StaticModel.h">
       <Filter>Model</Filter>
     </ClInclude>
+    <ClInclude Include="DebugDraw.h">
+      <Filter>0.Helper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D_Graphics.cpp">
@@ -144,6 +147,9 @@
     </ClCompile>
     <ClCompile Include="StaticModel.cpp">
       <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugDraw.cpp">
+      <Filter>0.Helper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

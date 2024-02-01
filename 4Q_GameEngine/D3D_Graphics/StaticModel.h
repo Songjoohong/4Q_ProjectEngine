@@ -11,7 +11,10 @@ private:
     shared_ptr<StaticSceneResource> m_pStaticSceneResource=nullptr;
 
 public:
+    DirectX::BoundingBox m_boundingBox;
     std::vector<StaticMeshInstance> m_meshInstance = {};
+    bool m_bIsCulled=false;
+
     StaticModel() {}
     StaticModel(const StaticModel& obj) {}
     StaticModel(const StaticModel&& obj) noexcept {}

@@ -2,35 +2,39 @@
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    // Diffuse¿¡ DirectionalLight Àû¿ë
+    // Diffuseï¿½ï¿½ DirectionalLight ï¿½ï¿½ï¿½ï¿½
     float3 Normal = normalize(input.NorWorld);
     float3 LightDirection = normalize(Direction.xyz);
     float NDotL = max(dot(Normal, -LightDirection), 0);
     float4 BaseColor = NDotL * txDiffuse.Sample(samplerLinear, input.Texcoord);
 
-    //// ±×¸²ÀÚÃ³¸® ºÎºÐ
-	// ±¤¿øNDC ÁÂÇ¥°è¿¡¼­ÀÇ ÁÂÇ¥´Â °è»êÇØÁÖÁö ¾ÊÀ¸¹Ç·Î °è»êÇÑ´Ù.
+    //// ï¿½×¸ï¿½ï¿½ï¿½Ã³ï¿½ï¿½ ï¿½Îºï¿½
+	// ï¿½ï¿½ï¿½ï¿½NDC ï¿½ï¿½Ç¥ï¿½è¿¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½.
     float currentShadowDepth = input.PosShadow.z / input.PosShadow.w;
-	// ±¤¿øNDC ÁÂÇ¥°è¿¡¼­ÀÇ x(-1 ~ +1) , y(-1 ~ +1)  
+	// ï¿½ï¿½ï¿½ï¿½NDC ï¿½ï¿½Ç¥ï¿½è¿¡ï¿½ï¿½ï¿½ï¿½ x(-1 ~ +1) , y(-1 ~ +1)  
     float2 uv = input.PosShadow.xy / input.PosShadow.w;
-	// NDCÁÂÇ¥°è ÁÂÇ¥·Î »ùÇÃ¸µÇÏ±âÀ§ÇØ Texture ÁÂÇ¥°è·Î º¯È¯ÇÑ´Ù.
-    uv.y = -uv.y; // y´Â ¹Ý´ë
-    uv = uv * 0.5 + 0.5; // -1 ¿¡¼­ 1À» 0~1·Î º¯È¯
+	// NDCï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¸ï¿½ï¿½Ï±ï¿½ï¿½ï¿½ï¿½ï¿½ Texture ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½.
+    uv.y = -uv.y; // yï¿½ï¿½ ï¿½Ý´ï¿½
+    uv = uv * 0.5 + 0.5; // -1 ï¿½ï¿½ï¿½ï¿½ 1ï¿½ï¿½ 0~1ï¿½ï¿½ ï¿½ï¿½È¯
 	
-	// ShadowMap¿¡ ±â·ÏµÈ Depth°¡Á®¿À±â 
-	// Ä¿¹öÇÒ¼ö ÀÖ´Â ¿µ¿ªÀÌ ¾Æ´Ï¸é Ã³¸®ÇÏÁö¾ÊÀ½
+	// ShadowMapï¿½ï¿½ ï¿½ï¿½Ïµï¿½ Depthï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+	// Ä¿ï¿½ï¿½ï¿½Ò¼ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Ï¸ï¿½ Ã³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     float3 directionLighting = 0.0f;
     if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
     {
         float sampleShadowDepth = txShadow.Sample(samplerLinear, uv).r;
-		// currentShadowDepth°¡ Å©¸é ´õ µÚÂÊ¿¡ ÀÖÀ¸¹Ç·Î Á÷Á¢±¤ÀÌ Â÷´ÜµÈ´Ù.
+		// currentShadowDepthï¿½ï¿½ Å©ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½Ê¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÜµÈ´ï¿½.
         if (currentShadowDepth > sampleShadowDepth + 0.001)
         {
             directionLighting = 0.0f;
         }
     }
     
+
     float3 final = directionLighting + BaseColor;
 
     return float4(final, 1.0f);
+
+
+
 }

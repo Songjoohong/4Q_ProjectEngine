@@ -569,7 +569,7 @@ namespace ECS
 			WorldAllocator worldAlloc(alloc);
 			World* world = std::allocator_traits<WorldAllocator>::allocate(worldAlloc, 1);
 			std::allocator_traits<WorldAllocator>::construct(worldAlloc, world, alloc);
-			//world->Serialize(fileName);
+
 			return world;
 		}
 

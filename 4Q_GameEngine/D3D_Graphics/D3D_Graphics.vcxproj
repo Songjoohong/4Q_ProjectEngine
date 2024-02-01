@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="D3D_Graphics.h" />
+    <ClInclude Include="DebugDraw.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Helper.h" />
     <ClInclude Include="InputLayout.h" />
@@ -161,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D_Graphics.cpp" />
+    <ClCompile Include="DebugDraw.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="Material.cpp" />
