@@ -26,16 +26,12 @@ Renderer::~Renderer()
 void Renderer::Clear(float r, float g, float b)
 {
 	const float clearColor[4] = { r,g,b,1 };
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
 void Renderer::Clear(Math::Vector3 color)
 {
 	const float clearColor[4] = { color.x,color.y,color.z,1 };
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
@@ -79,7 +75,6 @@ void Renderer::SetViewport(UINT width, UINT height)
 	m_viewport.Height = (float)height;
 	m_viewport.MinDepth = 0.f;
 	m_viewport.MaxDepth = 1.f;
-	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 
 	//Shadow 뷰포트 설정
 	m_shadowViewport.TopLeftX = 0;
@@ -141,7 +136,6 @@ void Renderer::SetDepthStencilView(UINT width, UINT height)
 	HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
 }
 
-
 StaticModel* Renderer::LoadStaticModel(string filename)
 {
 	StaticModel* staticModel = new StaticModel();
@@ -193,43 +187,64 @@ void Renderer::MeshRender()
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(Renderer::Instance->m_pDeviceContext.Get());
 	}
-
 }
 
 void Renderer::Update()
 {
-	//Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 700.f, 4000.f);
-	//Vector3 shadowLookAt = m_viewMatrix.Translation() + m_viewMatrix.Forward() * 1000;
-	//Vector3 shadowPos = shadowLookAt + (-)
-}
-
-void Renderer::RenderBegin()
-{
-	Clear();
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-void Renderer::Render()
-{
-	//뷰 매트릭스를 버퍼에 업데이트
-	m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
-
-	m_viewMatrixCB.mView = m_viewMatrix.Transpose();
-
-	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
-
-	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
-	m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
-
-	//라이트 방향을 버퍼에 업데이트
+	//라이트 방향 업데이트
 	m_pDeviceContext->UpdateSubresource(m_pLightBuffer.Get(), 0, nullptr, &m_lightCB, 0, 0);
 
 	m_pDeviceContext->VSSetConstantBuffers(3, 1, m_pLightBuffer.GetAddressOf());
 	m_pDeviceContext->PSSetConstantBuffers(3, 1, m_pLightBuffer.GetAddressOf());
 
+	//뷰 매트릭스(카메라) 업데이트
+	m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
+
+	m_viewMatrixCB.mView = m_viewMatrix.Transpose();
+
+	//그림자 View, Projection 매트릭스 생성
+	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 7000.0f, 20000.0f);
+	Vector3 shadowLookAt = m_cameraPos + m_cameraPos.Forward * 1000;
+	Vector3 shadowPos = shadowLookAt + (m_lightCB.mDirection * 5000);
+	Matrix shadowView = DirectX::XMMatrixLookAtLH(shadowPos, shadowLookAt, Vector3(0.f, 1.f, 0.f));
+
+	m_viewMatrixCB.mShadowView = shadowView.Transpose();
+	m_projectionMatrixCB.mShadowProjection = shadowProjection.Transpose();
+}
+
+void Renderer::RenderBegin()
+{
+	Clear();
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+void Renderer::Render()
+{
+	//그림자 맵 생성
+	m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
+	m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pShadowMapDSV.Get());
+	m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->PSSetShader(NULL, NULL, 0);
+
+	//그림자의 View, Projection 포함하여 버퍼에 업데이트
+	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
+	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
+	m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
+
+	m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
+	m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+
+	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->RSSetViewports(1, &m_viewport);
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
+
+	//메쉬 렌더
 	MeshRender();
+
+	//임구이 렌더
 	RenderImgui();
 }
 
@@ -282,14 +297,32 @@ void Renderer::RenderImgui()
 		ImGui::Text("Position");
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##cpx", &x, -10000.f, 10000.f);
+		ImGui::SliderFloat("##cpx", &x, -1000.f, 1000.f);
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##cpy", &y, -10000.f, 10000.f);
+		ImGui::SliderFloat("##cpy", &y, -1000.f, 1000.f);
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##cpz", &z, -10000.f, 10000.f);
+		ImGui::SliderFloat("##cpz", &z, -1000.f, 1000.f);
 		m_cameraPos = DirectX::XMVectorSet(x, y, z, 0.0f);
+		ImGui::End();
+	}
+
+	//Light Property
+	{
+		ImGui::Begin("Light Properties");
+		ImGui::Text("Direction");
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpx", &m_lightCB.mDirection.x, -1.f, 1.f);
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpy", &m_lightCB.mDirection.y, -1.f, 1.f);
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpz", &m_lightCB.mDirection.z, -1.f, 1.f);
+		ImGui::Text("Shadow");
+		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
 		ImGui::End();
 	}
 
@@ -389,16 +422,8 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pProjectionBuffer));
-	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, width / (FLOAT)height, 0.1, 100000);
-
+	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, width / (FLOAT)height, 0.1f, 100000.0f);
 	m_projectionMatrixCB.mProjection = m_projectionMatrix.Transpose();
-
-	m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
-
-	m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
-	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
-
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
 	//라이트 상수버퍼
 	D3D11_BUFFER_DESC lightbd;

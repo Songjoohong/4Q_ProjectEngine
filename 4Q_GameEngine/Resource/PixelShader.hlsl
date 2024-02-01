@@ -2,6 +2,7 @@
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
+    // Diffuse¿¡ DirectionalLight Àû¿ë
     float3 Normal = normalize(input.NorWorld);
     float3 LightDirection = normalize(Direction.xyz);
     float NDotL = max(dot(Normal, -LightDirection), 0);
