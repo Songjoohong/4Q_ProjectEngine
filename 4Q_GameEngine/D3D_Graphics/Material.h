@@ -24,7 +24,7 @@ public:
     ~Material(){}
 
     PixelShader m_pixelShader;
-    PixelShader m_shadowPixelShader;
+    //PixelShader m_shadowPixelShader;
 
 private:
     std::wstring m_fileName;

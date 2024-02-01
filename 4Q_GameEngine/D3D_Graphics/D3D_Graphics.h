@@ -1,11 +1,11 @@
 #pragma once
 #include "pch.h"
 
-
 class StaticMeshResource;
 class StaticModel;
 class Material;
 class StaticMeshInstance;
+
 
 const size_t BUFFER_SIZE = 2;
 
@@ -49,9 +49,11 @@ public:
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
 
 	// shadow 위한 객체
+	ComPtr<ID3D11PixelShader> m_pShadowPS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
 	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
+	ComPtr<ID3D11SamplerState> m_pShadowSampler;
 	D3D11_VIEWPORT m_viewport;
 	D3D11_VIEWPORT m_shadowViewport;
 
@@ -80,6 +82,8 @@ public:
 	//라이트
 	cbLight m_lightCB;
 
+	Vector3 m_shadowDirection;
+
 public:
 	//d3d객체 초기화
 	bool Initialize(HWND* hWnd, UINT width, UINT height);
@@ -102,8 +106,9 @@ public:
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
-	void SetViewport(UINT width, UINT height);
-	void SetDepthStencilView(UINT width, UINT height);
+	void CreateViewport(UINT width, UINT height);
+	void CreateDepthStencilView(UINT width, UINT height);
+	void CreateSamplerState();
 
 	StaticModel* LoadStaticModel(string filename);
 
@@ -112,6 +117,7 @@ public:
 	void ApplyMaterial(Material* pMaterial);
 
 	void MeshRender();
+	void ShadowRender();
 
 	void Update();
 
@@ -122,6 +128,9 @@ public:
 	bool InitImgui(HWND hWnd);
 	void RenderImgui();
 	void UnInitImgui();
+
+	void CreateShadowPS();
+
 private:
 	string BasePath = "../Resource/";
 };

@@ -103,7 +103,7 @@ void Material::Create(aiMaterial* material)
         m_pRoughnessRV = ResourceManager::Instance->CreateMaterial(finalPath);
     }
     m_pixelShader.SetShader(L"PixelShader");
-    m_shadowPixelShader.SetShader(L"ShadowPixelShader");
+    //m_shadowPixelShader.SetShader(L"ShadowPixelShader");
 }
 
 void Material::SetFileName(const std::wstring& fileName)

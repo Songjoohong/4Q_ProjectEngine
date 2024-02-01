@@ -9,18 +9,11 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="리소스 파일">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Model">
       <UniqueIdentifier>{a122c07f-cf8f-4f5f-8554-e5f1570fe096}</UniqueIdentifier>
     </Filter>
     <Filter Include="Model\Mesh">
       <UniqueIdentifier>{2069963d-6a88-47d2-b296-253e761c7f38}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Model\Mesh\StaticMesh">
-      <UniqueIdentifier>{66ee21f0-3ba0-4c90-b8eb-fe54f50facfc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Model\Mesh\SkeletalMesh">
       <UniqueIdentifier>{6b874a8c-352b-4da3-9705-e2f9228e65ee}</UniqueIdentifier>
@@ -57,6 +50,9 @@
     </Filter>
     <Filter Include="Model\Instance\StaticMesh">
       <UniqueIdentifier>{d3130cfc-a3e5-4912-8425-ffd1a1ec980e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Mesh\StaticMesh">
+      <UniqueIdentifier>{66ee21f0-3ba0-4c90-b8eb-fe54f50facfc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -162,7 +158,10 @@
     <FxCompile Include="..\Resource\PixelShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\ShadowPixelShader.hlsl">
+    <FxCompile Include="..\Resource\ShadowDepthPS.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\ShadowVertexShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
   </ItemGroup>

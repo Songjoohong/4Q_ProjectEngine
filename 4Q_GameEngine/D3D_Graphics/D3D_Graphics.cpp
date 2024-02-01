@@ -8,7 +8,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
-#define SHADOWMAP_SIZE 16384
+#define SHADOWMAP_SIZE 1024
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -66,7 +66,7 @@ void Renderer::CreateModel(string filename)
 	m_pStaticModels.push_back(pModel);
 }
 
-void Renderer::SetViewport(UINT width, UINT height)
+void Renderer::CreateViewport(UINT width, UINT height)
 {
 	//뷰포트 설정
 	m_viewport.TopLeftX = 0;
@@ -85,7 +85,7 @@ void Renderer::SetViewport(UINT width, UINT height)
 	m_shadowViewport.MaxDepth = 1.f;
 }
 
-void Renderer::SetDepthStencilView(UINT width, UINT height)
+void Renderer::CreateDepthStencilView(UINT width, UINT height)
 {
 	//DepthStencilView 초기화
 	D3D11_TEXTURE2D_DESC descDepth = {};
@@ -134,6 +134,31 @@ void Renderer::SetDepthStencilView(UINT width, UINT height)
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 	HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
+}
+
+void Renderer::CreateSamplerState()
+{
+	//sampler 초기화
+	D3D11_SAMPLER_DESC sd = {};
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sd.MinLOD = 0;
+	sd.MaxLOD = D3D11_FLOAT32_MAX;
+	HR_T(m_pDevice->CreateSamplerState(&sd, m_pSampler.GetAddressOf()));
+
+	//shadow sampler 초기화
+	//sd = {};
+	//sd.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+	//sd.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+	//sd.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+	//sd.ComparisonFunc = D3D11_COMPARISON_LESS;
+	//sd.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	//sd.MaxLOD = 0;
+	//sd.MaxLOD = D3D11_FLOAT32_MAX;
+	//HR_T(m_pDevice->CreateSamplerState(&sd, m_pShadowSampler.GetAddressOf()));
 }
 
 StaticModel* Renderer::LoadStaticModel(string filename)
@@ -189,11 +214,31 @@ void Renderer::MeshRender()
 	}
 }
 
+void Renderer::ShadowRender()
+{
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+
+	Material* pPrevMaterial = nullptr;
+	for (auto it : m_pMeshInstance)
+	{
+		if (pPrevMaterial != it->m_pMaterial)
+		{
+			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pShadowPS.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetSamplers(1, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+
+			Renderer::Instance->ApplyMaterial(it->m_pMaterial);	// 머터리얼 적용
+			pPrevMaterial = it->m_pMaterial;
+		}
+		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
+		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+		it->Render(Renderer::Instance->m_pDeviceContext.Get());
+	}
+}
+
 void Renderer::Update()
 {
 	//라이트 방향 업데이트
 	m_pDeviceContext->UpdateSubresource(m_pLightBuffer.Get(), 0, nullptr, &m_lightCB, 0, 0);
-
 	m_pDeviceContext->VSSetConstantBuffers(3, 1, m_pLightBuffer.GetAddressOf());
 	m_pDeviceContext->PSSetConstantBuffers(3, 1, m_pLightBuffer.GetAddressOf());
 
@@ -203,10 +248,13 @@ void Renderer::Update()
 	m_viewMatrixCB.mView = m_viewMatrix.Transpose();
 
 	//그림자 View, Projection 매트릭스 생성
-	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 7000.0f, 20000.0f);
-	Vector3 shadowLookAt = m_cameraPos + m_cameraPos.Forward * 1000;
-	Vector3 shadowPos = shadowLookAt + (m_lightCB.mDirection * 5000);
+	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 300.0f, 20000.0f);
+	Vector3 shadowLookAt = { 0, 0, 0 };
+	Vector3 shadowPos = shadowLookAt + (m_lightCB.mDirection * 1000);
 	Matrix shadowView = DirectX::XMMatrixLookAtLH(shadowPos, shadowLookAt, Vector3(0.f, 1.f, 0.f));
+
+	m_shadowDirection = shadowLookAt - shadowPos;
+	m_shadowDirection.Normalize();
 
 	m_viewMatrixCB.mShadowView = shadowView.Transpose();
 	m_projectionMatrixCB.mShadowProjection = shadowProjection.Transpose();
@@ -235,7 +283,11 @@ void Renderer::Render()
 	m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
+	//그림자 렌더
+	ShadowRender();
+
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
+	Clear();
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
@@ -276,6 +328,13 @@ void Renderer::UnInitImgui()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+}
+
+void Renderer::CreateShadowPS()
+{
+	ID3D10Blob* pixelShaderBuffer = nullptr;
+	HR_T(CompileShaderFromFile(L"../Resource/ShadowDepthPS.hlsl", 0, "main", "ps_5_0", &pixelShaderBuffer));
+	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, m_pShadowPS.GetAddressOf()));
 }
 
 void Renderer::RenderImgui()
@@ -323,6 +382,8 @@ void Renderer::RenderImgui()
 		ImGui::SliderFloat("##lpz", &m_lightCB.mDirection.z, -1.f, 1.f);
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
+		string str = to_string(m_shadowDirection.x) + ", " + to_string(m_shadowDirection.y) + ", " + to_string(m_shadowDirection.z);
+		ImGui::Text("ShadowDirection : %s", str.c_str());
 		ImGui::End();
 	}
 
@@ -380,25 +441,15 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
 	HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, &m_pRenderTargetView));
 
-	//sampler 초기화
-	D3D11_SAMPLER_DESC sd = {};
-	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sd.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sd.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sd.MinLOD = 0;
-	sd.MaxLOD = D3D11_FLOAT32_MAX;
-	HR_T(m_pDevice->CreateSamplerState(&sd, &m_pSampler));
-
-	//뷰포트, 뎁스 스텐실 뷰 설정
-	SetViewport(width, height);
-	SetDepthStencilView(width, height);
+	//뷰포트, 뎁스 스텐실 뷰, 샘플러 상태 설정
+	CreateViewport(width, height);
+	CreateDepthStencilView(width, height);
+	CreateSamplerState();
 
 	//월드 상수버퍼
 	D3D11_BUFFER_DESC worldbd;
 	worldbd.Usage = D3D11_USAGE_DEFAULT;
-	worldbd.ByteWidth = static_cast<UINT>(sizeof(Math::Matrix));
+	worldbd.ByteWidth = sizeof(cbWorld);
 	worldbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	worldbd.CPUAccessFlags = 0;
 	worldbd.MiscFlags = 0;
@@ -408,7 +459,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	//뷰 상수버퍼
 	D3D11_BUFFER_DESC viewbd;
 	viewbd.Usage = D3D11_USAGE_DEFAULT;
-	viewbd.ByteWidth = static_cast<UINT>(sizeof(Math::Matrix));
+	viewbd.ByteWidth = sizeof(cbView);
 	viewbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	viewbd.CPUAccessFlags = 0;
 	viewbd.MiscFlags = 0;
@@ -434,6 +485,9 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	lightbd.MiscFlags = 0;
 
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&lightbd, nullptr, &m_pLightBuffer));
+
+	//그림자 픽셀쉐이더
+	CreateShadowPS();
 
 	//Imgui
 	if (!InitImgui(*hWnd))

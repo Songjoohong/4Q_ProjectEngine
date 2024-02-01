@@ -6,7 +6,8 @@ Texture2D txOpacity : register(t4);
 Texture2D txMetalic : register(t5);
 Texture2D txRoughness : register(t6);
 Texture2D txShadow : register(t7);
-SamplerState samplerState : register(s0);
+SamplerState samplerLinear : register(s0);
+SamplerState samplerMirror : register(s1);
 
 cbuffer ProjectionBuffer : register(b0)
 {
