@@ -78,10 +78,8 @@ public:
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 
-	ComPtr<ID3D11PixelShader>ps;
-
-
-	// shadow ���� ��ü
+	// minjeong : shadow Interface
+	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
@@ -143,7 +141,7 @@ public:
 
 
 	//화면 클리어
-	void Clear(float r=0,float g=0,float b=0);
+	void Clear(float r=1,float g=1,float b=1);
 
 	void Clear(Math::Vector3 color);
 
@@ -215,6 +213,8 @@ public:
 	void RenderImgui();
 	void UnInitImgui();
 
+	// minjeong : Create Shadow VS & PS
+	void CreateShadowVS();
 	void CreateShadowPS();
 
 private:

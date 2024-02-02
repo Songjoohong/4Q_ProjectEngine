@@ -17,7 +17,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
-#define SHADOWMAP_SIZE 1024
+#define SHADOWMAP_SIZE 16384
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -288,12 +288,14 @@ void Renderer::MeshRender()
 	{
 		if (pPrevMaterial != it->m_pMaterial)
 		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(it->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetShader(it->m_pMaterial->m_pixelShader.m_pPixelShader.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 
 			Renderer::Instance->ApplyMaterial(it->m_pMaterial);	// 머터리얼 적용
 			pPrevMaterial = it->m_pMaterial;
 		}
+		m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
 		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(Renderer::Instance->m_pDeviceContext.Get());
@@ -309,6 +311,7 @@ void Renderer::ShadowRender()
 	{
 		if (pPrevMaterial != it->m_pMaterial)
 		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(m_pShadowVS.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pShadowPS.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetSamplers(1, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 
@@ -368,12 +371,15 @@ void Renderer::Update()
 	//뷰 매트릭스(카메라) 업데이트
 	m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
 
+	//m_cameraEye = m_cameraEye - m_cameraEye.Forward;
+	//m_viewMatrix = DirectX::XMMatrixLookAtLH(m_cameraPos, m_cameraEye, m_cameraUp);
+
 	m_viewMatrixCB.mView = m_viewMatrix.Transpose();
 
 	//그림자 View, Projection 매트릭스 생성
 	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 300.0f, 20000.0f);
 	Vector3 shadowLookAt = { 0, 0, 0 };
-	Vector3 shadowPos = shadowLookAt + (m_lightCB.mDirection * 1000);
+	Vector3 shadowPos = shadowLookAt + (-m_lightCB.mDirection * 1000);
 	Matrix shadowView = DirectX::XMMatrixLookAtLH(shadowPos, shadowLookAt, Vector3(0.f, 1.f, 0.f));
 
 	m_shadowDirection = shadowLookAt - shadowPos;
@@ -394,7 +400,7 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    SetCamera();
+    //SetCamera();
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
     m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
     for (auto& model : m_pStaticModels)
@@ -481,6 +487,7 @@ void Renderer::Render()
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
 	//그림자 렌더
+	
 	ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
@@ -488,15 +495,15 @@ void Renderer::Render()
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
 
 	//메쉬 렌더
+	
 	MeshRender();
 
-	RenderDebugDraw();
+	/*RenderDebugDraw();
 	RenderText();
     RenderSprite();
-	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);*/
 
 	//임구이 렌더
 	RenderImgui();
@@ -534,8 +541,17 @@ void Renderer::UnInitImgui()
 	ImGui::DestroyContext();
 }
 
+void Renderer::CreateShadowVS()
+{
+	// minjeong : CreateShadowVS
+	ID3D10Blob* vertexShaderBuffer = nullptr;
+	HR_T(CompileShaderFromFile(L"../Resource/ShadowVertexShader.hlsl", 0, "main", "vs_5_0", &vertexShaderBuffer));
+	HR_T(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, m_pShadowVS.GetAddressOf()));
+}
+
 void Renderer::CreateShadowPS()
 {
+	// minjeong : CreateShadowPS
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 	HR_T(CompileShaderFromFile(L"../Resource/ShadowDepthPS.hlsl", 0, "main", "ps_5_0", &pixelShaderBuffer));
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, m_pShadowPS.GetAddressOf()));
@@ -716,11 +732,10 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&lightbd, nullptr, &m_pLightBuffer));
 
-	//그림자 픽셀쉐이더
+	// minjeong : Create VS & PS
 	CreateShadowPS();
+	CreateShadowVS();
 
-
-  
     //뎁스 스텐실 스테이트 초기화
     D3D11_DEPTH_STENCIL_DESC dsd = {};
     dsd.DepthEnable = true;
@@ -773,7 +788,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
 
     //포인트 라이트 테스트용
-    m_pointLight.SetPosition(Vector3(480, 00, 1000));
+    m_pointLight.SetPosition(Vector3(100, 0, 0));
     m_pointLight.SetRadius(500);
     m_pointLight.SetColor();
 

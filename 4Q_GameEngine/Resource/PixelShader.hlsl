@@ -4,48 +4,46 @@
 float4 main(PS_INPUT input) : SV_TARGET
 {
 
-    // Diffuse�� DirectionalLight ����
     float3 Normal = normalize(input.NorWorld);
     float3 LightDirection = normalize(Direction.xyz);
     float NDotL = max(dot(Normal, -LightDirection), 0);
-    float4 BaseColor = NDotL * txDiffuse.Sample(samplerLinear, input.Texcoord);
 
-    //// �׸���ó�� �κ�
-	// ����NDC ��ǥ�迡���� ��ǥ�� ��������� �����Ƿ� ����Ѵ�.
+    float4 BaseColor = txDiffuse.Sample(samplerLinear, input.Texcoord);
+    float4 ambient = BaseColor * 0.3;
+    float3 directionLighting = NDotL * BaseColor;
+    float3 pointlight = 0;
+    
+   float3 LightVector = LightPos - input.PosWorld;
+   float4 light = 1.f;
+   float len = length(LightVector);
+   float att = 1;
+   if (len < Radius)
+   {
+       float3 NL = LightVector / len;
+       att = 2000 / (len * len);
+        pointlight = BaseColor * att;
+    }
+
     float currentShadowDepth = input.PosShadow.z / input.PosShadow.w;
-	// ����NDC ��ǥ�迡���� x(-1 ~ +1) , y(-1 ~ +1)  
+
     float2 uv = input.PosShadow.xy / input.PosShadow.w;
-	// NDC��ǥ�� ��ǥ�� ���ø��ϱ����� Texture ��ǥ��� ��ȯ�Ѵ�.
-    uv.y = -uv.y; // y�� �ݴ�
-    uv = uv * 0.5 + 0.5; // -1 ���� 1�� 0~1�� ��ȯ
-	
-	// ShadowMap�� ��ϵ� Depth�������� 
-	// Ŀ���Ҽ� �ִ� ������ �ƴϸ� ó����������
-    float3 directionLighting = 0.0f;
+
+    uv.y = -uv.y; 
+    uv = uv * 0.5 + 0.5; 
+
+    
     if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
     {
         float sampleShadowDepth = txShadow.Sample(samplerLinear, uv).r;
-		// currentShadowDepth�� ũ�� �� ���ʿ� �����Ƿ� �������� ���ܵȴ�.
+		
         if (currentShadowDepth > sampleShadowDepth + 0.001)
         {
             directionLighting = 0.0f;
         }
     }
-    
 
-    float3 final = directionLighting + BaseColor;
-    
-    float3 LightVector = LightPos - input.PosWorld;
-    float4 light=1.f;
-    float len = length(LightVector);
-    float att = 1;
-    if(len<Radius)
-    {
-        float3 NL = LightVector / len;
-        att = 2000 / (len * len);
-        BaseColor = BaseColor * att;
-    }
+    float3 final = directionLighting + ambient + pointlight;
 
-    return BaseColor;
+    return float4(final, 1.0f);
 
 }
