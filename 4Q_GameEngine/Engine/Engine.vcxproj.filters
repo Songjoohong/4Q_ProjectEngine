@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -22,9 +14,6 @@
     <Filter Include="Component">
       <UniqueIdentifier>{7d6c694d-e54f-4ec7-945c-e68e12bdf4f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="System\Input">
-      <UniqueIdentifier>{f02e9943-7d0b-421d-9527-d7ee6cb04985}</UniqueIdentifier>
-    </Filter>
     <Filter Include="System\Movement">
       <UniqueIdentifier>{6d314a24-c87e-4376-b3ca-aeb76cf73a7c}</UniqueIdentifier>
     </Filter>
@@ -33,9 +22,6 @@
     </Filter>
     <Filter Include="System\Script">
       <UniqueIdentifier>{6522a474-3bdd-4b4d-9346-42295a7f232d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="System\FSM">
-      <UniqueIdentifier>{9352beb5-1053-4d58-bf62-e49fe22cbcc9}</UniqueIdentifier>
     </Filter>
     <Filter Include="System\Collision">
       <UniqueIdentifier>{c8bb73c1-1871-4f4b-a1c1-adbfc1e52928}</UniqueIdentifier>
@@ -70,19 +56,19 @@
     <Filter Include="System\Sprite">
       <UniqueIdentifier>{b1765cf5-84dc-4dbb-b8c2-bb8076bddba8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Helper">
+      <UniqueIdentifier>{e6308f76-bde9-429f-8377-4e0ed744c95b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Camera">
+      <UniqueIdentifier>{41d33814-8101-4e72-ab6c-fe4b3377d13b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Transform">
+      <UniqueIdentifier>{20266caf-fa1c-4fbb-96a2-29b02649c8f6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="nlohmann\json.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="ISingleton.h">
       <Filter>Interface</Filter>
-    </ClInclude>
-    <ClInclude Include="ECS.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Component</Filter>
@@ -95,9 +81,6 @@
     </ClInclude>
     <ClInclude Include="StaticMesh.h">
       <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerInputSystem.h">
-      <Filter>System\Input</Filter>
     </ClInclude>
     <ClInclude Include="MovementSystem.h">
       <Filter>System\Movement</Filter>
@@ -168,17 +151,26 @@
     <ClInclude Include="SpriteSystem.h">
       <Filter>System\Sprite</Filter>
     </ClInclude>
+    <ClInclude Include="ECS.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="nlohmann\json.hpp">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem.h">
+      <Filter>System\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>System\Transform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector3D.h">
-      <Filter>헤더 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerInputSystem.cpp">
-      <Filter>System\Input</Filter>
-    </ClCompile>
     <ClCompile Include="MovementSystem.cpp">
       <Filter>System\Movement</Filter>
     </ClCompile>
@@ -217,6 +209,18 @@
     </ClCompile>
     <ClCompile Include="SpriteSystem.cpp">
       <Filter>System\Sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3D.h">
+      <Filter>Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraSystem.cpp">
+      <Filter>System\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformSystem.cpp">
+      <Filter>System\Transform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -45,7 +45,7 @@ public:
 
 					if (CheckCollision(collider, rhs->get<BoxCollider>()))
 					{
-						if (collider->m_CurrentState == CollisionState::NONE || collider->m_CurrentState == CollisionState::EXIT)
+						if (collider->m_CurrentState == CollisionState::NOPE || collider->m_CurrentState == CollisionState::EXIT)
 						{
 							entity->get<Script>()->OnCollisionEnter();
 							collider->m_CurrentState = CollisionState::ENTER;
@@ -66,7 +66,7 @@ public:
 						}
 						else
 						{
-							collider->m_CurrentState = CollisionState::NONE;
+							collider->m_CurrentState = CollisionState::NOPE;
 
 						}
 

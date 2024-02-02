@@ -23,13 +23,9 @@ public:
 
 	void CreateModel(std::string filename);
 
-	void AddStaticMesh(const std::string& fileName, Vector3D& pos, Vector3D& rot, Vector3D& scale) const;
+	void AddStaticMesh(const std::string& fileName, DirectX::SimpleMath::Matrix worldTM) const;
 
 	void SetBasePath(std::string filePath);
-
-	void SetCameraPos(Vector3D pos, Vector3D rot);
-
-	void SetCameraPos(Vector3D pos, Vector3D eye, Vector3D up);
 	
 	void AddDebug(int entID, const std::string& text, const Vector3D& pos);
 	void AddSprite(int entID, const std::string& filePath, POINT pos, float layer);
@@ -40,6 +36,7 @@ public:
 	void DeleteDebug(int entID);
 	void DeleteSprite(int entID);
 
+	void SetCamera(DirectX::SimpleMath::Matrix matrix);
 private:
 	Renderer* m_Renderer;
 	ResourceManager* m_ResourceManager;

@@ -48,7 +48,8 @@ private:
 	bool isPressed[Key::KEY_END] = {false, };
 	KeyInfo m_CurrentKeyState[Key::KEY_END] = {};
 	KeyState m_PreviousKeyState[Key::KEY_END] = { KeyState::NONE, };
-
+	POINT m_CurrentCursorPos = { 0,0 };
+	POINT m_PreviousCursorPos = { 0,0 };
 public:
 	void Update(float deltaTime);
 	[[nodiscard]] KeyInfo& GetKeyState(Key key);
@@ -58,5 +59,6 @@ public:
 	[[nodiscard]] bool GetMouseButton(int key) const;
 	[[nodiscard]] bool GetMouseButtonDown(int key) const;
 	[[nodiscard]] bool GetMouseButtonUp(int key) const;
+	[[nodiscard]] POINT GetMouseMove() const;
 };
 

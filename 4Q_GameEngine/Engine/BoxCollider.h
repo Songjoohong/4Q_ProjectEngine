@@ -5,7 +5,7 @@
 
 enum CollisionState
 {
-	NONE,
+	NOPE,
 	ENTER,
 	STAY,
 	EXIT
@@ -16,7 +16,7 @@ struct BoxCollider
 
 		BoxCollider() = default;
 
-	CollisionState m_CurrentState = CollisionState::NONE;
+	CollisionState m_CurrentState = CollisionState::NOPE;
 	Vector3D m_Center = { 0.f,0.f,0.f };
 	Vector3D m_Size = { 1.f,1.f,1.f };
 	bool m_IsTrigger = false;

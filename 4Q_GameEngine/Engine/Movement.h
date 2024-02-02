@@ -1,15 +1,31 @@
 #pragma once
 
+#include <DirectXMath.h>
+
 #include "ECS.h"
 #include "Vector3D.h"
 
-
+enum MoveState
+{
+	NONE = 0,
+	FRONT = 0x0001,
+	BACK = 0x0010,
+	LEFT = 0x0100,
+	RIGHT = 0x1000,
+};
 struct Movement
 {
 	ECS_DECLARE_TYPE
 
-		float m_Speed = 1.f;
-	Vector3D m_DirectionVector = { 0.f, 0.f, 0.f };
+	Movement() = default;
+
+	float m_Speed = 100.f;
+	float m_Sensitivity = 300.f;
+	int m_CurrentMoveState = 0;
+	Vector3D m_DirectionVector = { 0.f, 0.f, -1.f };
+	Vector3D m_RightVector = { 0.f,0.f,0.f };
+	Vector3D m_UpVector = { 0.f, 1.f, 0.f };
+	POINT m_CurrentRotation = { 0,0 };
 };
 
 ECS_DEFINE_TYPE(Movement)

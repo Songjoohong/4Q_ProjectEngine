@@ -38,13 +38,9 @@ void RenderManager::RenderEnd()
 }
 
 
-void RenderManager::AddStaticMesh(const std::string& fileName, Vector3D& pos, Vector3D& rot,Vector3D& scale) const
+void RenderManager::AddStaticMesh(const std::string& fileName, Math::Matrix worldTM) const
 {
-	Vector3 p = Vector3(pos.GetX(), pos.GetY(), pos.GetZ());
-	Vector3 r = Vector3(rot.GetX(), rot.GetY(), rot.GetZ());
-	Vector3 s = Vector3(scale.GetX(), scale.GetY(), scale.GetZ());
-
-	Renderer::Instance->AddStaticModel(fileName,p,r,s);
+	Renderer::Instance->AddStaticModel(fileName, worldTM);
 }
 
 void RenderManager::CreateModel(string filename)
@@ -55,15 +51,6 @@ void RenderManager::CreateModel(string filename)
 void RenderManager::SetBasePath(std::string filePath)
 {
 	Renderer::Instance->SetPath(filePath);
-}
-
-void RenderManager::SetCameraPos(Vector3D pos, Vector3D rot)
-{
-}
-
-void RenderManager::SetCameraPos(Vector3D pos, Vector3D eye, Vector3D up)
-{
-	Renderer::Instance->SetCamera(Vector3(pos.GetX(), pos.GetY(), pos.GetZ()), Vector3(eye.GetX(), eye.GetY(), eye.GetZ()), Vector3(up.GetX(), up.GetY(), up.GetZ()));
 }
 
 void RenderManager::AddDebug(int entID, const std::string& text, const Vector3D& pos)
@@ -94,6 +81,11 @@ void RenderManager::DeleteDebug(int entID)
 void RenderManager::DeleteSprite(int entID)
 {
 	Renderer::Instance->DeleteSpriteInformation(entID);
+}
+
+void RenderManager::SetCamera(DirectX::SimpleMath::Matrix matrix)
+{
+	Renderer::Instance->SetCamera(matrix);
 }
 
 

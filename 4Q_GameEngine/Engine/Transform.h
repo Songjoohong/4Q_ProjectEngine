@@ -18,6 +18,9 @@ struct Transform
 	Vector3D m_Position;
 	Vector3D m_Rotation;
 	Vector3D m_Scale;
+
+	DirectX::SimpleMath::Matrix m_RelativeMatrix;
+	DirectX::SimpleMath::Matrix m_WorldMatrix;
 };
 
 ECS_DEFINE_TYPE(Transform)
