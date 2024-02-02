@@ -15,7 +15,13 @@
 enum PhysicsType
 {
 	DYNAMIC,
-	STATIC
+	STATIC,
+	PLANE
+};
+
+enum ObjectType
+{
+
 };
 
 using namespace physx;
