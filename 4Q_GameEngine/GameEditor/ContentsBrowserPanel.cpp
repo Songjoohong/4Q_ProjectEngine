@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "ContentsBrowserPanel.h"
-#include <imgui.h>
 
 void ContentsBrowserPanel::RenderImGui()
 {

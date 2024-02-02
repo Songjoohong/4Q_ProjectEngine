@@ -1,10 +1,6 @@
 ﻿#include "pch.h"
 #include "GameEditor.h"
-#include "framework.h"
 #include "../D3D_Graphics/D3D_Graphics.h"
-
-#include "Test.h"
-#include "../ReflectionLib/jsonSerializer.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
 #include "../Engine/ECS.h"
 
@@ -38,27 +34,37 @@ GameEditor::~GameEditor()
 bool GameEditor::Initialize(UINT width, UINT height)
 {
 	__super::Initialize(width, height);
+
+	m_width = width;
+	m_height = height;
+
 	m_Renderer = Renderer::Instance;
 	
 	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
 	m_ActiveWorld = m_EditorWorld;
-	m_Box = m_EditorWorld->create();
-	m_Pot = m_EditorWorld->create();
-	m_Wall = m_EditorWorld->create();
 
-	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
-	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
-	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
-	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
-	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
 
-	// 부모자식관계 안됨...
-	SetParent(m_Pot, m_Box);
-	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
-	m_Box->Assign<Transform>(pos1);
-	m_Pot->Assign<Transform>(pos2);
-	m_Wall->Assign<Transform>(pos3);
-	m_Wall->Assign<Camera>();
+	/* ---- for test -------------------------------------------------------------------------- */
+	{
+		m_Box = m_EditorWorld->create();
+		m_Pot = m_EditorWorld->create();
+		m_Wall = m_EditorWorld->create();
+
+		Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
+		Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
+		Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
+		m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
+		m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
+
+		// 부모자식관계 안됨...
+		SetParent(m_Pot, m_Box);
+		m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
+		m_Box->Assign<Transform>(pos1);
+		m_Pot->Assign<Transform>(pos2);
+		m_Wall->Assign<Transform>(pos3);
+		m_Wall->Assign<Camera>();
+	}
+	/* ---- test end --------------------------------------------------------------------------- */
 
 
 	//Test test;
@@ -91,6 +97,7 @@ void GameEditor::Render()
 	m_Renderer->Instance->RenderEnd();
 }
 
+
 bool GameEditor::InitImGui()
 {
 	IMGUI_CHECKVERSION();
@@ -102,6 +109,10 @@ bool GameEditor::InitImGui()
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
+	ImFontConfig imguiFontConfig;
+	imguiFontConfig.MergeMode = false;
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/font/Roboto-SemiMedium.ttf", 15.0f, &imguiFontConfig, io.Fonts->GetGlyphRangesDefault());
+	
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 
@@ -112,6 +123,9 @@ bool GameEditor::InitImGui()
 		style.WindowRounding = 0.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 	}
+
+	SetDarkThemeColors();	// 유니티 한스푼 첨가.
+
 	// Setup Platform/Renderer backends
 	ImGui_ImplWin32_Init(m_hWnd);
 	ImGui_ImplDX11_Init(m_Renderer->m_pDevice.Get(), m_Renderer->m_pDeviceContext.Get());
@@ -174,11 +188,16 @@ void GameEditor::RenderImGui()
 		}
 
 		ImGuiIO& io = ImGui::GetIO();
+		ImGuiStyle& style = ImGui::GetStyle();
+		float minWinSizeX = style.WindowMinSize.x;
+		style.WindowMinSize.x = 370.0f;								// 패널 좌우 간격 최소치를 정한다. -> 사용자가 패널을 줄여서 정보가 보이지 않는 것을 방지.
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
+
+		style.WindowMinSize.x = minWinSizeX;
 
 		if (ImGui::BeginMenuBar())
 		{
@@ -263,6 +282,39 @@ void GameEditor::ShutDownImGui()
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+}
+
+void GameEditor::SetDarkThemeColors()
+{
+	auto& colors = ImGui::GetStyle().Colors;
+	colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.105f, 0.11f, 1.0f };
+
+	// Headers
+	colors[ImGuiCol_Header] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
+	colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
+	colors[ImGuiCol_HeaderActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+
+	// Buttons
+	colors[ImGuiCol_Button] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
+	colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
+	colors[ImGuiCol_ButtonActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+
+	// Frame BG
+	colors[ImGuiCol_FrameBg] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
+	colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.3f, 0.305f, 0.31f, 1.0f };
+	colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+
+	// Tabs
+	colors[ImGuiCol_Tab] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+	colors[ImGuiCol_TabHovered] = ImVec4{ 0.38f, 0.3805f, 0.381f, 1.0f };
+	colors[ImGuiCol_TabActive] = ImVec4{ 0.28f, 0.2805f, 0.281f, 1.0f };
+	colors[ImGuiCol_TabUnfocused] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+	colors[ImGuiCol_TabUnfocusedActive] = ImVec4{ 0.2f, 0.205f, 0.21f, 1.0f };
+
+	// Title
+	colors[ImGuiCol_TitleBg] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+	colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+	colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
 }
 
 
