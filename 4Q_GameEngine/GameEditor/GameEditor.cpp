@@ -43,16 +43,6 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	m_Wall = m_EditorWorld->create();
 
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
-
-
-		// 부모자식관계 안됨...
-		SetParent(m_Pot, m_Box);
-		m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
-		m_Box->Assign<Transform>(pos1);
-		m_Pot->Assign<Transform>(pos2);
-		m_Wall->Assign<Transform>(pos3);
-		m_Wall->Assign<Camera>();
-	}
 	/* ---- test end --------------------------------------------------------------------------- */
 
 
