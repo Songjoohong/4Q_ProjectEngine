@@ -33,6 +33,15 @@ GameEditor::~GameEditor()
 	ShutDownImGui();
 }
 
+class temp1
+{
+public:
+	int a = 1;
+	int b = 2;
+	char c = 's';
+	bool bo = false;
+};
+
 bool GameEditor::Initialize(UINT width, UINT height)
 {
 	__super::Initialize(width, height);
@@ -45,6 +54,10 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 	/* ---- test end --------------------------------------------------------------------------- */
 
+	temp1 tmp1;
+	temp2 tmp2;
+
+	tmp1 = tmp2;
 
 	//Test test;
 
@@ -232,31 +245,31 @@ void GameEditor::RenderImGui()
 
 		// CameraEntity가 나와야 다시 할 수 있을듯?
 		// Projection행렬 필요
-		if (selectedEntity)
-		{
-			ImGuizmo::SetOrthographic(false);
-			ImGuizmo::SetDrawlist();
-			float windowWidth = (float)ImGui::GetWindowWidth();
-			float windowHeight = (float)ImGui::GetWindowHeight();
-			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+		//if (selectedEntity)
+		//{
+		//	ImGuizmo::SetOrthographic(false);
+		//	ImGuizmo::SetDrawlist();
+		//	float windowWidth = (float)ImGui::GetWindowWidth();
+		//	float windowHeight = (float)ImGui::GetWindowHeight();
+		//	ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-			// Camera
-			const auto& camera = m_Camera->get<Transform>().get();
-			DirectX::XMMATRIX camTranslation = DirectX::XMMatrixTranslationFromVector(camera.m_Position.ConvertToVector3());
-			DirectX::XMMATRIX camRotation = DirectX::XMMatrixRotationQuaternion(camera.m_Rotation.ConvertToVector3());
-			DirectX::XMMATRIX camScale = DirectX::XMMatrixScalingFromVector(camera.m_Scale.ConvertToVector3());
-			auto cameratransformMatrix = camScale * camRotation * camTranslation;
+		//	// Camera
+		//	const auto& camera = m_Camera->get<Transform>().get();
+		//	DirectX::XMMATRIX camTranslation = DirectX::XMMatrixTranslationFromVector(camera.m_Position.ConvertToVector3());
+		//	DirectX::XMMATRIX camRotation = DirectX::XMMatrixRotationQuaternion(camera.m_Rotation.ConvertToVector3());
+		//	DirectX::XMMATRIX camScale = DirectX::XMMatrixScalingFromVector(camera.m_Scale.ConvertToVector3());
+		//	auto cameratransformMatrix = camScale * camRotation * camTranslation;
 
-			// Entity Transform
-			auto& tc = selectedEntity->get<Transform>().get();
-			DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector(tc.m_Position.ConvertToVector3());
-			DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationQuaternion(tc.m_Rotation.ConvertToVector3());
-			DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector(tc.m_Scale.ConvertToVector3());
+		//	// Entity Transform
+		//	auto& tc = selectedEntity->get<Transform>().get();
+		//	DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector(tc.m_Position.ConvertToVector3());
+		//	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationQuaternion(tc.m_Rotation.ConvertToVector3());
+		//	DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector(tc.m_Scale.ConvertToVector3());
 
-			auto transformMatrix = scale * rotation * translation;
-			
-			//ImGuizmo::Manipulate(cameratransformMatrix, )
-		}
+		//	auto transformMatrix = scale * rotation * translation;
+		//	
+		//	//ImGuizmo::Manipulate(cameratransformMatrix, )
+		//}
 
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -367,6 +380,9 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 	json jsonObject;
 	inputFile >> jsonObject;
 	inputFile.close();
+
+	bool foundComponent = false;
+
 	for (const auto& entity : jsonObject["WorldEntities"])
 	{
 		for (auto it = entity.begin(); it != entity.end(); ++it)
@@ -377,6 +393,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 			for (const auto& component : it.value())
 			{
 				std::string componentName = component.begin().key();
+
 				if (componentName == "EntityIdentifier")
 				{
 					const auto& Identifier = component["EntityIdentifier"][0];
@@ -388,8 +405,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 					myEntity->get<EntityIdentifier>().get().m_ParentEntityId = Identifier["m_ParentEntityId"];
 					myEntity->get<EntityIdentifier>().get().m_HasParent = Identifier["m_HasParent"];
 				}
-
-				if (componentName == "Transform")
+				else if (componentName == "Transform")
 				{
 					const auto& trans = component["Transform"][0];
 
@@ -399,8 +415,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 					myEntity->get<Transform>().get().m_Rotation = trans["m_Rotation"];
 					myEntity->get<Transform>().get().m_Scale = trans["m_Scale"];
 				}
-
-				if (componentName == "BoxCollider")
+				else if (componentName == "BoxCollider")
 				{
 					const auto& collider = component["BoxCollider"][0];
 
@@ -412,7 +427,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 					myEntity->get<BoxCollider>().get().m_IsTrigger = collider["m_IsTrigger"];
 				}
 
-				if (componentName == "Camera")
+				else if (componentName == "Camera")
 				{
 					const auto& camera = component["Camera"][0];
 					myEntity->Assign<Camera>();
@@ -421,7 +436,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 					myEntity->get<Camera>().get().m_Far = camera["m_Far"];
 				}
 
-				if (componentName == "Light")
+				else if (componentName == "Light")
 				{
 					const auto& light = component["Light"][0];
 
@@ -430,7 +445,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 					myEntity->get<Light>().get().m_Intensity = light["m_Intensity"];
 				}
 
-				if (componentName == "Movement")
+				else if (componentName == "Movement")
 				{
 					const auto& movement = component["Movement"][0];
 
@@ -439,7 +454,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 					myEntity->get<Movement>().get().m_DirectionVector = movement["m_DirectionVector"];
 				}
 
-				if (componentName == "StaticMesh")
+				else if (componentName == "StaticMesh")
 				{
 					const auto& staticMesh = component["StaticMesh"][0];
 					myEntity->Assign<StaticMesh>();
@@ -458,7 +473,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 		{
 			if (entity->get<EntityIdentifier>().get().m_HasParent == true)
 			{
-				if (secondEntity->get<EntityIdentifier>().get().m_ParentEntityId == secondEntity->getEntityId())
+				if (entity->get<EntityIdentifier>().get().m_ParentEntityId == secondEntity->getEntityId())
 				{
 					SetParent(entity, secondEntity);
 				}
