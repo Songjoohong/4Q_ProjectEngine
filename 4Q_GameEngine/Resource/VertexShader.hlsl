@@ -13,8 +13,8 @@ PS_INPUT main(STATIC_INPUT input)
     pos = mul(pos, matWorld);
     output.PosWorld = pos.xyz;
 
-    pos = mul(pos, ShadowView);
-    pos = mul(pos, ShadowProjection);
+    pos = mul(pos, View);
+    pos = mul(pos, Projection);
     output.PosProjection = pos;
 
     // 텍스처 로드

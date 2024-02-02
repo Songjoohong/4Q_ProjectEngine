@@ -10,9 +10,9 @@ public:
 
 	void SetRadius(float rad) { m_radius = rad; }
 	float GetRadius() { return m_radius; }
-private:
 	Math::Vector3 m_position;
 	float m_radius;
 	Math::Vector3 m_color;
+private:
 };
 

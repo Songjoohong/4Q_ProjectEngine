@@ -394,7 +394,7 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    SetCamera();
+    //SetCamera();
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
     m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
     for (auto& model : m_pStaticModels)
@@ -588,6 +588,21 @@ void Renderer::RenderImgui()
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
 		string str = to_string(m_shadowDirection.x) + ", " + to_string(m_shadowDirection.y) + ", " + to_string(m_shadowDirection.z);
 		ImGui::Text("ShadowDirection : %s", str.c_str());
+		ImGui::End();
+	}
+	//Point Light
+	{
+		ImGui::Begin("Point Light Properties");
+		ImGui::Text("position");
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpx", &m_pointLight.m_position.x, -1000.f, 1000.f);
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpy", &m_pointLight.m_position.y, -1000.f, 1000.f);
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpz", &m_pointLight.m_position.z, -1000.f, 1000.f);
 		ImGui::End();
 	}
 
