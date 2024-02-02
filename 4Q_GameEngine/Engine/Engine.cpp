@@ -92,7 +92,9 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
+
 	ent->Assign<Transform>(Vector3D(100.f, 10.f, 1000.f), Vector3D{10.f,10.f,10.f});
+
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<CameraScript>(ent);
