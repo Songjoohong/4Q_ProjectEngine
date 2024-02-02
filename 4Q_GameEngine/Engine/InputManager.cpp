@@ -22,6 +22,8 @@ void InputManager::Update(float deltaTime)
 		{
 			isPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
 		}
+		m_PreviousCursorPos = m_CurrentCursorPos;
+		GetCursorPos(&m_CurrentCursorPos);
 	}
 	
 
@@ -65,11 +67,6 @@ void InputManager::Update(float deltaTime)
 			}
 		}
 	}
-
-	/*for(auto& key : Key::KEY_END)
-	{
-		isPressed[key] = false;
-	}*/
 
 	for (int i = 0; i < Key::KEY_END; i++)
 	{
@@ -120,4 +117,9 @@ bool InputManager::GetMouseButtonDown(int key) const
 bool InputManager::GetMouseButtonUp(int key) const
 {
 	return m_CurrentKeyState[key].KeyState == KeyState::EXIT;
+}
+
+POINT InputManager::GetMouseMove() const
+{
+	return { m_CurrentCursorPos.x - m_PreviousCursorPos.x, m_CurrentCursorPos.y - m_PreviousCursorPos.y };
 }

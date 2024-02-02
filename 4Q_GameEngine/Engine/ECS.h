@@ -467,7 +467,6 @@ namespace ECS
 		template<typename T, typename... Args> requires std::is_base_of_v<Script, T>
 		ComponentHandle<Script> Assign(Args&&... args);
 
-
 		/**
 		* Remove a component of a specific type. Returns whether a component was removed.
 		*/
@@ -535,12 +534,14 @@ namespace ECS
 			return bPendingDestroy;
 		}
 
+		Entity* getParent() const { return parentEntity; }
 	private:
 		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> components;
 		World* world;
 
 		size_t id;
 		bool bPendingDestroy = false;
+		Entity* parentEntity = nullptr;
 	};
 
 	/**
@@ -1149,8 +1150,6 @@ namespace ECS
 			return handle;
 		}
 	}
-
-
 
 	template<typename T>
 	ComponentHandle<T> Entity::get()

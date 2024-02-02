@@ -48,10 +48,9 @@ void Renderer::Clear(Math::Vector3 color)
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
-void Renderer::AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale)
+void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 {
-	Vector4 quaternion = Math::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.x), DirectX::XMConvertToRadians(rot.y), DirectX::XMConvertToRadians(rot.z));
-	Math::Matrix worldTM = Math::Matrix::CreateScale(scale) * Math::Matrix::CreateFromQuaternion(quaternion) * Math::Matrix::CreateTranslation(pos);
+	
 	for (auto& model : m_pStaticModels)
 	{
 		if (nullptr == model->GetSceneResource())
@@ -245,7 +244,7 @@ void Renderer::CreateSamplerState()
 
 void Renderer::FrustumCulling(StaticModel* model)
 {
-	if (m_frustumCmaera.Intersects(model->m_boundingBox))
+	if (m_frustumCamera.Intersects(model->m_boundingBox))
 	{
 		AddMeshInstance(model);
 	}
@@ -400,12 +399,13 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    //SetCamera();
-    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
-    m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
+
+    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCamera, m_projectionMatrix);
+    m_frustumCamera.Transform(m_frustumCamera, m_viewMatrix.Invert());
+
     for (auto& model : m_pStaticModels)
     {
-        if (model->GetSceneResource() == nullptr)
+         if (model->GetSceneResource() == nullptr)
             break;
         FrustumCulling(model);
     }
@@ -457,10 +457,6 @@ void Renderer::RenderText() const
 
 void Renderer::RenderSprite() const
 {
-    /*std::sort(m_sprites.begin(), m_sprites.end(), [](const SpriteInformation& lhs, const SpriteInformation& rhs)
-        {
-            return lhs.mLayer < rhs.mLayer;
-        });*/
 
     for(const auto& it : m_sprites)
     {
@@ -627,11 +623,11 @@ void Renderer::GetSystemMemoryInfo(std::string& out) const
 	out = "System Memory : " + std::to_string((pmc.PagefileUsage) / 1024 / 1024) + " MB";
 }
 
-void Renderer::SetCamera(Math::Vector3 position, Math::Vector3 eye, Math::Vector3 up)
+void Renderer::SetCamera(Math::Matrix matrix)
 {
-	m_cameraPos = position;
-	m_cameraEye = eye;
-	m_cameraUp = up;
+	m_cameraPos = matrix.Translation();
+	m_cameraEye = matrix.Forward();
+	m_cameraUp = Vector3{0.f, 1.f, 0.f};
 }
 
 bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
@@ -776,7 +772,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
    
-    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
+    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCamera, m_projectionMatrix);
 
     DebugDraw::Initialize(m_pDevice, m_pDeviceContext);
     
