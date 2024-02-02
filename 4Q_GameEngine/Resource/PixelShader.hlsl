@@ -5,16 +5,15 @@ float4 main(PS_INPUT input) : SV_TARGET
 {
 
     float3 Normal = normalize(input.NorWorld);
-    float3 LightDirection = normalize(Direction.xyz);
-    float NDotL = max(dot(Normal, -LightDirection), 0);
+    float3 LightDirection = -normalize(Direction.xyz);
+    float NDotL = max(dot(Normal, LightDirection), 0);
 
     float4 BaseColor = txDiffuse.Sample(samplerLinear, input.Texcoord);
-    float4 ambient = BaseColor * 0.3;
     float3 directionLighting = NDotL * BaseColor;
     float3 pointlight = 0;
     
     float3 LightVector = LightPos - input.PosWorld;
-    float4 light = 1.f;
+    float4 light = { 1.f, 0.f, 0.f, 1.f};
     float len = length(LightVector);
     float att = 1;
     if (len < Radius)
@@ -42,6 +41,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         }
     }
 
+    float4 ambient = BaseColor * 0.3;
     float3 final = directionLighting + ambient + pointlight;
 
     return float4(final, 1.0f);

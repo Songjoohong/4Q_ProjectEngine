@@ -123,16 +123,13 @@ public:
 	Math::Matrix m_projectionMatrix;
 	cbProjection m_projectionMatrixCB;
 
-
+	// minejong : directional light constant buffer
 	cbLight m_lightCB;
-
+	// minejong : shadow dir
 	Vector3 m_shadowDirection;
-
 
 	DirectX::BoundingFrustum m_frustumCmaera;
 
-
-	
 public:
 	//d3d객체 초기화
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
@@ -141,7 +138,7 @@ public:
 
 
 	//화면 클리어
-	void Clear(float r=1,float g=1,float b=1);
+	void Clear(float r=0.3,float g=1,float b=0.3);
 
 	void Clear(Math::Vector3 color);
 
