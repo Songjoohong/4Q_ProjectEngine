@@ -27,6 +27,7 @@ public:
 	void RenderImGui();
 	void EndRenderImGui();
 	void ShutDownImGui();
+	void SetDarkThemeColors();
 
 	//Save/Load
 	void SaveWorld(const std::wstring& _strRelativePath);
@@ -58,7 +59,6 @@ private:
 	ECS::Entity* m_Box;
 	ECS::Entity* m_Pot;
 	ECS::Entity* m_Wall;
-
 };
 
 template<typename T>

@@ -234,7 +234,7 @@ void Renderer::Render()
 	RenderToTexture();
 
 	// 씬을 그리기 위해 버퍼를 지웁니다
-	//Clear();
+	Clear();
 
 	// 백 버퍼의 장면을 정상적으로 렌더링합니다.
 	RenderScene();

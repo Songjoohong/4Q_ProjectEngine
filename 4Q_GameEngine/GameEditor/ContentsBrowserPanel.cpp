@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "ContentsBrowserPanel.h"
-#include <imgui.h>
 
 static const std::filesystem::path s_AssetsPath = "Assets";
 

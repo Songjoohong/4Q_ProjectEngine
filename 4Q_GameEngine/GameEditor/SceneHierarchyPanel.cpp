@@ -6,8 +6,6 @@
 #include "../Engine/EntityIdentifier.h"
 #include "../Engine/Light.h"
 
-#include <imgui_internal.h>
-
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
 
@@ -41,17 +39,18 @@ void SceneHierarchyPanel::RenderImGui()
 			//ImGui::Text(std::to_string(entity->getEntityId()).c_str());		// 토글 없이 그냥 출력
 		}
 
+		// Unselect object when left-clicking on blank space.
 		if (ImGui::IsMouseDown(0) && ImGui::IsWindowHovered())
 			m_SelectionContext = nullptr;
 
 		// Right-click on blank space
-		if (ImGui::BeginPopupContextWindow(0, 1))
+		if (ImGui::BeginPopupContextWindow(0, 1 | ImGuiPopupFlags_NoOpenOverItems))
 		{
 			if (ImGui::MenuItem("Create Empty Entity"))
 			{
 				ECS::Entity* entity = m_Context->create();
 				entity->Assign<EntityIdentifier>();	// 기본적으로 생성한다. (이름정보 때문)
-				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Editor에서는 Transform을 기본적으로 생성해준다.
+				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Transform은 기본적으로 생성해준다.
 			}
 
 			ImGui::EndPopup();
@@ -96,6 +95,7 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 
 		ImGui::EndPopup();
 	}
+
 
 	// 노드가 펼쳐졌다면 자식도 출력.
 	if (opened)
@@ -249,20 +249,20 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 
 void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 {
-	// Entity 이름입력칸
-	ImGui::SetNextItemWidth(100.f);
-	auto& testentityID = entity->get<EntityIdentifier>()->m_EntityName;
-
-	char buffer[256];
-	memset(buffer, 0, sizeof(buffer));
-	strncpy_s(buffer, sizeof(buffer), testentityID.c_str(), sizeof(buffer));
-	if (ImGui::InputText("name", buffer, sizeof(buffer)))
+	// Type Entity's Name
+	if (entity->has<EntityIdentifier>())
 	{
-		testentityID = buffer;
+		auto& testentityID = entity->get<EntityIdentifier>()->m_EntityName;
+		char buffer[256];
+		memset(buffer, 0, sizeof(buffer));
+		strncpy_s(buffer, sizeof(buffer), testentityID.c_str(), sizeof(buffer));
+		if (ImGui::InputText("##Name", buffer, sizeof(buffer)))
+		{
+			testentityID = buffer;
+		}
 	}
 
 	ImGui::PushItemWidth(-1);
-
 	ImGui::SameLine();
 
 	if (ImGui::Button("Add Component"))
@@ -279,12 +279,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		ImGui::EndPopup();
 	}
-
 	ImGui::PopItemWidth();
 
 	DrawComponent<Transform>("Transform", entity, [](auto component)
 	{
-		DrawVec3Control("Translation", component->m_Position);
+		DrawVec3Control("Position", component->m_Position);
 		DrawVec3Control("Rotation", component->m_Rotation);
 		DrawVec3Control("Scale", component->m_Scale, 1.0f);
 	});
@@ -292,7 +291,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<StaticMesh>("StaticMesh", entity, [&](auto component)		// & 는 임시.
 	{
 		// 이 컴포너트는 어떻게 사용해야할지 모르겠다.
-		// TODO: 물어보기.
+		// TODO: 사용법 물어보기.
 	});
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
@@ -312,6 +311,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		const char* lightTypeStrings[] = { "Point Light", "Directional Light" };
 		const char* currentLightTypeString = lightTypeStrings[(int)component->m_Type];
 		ImGui::SetNextItemWidth(150.f);
+
 		if (ImGui::BeginCombo("Light Type", currentLightTypeString))
 		{
 			for (int i = 0; i < 2; i++)
@@ -330,9 +330,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			ImGui::EndCombo();
 		}
 
-		// 조건 1. PointLight 일 때
+		// TODO: 조건 1. PointLight 일 때
 
-		// 조건 2. Directional Light 일 때
+		// TODO: 조건 2. Directional Light 일 때
 
 		/// -> 라이트 타입별 나타내야 하는 정보가 다르다.     다른가? 흐음..
 	});

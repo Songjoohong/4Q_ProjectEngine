@@ -15,4 +15,10 @@
 #include <filesystem>
 #include "nlohmann/json.hpp"
 
+//#include <imgui.h>
+//#include <imgui_internal.h>
+
+#include "imgui.h"
+#include "imgui_internal.h"
+
 #endif //PCH_H
