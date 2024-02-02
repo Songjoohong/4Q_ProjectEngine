@@ -141,7 +141,7 @@ public:
 
 
 	//화면 클리어
-	void Clear(float r=0,float g=0,float b=0);
+	void Clear(float r=1,float g=1,float b=1);
 
 	void Clear(Math::Vector3 color);
 
