@@ -3,6 +3,7 @@
 #include "../D3D_Graphics/D3D_Graphics.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
 #include "../Engine/ECS.h"
+#include "../Engine/WorldManager.h"
 
 // Component Headers
 #include "../Engine/Transform.h"
@@ -35,14 +36,12 @@ bool GameEditor::Initialize(UINT width, UINT height)
 {
 	__super::Initialize(width, height);
 
-	m_width = width;
-	m_height = height;
-
 	m_Renderer = Renderer::Instance;
 	
 	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
 	m_ActiveWorld = m_EditorWorld;
 
+	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 
 	/* ---- for test -------------------------------------------------------------------------- */
 	{

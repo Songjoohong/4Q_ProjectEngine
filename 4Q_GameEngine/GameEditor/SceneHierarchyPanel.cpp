@@ -41,7 +41,7 @@ void SceneHierarchyPanel::RenderImGui()
 			m_SelectionContext = nullptr;
 
 		// Right-click on blank space
-		if (ImGui::BeginPopupContextWindow(0, 1))
+		if (ImGui::BeginPopupContextWindow(0, 1 | ImGuiPopupFlags_NoOpenOverItems))
 		{
 			if (ImGui::MenuItem("Create Empty Entity"))
 			{

@@ -57,9 +57,6 @@ private:
 	ECS::Entity* m_Box;
 	ECS::Entity* m_Pot;
 	ECS::Entity* m_Wall;
-
-	UINT m_width;
-	UINT m_height;
 };
 
 template<typename T>
