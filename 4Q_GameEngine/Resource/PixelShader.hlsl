@@ -13,14 +13,14 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 directionLighting = NDotL * BaseColor;
     float3 pointlight = 0;
     
-   float3 LightVector = LightPos - input.PosWorld;
-   float4 light = 1.f;
-   float len = length(LightVector);
-   float att = 1;
-   if (len < Radius)
-   {
-       float3 NL = LightVector / len;
-       att = 2000 / (len * len);
+    float3 LightVector = LightPos - input.PosWorld;
+    float4 light = 1.f;
+    float len = length(LightVector);
+    float att = 1;
+    if (len < Radius)
+    {
+        float3 NL = LightVector / len;
+        att = 2000 / (len * len);
         pointlight = BaseColor * att;
     }
 

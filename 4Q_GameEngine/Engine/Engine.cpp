@@ -15,7 +15,6 @@
 #include "RenderManager.h"
 #include "Script.h"
 #include "WorldManager.h"
-#include "IdleState.h"
 #include "RenderSystem.h"
 #include "SampleScript.h"
 #include "SoundManager.h"

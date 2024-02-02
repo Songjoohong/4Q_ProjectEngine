@@ -29,7 +29,6 @@ SOFTWARE.
 #include <stdint.h>
 #include <type_traits>
 
-#include "State.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SETTINGS //
@@ -468,8 +467,7 @@ namespace ECS
 		template<typename T, typename... Args> requires std::is_base_of_v<Script, T>
 		ComponentHandle<Script> Assign(Args&&... args);
 
-		template <typename T, typename ... Args> requires std::is_base_of_v<State, T>
-		ComponentHandle<State> Assign(Args&&... args);
+
 		/**
 		* Remove a component of a specific type. Returns whether a component was removed.
 		*/
@@ -1152,24 +1150,7 @@ namespace ECS
 		}
 	}
 
-	template <typename T, typename ... Args> requires std::is_base_of_v<State, T>
-	ComponentHandle<State> Entity::Assign(Args&&... args)
-	{
-		using ComponentAllocator = std::allocator_traits<World::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
 
-		ComponentAllocator alloc(world->getPrimaryAllocator());
-
-		Internal::ComponentContainer<T>* container = std::allocator_traits<ComponentAllocator>::allocate(alloc, 1);
-		std::allocator_traits<ComponentAllocator>::construct(alloc, container, T(args...));
-
-		components.insert({ getTypeIndex<State>(), container });
-
-		const auto handle = ComponentHandle<State>(&container->data);
-		handle->SetName(typeid(decltype(container->data)).name() + 7);
-   		world->emit<Events::OnComponentAssigned<State>>({ this, handle });
-		return handle;
-
-	}
 
 	template<typename T>
 	ComponentHandle<T> Entity::get()
