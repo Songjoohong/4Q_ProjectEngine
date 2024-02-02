@@ -133,6 +133,7 @@ public:
 	void RenderScene();	// 수민
 	void RenderToTexture();	// 수민
 	void RenderEnd();
+
 private:
 	string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";

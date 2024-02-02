@@ -32,7 +32,7 @@ public:
 
 	void EditDebug(int entID, const std::string& text, const Vector3D& pos);
 
-
+	Renderer* GetRender() { return m_Renderer; }
 private:
 	Renderer* m_Renderer;
 	ResourceManager* m_ResourceManager;

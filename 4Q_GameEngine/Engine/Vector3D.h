@@ -1,6 +1,10 @@
 #pragma once
 #include "pch.h"
 #include <cmath>
+#include <DirectXMath.h>
+#include <directxtk/SimpleMath.h>
+using namespace DirectX::SimpleMath;
+using namespace DirectX;
 
 class Vector3D
 {
@@ -29,6 +33,12 @@ public:
 	{
 		return Vector3D{ m_X * scalar, m_Y * scalar, m_Z * scalar };
 	}
+
+	Vector3 ConvertToVector3() const
+	{
+		return Vector3{ m_X, m_Y, m_Z };
+	}
+
 	void operator+=(const Vector3D& other)
 	{
 		this->m_X = m_X + other.m_X;

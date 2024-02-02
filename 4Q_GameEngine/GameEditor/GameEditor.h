@@ -37,6 +37,7 @@ public:
 	void NewScene();
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
+
 private:
 	Renderer* m_Renderer = nullptr;
 
@@ -53,6 +54,7 @@ private:
 	///	게임 플레이와 씬 편집 화면을 나누기 위해. -> 게임 play 와 stop 그리고 pause 를 위해서인데 이를 위해선 엔진에서 먼저 기능이 구현되어야 한다. 고로 보류
 
 	// TextEntities
+	ECS::Entity* m_Camera;
 	ECS::Entity* m_Box;
 	ECS::Entity* m_Pot;
 	ECS::Entity* m_Wall;
@@ -71,7 +73,7 @@ inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData, std
 		json componentData;
 		componentData[(entity->get<T>().get()).m_ComponentName] = json::parse(serializedData);
 
-		std::string entityName = std::to_string(entity->get<EntityIdentifier>().get().m_EntityId);
+		std::string entityName = entity->get<EntityIdentifier>().get().m_EntityName;
 
 		// Check if the entity already exists in the JSON structure
 		bool entityExists = false;

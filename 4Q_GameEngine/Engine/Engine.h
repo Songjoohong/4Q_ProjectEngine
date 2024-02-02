@@ -12,11 +12,11 @@ public:
 	Engine(HINSTANCE hInstance);
 	virtual ~Engine();
 
+	float m_ClientRatio;
 protected:
 	HWND m_hWnd;
 	UINT m_ClientWidth;
 	UINT m_ClientHeight;
-
 private:
 	HINSTANCE m_hInstance;
 	MSG m_Msg;
@@ -38,5 +38,6 @@ public:
 	virtual void Render();
 
 	void Close();
+
 };
 

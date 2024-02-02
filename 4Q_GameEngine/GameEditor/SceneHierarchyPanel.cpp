@@ -33,7 +33,10 @@ void SceneHierarchyPanel::RenderImGui()
 		//현재 씬이 가지고 있는 모든 Entity 의 정보를 그린다.
 		for (auto entity : m_Context->GetEntities())
 		{
-			DrawEntityNode(entity);
+			if (entity->get<EntityIdentifier>().get().m_HasParent == false)
+			{
+				DrawEntityNode(entity);
+			}
 
 			//ImGui::Text(std::to_string(entity->getEntityId()).c_str());		// 토글 없이 그냥 출력
 		}
@@ -108,6 +111,10 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 		//bool opened = ImGui::TreeNodeEx((void*)9817239, flags, imguiID.c_str());
 		//if (opened)
 		//	ImGui::TreePop();
+		for (const auto& children : entity->m_children)
+		{
+			DrawEntityNode(children);
+		}
 
 		ImGui::TreePop();
 	}

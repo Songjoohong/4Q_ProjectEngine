@@ -26,6 +26,9 @@
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+int newWidth = 0;
+int newHeight = 0;
+
 Engine::Engine(HINSTANCE hInstance)
 	: m_hWnd()
 	, m_hInstance(hInstance)
@@ -45,6 +48,7 @@ Engine::Engine(HINSTANCE hInstance)
 	m_Wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
 	m_Wcex.lpszClassName = m_szWindowClass;
 	m_bIsRunning = true;
+
 }
 
 Engine::~Engine()
@@ -108,6 +112,12 @@ void Engine::Run()
 		}
 		else
 		{
+			if (m_ClientHeight != 0 && m_ClientWidth != 0)
+			{
+				m_ClientHeight = newHeight;
+				m_ClientWidth = newWidth;
+			}
+
 			Update();
 			Render();
 		}
@@ -149,16 +159,24 @@ void Engine::Close()
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+int resizeWidth = 0;
+int resizeHeight = 0;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
 		return true;
 	switch (message)
 	{
+	case WM_SIZE:
+		newWidth = LOWORD(lParam);
+		newHeight = HIWORD(lParam);
+
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-	
+
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

@@ -4,12 +4,12 @@
 class ContentsBrowserPanel
 {
 public:
-	ContentsBrowserPanel() {}
+	ContentsBrowserPanel();
 
 	void RenderImGui();
 
 private:
-	
+	std::filesystem::path m_CurrentDirectory;
 
 };
 

@@ -7,7 +7,7 @@
 #include "../ReflectionLib/jsonSerializer.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
 #include "../Engine/ECS.h"
-
+#include "ImGuizmo.h"
 // Component Headers
 #include "../Engine/Transform.h"
 #include "../Engine/BoxCollider.h"
@@ -41,25 +41,7 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	m_Renderer = Renderer::Instance;
 	
 	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
-	m_ActiveWorld = m_EditorWorld;
-	m_Box = m_EditorWorld->create();
-	m_Pot = m_EditorWorld->create();
-	m_Wall = m_EditorWorld->create();
 
-	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
-	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
-	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
-	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
-	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
-	//SetParent(m_Pot, m_Box);
-
-	// 부모자식관계 안됨...
-	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
-	m_Box->Assign<Transform>(pos1);
-	m_Pot->Assign<Transform>(pos2);
-	m_Wall->Assign<Transform>(pos3);
-	m_Wall->Assign<StaticMesh>("box.fbx");
-	m_Wall->Assign<Camera>();
 
 
 	//Test test;
@@ -125,6 +107,7 @@ void GameEditor::BeginRenderImGui()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+	ImGuizmo::BeginFrame();
 }
 
 void GameEditor::RenderImGui()
@@ -229,6 +212,37 @@ void GameEditor::RenderImGui()
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
 		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+
+		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+
+		// CameraEntity가 나와야 다시 할 수 있을듯?
+		// Projection행렬 필요
+		if (selectedEntity)
+		{
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+			float windowWidth = (float)ImGui::GetWindowWidth();
+			float windowHeight = (float)ImGui::GetWindowHeight();
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+
+			// Camera
+			const auto& camera = m_Camera->get<Transform>().get();
+			DirectX::XMMATRIX camTranslation = DirectX::XMMatrixTranslationFromVector(camera.m_Position.ConvertToVector3());
+			DirectX::XMMATRIX camRotation = DirectX::XMMatrixRotationQuaternion(camera.m_Rotation.ConvertToVector3());
+			DirectX::XMMATRIX camScale = DirectX::XMMatrixScalingFromVector(camera.m_Scale.ConvertToVector3());
+			auto cameratransformMatrix = camScale * camRotation * camTranslation;
+
+			// Entity Transform
+			auto& tc = selectedEntity->get<Transform>().get();
+			DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector(tc.m_Position.ConvertToVector3());
+			DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationQuaternion(tc.m_Rotation.ConvertToVector3());
+			DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector(tc.m_Scale.ConvertToVector3());
+
+			auto transformMatrix = scale * rotation * translation;
+			
+			//ImGuizmo::Manipulate(cameratransformMatrix, )
+		}
+
 		ImGui::End();
 		ImGui::PopStyleVar();
 
@@ -238,7 +252,7 @@ void GameEditor::RenderImGui()
 		static bool show = true;
 		ImGui::ShowDemoWindow();
 	}
-
+	
 	EndRenderImGui();
 }
 
@@ -295,120 +309,153 @@ void GameEditor::SaveWorld(const std::wstring& _filename)
 
 void GameEditor::LoadWorld(const std::wstring& _filename)
 {
+	// 월드 생성
 	m_EditorWorld = ECS::World::CreateWorld(_filename);
 
 	std::wstring fullPath = basePath + _filename;
 
+	// Deserialize
 	std::ifstream inputFile(fullPath);
 	json jsonObject;
 	inputFile >> jsonObject;
 	inputFile.close();
-
 	for (const auto& entity : jsonObject["WorldEntities"])
 	{
 		for (auto it = entity.begin(); it != entity.end(); ++it)
 		{
-			const int entityId = std::stoi(it.key());
-			int tempId = entityId - 1;
+			// Entity 생성 후 정보 push
+			Entity* myEntity = m_EditorWorld->create();
+
 			for (const auto& component : it.value())
 			{
-				auto myEntity = m_EditorWorld->create();
-				if (myEntity->getEntityId() == entityId)
+				std::string componentName = component.begin().key();
+				if (componentName == "EntityIdentifier")
 				{
-					if (component.contains("EntityIdentifier"))
-					{
-						myEntity->Assign<EntityIdentifier>();
+					const auto& Identifier = component["EntityIdentifier"][0];
 
-						const auto& Identifier = component["EntityIdentifier"][tempId];
-						myEntity->get<EntityIdentifier>().get().m_EntityId = Identifier["m_EntityId"];
-						myEntity->get<EntityIdentifier>().get().m_EntityName = Identifier["m_EntityName"];
-					}
+					myEntity->Assign<EntityIdentifier>();
 
-					if (component.contains("Transform"))
-					{
-						myEntity->Assign<Transform>();
+					myEntity->get<EntityIdentifier>().get().m_EntityId = Identifier["m_EntityId"];
+					myEntity->get<EntityIdentifier>().get().m_EntityName = Identifier["m_EntityName"];
+					myEntity->get<EntityIdentifier>().get().m_ParentEntityId = Identifier["m_ParentEntityId"];
+					myEntity->get<EntityIdentifier>().get().m_HasParent = Identifier["m_HasParent"];
+				}
 
-						const auto& trans = component["Transform"][tempId];
+				if (componentName == "Transform")
+				{
+					const auto& trans = component["Transform"][0];
 
-						myEntity->get<Transform>().get().m_Position = trans["m_Position"];
-						myEntity->get<Transform>().get().m_Rotation = trans["m_Rotation"];
-						myEntity->get<Transform>().get().m_Scale = trans["m_Scale"];
-					}
+					myEntity->Assign<Transform>();
 
-					if (component.contains("BoxCollider"))
-					{
-						myEntity->Assign<BoxCollider>();
+					myEntity->get<Transform>().get().m_Position = trans["m_Position"];
+					myEntity->get<Transform>().get().m_Rotation = trans["m_Rotation"];
+					myEntity->get<Transform>().get().m_Scale = trans["m_Scale"];
+				}
 
-						const auto& collider = component["BoxCollider"][tempId];
-						myEntity->get<BoxCollider>().get().m_CurrentState = collider["m_CurrentStae"];
-						myEntity->get<BoxCollider>().get().m_Center = collider["m_Center"];
-						myEntity->get<BoxCollider>().get().m_Size = collider["m_Size"];
-						myEntity->get<BoxCollider>().get().m_IsTrigger = collider["m_IsTrigger"];
-					}
+				if (componentName == "BoxCollider")
+				{
+					const auto& collider = component["BoxCollider"][0];
 
-					if (component.contains("Camera"))
-					{
-						myEntity->Assign<Camera>();
+					myEntity->Assign<BoxCollider>();
 
-						const auto& camera = component["Camera"][tempId];
-						myEntity->get<Camera>().get().m_FOV = camera["m_FOV"];
-						myEntity->get<Camera>().get().m_Near = camera["m_Near"];
-						myEntity->get<Camera>().get().m_Far = camera["m_Far"];
-					}
+					myEntity->get<BoxCollider>().get().m_CurrentState = collider["m_CurrentStae"];
+					myEntity->get<BoxCollider>().get().m_Center = collider["m_Center"];
+					myEntity->get<BoxCollider>().get().m_Size = collider["m_Size"];
+					myEntity->get<BoxCollider>().get().m_IsTrigger = collider["m_IsTrigger"];
+				}
 
-					if (component.contains("Light"))
-					{
-						myEntity->Assign<Light>();
+				if (componentName == "Camera")
+				{
+					const auto& camera = component["Camera"][0];
+					myEntity->Assign<Camera>();
+					myEntity->get<Camera>().get().m_FOV = camera["m_FOV"];
+					myEntity->get<Camera>().get().m_Near = camera["m_Near"];
+					myEntity->get<Camera>().get().m_Far = camera["m_Far"];
+				}
 
-						const auto& light = component["Light"];
-						myEntity->get<Light>().get().m_Type = light["m_Type"];
-						myEntity->get<Light>().get().m_Color = light["m_Color"];
-						myEntity->get<Light>().get().m_Intensity = light["m_Intensity"];
-					}
+				if (componentName == "Light")
+				{
+					const auto& light = component["Light"][0];
 
-					if (component.contains("Movement"))
-					{
-						myEntity->Assign<Movement>();
+					myEntity->get<Light>().get().m_Type = light["m_Type"];
+					myEntity->get<Light>().get().m_Color = light["m_Color"];
+					myEntity->get<Light>().get().m_Intensity = light["m_Intensity"];
+				}
 
-						const auto& movement = component["Movement"];
-						myEntity->get<Movement>().get().m_Speed = movement["m_Speed"];
-						myEntity->get<Movement>().get().m_DirectionVector = movement["m_DirectionVector"];
-					}
+				if (componentName == "Movement")
+				{
+					const auto& movement = component["Movement"][0];
 
-					if (component.contains("SampleScript"))
-					{
-						myEntity->Assign<SampleScript>();
-					}
+					myEntity->Assign<Movement>();
+					myEntity->get<Movement>().get().m_Speed = movement["m_Speed"];
+					myEntity->get<Movement>().get().m_DirectionVector = movement["m_DirectionVector"];
+				}
 
-					if (component.contains("StaticMesh"))
-					{
-						myEntity->Assign<StaticMesh>();
+				if (componentName == "StaticMesh")
+				{
+					const auto& staticMesh = component["StaticMesh"][0];
+					myEntity->Assign<StaticMesh>();
 
-						const auto& staticMesh = component["StaticMesh"];
-						myEntity->get<StaticMesh>().get().m_FileName = staticMesh["m_FileName"];
-					}
+					myEntity->get<StaticMesh>().get().m_FileName = staticMesh["m_FileName"];
+				}
+ 				}
+			}
+		}
+
+
+	//부모자식 관계 설정
+	for (const auto& entity : m_EditorWorld->GetEntities())
+	{	
+		for (const auto& secondEntity : m_EditorWorld->GetEntities())
+		{
+			if (entity->get<EntityIdentifier>().get().m_HasParent == true)
+			{
+				if (secondEntity->get<EntityIdentifier>().get().m_ParentEntityId == secondEntity->getEntityId())
+				{
+					SetParent(entity, secondEntity);
 				}
 			}
 		}
 	}
 
-	/*for (const auto& data : deserializedTransform)
-	{
-		std::cout << "position : { " << data.m_Position.GetX() << data.m_Position.GetY() << data.m_Position.GetZ() << " }\n";
-		std::cout << "rotation : { " << data.m_Rotation.GetX() << data.m_Rotation.GetY() << data.m_Rotation.GetZ() << " }\n";
-		std::cout << "scale    : { " << data.m_Scale.GetX() << data.m_Scale.GetY() << data.m_Scale.GetZ() << " }\n";
-	}*/
+	// HierarchyPanel에 등록
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
 }
 
 void GameEditor::NewScene()
 {
-	m_ActiveWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
+
+	m_Camera = m_EditorWorld->create();
+	m_Box = m_EditorWorld->create();
+	m_Pot = m_EditorWorld->create();
+	m_Wall = m_EditorWorld->create();
+
+	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
+	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
+	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
+	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Camera");
+	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
+	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
+	SetParent(m_Pot, m_Box);
+
+	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
+	SetParent(m_Wall, m_Pot);
+	m_Camera->Assign<Transform>();
+	m_Box->Assign<Transform>(pos1);
+	m_Pot->Assign<Transform>(pos2);
+	m_Wall->Assign<Transform>(pos3);
+	m_Wall->Assign<StaticMesh>("box.fbx");
+	m_Camera->Assign<Camera>();
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
+
 
 }
 
-//void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
-//{
-//	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
-//	parent->childernId.push_back(child->getEntityId());
-//}
+void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
+{
+	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
+	child->get<EntityIdentifier>().get().m_HasParent = true;
+
+	parent->addChild(child);
+}
