@@ -13,6 +13,8 @@
 #include <cassert>
 #include <vector>
 
+#include <directxtk/SimpleMath.h>
+
 #include "framework.h"
 
 #endif //PCH_H

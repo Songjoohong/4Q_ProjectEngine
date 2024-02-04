@@ -45,7 +45,7 @@ class ScriptSystem : public EntitySystem,
 	{
 		world->each<Script>([&](Entity* entity, ComponentHandle<Script> script)->void
 			{
-				script->Update();
+				script->Update(deltaTime);
 			});
 	}
 };

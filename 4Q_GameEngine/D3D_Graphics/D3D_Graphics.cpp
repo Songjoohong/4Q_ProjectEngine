@@ -48,10 +48,9 @@ void Renderer::Clear(Math::Vector3 color)
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
-void Renderer::AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale)
+void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 {
-	Vector4 quaternion = Math::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.x), DirectX::XMConvertToRadians(rot.y), DirectX::XMConvertToRadians(rot.z));
-	Math::Matrix worldTM = Math::Matrix::CreateScale(scale) * Math::Matrix::CreateFromQuaternion(quaternion) * Math::Matrix::CreateTranslation(pos);
+
 	for (auto& model : m_pStaticModels)
 	{
 		if (nullptr == model->GetSceneResource())
@@ -400,7 +399,7 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    //SetCamera();
+    
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
     m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
     for (auto& model : m_pStaticModels)
@@ -627,11 +626,11 @@ void Renderer::GetSystemMemoryInfo(std::string& out) const
 	out = "System Memory : " + std::to_string((pmc.PagefileUsage) / 1024 / 1024) + " MB";
 }
 
-void Renderer::SetCamera(Math::Vector3 position, Math::Vector3 eye, Math::Vector3 up)
+void Renderer::SetCamera(Math::Matrix matrix)
 {
-	m_cameraPos = position;
-	m_cameraEye = eye;
-	m_cameraUp = up;
+	m_cameraPos = matrix.Translation();
+	m_cameraEye = matrix.Forward();
+	m_cameraUp = matrix.Up();
 }
 
 bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)

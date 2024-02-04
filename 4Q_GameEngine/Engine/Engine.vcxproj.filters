@@ -22,9 +22,6 @@
     <Filter Include="Component">
       <UniqueIdentifier>{7d6c694d-e54f-4ec7-945c-e68e12bdf4f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="System\Input">
-      <UniqueIdentifier>{f02e9943-7d0b-421d-9527-d7ee6cb04985}</UniqueIdentifier>
-    </Filter>
     <Filter Include="System\Movement">
       <UniqueIdentifier>{6d314a24-c87e-4376-b3ca-aeb76cf73a7c}</UniqueIdentifier>
     </Filter>
@@ -33,9 +30,6 @@
     </Filter>
     <Filter Include="System\Script">
       <UniqueIdentifier>{6522a474-3bdd-4b4d-9346-42295a7f232d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="System\FSM">
-      <UniqueIdentifier>{9352beb5-1053-4d58-bf62-e49fe22cbcc9}</UniqueIdentifier>
     </Filter>
     <Filter Include="System\Collision">
       <UniqueIdentifier>{c8bb73c1-1871-4f4b-a1c1-adbfc1e52928}</UniqueIdentifier>
@@ -70,6 +64,12 @@
     <Filter Include="System\Sprite">
       <UniqueIdentifier>{b1765cf5-84dc-4dbb-b8c2-bb8076bddba8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Camera">
+      <UniqueIdentifier>{ddd6fb2f-c022-4703-b59d-aead4534fa9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Transform">
+      <UniqueIdentifier>{523eb242-1b9e-4a6a-abd5-824ebcd77236}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -95,9 +95,6 @@
     </ClInclude>
     <ClInclude Include="StaticMesh.h">
       <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerInputSystem.h">
-      <Filter>System\Input</Filter>
     </ClInclude>
     <ClInclude Include="MovementSystem.h">
       <Filter>System\Movement</Filter>
@@ -168,6 +165,15 @@
     <ClInclude Include="SpriteSystem.h">
       <Filter>System\Sprite</Filter>
     </ClInclude>
+    <ClInclude Include="CameraScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem.h">
+      <Filter>System\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>System\Transform</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -175,9 +181,6 @@
     </ClCompile>
     <ClCompile Include="Vector3D.h">
       <Filter>헤더 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerInputSystem.cpp">
-      <Filter>System\Input</Filter>
     </ClCompile>
     <ClCompile Include="MovementSystem.cpp">
       <Filter>System\Movement</Filter>
@@ -217,6 +220,12 @@
     </ClCompile>
     <ClCompile Include="SpriteSystem.cpp">
       <Filter>System\Sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraSystem.cpp">
+      <Filter>System\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformSystem.cpp">
+      <Filter>System\Transform</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

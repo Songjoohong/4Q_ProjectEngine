@@ -22,6 +22,8 @@ void InputManager::Update(float deltaTime)
 		{
 			isPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
 		}
+		m_PreviousCursorPos = m_CurrentCursorPos;
+		GetCursorPos(&m_CurrentCursorPos);
 	}
 	
 
@@ -120,4 +122,10 @@ bool InputManager::GetMouseButtonDown(int key) const
 bool InputManager::GetMouseButtonUp(int key) const
 {
 	return m_CurrentKeyState[key].KeyState == KeyState::EXIT;
+}
+
+POINT InputManager::GetMouseMove() const
+{
+	//스크린 좌표계임을 고려해 설정해 주었음.
+	return { m_CurrentCursorPos.x - m_PreviousCursorPos.x, m_PreviousCursorPos.y - m_CurrentCursorPos.y };
 }

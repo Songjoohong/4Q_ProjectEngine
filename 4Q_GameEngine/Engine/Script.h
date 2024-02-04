@@ -10,13 +10,12 @@ public:
 	{}
 	virtual ~Script() = default;
 
-private:
 	Entity* m_pOwner = nullptr;
 
 public:
 	ECS::Entity* GetOwner() const { return m_pOwner; }
 
-	virtual void Update() {}
+	virtual void Update(float deltaTime) {}
 	virtual void Awake() {}
 	virtual void LateUpdate() {}
 	virtual void FixedUpdate() {}

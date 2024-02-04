@@ -535,12 +535,14 @@ namespace ECS
 			return bPendingDestroy;
 		}
 
+		Entity* getParent() const { return parentEntity; }
 	private:
 		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> components;
 		World* world;
 
 		size_t id;
 		bool bPendingDestroy = false;
+		Entity* parentEntity = nullptr;
 	};
 
 	/**
