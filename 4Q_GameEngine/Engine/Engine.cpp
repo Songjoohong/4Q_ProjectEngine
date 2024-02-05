@@ -89,7 +89,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	int speed = 10;
 	SystemParametersInfo(SPI_SETMOUSESPEED, 0, (void*)speed, SPIF_SENDCHANGE);
-	ShowCursor(FALSE);
+	ShowCursor(TRUE);
 
 
 	// 매니저 초기화

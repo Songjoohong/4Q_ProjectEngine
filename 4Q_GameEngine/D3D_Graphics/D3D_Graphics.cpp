@@ -50,9 +50,6 @@ void Renderer::Clear(Math::Vector3 color)
 
 void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 {
-	Vector4 quaternion = Math::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.y), DirectX::XMConvertToRadians(rot.x), DirectX::XMConvertToRadians(rot.z));
-	Math::Matrix worldTM = Math::Matrix::CreateScale(scale) * Math::Matrix::CreateFromQuaternion(quaternion) * Math::Matrix::CreateTranslation(pos);
-  
 	for (auto& model : m_pStaticModels)
 	{
 		if (nullptr == model->GetSceneResource())
@@ -455,11 +452,14 @@ void Renderer::RenderSprite() const
         {
             return lhs.mLayer < rhs.mLayer;
         });*/
-
+	
     for(const auto& it : m_sprites)
     {
         m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0,0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
     }
+
+	m_spriteBatch->End();
+	
 }
 
 void Renderer::Render()
@@ -492,6 +492,7 @@ void Renderer::Render()
 	MeshRender();
 
 	RenderDebugDraw();
+	m_spriteBatch->Begin();
 	RenderText();
     RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
