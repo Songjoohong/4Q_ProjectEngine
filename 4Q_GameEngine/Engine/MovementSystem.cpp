@@ -9,7 +9,7 @@ void MovementSystem::Tick(World* world, float deltaTime)
 	world->each<Transform, Movement>([&](ECS::Entity* entity, ECS::ComponentHandle<Transform> transform, ECS::ComponentHandle<Movement> movement)->void
 		{
 			Vector3D moveVector;
-			DirectX::SimpleMath::Matrix worldMatrix = transform->m_WorldMatrix.ConvertToMatrix();
+			const DirectX::SimpleMath::Matrix worldMatrix = transform->m_WorldMatrix.ConvertToMatrix();
 			transform->m_Rotation = { transform->m_Rotation.GetX() + movement->m_CurrentRotation.x * movement->m_Sensitivity, transform->m_Rotation.GetY() + movement->m_CurrentRotation.y * movement->m_Sensitivity, transform->m_Rotation.GetZ() };
 
 			movement->m_RightVector = Vector3D{ worldMatrix.Right().x, worldMatrix.Right().y, worldMatrix.Right().z }.Normalize();

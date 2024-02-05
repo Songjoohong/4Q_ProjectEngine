@@ -20,7 +20,6 @@
 #include "../Engine/Debug.h"
 #include "../Engine/Sound.h"
 
-
 using json = nlohmann::json;
 namespace ECS { class Entity; }
 GameEditor::GameEditor(HINSTANCE hInstance)

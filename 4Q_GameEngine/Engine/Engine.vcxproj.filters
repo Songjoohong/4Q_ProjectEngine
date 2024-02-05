@@ -175,6 +175,7 @@
     <ClInclude Include="Matrix4x4.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="jsonSerializer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

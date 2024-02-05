@@ -32,14 +32,14 @@
     <ClInclude Include="GameEditor.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Test.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="SceneHierarchyPanel.h">
       <Filter>Panels</Filter>
     </ClInclude>
     <ClInclude Include="ContentsBrowserPanel.h">
       <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="jsonSerializer.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -56,9 +56,6 @@
       <Filter>소스 파일\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="EditorMain.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="SceneHierarchyPanel.cpp">

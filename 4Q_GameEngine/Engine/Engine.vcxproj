@@ -157,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="CameraScript.h" />
     <ClInclude Include="CameraSystem.h" />
+    <ClInclude Include="jsonSerializer.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Sprite2D.h" />
     <ClInclude Include="Animation.h" />
