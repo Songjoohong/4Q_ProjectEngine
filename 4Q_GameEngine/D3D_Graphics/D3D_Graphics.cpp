@@ -614,6 +614,12 @@ void Renderer::RenderImgui()
 		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 30.f);
 		m_pointLight.SetIntensity(pointLightIntensity);
 
+		float pointLightRadius = m_pointLight.GetRadius();
+		ImGui::Text("Radius");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##prad", &pointLightRadius, 0.f, 600.f);
+		m_pointLight.SetRadius(pointLightRadius);
+
 		float pointLightColor[3] = { m_pointLight.GetColor().x, m_pointLight.GetColor().y, m_pointLight.GetColor().z};
 		ImGui::Text("Color");
 		ImGui::SameLine();
