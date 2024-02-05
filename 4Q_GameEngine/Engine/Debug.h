@@ -1,4 +1,6 @@
 #pragma once
+#include "ECS.h"
+
 struct Debug
 {
 	ECS_DECLARE_TYPE

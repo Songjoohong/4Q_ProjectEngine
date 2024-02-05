@@ -506,7 +506,7 @@ void Renderer::Render()
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);*/
 
 	//임구이 렌더
-	RenderImgui();
+	//RenderImgui();
 }
 
 void Renderer::RenderEnd()
@@ -536,9 +536,9 @@ bool Renderer::InitImgui(HWND hWnd)
 
 void Renderer::UnInitImgui()
 {
-	ImGui_ImplDX11_Shutdown();
+	/*ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	ImGui::DestroyContext();*/
 }
 
 void Renderer::CreateShadowVS()
@@ -795,8 +795,9 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     
   
   	//Imgui
-	if (!InitImgui(*hWnd))
-		return false;
+
+	/*if (!InitImgui(*hWnd))
+		return false;*/
   
     return true;
 
