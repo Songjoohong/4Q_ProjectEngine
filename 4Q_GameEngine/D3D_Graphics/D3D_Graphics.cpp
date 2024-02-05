@@ -407,7 +407,8 @@ void Renderer::RenderBegin()
     m_pointLightCB.mPos = m_pointLight.GetPosition();
     m_pointLightCB.mRadius = m_pointLight.GetRadius();
     m_pointLightCB.mLightColor = m_pointLight.GetColor();
-    m_pointLightCB.mCameraPos = m_cameraPos;
+	m_pointLightCB.mIntensity = m_pointLight.GetIntensity();
+	m_pointLightCB.mCameraPos = m_cameraPos;
 
     m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
@@ -607,6 +608,12 @@ void Renderer::RenderImgui()
 		ImGui::SliderFloat("##plz", &pointLightPos.z, -1000.f, 1000.f);
 		m_pointLight.SetPosition(pointLightPos);
 
+		float pointLightIntensity = m_pointLight.GetIntensity();
+		ImGui::Text("Intensity");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 30.f);
+		m_pointLight.SetIntensity(pointLightIntensity);
+
 		// Shadow
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
@@ -780,9 +787,10 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
 
     //포인트 라이트 테스트용
-    m_pointLight.SetPosition(Vector3(100, 0, 0));
-    m_pointLight.SetRadius(500);
-    m_pointLight.SetColor();
+    m_pointLight.SetPosition(Vector3(0, 0, 0));
+	m_pointLight.SetRadius(600.f);
+	m_pointLight.SetColor();
+	m_pointLight.SetIntensity(1.f);
 
   	//Imgui
 	if (!InitImgui(*hWnd))

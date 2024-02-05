@@ -13,11 +13,13 @@ const size_t BUFFER_SIZE = 2;
 struct cbPointLight
 {
 	Math::Vector3 mPos;
-	float mRadius;
+	float mRadius = 600.f;
 	Math::Vector3 mLightColor;
-	float pad;
+	float mLinearTerm = 0.007f;
 	Math::Vector3 mCameraPos;
-	float pad2;
+	float mQuadraticTerm = 0.0002f;
+	float mIntensity = 1.0f;
+	Math::Vector3 mPad0;
 };
 
 struct cbWorld

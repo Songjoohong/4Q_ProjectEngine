@@ -33,19 +33,21 @@ cbuffer LightBuffer : register(b3)
 
 cbuffer PointLight : register(b4)
 {
-    float3 LightPos;
+    float3 PointLightPos;
     float Radius;
-    float3 LightColor;
-    float pad;
+    float3 PointLightColor;
+    float LinearTerm;
     float3 CameraPos;
-    float pad2;
+    float QuadraticTerm;
+    float Intensity;
+    float3 Pad0;
 }
 struct STATIC_INPUT
 {
     float3 pos : POSITION;
     float2 tex : TEXCOORD;
     float3 normal : NORMAL;
-    float3 tangent : TANGENT;    
+    float3 tangent : TANGENT;
 };
 
 struct PS_INPUT
