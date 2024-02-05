@@ -153,7 +153,7 @@ public:
 	string GetPath() { return BasePath; }
 
 	//빈 모델에 정보 입력
-	void AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale);
+	void AddStaticModel(string filename, const Math::Matrix& worldTM);
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
@@ -188,7 +188,7 @@ public:
 
 	void FrustumCulling(StaticModel* model);
 
-	void SetCamera(Math::Vector3 position={200.f,0.f,-100.f},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
+	void SetCamera(Math::Matrix matrix);
 
 	void ApplyMaterial(Material* pMaterial);
 

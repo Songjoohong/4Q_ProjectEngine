@@ -9,15 +9,10 @@ public:
 
 	virtual ~Script() = default;
 
-private:
-
-protected:
-
 public:
-	//ECS::Entity* GetOwner() const { return m_pOwner; }
-
 	std::string m_ComponentName = "Script";
-	virtual void Update() {}
+
+  virtual void Update(float deltaTime) {}
 	virtual void Awake() {}
 	virtual void LateUpdate() {}
 	virtual void FixedUpdate() {}

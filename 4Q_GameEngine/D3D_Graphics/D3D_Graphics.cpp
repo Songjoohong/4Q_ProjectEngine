@@ -48,10 +48,9 @@ void Renderer::Clear(Math::Vector3 color)
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
-void Renderer::AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale)
+void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 {
-	Vector4 quaternion = Math::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.x), DirectX::XMConvertToRadians(rot.y), DirectX::XMConvertToRadians(rot.z));
-	Math::Matrix worldTM = Math::Matrix::CreateScale(scale) * Math::Matrix::CreateFromQuaternion(quaternion) * Math::Matrix::CreateTranslation(pos);
+
 	for (auto& model : m_pStaticModels)
 	{
 		if (nullptr == model->GetSceneResource())
@@ -400,7 +399,7 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    //SetCamera();
+    
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
     m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
     for (auto& model : m_pStaticModels)
@@ -418,7 +417,7 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-    Clear();
+    Clear(0,1,0);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
@@ -491,7 +490,7 @@ void Renderer::Render()
 	ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
-	Clear();
+	//Clear();
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
@@ -500,10 +499,10 @@ void Renderer::Render()
 	
 	MeshRender();
 
-	/*RenderDebugDraw();
+	RenderDebugDraw();
 	RenderText();
     RenderSprite();
-	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);*/
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 	//임구이 렌더
 	RenderImgui();
@@ -627,11 +626,11 @@ void Renderer::GetSystemMemoryInfo(std::string& out) const
 	out = "System Memory : " + std::to_string((pmc.PagefileUsage) / 1024 / 1024) + " MB";
 }
 
-void Renderer::SetCamera(Math::Vector3 position, Math::Vector3 eye, Math::Vector3 up)
+void Renderer::SetCamera(Math::Matrix matrix)
 {
-	m_cameraPos = position;
-	m_cameraEye = eye;
-	m_cameraUp = up;
+	m_cameraPos = matrix.Translation();
+	m_cameraEye = matrix.Forward();
+	m_cameraUp = matrix.Up();
 }
 
 bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)

@@ -544,10 +544,7 @@ namespace ECS
 			return bPendingDestroy;
 		}
 
-		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> GetComponentContainer()
-		{
-			return components;
-		}
+		Entity* getParent() const { return parentEntity; }
 
 		void addChild(Entity* child)
 		{
@@ -568,6 +565,7 @@ namespace ECS
 
 		size_t id;
 		bool bPendingDestroy = false;
+		Entity* parentEntity = nullptr;
 	};
 
 	/**

@@ -13,4 +13,3 @@ public:
 	virtual void Tick(class World* world, float deltaTime) override;
 	
 };
-
