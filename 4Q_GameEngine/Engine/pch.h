@@ -13,6 +13,13 @@
 #include <cassert>
 #include <vector>
 
+#include <directxtk/SimpleMath.h>
+
 #include "framework.h"
+
+#include "nlohmann/json.hpp"
+#include "../ReflectionLib/PropertyMacro.h"
+#include "../ReflectionLib/TypeInfoMacro.h"
+#include "../ReflectionLib/jsonSerializer.h"
 
 #endif //PCH_H

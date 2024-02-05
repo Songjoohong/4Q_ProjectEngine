@@ -20,7 +20,7 @@ void SoundManager::Update() const
 	m_System->update();
 }
 
-void SoundManager::CreateSound(const char* name, const bool isLoop)
+void SoundManager::CreateSound(std::string name, const bool isLoop)
 {
 	FMOD::Sound* newSound = nullptr;
 	const std::string finalPath = m_ResourcePath + name;
@@ -30,7 +30,7 @@ void SoundManager::CreateSound(const char* name, const bool isLoop)
 	
 }
 
-void SoundManager::PlayBackSound(const char* name)
+void SoundManager::PlayBackSound(std::string name)
 {
 	auto it = m_Channels.find(name);
 	if(it != m_Channels.end())
@@ -45,17 +45,17 @@ void SoundManager::PlayBackSound(const char* name)
 	m_Channels[name] = newChannel;
 }
 
-void SoundManager::SetPaused(const char* name, bool isPlaying)
+void SoundManager::SetPaused(std::string name, bool isPlaying)
 {
 	m_Channels[name]->setPaused(!isPlaying);
 }
 
-void SoundManager::SetVolume(const char* name, const float vol)
+void SoundManager::SetVolume(std::string name, const float vol)
 {
 	m_Channels[name]->setVolume(vol);
 }
 
-void SoundManager::RemoveChannel(const char* name)
+void SoundManager::RemoveChannel(std::string name)
 {
 	m_Channels[name]->stop();
 }

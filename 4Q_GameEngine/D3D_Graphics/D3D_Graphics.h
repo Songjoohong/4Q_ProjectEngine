@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "PointLight.h"
 
+class RenderTextureClass;
 class StaticMeshResource;
 class StaticModel;
 class Material;
@@ -91,6 +92,8 @@ public:
 	D3D11_VIEWPORT m_shadowViewport;
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
+	RenderTextureClass* m_RenderTexture = nullptr;	// 수민 추가.
+
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
 
@@ -149,7 +152,7 @@ public:
 	string GetPath() { return BasePath; }
 
 	//빈 모델에 정보 입력
-	void AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale);
+	void AddStaticModel(string filename, const Math::Matrix& worldTM);
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
@@ -184,7 +187,7 @@ public:
 
 	void FrustumCulling(StaticModel* model);
 
-	void SetCamera(Math::Vector3 position={200.f,0.f,-100.f},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
+	void SetCamera(Math::Matrix matrix);
 
 	void ApplyMaterial(Material* pMaterial);
 
@@ -206,17 +209,16 @@ public:
 
 	void RenderBegin();
 	void Render();
+	void RenderScene();	// 수민
+	void RenderToTexture();	// 수민
 	void RenderEnd();
-
 	bool InitImgui(HWND hWnd);
 	void RenderImgui();
 	void UnInitImgui();
 
 	// minjeong : Create Shadow VS & PS
 	void CreateShadowVS();
-	void CreateShadowPS();
-
-private:
+	void CreateShadowPS();private:
 	string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
 	vector<DebugInformation> m_debugs;

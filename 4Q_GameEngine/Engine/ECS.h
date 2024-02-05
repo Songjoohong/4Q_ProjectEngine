@@ -28,8 +28,11 @@ SOFTWARE.
 #include <algorithm>
 #include <stdint.h>
 #include <type_traits>
+#include <filesystem>
+#include <fstream>
+#include "../ReflectionLib/jsonSerializer.h"
 
-
+using json = nlohmann::json;
 //////////////////////////////////////////////////////////////////////////
 // SETTINGS //
 //////////////////////////////////////////////////////////////////////////
@@ -80,6 +83,8 @@ SOFTWARE.
 //////////////////////////////////////////////////////////////////////////
 
 class Script;
+class Transform;
+using json = nlohmann::json;
 
 namespace ECS
 {
@@ -143,6 +148,7 @@ namespace ECS
 		class EntityComponentView;
 
 		class EntityView;
+		class EntityIdentifer;
 
 		struct BaseComponentContainer
 		{
@@ -435,6 +441,7 @@ namespace ECS
 			return world;
 		}
 
+
 		/**
 		* Does this entity have a component?
 		*/
@@ -535,12 +542,28 @@ namespace ECS
 			return bPendingDestroy;
 		}
 
+		Entity* getParent() const { return parentEntity; }
+
+		void addChild(Entity* child)
+		{
+			child->SetParent(this);
+			m_children.push_back(child);
+		}
+
+		void SetParent(Entity* parent)
+		{
+			this->m_parent = parent;
+		}
+
+		Entity* m_parent = nullptr;
+		std::vector<Entity*> m_children;
 	private:
 		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> components;
 		World* world;
 
 		size_t id;
 		bool bPendingDestroy = false;
+		Entity* parentEntity = nullptr;
 	};
 
 	/**
@@ -562,23 +585,31 @@ namespace ECS
 		/**
 		* Use this function to construct the world with a custom allocator.
 		*/
-		static World* CreateWorld(Allocator alloc, const char* fileName)
+		static World* CreateWorld(Allocator alloc, std::wstring fileName)
 		{
 			WorldAllocator worldAlloc(alloc);
 			World* world = std::allocator_traits<WorldAllocator>::allocate(worldAlloc, 1);
 			std::allocator_traits<WorldAllocator>::construct(worldAlloc, world, alloc);
 
+			//world->Deserialize(fileName);
 			return world;
 		}
+
 
 		/**
 		* Use this function to construct the world with the default allocator.
 		*/
-		static World* CreateWorld(const char* fileName)
+		static World* CreateWorld(std::wstring fileName)
 		{
 			return CreateWorld(Allocator(), fileName);
 		}
 
+		void Deserialize(std::wstring _filename)
+		{
+			//std::wstring fullPath = basePath + _filename;
+
+			//auto deserializedTransform = DeserializeContainerFromFile<std::array<Transform, 3>>(fullPath);
+		}
 		// Use this to destroy the world instead of calling delete.
 		// This will emit OnEntityDestroyed events and call EntitySystem::unconfigure as appropriate.
 		void DestroyWorld()
@@ -830,6 +861,20 @@ namespace ECS
 			return entAlloc;
 		}
 
+		/*std::vector<Entity*> GetEntities()
+		{
+			std::vector<Entity*> ent;
+			for (auto& it : entities)
+			{
+				ent.push_back(it);
+			}
+			return ent;
+		}*/
+
+		std::vector<Entity*> GetEntities()
+		{
+			return entities;
+		}
 	private:
 		EntityAllocator entAlloc;
 		SystemAllocator systemAlloc;
@@ -844,6 +889,7 @@ namespace ECS
 			SubscriberPairAllocator> subscribers;
 
 		size_t lastEntityId = 0;
+
 	};
 
 	namespace Internal
@@ -1003,9 +1049,11 @@ namespace ECS
 
 			return;
 		}
-
+		if (ent->m_parent != nullptr)
+		{
+			ent->m_parent->m_children.clear();
+		}
 		ent->bPendingDestroy = true;
-
 		emit<Events::OnEntityDestroyed>({ ent });
 
 		if (immediate)
@@ -1149,7 +1197,6 @@ namespace ECS
 			return handle;
 		}
 	}
-
 
 
 	template<typename T>

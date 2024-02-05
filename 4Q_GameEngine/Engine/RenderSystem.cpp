@@ -20,10 +20,10 @@ void RenderSystem::Deconfigure(ECS::World* world)
 
 void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 {
-	// minjeong : fbx load test
 	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> collider, ComponentHandle<Transform> transform)->void
 		{
-			RenderManager::GetInstance()->AddStaticMesh(collider->m_FileName, transform->m_Position, transform->m_Rotation, transform->m_Scale);
+			RenderManager::GetInstance()->AddStaticMesh(collider->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+
 		});
 }
 
