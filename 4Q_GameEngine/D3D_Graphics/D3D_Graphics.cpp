@@ -614,6 +614,12 @@ void Renderer::RenderImgui()
 		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 30.f);
 		m_pointLight.SetIntensity(pointLightIntensity);
 
+		float pointLightColor[3] = { m_pointLight.GetColor().x, m_pointLight.GetColor().y, m_pointLight.GetColor().z};
+		ImGui::Text("Color");
+		ImGui::SameLine();
+		ImGui::ColorEdit3("##plc", pointLightColor, 0);
+		m_pointLight.SetColor(pointLightColor[0], pointLightColor[1], pointLightColor[2]);
+
 		// Shadow
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
