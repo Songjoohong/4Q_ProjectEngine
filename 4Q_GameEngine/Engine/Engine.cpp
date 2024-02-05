@@ -97,6 +97,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
 
+
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"../Test/TestScene1.json"));
 	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
 	EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
@@ -121,9 +122,69 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
 
+	// minjeong : dummy test
+	/*{
+		Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent->Assign<StaticMesh>("FBXLoad_Test/fbx/folding_screen.fbx");
+		ent->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D(1.f, 1.f, 1.f));
+		ent->Assign<Debug>();
+
+		Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor_low.fbx");
+		ent1->Assign<Transform>(Vector3D(0.f, -200.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D(2000.f, 2000.f, 2000.f));
+
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/column_001.fbx");
+		ent2->Assign<Transform>(Vector3D(200.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+
+		Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/corridorceiling_001.fbx");
+		ent3->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+
+		Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/corridorceiling_002.fbx");
+		ent4->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+
+		Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent5->Assign<StaticMesh>("FBXLoad_Test/fbx/corridorceiling_003.fbx");
+		ent5->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+
+		Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent6->Assign<StaticMesh>("FBXLoad_Test/fbx/corridorceiling_004.fbx");
+		ent6->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+
+		Entity* ent7 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent7->Assign<StaticMesh>("FBXLoad_Test/fbx/ridgepole_001.fbx");
+		ent7->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+
+		Entity* ent9 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent9->Assign<StaticMesh>("FBXLoad_Test/fbx/wall_dummy1.fbx");
+		ent9->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+
+		Entity* ent10 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent10->Assign<StaticMesh>("FBXLoad_Test/fbx/wall_dummy2.fbx");
+		ent10->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+
+	}*/
+	
+	// minjeong : point light test
+	{
+		Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent->Assign<StaticMesh>("FBXLoad_Test/fbx/Character.fbx");
+		ent->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(1.f, 1.f, 1.f));
+		ent->Assign<Debug>();
+
+		Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
+		ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D(2000.f, 2000.f, 2000.f));
+
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/wallTest.fbx");
+		ent2->Assign<Transform>(Vector3D(100.f, 100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D(100.f, 100.f, 1.f));
+	}
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
-	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
+	//SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
   
 	RenderManager::GetInstance()->AddSprite(1, "../Resource/UI/image.jpg", { 0,0 }, 0);
 	RenderManager::GetInstance()->AddSprite(2, "../Resource/UI/image2.jpg", { 50,0 }, 1);

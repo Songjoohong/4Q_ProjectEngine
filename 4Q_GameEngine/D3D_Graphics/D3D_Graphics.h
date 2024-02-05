@@ -14,11 +14,13 @@ const size_t BUFFER_SIZE = 2;
 struct cbPointLight
 {
 	Math::Vector3 mPos;
-	float mRadius;
+	float mRadius = 600.f;
 	Math::Vector3 mLightColor;
-	float pad;
+	float mLinearTerm = 0.007f;
 	Math::Vector3 mCameraPos;
-	float pad2;
+	float mQuadraticTerm = 0.0002f;
+	float mIntensity = 1.0f;
+	Math::Vector3 mPad0;
 };
 
 struct cbWorld
@@ -126,16 +128,13 @@ public:
 	Math::Matrix m_projectionMatrix;
 	cbProjection m_projectionMatrixCB;
 
-
+	// minejong : directional light constant buffer
 	cbLight m_lightCB;
-
+	// minejong : shadow dir
 	Vector3 m_shadowDirection;
-
 
 	DirectX::BoundingFrustum m_frustumCmaera;
 
-
-	
 public:
 	//d3d객체 초기화
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
@@ -144,7 +143,7 @@ public:
 
 
 	//화면 클리어
-	void Clear(float r=1,float g=1,float b=1);
+	void Clear(float r=0.3,float g=1,float b=0.3);
 
 	void Clear(Math::Vector3 color);
 
