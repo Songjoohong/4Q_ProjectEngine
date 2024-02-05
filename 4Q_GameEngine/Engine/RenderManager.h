@@ -29,7 +29,7 @@ public:
 
 	void SetBasePath(std::string filePath);
 
-	void SetCamera(const DirectX::SimpleMath::Matrix& matrix);
+	void SetCamera(const DirectX::SimpleMath::Matrix matrix);
 	
 	void AddDebug(int entID, const std::string& text, const Vector3D& pos);
 	void AddSprite(int entID, const std::string& filePath, POINT pos, float layer);

@@ -6,13 +6,15 @@ class Script
 {
 public:
 	Script() = default;
-
+	Script(Entity* ent)
+		: m_pOwner(ent)
+	{}
 	virtual ~Script() = default;
 
 public:
 	std::string m_ComponentName = "Script";
-
-  virtual void Update(float deltaTime) {}
+	Entity* m_pOwner = nullptr;
+	virtual void Update(float deltaTime) {}
 	virtual void Awake() {}
 	virtual void LateUpdate() {}
 	virtual void FixedUpdate() {}

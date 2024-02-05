@@ -86,15 +86,18 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
+
 	int speed = 10;
 	SystemParametersInfo(SPI_SETMOUSESPEED, 0, (void*)speed, SPIF_SENDCHANGE);
 	ShowCursor(FALSE);
+
+
 	// 매니저 초기화
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"../Test/TestScene1.json"));
 	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
 	EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
 	EntitySystem* transformSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new TransformSystem());
@@ -112,7 +115,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(70.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
@@ -163,7 +166,7 @@ void Engine::Update()
 	SoundManager::GetInstance()->Update();
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
-	//InputManager::GetInstance()->Update(deltaTime);
+	InputManager::GetInstance()->Update(deltaTime);
 	RenderManager::GetInstance()->Update();
 }
 
@@ -179,7 +182,6 @@ void Engine::Close()
 	m_bIsRunning = false;
 }
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int resizeWidth = 0;

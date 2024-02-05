@@ -10,6 +10,7 @@
 #include "../Engine/Transform.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/Camera.h"
+#include "../Engine/CameraScript.h"
 #include "../Engine/Light.h"
 #include "../Engine/EntityIdentifier.h"
 #include "../Engine/Movement.h"
@@ -469,6 +470,7 @@ void GameEditor::NewScene()
 	m_Wall->Assign<StaticMesh>("box.fbx");
 	m_Camera->Assign<Camera>();
 	m_Camera->Assign<Light>();
+	m_Camera->Assign<CameraScript>(this);
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
 
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);

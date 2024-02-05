@@ -1,14 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
@@ -70,19 +62,13 @@
     <Filter Include="System\Transform">
       <UniqueIdentifier>{523eb242-1b9e-4a6a-abd5-824ebcd77236}</UniqueIdentifier>
     </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{de3e12bc-a24a-4646-a500-c30d3226d24b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="nlohmann\json.hpp">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="ISingleton.h">
       <Filter>Interface</Filter>
-    </ClInclude>
-    <ClInclude Include="ECS.h">
-      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Component</Filter>
@@ -177,14 +163,20 @@
     <ClInclude Include="EntityIdentifier.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="ECS.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="nlohmann\json.hpp">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix4x4.h">
+      <Filter>headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector3D.h">
-      <Filter>헤더 파일</Filter>
-    </ClCompile>
     <ClCompile Include="MovementSystem.cpp">
       <Filter>System\Movement</Filter>
     </ClCompile>
@@ -229,6 +221,15 @@
     </ClCompile>
     <ClCompile Include="TransformSystem.cpp">
       <Filter>System\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3D.h">
+      <Filter>headers</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>headers</Filter>
+    </ClCompile>
+    <ClCompile Include="MyPOINT.cpp">
+      <Filter>headers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

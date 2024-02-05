@@ -16,10 +16,10 @@ enum MoveState
 struct Movement
 {
 	ECS_DECLARE_TYPE
-		Movement() = default;
-
 
 	Movement() = default;
+
+	std::string m_ComponentName = "Movement";
 
 	float m_Speed = 100.f;
 	float m_Sensitivity = 0.1f;
@@ -30,9 +30,7 @@ struct Movement
 
 	POINT m_CurrentRotation = { 0,0 };
 
-	std::string m_ComponentName = "Movement";
-
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Movement, m_ComponentName, m_Speed, m_DirectionVector, m_Sensitivity, m_RightVector, m_CurrentRotation)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Movement, m_ComponentName, m_Speed, m_Sensitivity, m_CurrentMoveState, m_DirectionVector, m_RightVector)
 };
 
 ECS_DEFINE_TYPE(Movement)

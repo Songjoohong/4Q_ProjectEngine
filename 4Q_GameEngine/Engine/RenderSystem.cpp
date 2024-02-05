@@ -22,11 +22,9 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 {
 	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> collider, ComponentHandle<Transform> transform)->void
 		{
-			RenderManager::GetInstance()->AddStaticMesh(collider->m_FileName, transform->m_WorldMatrix);
+			RenderManager::GetInstance()->AddStaticMesh(collider->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
 		});
 }
-
-
 
 void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<StaticMesh>& event)
 {

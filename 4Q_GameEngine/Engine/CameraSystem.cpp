@@ -9,6 +9,6 @@ void CameraSystem::Tick(World* world, ECS::DefaultTickData data)
 {
 	world->each<Camera, Transform>([&](Entity* ent, ComponentHandle<Camera> camera, ComponentHandle<Transform> transform)
 		{
-			RenderManager::GetInstance()->SetCamera(transform->m_WorldMatrix);
+			RenderManager::GetInstance()->SetCamera(transform->m_WorldMatrix.ConvertToMatrix());
 		});
 }

@@ -55,7 +55,7 @@ void RenderManager::SetBasePath(std::string filePath)
 }
 
 
-void RenderManager::SetCamera(const DirectX::SimpleMath::Matrix& matrix)
+void RenderManager::SetCamera(const DirectX::SimpleMath::Matrix matrix)
 {
 	Renderer::Instance->SetCamera(matrix);
 }
