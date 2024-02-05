@@ -21,7 +21,7 @@ void StaticModel::SetSceneResource(shared_ptr<StaticSceneResource> sceneResource
 		StaticMeshResource* meshResource = &m_pStaticSceneResource->m_meshes[i];
 		Material* material = m_pStaticSceneResource->GetMeshMaterial(i);
 		m_meshInstance[i].Create(meshResource, &m_worldTransform, material);
-		m_boundingBox.Center = m_worldTransform.Translation();
+		m_boundingBox.Center = m_worldTransform.Translation() +Vector3(0, sceneResource->m_AABBmax.y - sceneResource->m_AABBmin.y, 0) * 0.5;
 	}
 
 }
@@ -31,8 +31,8 @@ bool StaticModel::Load(string filename)
 	shared_ptr<StaticSceneResource> sceneResource = ResourceManager::Instance->CreateStaticMeshResource(Renderer::Instance->GetPath()  + filename);
 	if(!sceneResource)
 		return false;
-	m_boundingBox.Center = Math::Vector3(sceneResource->m_BoundingBoxMin + sceneResource->m_BoundingBoxMax) * 0.5f;	// Calculate extent	
-	m_boundingBox.Extents = Math::Vector3(sceneResource->m_BoundingBoxMax - sceneResource->m_BoundingBoxMin) * 0.5f;
+	m_boundingBox.Center = Math::Vector3(sceneResource->m_AABBmin + sceneResource->m_AABBmax) * 0.5f;	// Calculate extent	
+	m_boundingBox.Extents = Math::Vector3(sceneResource->m_AABBmax - sceneResource->m_AABBmin) * 0.5f;
 	SetSceneResource(sceneResource);
 	RenderInit();
 	return true;

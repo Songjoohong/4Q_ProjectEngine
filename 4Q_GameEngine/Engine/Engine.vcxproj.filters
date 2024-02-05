@@ -67,6 +67,9 @@
     <Filter Include="System\Debug">
       <UniqueIdentifier>{e92f1956-2673-4e65-815e-35cf5af77dd0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Sprite">
+      <UniqueIdentifier>{b1765cf5-84dc-4dbb-b8c2-bb8076bddba8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -91,9 +94,6 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="StaticMesh.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="SkinnedMesh.h">
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="PlayerInputSystem.h">
@@ -126,20 +126,11 @@
     <ClInclude Include="framework.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="FSMSystem.h">
-      <Filter>System\FSM</Filter>
-    </ClInclude>
     <ClInclude Include="Animation.h">
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="CollisionSystem.h">
       <Filter>System\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="State.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="FSM.h">
-      <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>Manager\Input</Filter>
@@ -149,9 +140,6 @@
     </ClInclude>
     <ClInclude Include="WorldManager.h">
       <Filter>Manager\World</Filter>
-    </ClInclude>
-    <ClInclude Include="IdleState.h">
-      <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="RenderManager.h">
       <Filter>Manager\Render</Filter>
@@ -173,6 +161,12 @@
     </ClInclude>
     <ClInclude Include="Debug.h">
       <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite2D.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteSystem.h">
+      <Filter>System\Sprite</Filter>
     </ClInclude>
     <ClInclude Include="EntityIdentifier.h">
       <Filter>Component</Filter>
@@ -196,9 +190,6 @@
     </ClCompile>
     <ClCompile Include="ScriptSystem.cpp">
       <Filter>System\Script</Filter>
-    </ClCompile>
-    <ClCompile Include="FSMSystem.cpp">
-      <Filter>System\FSM</Filter>
     </ClCompile>
     <ClCompile Include="CollisionSystem.cpp">
       <Filter>System\Collision</Filter>
@@ -226,6 +217,9 @@
     </ClCompile>
     <ClCompile Include="DebugSystem.cpp">
       <Filter>System\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteSystem.cpp">
+      <Filter>System\Sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

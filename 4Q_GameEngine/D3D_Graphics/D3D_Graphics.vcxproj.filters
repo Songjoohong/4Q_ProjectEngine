@@ -15,9 +15,6 @@
     <Filter Include="Model\Mesh">
       <UniqueIdentifier>{2069963d-6a88-47d2-b296-253e761c7f38}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Model\Mesh\StaticMesh">
-      <UniqueIdentifier>{66ee21f0-3ba0-4c90-b8eb-fe54f50facfc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Model\Mesh\SkeletalMesh">
       <UniqueIdentifier>{6b874a8c-352b-4da3-9705-e2f9228e65ee}</UniqueIdentifier>
     </Filter>
@@ -53,6 +50,9 @@
     </Filter>
     <Filter Include="Model\Instance\StaticMesh">
       <UniqueIdentifier>{d3130cfc-a3e5-4912-8425-ffd1a1ec980e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model\Mesh\StaticMesh">
+      <UniqueIdentifier>{66ee21f0-3ba0-4c90-b8eb-fe54f50facfc}</UniqueIdentifier>
     </Filter>
     <Filter Include="소스 파일\리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -108,6 +108,12 @@
     <ClInclude Include="RenderTextureClass.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="DebugDraw.h">
+      <Filter>0.Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D_Graphics.cpp">
@@ -155,6 +161,12 @@
     <ClCompile Include="RenderTextureClass.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="DebugDraw.cpp">
+      <Filter>0.Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resource\Header.hlsli">
@@ -166,6 +178,12 @@
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\PixelShader.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\ShadowDepthPS.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\ShadowVertexShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
   </ItemGroup>

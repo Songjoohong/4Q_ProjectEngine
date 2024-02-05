@@ -1,7 +1,11 @@
 #include "pch.h"
 #include "Engine.h"
 
+
+#include <imgui.h>
+
 #include <directxtk/SimpleMath.h>
+
 
 #include "BoxCollider.h"
 #include "Debug.h"
@@ -11,10 +15,10 @@
 #include "RenderManager.h"
 #include "Script.h"
 #include "WorldManager.h"
-#include "IdleState.h"
 #include "RenderSystem.h"
 #include "SampleScript.h"
 #include "SoundManager.h"
+#include "SpriteSystem.h"
 #include "StaticMesh.h"
 #include "imgui.h"
 
@@ -84,17 +88,22 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"TestScene1.json"));
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
+	
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
-
-	ent->Assign<Transform>(Vector3D(500.f, 500.f, 500.f));
+	ent->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
 	ent->Assign<Transform>();
 	ent->Assign<Debug>();
+
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
   
-	
+	RenderManager::GetInstance()->AddSprite(1, "../Resource/UI/image.jpg", { 0,0 }, 0);
+	RenderManager::GetInstance()->AddSprite(2, "../Resource/UI/image2.jpg", { 50,0 }, 1);
+
+	RenderManager::GetInstance()->SetCameraPos(Vector3D(0.f, 0.f, -100.f), Vector3D(0.f, 0.f, 1.f), Vector3D(0.f, 1.f, 0.f));
+
 	return true;
 }
 
@@ -122,6 +131,7 @@ void Engine::Run()
 			Render();
 		}
 	}
+	RenderManager::GetInstance()->UnInitialize();
 }
 
 void Engine::Update()
@@ -131,18 +141,7 @@ void Engine::Update()
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	//InputManager::GetInstance()->Update(deltaTime);
-
-	
-
-	if (InputManager::GetInstance()->GetMouseButtonDown(0))
-	{
-		SoundManager::GetInstance()->RemoveChannel("better-day-186374.mp3");
-	}
-	else if(InputManager::GetInstance()->GetMouseButtonDown(2))
-	{
-		SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
-	}
-
+	RenderManager::GetInstance()->Update();
 }
 
 void Engine::Render()
@@ -158,6 +157,7 @@ void Engine::Close()
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int resizeWidth = 0;
 int resizeHeight = 0;
@@ -165,8 +165,7 @@ int resizeHeight = 0;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-		return true;
-	switch (message)
+		return true;	switch (message)
 	{
 	case WM_SIZE:
 		newWidth = LOWORD(lParam);

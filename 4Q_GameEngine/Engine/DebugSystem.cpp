@@ -18,11 +18,13 @@ void DebugSystem::Deconfigure(World* world)
 
 void DebugSystem::Receive(World* world, const Events::OnComponentAssigned<Debug>& event)
 {
-	RenderManager::GetInstance()->AddDebug(event.entity->getEntityId(), " ", Vector3D());
+	RenderManager::GetInstance()->AddDebug(event.entity->getEntityId(), "", Vector3D());
 }
 
 void DebugSystem::Receive(World* world, const Events::OnEntityDestroyed& event)
 {
+	if(event.entity->has<Debug>())
+		RenderManager::GetInstance()->DeleteDebug(static_cast<int>(event.entity->getEntityId()));
 }
 
 void DebugSystem::Tick(World* world, ECS::DefaultTickData data)
