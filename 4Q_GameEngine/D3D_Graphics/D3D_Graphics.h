@@ -118,7 +118,7 @@ public:
 	cbWorld m_worldMatrixCB;
 
 	//카메라 행렬
-	Math::Vector3 m_cameraPos, m_cameraEye, m_cameraUp;
+	Math::Vector3 m_cameraPos, m_cameraEye = { 0.f,0.f,1.f }, m_cameraUp = { 0.f,1.f,0.f };
 	Math::Matrix m_viewMatrix;
 	cbView m_viewMatrixCB;
 

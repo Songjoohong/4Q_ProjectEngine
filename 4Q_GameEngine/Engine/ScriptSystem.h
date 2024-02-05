@@ -34,10 +34,10 @@ class ScriptSystem : public EntitySystem,
 	virtual void Receive(class World* world, const Events::OnEntityDestroyed& event) override
 	{
 		std::cout << "An entity was destroyed!" << std::endl;
-		world->each<Script>([&](Entity* entity, ComponentHandle<Script> script)->void
-			{
-				script->OnDestroyed();
-			});
+		if(event.entity->has<Script>() == true)
+		{
+			event.entity->get<Script>()->OnDestroyed();
+		}
 
 	}
 

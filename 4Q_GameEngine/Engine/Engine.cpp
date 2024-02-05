@@ -110,9 +110,10 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
-	ent->Assign<CameraScript>(ent);
+	//ent->Assign<CameraScript>(ent);
 	ent->Assign<Movement>();
 
+	//bool b = ent->has<Script>();
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
 	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
