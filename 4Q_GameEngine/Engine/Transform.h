@@ -16,12 +16,13 @@ struct Transform
 	
 	}
 
+	std::string m_ComponentName = "Transform";
+
 	Vector3D m_Position;
 	Vector3D m_Rotation;
 	Vector3D m_Scale;
 
-	std::string m_ComponentName = "Transform";
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_Position, m_Rotation, m_Scale)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale)
 };
 
 ECS_DEFINE_TYPE(Transform)

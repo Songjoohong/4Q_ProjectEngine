@@ -16,6 +16,8 @@
 #include "../Engine/Script.h"
 #include "../Engine/SampleScript.h"
 #include "../Engine/StaticMesh.h"
+#include "../Engine/Debug.h"
+#include "../Engine/Sound.h"
 
 
 using json = nlohmann::json;
@@ -33,15 +35,6 @@ GameEditor::~GameEditor()
 	ShutDownImGui();
 }
 
-class temp1
-{
-public:
-	int a = 1;
-	int b = 2;
-	char c = 's';
-	bool bo = false;
-};
-
 bool GameEditor::Initialize(UINT width, UINT height)
 {
 	__super::Initialize(width, height);
@@ -49,18 +42,9 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	m_Renderer = Renderer::Instance;
 	
 	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
-	m_Wall = m_EditorWorld->create();
 
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 	/* ---- test end --------------------------------------------------------------------------- */
-
-	temp1 tmp1;
-	temp2 tmp2;
-
-	tmp1 = tmp2;
-
-	//Test test;
-
 
 	//// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
 	//// 값은 어떻게 넣지?
@@ -396,74 +380,47 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 
 				if (componentName == "EntityIdentifier")
 				{
-					const auto& Identifier = component["EntityIdentifier"][0];
-
-					myEntity->Assign<EntityIdentifier>();
-
-					myEntity->get<EntityIdentifier>().get().m_EntityId = Identifier["m_EntityId"];
-					myEntity->get<EntityIdentifier>().get().m_EntityName = Identifier["m_EntityName"];
-					myEntity->get<EntityIdentifier>().get().m_ParentEntityId = Identifier["m_ParentEntityId"];
-					myEntity->get<EntityIdentifier>().get().m_HasParent = Identifier["m_HasParent"];
+					AssignComponents<EntityIdentifier>(myEntity, component["EntityIdentifier"][0]);
 				}
 				else if (componentName == "Transform")
 				{
-					const auto& trans = component["Transform"][0];
-
-					myEntity->Assign<Transform>();
-
-					myEntity->get<Transform>().get().m_Position = trans["m_Position"];
-					myEntity->get<Transform>().get().m_Rotation = trans["m_Rotation"];
-					myEntity->get<Transform>().get().m_Scale = trans["m_Scale"];
+					AssignComponents<Transform>(myEntity, component["Transform"][0]);
 				}
 				else if (componentName == "BoxCollider")
 				{
-					const auto& collider = component["BoxCollider"][0];
-
-					myEntity->Assign<BoxCollider>();
-
-					myEntity->get<BoxCollider>().get().m_CurrentState = collider["m_CurrentStae"];
-					myEntity->get<BoxCollider>().get().m_Center = collider["m_Center"];
-					myEntity->get<BoxCollider>().get().m_Size = collider["m_Size"];
-					myEntity->get<BoxCollider>().get().m_IsTrigger = collider["m_IsTrigger"];
+					AssignComponents<BoxCollider>(myEntity, component["BoxCollider"][0]);
 				}
 
 				else if (componentName == "Camera")
 				{
-					const auto& camera = component["Camera"][0];
-					myEntity->Assign<Camera>();
-					myEntity->get<Camera>().get().m_FOV = camera["m_FOV"];
-					myEntity->get<Camera>().get().m_Near = camera["m_Near"];
-					myEntity->get<Camera>().get().m_Far = camera["m_Far"];
+					AssignComponents<Camera>(myEntity, component["Camera"][0]);
 				}
 
 				else if (componentName == "Light")
 				{
-					const auto& light = component["Light"][0];
-
-					myEntity->get<Light>().get().m_Type = light["m_Type"];
-					myEntity->get<Light>().get().m_Color = light["m_Color"];
-					myEntity->get<Light>().get().m_Intensity = light["m_Intensity"];
+					AssignComponents<Light>(myEntity, component["Light"][0]);
 				}
 
 				else if (componentName == "Movement")
 				{
-					const auto& movement = component["Movement"][0];
-
-					myEntity->Assign<Movement>();
-					myEntity->get<Movement>().get().m_Speed = movement["m_Speed"];
-					myEntity->get<Movement>().get().m_DirectionVector = movement["m_DirectionVector"];
+					AssignComponents<Movement>(myEntity, component["Movement"][0]);
 				}
 
 				else if (componentName == "StaticMesh")
 				{
-					const auto& staticMesh = component["StaticMesh"][0];
-					myEntity->Assign<StaticMesh>();
-
-					myEntity->get<StaticMesh>().get().m_FileName = staticMesh["m_FileName"];
+					AssignComponents<StaticMesh>(myEntity, component["StaticMesh"][0]);
 				}
- 				}
+				else if (componentName == "Debug")
+				{
+					AssignComponents<Debug>(myEntity, component["Debug"][0]);
+				}
+				else if (componentName == "Sound")
+				{
+					AssignComponents<Sound>(myEntity, component["Sound"][0]);
+				}
 			}
 		}
+	}
 
 
 	//부모자식 관계 설정
@@ -483,6 +440,7 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 
 	// HierarchyPanel에 등록
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
+	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 
 void GameEditor::NewScene()
@@ -510,9 +468,10 @@ void GameEditor::NewScene()
 	m_Wall->Assign<Transform>(pos3);
 	m_Wall->Assign<StaticMesh>("box.fbx");
 	m_Camera->Assign<Camera>();
+	m_Camera->Assign<Light>();
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
 
-
+	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 
 void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)

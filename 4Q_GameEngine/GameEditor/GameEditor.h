@@ -31,10 +31,12 @@ public:
 
 	//Save/Load
 	void SaveWorld(const std::wstring& _strRelativePath);
-	template<typename T>
+	template<typename ComponentType>
 	void SaveComponents(ECS::Entity* entity, json& worldData, std::wstring& filename);
 	void LoadWorld(const std::wstring& _strRelativePath);
 
+	template<typename ComponentType>
+	void AssignComponents(ECS::Entity* entity, const json& componentData);
 	void NewScene();
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
@@ -61,17 +63,17 @@ private:
 	ECS::Entity* m_Wall;
 };
 
-template<typename T>
+template<typename ComponentType>
 inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData, std::wstring& filename)
 {
-	if (entity->has<T>())
+	if (entity->has<ComponentType>())
 	{
-		std::vector<T> container;
-		container.push_back(entity->get<T>().get());
+		std::vector<ComponentType> container;
+		container.push_back(entity->get<ComponentType>().get());
 		auto serializedData = SerializeContainer(container, filename);
 
 		json componentData;
-		componentData[(entity->get<T>().get()).m_ComponentName] = json::parse(serializedData);
+		componentData[(entity->get<ComponentType>().get()).m_ComponentName] = json::parse(serializedData);
 
 		std::string entityName = entity->get<EntityIdentifier>().get().m_EntityName;
 
@@ -94,4 +96,14 @@ inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData, std
 		}
 		std::cout << serializedData << std::endl;
 	}
+}
+
+template<typename ComponentType>
+inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& componentData)
+{
+	entity->Assign<ComponentType>();
+
+	auto& component = entity->get<ComponentType>().get();
+
+	component = componentData;
 }

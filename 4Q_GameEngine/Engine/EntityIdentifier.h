@@ -10,12 +10,13 @@ struct EntityIdentifier
 	{
 	}
 
+	std::string m_ComponentName = "EntityIdentifier";
 	std::string m_EntityName = " ";
 	int			m_EntityId = 0;
 	int			m_ParentEntityId = 0;
 	bool		m_HasParent = false;
-	std::string m_ComponentName = "EntityIdentifier";
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(EntityIdentifier, m_EntityId, m_EntityName, m_ParentEntityId, m_HasParent)
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(EntityIdentifier, m_ComponentName, m_EntityName, m_EntityId, m_ParentEntityId, m_HasParent)
 };
 
 ECS_DEFINE_TYPE(EntityIdentifier)

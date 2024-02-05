@@ -7,7 +7,6 @@ class SampleScript : public Script
 {
 public:
 	SampleScript() = default;
-	SampleScript(int parentEntityId) : Script(parentEntityId) {}
 
 	virtual void Update() override
 	{
@@ -16,5 +15,5 @@ public:
 		//ComponentHandle< Transform> transformComponent = owner->get<Transform>(); // 엔티티의 컴포넌트에 접근
 	}
 	std::string m_ComponentName = "SampleScript";
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SampleScript, m_ParentEntityId)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SampleScript, m_ComponentName)
 };

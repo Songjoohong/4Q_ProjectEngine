@@ -11,10 +11,10 @@ struct StaticMesh
 		: m_FileName(fileName)
 	{}
 
+	std::string m_ComponentName = "StaticMesh";
 	std::string m_FileName = "";
 
-	std::string m_ComponentName = "StaticMesh";
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(StaticMesh, m_FileName)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(StaticMesh, m_ComponentName, m_FileName)
 };
 
 ECS_DEFINE_TYPE(StaticMesh)

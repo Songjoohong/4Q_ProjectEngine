@@ -31,6 +31,7 @@ void SceneHierarchyPanel::RenderImGui()
 		//현재 씬이 가지고 있는 모든 Entity 의 정보를 그린다.
 		for (auto entity : m_Context->GetEntities())
 		{
+			// 최상위 부모로 등록된 애들만 먼저 그림
 			if (entity->get<EntityIdentifier>().get().m_HasParent == false)
 			{
 				DrawEntityNode(entity);

@@ -6,19 +6,17 @@ class Script
 {
 public:
 	Script() = default;
-	explicit Script(int parentEntityId)
-		: m_ParentEntityId(parentEntityId)
-	{}
+
 	virtual ~Script() = default;
 
 private:
 
 protected:
 
-	int m_ParentEntityId = 0;
 public:
 	//ECS::Entity* GetOwner() const { return m_pOwner; }
 
+	std::string m_ComponentName = "Script";
 	virtual void Update() {}
 	virtual void Awake() {}
 	virtual void LateUpdate() {}
@@ -28,6 +26,6 @@ public:
 	virtual void OnCollisionEnter() {}
 	virtual void OnCollisionExit() {}
 	virtual void OnCollisionStay() {}
-	std::string m_ComponentName = "Script";
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Script, m_ParentEntityId)
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Script, m_ComponentName)
 };
