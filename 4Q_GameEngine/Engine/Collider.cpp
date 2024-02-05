@@ -7,14 +7,19 @@ Collider::Collider(BoxCollider* owner)
 	m_pOwner = owner;
 }
 
+Collider::~Collider()
+{
+}
+
 void Collider::Initialize()
 {
 	m_Scale = m_pOwner->m_Size;
 	m_BoxGeometry = { m_Scale.GetX() / 2,m_Scale.GetY() / 2,m_Scale.GetZ() / 2 };
-	m_pMaterial = PhysicsManager::GetInstance()->m_pPhysics->createMaterial(0.5f, 0.5f, 0.0f);
+	m_pMaterial = PhysicsManager::GetInstance()->GetPhysics()->createMaterial(0.5f, 0.5f, 0.0f);
 
 	UpdateTransform();
 }
+
 
 void Collider::UpdateTransform()
 {
@@ -30,4 +35,15 @@ void Collider::UpdateTransform()
 	m_Transform.q.x = m_pOwner->m_Rotation.GetX() * angle;
 	m_Transform.q.y = m_pOwner->m_Rotation.GetY() * angle;
 	m_Transform.q.z = m_pOwner->m_Rotation.GetZ() * angle;
+}
+
+void Collider::SetObjectType(ObjectType type)
+{
+	m_ObjectType = type;
+	/*
+		석영 : 오브젝트 종류별 세팅도 같이 해주기.
+	*/
+
+	m_pShape->setSimulationFilterData(*(PhysicsManager::GetInstance()->GetFilterData(type)));
+	m_pRigidActor->userData = (PhysicsManager::GetInstance()->GetUserData(type));
 }

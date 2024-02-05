@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "PxEnum.h"
 #include "PhysicsManager.h"
 #include "WorldManager.h"
 #include "DynamicCollider.h"
@@ -11,18 +12,62 @@ void PhysicsManager::Initialize()
 	DebugSetUp();
 #endif // _DEBUG
 
-
 	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
 
-	// 석영 : 일단 씬이 하나일 예정이니까 한개만 PxScene 생성 
+	// 석영 : PxScene 생성 
 	PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -981.f, 0.0f);
 	m_pDispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = m_pDispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 
-	// 석영 : 후에 씬이 여러개로 작업된다면 바꿀 예정
-	m_pCurrentPxScene = m_pPhysics->createScene(sceneDesc); 
+	m_pPxScene = m_pPhysics->createScene(sceneDesc); 
+
+	// Contact modifier 등록
+	m_pContactModifier = new ContactModifier;
+	m_pPxScene->setContactModifyCallback(m_pContactModifier);
+
+	// FilterData 
+	PxFilterData* filterDataPlayer;
+	filterDataPlayer->word0 = ObjectType::PLAYER;
+	filterDataPlayer->word1 = ObjectType::SLOPE;
+
+	m_pFilterDatas[ObjectType::PLAYER] = filterDataPlayer;
+
+	PxFilterData* filterDataSlope;
+	filterDataSlope->word0 = ObjectType::SLOPE;
+	filterDataSlope->word1 = ObjectType::PLAYER;
+
+	m_pFilterDatas[ObjectType::SLOPE] = filterDataSlope;
+
+	PxFilterData* filterData;
+	filterDataSlope->word0 = ObjectType::GROUND | ObjectType::WALL | ObjectType::OBJECT;
+	filterDataSlope->word1 = ObjectType::PLAYER;
+
+	m_pFilterDatas[ObjectType::OBJECT] = filterData;
+	m_pFilterDatas[ObjectType::GROUND] = filterData;
+	m_pFilterDatas[ObjectType::WALL] = filterData;
+
+	// UserData
+	UserData* player=new UserData;
+	player->m_Type = ObjectType::PLAYER;
+	m_pUserDatas[ObjectType::PLAYER] = player;
+
+	UserData* Ground = new UserData;
+	Ground->m_Type = ObjectType::GROUND;
+	m_pUserDatas[ObjectType::GROUND] = Ground;
+
+	UserData* Slope = new UserData;
+	Slope->m_Type = ObjectType::SLOPE;
+	m_pUserDatas[ObjectType::SLOPE] = Slope;
+
+	UserData* Wall = new UserData;
+	Wall->m_Type = ObjectType::WALL;
+	m_pUserDatas[ObjectType::WALL] = Wall;
+	
+	UserData* Object = new UserData;
+	Object->m_Type = ObjectType::OBJECT;
+	m_pUserDatas[ObjectType::OBJECT] = Object;
 }
 
 void PhysicsManager::Update(float deltatime)
@@ -37,28 +82,13 @@ void PhysicsManager::Update(float deltatime)
 			collider->UpdateTransform();
 
 	// 석영 : 물리 시뮬레이션 돌리기
-	m_pCurrentPxScene->simulate(deltatime);
-	m_pCurrentPxScene->fetchResults(true);
+	m_pPxScene->simulate(deltatime);
+	m_pPxScene->fetchResults(true);
 
 	// 석영 : 결과로 나온 값을 오브젝트로 넣어주기
 	for (auto& collider : m_pDynamicColliders)
 		if (collider->m_pOwner->m_IsTrigger == false)
 			collider->UpdatePhysics();
-}
-
-void PhysicsManager::ChangePxScene()
-{
-	// 석영 : 바뀐 월드에 PxScene을 가지고 온다.
-	ECS::World* world = WorldManager::GetInstance()->GetCurrentWorld();
-	m_pCurrentPxScene = m_pPxScenes[world];
-
-	
-	/*
-		석영 : 추가적으로 작업해야함. -> Scene이 여러개로 된다는 가정하에 작업해야함.
-		 ex) 플레이어 또는 사물이 Scene을 이동하는 경우
-		 이전 PxScene 에서 removeActor를 해준 후
-		 현재 PxScene 에 AddActor를 해줘야한다.
-	*/
 }
 
 void PhysicsManager::CreateCollider(BoxCollider* boxcollider, PhysicsType type)
@@ -67,17 +97,15 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider, PhysicsType type)
 	{
 		DynamicCollider* newDynamicCollider = new DynamicCollider(boxcollider);
 
-		// 석영 : Scene 하나라는 가정하에 작업.
+		newDynamicCollider->Initialize();
 		m_pDynamicColliders.push_back(newDynamicCollider);
-		m_pCurrentPxScene->addActor(*(newDynamicCollider->m_Rigid));
 	}
 	else if (type == PhysicsType::STATIC)
 	{
 		StaticCollider* newStaticCollider = new StaticCollider(boxcollider);
 
-		// 석영 : Scene 하나라는 가정하에 작업.
+		newStaticCollider->Initialize();
 		m_pStaticColliders.push_back(newStaticCollider);
-		m_pCurrentPxScene->addActor(*(newStaticCollider->m_Rigid));
 	}
 }
 
@@ -90,11 +118,27 @@ void PhysicsManager::DebugSetUp()
 
 	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
 
-	PxPvdSceneClient* pvdClient = m_pCurrentPxScene->getScenePvdClient();
+	PxPvdSceneClient* pvdClient = m_pPxScene->getScenePvdClient();
 	if (pvdClient)
 	{
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
+}
+
+
+PhysicsManager::~PhysicsManager()
+{
+	PX_RELEASE(m_pPxScene);
+	PX_RELEASE(m_pDispatcher);
+	PxCloseExtensions();
+	PX_RELEASE(m_pPhysics);
+	if (m_pPvd)
+	{
+		PxPvdTransport* transport = m_pPvd->getTransport();
+		m_pPvd->release();	m_pPvd = NULL;
+		PX_RELEASE(transport);
+	}
+	PX_RELEASE(m_pFoundation);
 }

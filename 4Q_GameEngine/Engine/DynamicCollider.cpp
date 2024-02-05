@@ -11,14 +11,13 @@ void DynamicCollider::Initialize()
 {
 	__super::Initialize();
 
-	m_Rigid = PxCreateDynamic(
-		*(PhysicsManager::GetInstance()->m_pPhysics),
-		m_Transform,
-		m_BoxGeometry,
-		*m_pMaterial, 
-		10.f);
+	m_Rigid = PhysicsManager::GetInstance()->GetPhysics()->createRigidDynamic(m_Transform);
+	// 석영 : Box만 사용중.
+	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
+	m_pRigidActor = m_Rigid;
+	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_pRigidActor);
 
-	SetMass(60.f); // 석영 : 기본값으로 넣어주기.
+	SetDensity(60.f); // 석영 : 기본값으로 넣어주기.
 }
 
 void DynamicCollider::UpdatePhysics()
@@ -38,9 +37,10 @@ void DynamicCollider::UpdatePhysics()
 	m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
 }
 
-void DynamicCollider::SetMass(float mass)
+void DynamicCollider::SetDensity(float mass)
 {
-	m_Rigid->setMass(mass);
+	float density = mass / (m_Scale.GetX() * m_Scale.GetY() * m_Scale.GetZ());
+	PxRigidBodyExt::updateMassAndInertia(*m_Rigid, density);
 }
 
 void DynamicCollider::AddForce(Vector3D dir)

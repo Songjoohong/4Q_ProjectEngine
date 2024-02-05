@@ -10,22 +10,18 @@ class DynamicCollider
 {
 public:
 	DynamicCollider(BoxCollider* owner);
-	~DynamicCollider();
+	virtual ~DynamicCollider();
 
 public:
-	/*
-		석영 :
-		충돌처리
-		위치 업데이트를 시켜줘야 한다.
-		오브젝트에게 위치값을 전달해야한다.
-	*/
-
-	virtual void Initialize();
+	virtual void Initialize() override;
 
 	void UpdatePhysics();
 
-	// 석영 : 물체 질량 설정 -> 기본 60.f 로 설정.
-	void SetMass(float mass);
+	/*
+	* 석영: 물체 질량 설정->기본 60.f 로 설정.
+	* 질량 넣어주면 density 계산해서 업데이트 해준다.
+	*/ 
+	void SetDensity(float mass);
 
 	// 석영 : 이동을 위한 함수
 	void AddForce(Vector3D dir);

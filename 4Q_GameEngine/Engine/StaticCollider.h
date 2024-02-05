@@ -9,7 +9,7 @@ public:
 	~StaticCollider() = default;
 
 public:
-	virtual void Initailize();
+	virtual void Initialize() override;
 
 public:
 	PxRigidStatic* m_Rigid;

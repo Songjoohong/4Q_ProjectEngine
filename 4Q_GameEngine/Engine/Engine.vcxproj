@@ -175,6 +175,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="PlayerInputSystem.h" />
+    <ClInclude Include="PxEnum.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="RigidBody.h" />

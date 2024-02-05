@@ -8,13 +8,14 @@ StaticCollider::StaticCollider(BoxCollider* owner)
 {
 }
 
-void StaticCollider::Initailize()
+void StaticCollider::Initialize()
 {
 	__super::Initialize();
 
-	m_Rigid = PxCreateStatic(
-		*(PhysicsManager::GetInstance()->m_pPhysics),
-		m_Transform,
-		m_BoxGeometry,
-		*m_pMaterial);
+	m_Rigid = PhysicsManager::GetInstance()->GetPhysics()->createRigidStatic(m_Transform);
+
+	// 석영 : shape 현재 Box만 사용.
+	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
+	m_pRigidActor = m_Rigid;
+	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_pRigidActor);
 }
