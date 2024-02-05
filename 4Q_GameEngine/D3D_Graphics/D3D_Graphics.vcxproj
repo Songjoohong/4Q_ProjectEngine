@@ -115,7 +115,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -149,6 +149,7 @@
     <ClInclude Include="Helper.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="Material.h" />
+    <ClInclude Include="RenderTextureClass.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="StaticMeshInstance.h" />
     <ClInclude Include="Model.h" />
@@ -167,6 +168,7 @@
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="RenderTextureClass.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="StaticMeshInstance.cpp" />
     <ClCompile Include="Model.cpp" />

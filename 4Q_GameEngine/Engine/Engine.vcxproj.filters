@@ -168,6 +168,9 @@
     <ClInclude Include="SpriteSystem.h">
       <Filter>System\Sprite</Filter>
     </ClInclude>
+    <ClInclude Include="EntityIdentifier.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

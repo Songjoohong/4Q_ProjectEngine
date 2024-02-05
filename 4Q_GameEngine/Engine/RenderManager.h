@@ -37,6 +37,7 @@ public:
 	void EditDebug(int entID, const std::string& text, const Vector3D& pos);
 	void EditSprite(int entID, bool isRendered);
 
+	Renderer* GetRender() { return m_Renderer; }
 	void DeleteDebug(int entID);
 	void DeleteSprite(int entID);
 

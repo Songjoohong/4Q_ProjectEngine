@@ -20,7 +20,18 @@
 #include "SoundManager.h"
 #include "SpriteSystem.h"
 #include "StaticMesh.h"
+#include "imgui.h"
+
+#define ENGINE_DEBUG
+
+#ifdef ENGINE_DEBUG
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
+#endif
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+int newWidth = 0;
+int newHeight = 0;
 
 Engine::Engine(HINSTANCE hInstance)
 	: m_hWnd()
@@ -40,6 +51,8 @@ Engine::Engine(HINSTANCE hInstance)
 	m_Wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	m_Wcex.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
 	m_Wcex.lpszClassName = m_szWindowClass;
+	m_bIsRunning = true;
+
 }
 
 Engine::~Engine()
@@ -72,15 +85,14 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
 
-
-	//Test
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(""));
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"TestScene1.json"));
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
 	ent->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
+	ent->Assign<Transform>();
 	ent->Assign<Debug>();
 
 
@@ -97,7 +109,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 void Engine::Run()
 {
-	while(TRUE)
+	while(m_bIsRunning)
 	{
 		if(PeekMessage(&m_Msg, nullptr, 0, 0, PM_REMOVE))
 		{
@@ -109,6 +121,12 @@ void Engine::Run()
 		}
 		else
 		{
+			if (m_ClientHeight != 0 && m_ClientWidth != 0)
+			{
+				m_ClientHeight = newHeight;
+				m_ClientWidth = newWidth;
+			}
+
 			Update();
 			Render();
 		}
@@ -122,7 +140,7 @@ void Engine::Update()
 	SoundManager::GetInstance()->Update();
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
-	InputManager::GetInstance()->Update(deltaTime);
+	//InputManager::GetInstance()->Update(deltaTime);
 	RenderManager::GetInstance()->Update();
 }
 
@@ -133,18 +151,31 @@ void Engine::Render()
 	RenderManager::GetInstance()->RenderEnd();
 }
 
+void Engine::Close()
+{
+	m_bIsRunning = false;
+}
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+int resizeWidth = 0;
+int resizeHeight = 0;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-		return true;
-
-	switch (message)
+		return true;	switch (message)
 	{
+	case WM_SIZE:
+		newWidth = LOWORD(lParam);
+		newHeight = HIWORD(lParam);
+
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-	
+
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

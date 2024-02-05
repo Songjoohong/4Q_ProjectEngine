@@ -1,6 +1,10 @@
 #pragma once
 #include "pch.h"
 #include <cmath>
+#include <DirectXMath.h>
+#include <directxtk/SimpleMath.h>
+using namespace DirectX::SimpleMath;
+using namespace DirectX;
 
 class Vector3D
 {
@@ -13,22 +17,28 @@ public:
 	{}
 private:
 	float m_X = 0;
-	float m_Y= 0;
+	float m_Y = 0;
 	float m_Z = 0;
 
 public:
 	Vector3D operator+(const Vector3D& other) const
 	{
-		return Vector3D{m_X + other.m_X, m_Y + other.m_Y, m_Z + other.m_Z};
+		return Vector3D{ m_X + other.m_X, m_Y + other.m_Y, m_Z + other.m_Z };
 	}
 	Vector3D operator-(const Vector3D& other) const
 	{
-		return Vector3D{m_X - other.m_X, m_Y - other.m_Y, m_Z - other.m_Z};
+		return Vector3D{ m_X - other.m_X, m_Y - other.m_Y, m_Z - other.m_Z };
 	}
 	Vector3D operator*(const float scalar) const
 	{
-		return Vector3D{m_X * scalar, m_Y * scalar, m_Z * scalar};
+		return Vector3D{ m_X * scalar, m_Y * scalar, m_Z * scalar };
 	}
+
+	Vector3 ConvertToVector3() const
+	{
+		return Vector3{ m_X, m_Y, m_Z };
+	}
+
 	void operator+=(const Vector3D& other)
 	{
 		this->m_X = m_X + other.m_X;
@@ -45,4 +55,9 @@ public:
 	float GetX() const { return m_X; }
 	float GetY() const { return m_Y; }
 	float GetZ() const { return m_Z; }
+	void SetX(float x) { m_X = x; }
+	void SetY(float y) { m_Y = y; }
+	void SetZ(float z) { m_Z = z; }
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Vector3D, m_X, m_Y, m_Z)
 };
