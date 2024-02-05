@@ -168,9 +168,6 @@
     <ClInclude Include="Collider.h">
       <Filter>Instance</Filter>
     </ClInclude>
-    <ClInclude Include="PxEnum.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

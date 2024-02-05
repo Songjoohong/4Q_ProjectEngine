@@ -22,52 +22,6 @@ void PhysicsManager::Initialize()
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 
 	m_pPxScene = m_pPhysics->createScene(sceneDesc); 
-
-	// Contact modifier µî·Ï
-	m_pContactModifier = new ContactModifier;
-	m_pPxScene->setContactModifyCallback(m_pContactModifier);
-
-	// FilterData 
-	PxFilterData* filterDataPlayer;
-	filterDataPlayer->word0 = ObjectType::PLAYER;
-	filterDataPlayer->word1 = ObjectType::SLOPE;
-
-	m_pFilterDatas[ObjectType::PLAYER] = filterDataPlayer;
-
-	PxFilterData* filterDataSlope;
-	filterDataSlope->word0 = ObjectType::SLOPE;
-	filterDataSlope->word1 = ObjectType::PLAYER;
-
-	m_pFilterDatas[ObjectType::SLOPE] = filterDataSlope;
-
-	PxFilterData* filterData;
-	filterDataSlope->word0 = ObjectType::GROUND | ObjectType::WALL | ObjectType::OBJECT;
-	filterDataSlope->word1 = ObjectType::PLAYER;
-
-	m_pFilterDatas[ObjectType::OBJECT] = filterData;
-	m_pFilterDatas[ObjectType::GROUND] = filterData;
-	m_pFilterDatas[ObjectType::WALL] = filterData;
-
-	// UserData
-	UserData* player=new UserData;
-	player->m_Type = ObjectType::PLAYER;
-	m_pUserDatas[ObjectType::PLAYER] = player;
-
-	UserData* Ground = new UserData;
-	Ground->m_Type = ObjectType::GROUND;
-	m_pUserDatas[ObjectType::GROUND] = Ground;
-
-	UserData* Slope = new UserData;
-	Slope->m_Type = ObjectType::SLOPE;
-	m_pUserDatas[ObjectType::SLOPE] = Slope;
-
-	UserData* Wall = new UserData;
-	Wall->m_Type = ObjectType::WALL;
-	m_pUserDatas[ObjectType::WALL] = Wall;
-	
-	UserData* Object = new UserData;
-	Object->m_Type = ObjectType::OBJECT;
-	m_pUserDatas[ObjectType::OBJECT] = Object;
 }
 
 void PhysicsManager::Update(float deltatime)
