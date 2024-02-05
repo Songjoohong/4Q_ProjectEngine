@@ -18,9 +18,11 @@ struct Transform
 
 	std::string m_ComponentName = "Transform";
 
-	Vector3D m_Position;
 	Vector3D m_Rotation;
+	Vector3D m_Position;
 	Vector3D m_Scale;
+
+	int a = 0;
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale)
 };

@@ -551,16 +551,22 @@ namespace ECS
 
 		void addChild(Entity* child)
 		{
+			child->SetParent(this);
 			m_children.push_back(child);
 		}
 
+		void SetParent(Entity* parent)
+		{
+			this->m_parent = parent;
+		}
+
+		Entity* m_parent = nullptr;
 		std::vector<Entity*> m_children;
 	private:
 		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> components;
 		World* world;
 
 		size_t id;
-		size_t m_parentId;
 		bool bPendingDestroy = false;
 	};
 
@@ -859,7 +865,7 @@ namespace ECS
 			return entAlloc;
 		}
 
-		std::vector<Entity*> GetEntities()
+		/*std::vector<Entity*> GetEntities()
 		{
 			std::vector<Entity*> ent;
 			for (auto& it : entities)
@@ -867,8 +873,12 @@ namespace ECS
 				ent.push_back(it);
 			}
 			return ent;
-		}
+		}*/
 
+		std::vector<Entity*> GetEntities()
+		{
+			return entities;
+		}
 	private:
 		EntityAllocator entAlloc;
 		SystemAllocator systemAlloc;
@@ -1043,9 +1053,11 @@ namespace ECS
 
 			return;
 		}
-
+		if (ent->m_parent != nullptr)
+		{
+			ent->m_parent->m_children.clear();
+		}
 		ent->bPendingDestroy = true;
-
 		emit<Events::OnEntityDestroyed>({ ent });
 
 		if (immediate)

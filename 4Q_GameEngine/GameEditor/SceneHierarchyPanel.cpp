@@ -124,7 +124,6 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	if (entityDeleted)
 	{
 		m_Context->destroy(entity);
-
 		if (m_SelectionContext == entity)
 			m_SelectionContext = nullptr;
 	}
