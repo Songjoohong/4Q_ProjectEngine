@@ -302,9 +302,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Camera>("Camera", entity, [](auto component)
 	{
-		ImGui::DragFloat("FOV", &component->m_FOV);
-		ImGui::DragFloat("Near", &component->m_Near);
-		ImGui::DragFloat("Far", &component->m_Far);
 	});
 
 	DrawComponent<Light>("Light", entity, [](auto component)

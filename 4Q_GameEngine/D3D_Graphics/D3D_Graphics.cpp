@@ -618,8 +618,10 @@ void Renderer::RenderImgui()
 
 	//Light Property
 	{
+		// Directional Light
 		ImGui::Begin("Light Properties");
 		ImGui::Text("Direction");
+		ImGui::Text("Direction Light Dir");
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::SliderFloat("##lpx", &m_lightCB.mDirection.x, -1.f, 1.f);
@@ -629,6 +631,40 @@ void Renderer::RenderImgui()
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::SliderFloat("##lpz", &m_lightCB.mDirection.z, -1.f, 1.f);
+
+		// Point Light
+		ImGui::Text("Point Light Pos");
+		Vector3 pointLightPos = m_pointLight.GetPosition();
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##plx", &pointLightPos.x, -1000.f, 1000.f);
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ply", &pointLightPos.y, -1000.f, 1000.f);
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##plz", &pointLightPos.z, -1000.f, 1000.f);
+		m_pointLight.SetPosition(pointLightPos);
+
+		float pointLightIntensity = m_pointLight.GetIntensity();
+		ImGui::Text("Intensity");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 30.f);
+		m_pointLight.SetIntensity(pointLightIntensity);
+
+		float pointLightRadius = m_pointLight.GetRadius();
+		ImGui::Text("Radius");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##prad", &pointLightRadius, 0.f, 600.f);
+		m_pointLight.SetRadius(pointLightRadius);
+
+		float pointLightColor[3] = { m_pointLight.GetColor().x, m_pointLight.GetColor().y, m_pointLight.GetColor().z};
+		ImGui::Text("Color");
+		ImGui::SameLine();
+		ImGui::ColorEdit3("##plc", pointLightColor, 0);
+		m_pointLight.SetColor(pointLightColor[0], pointLightColor[1], pointLightColor[2]);
+
+		// Shadow
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
 		string str = to_string(m_shadowDirection.x) + ", " + to_string(m_shadowDirection.y) + ", " + to_string(m_shadowDirection.z);
@@ -656,11 +692,11 @@ void Renderer::GetSystemMemoryInfo(std::string& out) const
 	out = "System Memory : " + std::to_string((pmc.PagefileUsage) / 1024 / 1024) + " MB";
 }
 
-void Renderer::SetCamera(Math::Vector3 position, Math::Vector3 eye, Math::Vector3 up)
+void Renderer::SetCamera(Math::Matrix matrix)
 {
-	m_cameraPos = position;
-	m_cameraEye = eye;
-	m_cameraUp = up;
+	m_cameraPos = matrix.Translation();
+	m_cameraEye = matrix.Forward();
+	m_cameraUp = matrix.Up();
 }
 
 bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
@@ -700,21 +736,17 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	// If the project is in a debug build, enable the debug layer.
 	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+    //디바이스, 스왑체인, 디바이스 컨텍스트 생성
+    HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, m_pSwapChain.GetAddressOf(), m_pDevice.GetAddressOf(), NULL, m_pDeviceContext.GetAddressOf()));
+    
+    m_spriteFont = std::make_unique<DirectX::SpriteFont>(m_pDevice.Get()
+        , m_fontFilePath);
+    m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(m_pDeviceContext.Get());
 
-
-
-  //디바이스, 스왑체인, 디바이스 컨텍스트 생성
-  HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, m_pSwapChain.GetAddressOf(), m_pDevice.GetAddressOf(), NULL, m_pDeviceContext.GetAddressOf()));
-
-  m_spriteFont = std::make_unique<DirectX::SpriteFont>(m_pDevice.Get()
-      , m_fontFilePath);
-  m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(m_pDeviceContext.Get());
-
-
-  //렌더타겟 뷰 생성
-  ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
-  HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
-  HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
+    //렌더타겟 뷰 생성
+    ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
+    HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
+    HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
   
 	//뷰포트, 뎁스 스텐실 뷰, 샘플러 상태 설정
 	CreateViewport(width, height);
@@ -817,9 +849,10 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
 
     //포인트 라이트 테스트용
-    m_pointLight.SetPosition(Vector3(100, 0, 0));
-    m_pointLight.SetRadius(500);
-    m_pointLight.SetColor();
+    m_pointLight.SetPosition(Vector3(0, 0, 0));
+	m_pointLight.SetRadius(600.f);
+	m_pointLight.SetColor();
+	m_pointLight.SetIntensity(1.f);
 
 
 	// 렌더링 텍스처 객체를 생성한다.

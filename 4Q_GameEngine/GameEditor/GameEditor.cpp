@@ -10,6 +10,7 @@
 #include "../Engine/Transform.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/Camera.h"
+#include "../Engine/CameraScript.h"
 #include "../Engine/Light.h"
 #include "../Engine/EntityIdentifier.h"
 #include "../Engine/Movement.h"
@@ -224,13 +225,13 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 		/* Viewport ------------------------ */
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
-		ImGui::Begin("Viewport");
-		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
-		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
+		//ImGui::Begin("Viewport");
+		//ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		//ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
+		//ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
 
-		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		//Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
 		// CameraEntity가 나와야 다시 할 수 있을듯?
 		// Projection행렬 필요
@@ -260,8 +261,8 @@ void GameEditor::RenderImGui()
 		//	//ImGuizmo::Manipulate(cameratransformMatrix, )
 		//}
 
-		ImGui::End();
-		ImGui::PopStyleVar();
+		//ImGui::End();
+		//ImGui::PopStyleVar();
 
 	}
 	else
@@ -474,6 +475,7 @@ void GameEditor::NewScene()
 	m_Wall->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
 	m_Camera->Assign<Camera>();
 	m_Camera->Assign<Light>();
+	m_Camera->Assign<CameraScript>(m_Camera);
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
 
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
