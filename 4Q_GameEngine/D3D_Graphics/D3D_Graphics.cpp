@@ -11,7 +11,7 @@
 
 #include "../Engine/TimeManager.h"
 
-
+#include "RenderTextureClass.h"
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -471,6 +471,19 @@ void Renderer::RenderSprite() const
 
 void Renderer::Render()
 {
+	// 24.02.05 수민. 원래 여기있던 코드는 Render::RenderScene() 함수로 이동하였슴.
+
+	// 전체 장면을 먼저 텍스처로 렌더링합니다.
+	RenderToTexture();
+
+	Clear();
+
+	// 백 버퍼의 장면을 정상적으로 렌더링합니다.
+	RenderScene();
+}
+
+void Renderer::RenderScene()
+{
 	//그림자 맵 생성
 	m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
 	m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pShadowMapDSV.Get());
@@ -487,7 +500,7 @@ void Renderer::Render()
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
 	//그림자 렌더
-	
+
 	ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
@@ -497,16 +510,32 @@ void Renderer::Render()
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 
 	//메쉬 렌더
-	
+
 	MeshRender();
 
-	/*RenderDebugDraw();
-	RenderText();
-    RenderSprite();
-	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);*/
+	//RenderDebugDraw();
+	//RenderText();
+	//RenderSprite();
+	//m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 	//임구이 렌더
 	//RenderImgui();
+}
+
+void Renderer::RenderToTexture()
+{
+	// 렌더링 대상을 렌더링에 맞게 설정합니다.
+	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
+
+	// 렌더링을 텍스처에 지웁니다.
+	m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
+
+	// 이제 장면을 렌더링하면 백 버퍼 대신 텍스처로 렌더링됩니다.
+	RenderScene();
+
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+
 }
 
 void Renderer::RenderEnd()
@@ -792,7 +821,11 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     m_pointLight.SetRadius(500);
     m_pointLight.SetColor();
 
-    
+
+	// 렌더링 텍스처 객체를 생성한다.
+	m_RenderTexture = new RenderTextureClass;
+	// 렌더링 텍스처 객체를 초기화한다.
+	m_RenderTexture->Initialize(m_pDevice.Get(), width, height);
   
   	//Imgui
 

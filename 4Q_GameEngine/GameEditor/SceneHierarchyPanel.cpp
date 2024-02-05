@@ -288,10 +288,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DrawVec3Control("Scale", component->m_Scale, 1.0f);
 	});
 
-	DrawComponent<StaticMesh>("StaticMesh", entity, [&](auto component)		// & 는 임시.
+	DrawComponent<StaticMesh>("StaticMesh", entity, [](auto component)
 	{
-		// 이 컴포너트는 어떻게 사용해야할지 모르겠다.
-		// TODO: 사용법 물어보기.
+		std::string temp = component->m_FileName;
+
+		ImGui::Text(temp.c_str());
 	});
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
