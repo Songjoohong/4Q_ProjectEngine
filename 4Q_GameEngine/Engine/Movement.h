@@ -16,6 +16,8 @@ enum MoveState
 struct Movement
 {
 	ECS_DECLARE_TYPE
+		Movement() = default;
+
 
 	Movement() = default;
 
@@ -27,6 +29,10 @@ struct Movement
 	Vector3D m_RightVector = { 0.f,0.f,0.f };
 
 	POINT m_CurrentRotation = { 0,0 };
+
+	std::string m_ComponentName = "Movement";
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Movement, m_ComponentName, m_Speed, m_DirectionVector, m_Sensitivity, m_RightVector, m_CurrentRotation)
 };
 
 ECS_DEFINE_TYPE(Movement)

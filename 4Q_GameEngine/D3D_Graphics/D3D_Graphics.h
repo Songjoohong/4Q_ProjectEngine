@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "PointLight.h"
 
+class RenderTextureClass;
 class StaticMeshResource;
 class StaticModel;
 class Material;
@@ -89,6 +90,8 @@ public:
 	D3D11_VIEWPORT m_shadowViewport;
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
+	RenderTextureClass* m_RenderTexture = nullptr;	// 수민 추가.
+
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
 
@@ -207,17 +210,16 @@ public:
 
 	void RenderBegin();
 	void Render();
+	void RenderScene();	// 수민
+	void RenderToTexture();	// 수민
 	void RenderEnd();
-
 	bool InitImgui(HWND hWnd);
 	void RenderImgui();
 	void UnInitImgui();
 
 	// minjeong : Create Shadow VS & PS
 	void CreateShadowVS();
-	void CreateShadowPS();
-
-private:
+	void CreateShadowPS();private:
 	string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
 	vector<DebugInformation> m_debugs;

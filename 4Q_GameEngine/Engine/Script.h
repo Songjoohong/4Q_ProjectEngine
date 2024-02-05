@@ -5,17 +5,14 @@ using namespace ECS;
 class Script
 {
 public:
-	explicit Script(ECS::Entity* owner)
-		: m_pOwner(owner)
-	{}
+	Script() = default;
+
 	virtual ~Script() = default;
 
-	Entity* m_pOwner = nullptr;
-
 public:
-	ECS::Entity* GetOwner() const { return m_pOwner; }
+	std::string m_ComponentName = "Script";
 
-	virtual void Update(float deltaTime) {}
+  virtual void Update(float deltaTime) {}
 	virtual void Awake() {}
 	virtual void LateUpdate() {}
 	virtual void FixedUpdate() {}
@@ -24,4 +21,6 @@ public:
 	virtual void OnCollisionEnter() {}
 	virtual void OnCollisionExit() {}
 	virtual void OnCollisionStay() {}
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Script, m_ComponentName)
 };
