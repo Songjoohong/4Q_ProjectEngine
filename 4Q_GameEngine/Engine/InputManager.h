@@ -59,6 +59,7 @@ public:
 	[[nodiscard]] bool GetMouseButton(int key) const;
 	[[nodiscard]] bool GetMouseButtonDown(int key) const;
 	[[nodiscard]] bool GetMouseButtonUp(int key) const;
-	POINT GetMouseMove() const;
+	[[nodiscard]] POINT GetMouseMove() const;
+	[[nodiscard]] POINT GetMousePos() const;
 };
 

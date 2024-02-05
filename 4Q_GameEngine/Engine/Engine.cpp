@@ -73,6 +73,9 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
+	int speed = 10;
+	SystemParametersInfo(SPI_SETMOUSESPEED, 0, (void*)speed, SPIF_SENDCHANGE);
+	ShowCursor(FALSE);
 	// 매니저 초기화
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
@@ -97,11 +100,11 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(70.f, 0.f, 0.f), Vector3D{ 1000.f,1000.f,1000.f });
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(70.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent1->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
+	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
 
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
@@ -109,6 +112,8 @@ bool Engine::Initialize(const UINT width, const UINT height)
   
 	RenderManager::GetInstance()->AddSprite(1, "../Resource/UI/image.jpg", { 0,0 }, 0);
 	RenderManager::GetInstance()->AddSprite(2, "../Resource/UI/image2.jpg", { 50,0 }, 1);
+
+	 
 
 	return true;
 }

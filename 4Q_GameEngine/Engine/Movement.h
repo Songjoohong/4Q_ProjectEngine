@@ -20,7 +20,7 @@ struct Movement
 	Movement() = default;
 
 	float m_Speed = 100.f;
-	float m_Sensitivity = 1.f;
+	float m_Sensitivity = 0.1f;
 	int m_CurrentMoveState = 0;
 
 	Vector3D m_DirectionVector = { 0.f, 0.f, 1.f };
