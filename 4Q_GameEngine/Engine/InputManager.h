@@ -51,7 +51,10 @@ private:
 	KeyState m_PreviousKeyState[Key::KEY_END] = { KeyState::NONE, };
 	POINT m_CurrentCursorPos = { 0,0 };
 	POINT m_PreviousCursorPos = { 0,0 };
+	UINT m_Width = 0;
+	UINT m_Height = 0;
 public:
+	void Initialize(UINT width, UINT height);
 	void Update(float deltaTime);
 	[[nodiscard]] KeyInfo& GetKeyState(Key key);
 	[[nodiscard]] bool GetKey(Key key) const;

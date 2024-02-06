@@ -15,6 +15,13 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	'Q',
 	'E'
 };
+
+void InputManager::Initialize(UINT width, UINT height)
+{
+	m_Height = height;
+	m_Width = width;
+}
+
 void InputManager::Update(float deltaTime)
 {
 	HWND hWnd = GetFocus();
@@ -26,16 +33,21 @@ void InputManager::Update(float deltaTime)
 		}
 		m_PreviousCursorPos = m_CurrentCursorPos;
 		GetCursorPos(&m_CurrentCursorPos);
-		if (m_CurrentCursorPos.x == 0 || m_CurrentCursorPos.x >= 2560)
+		ScreenToClient(hWnd, &m_CurrentCursorPos);
+		if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width)
 		{
-			SetCursorPos(1280, m_CurrentCursorPos.y);
-			m_PreviousCursorPos = { 1280, m_CurrentCursorPos.y };
+			POINT clientPoint = { static_cast<long>(m_Width) / 2, m_CurrentCursorPos.y };
+			ScreenToClient(hWnd, &clientPoint);
+			SetCursorPos(clientPoint.x, clientPoint.y);
+			m_PreviousCursorPos = clientPoint;
 		}
 
-		if(m_CurrentCursorPos.y == 0 || m_CurrentCursorPos.y >= 1439)
+		if(m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 1)
 		{
-			SetCursorPos(m_CurrentCursorPos.x, 720);
-			m_PreviousCursorPos = { m_CurrentCursorPos.x, 720 };
+			POINT clientPoint = { m_CurrentCursorPos.x, static_cast<long>(m_Height) / 2 };
+			ScreenToClient(hWnd, &clientPoint);
+			SetCursorPos(clientPoint.x, clientPoint.y);
+			m_PreviousCursorPos = clientPoint;
 		}
 			
 	}
