@@ -6,8 +6,15 @@ Texture2D txOpacity : register(t4);
 Texture2D txMetalic : register(t5);
 Texture2D txRoughness : register(t6);
 Texture2D txShadow : register(t7);
+Texture2D txAmbient : register(t12);
+
+TextureCube txEnvironment : register(t8);
+TextureCube txIBL_Diffuse : register(t9);
+TextureCube txIBL_Specular : register(t10);
+Texture2D txIBL_SpecularBRDF_LUT : register(t11);
+
 SamplerState samplerLinear : register(s0);
-SamplerState samplerMirror : register(s1);
+SamplerState samplerClamp : register(s1);
 
 cbuffer ProjectionBuffer : register(b0)
 {
@@ -42,6 +49,13 @@ cbuffer PointLight : register(b4)
     float Intensity;
     float3 Pad0;
 }
+
+struct ENVIRONMENT_PS_INPUT
+{
+    float4 posProjection : SV_POSITION;
+    float3 TexCoords : TEXCOORD;
+};
+
 struct STATIC_INPUT
 {
     float3 pos : POSITION;

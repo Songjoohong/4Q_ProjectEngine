@@ -115,7 +115,6 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
-
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
 

@@ -1,5 +1,6 @@
 #pragma once
 
+class Environment;
 class StaticSceneResource;
 class MaterialTexture;
 class Model;
@@ -13,8 +14,10 @@ public:
 	~ResourceManager();
 
     void CreateModel(string fileName);
+    void CreateEnvironment(string filename);
 
     std::map<std::string, shared_ptr<Model>> m_pOriginalModels;
+    std::map<std::string, shared_ptr<Environment>>m_pOriginalEnvironments;
 
 public:
     std::map<std::string, std::weak_ptr<StaticSceneResource>> m_staticMeshMap;
@@ -24,6 +27,7 @@ public:
     std::map<std::string, ComPtr<ID3D11ShaderResourceView>> m_sprite;
 
     std::shared_ptr<StaticSceneResource> CreateStaticMeshResource(std::string filePath);
+    std::shared_ptr<StaticSceneResource> CreateEnvironmentMeshResource(std::string filePath);
     //std::shared_ptr<SkeletalMeshResource> CreateSkeletalMeshResource(std::string filePath);
     std::shared_ptr<MaterialTexture> CreateMaterial(std::wstring filePath);
     //std::shared_ptr<Animation> CreateAnimation(std::string filePath);

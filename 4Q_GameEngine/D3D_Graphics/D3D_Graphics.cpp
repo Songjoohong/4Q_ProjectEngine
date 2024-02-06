@@ -3,15 +3,13 @@
 #include "StaticMeshResource.h"
 #include "ResourceManager.h"
 #include "StaticModel.h"
+#include "Environment.h"
 
 #include "DebugDraw.h"
 
 #include "../Engine/Debug.h"
 
-
 #include "../Engine/TimeManager.h"
-
-
 
 #include <imgui.h>
 #include <imgui_impl_win32.h>
@@ -238,6 +236,18 @@ void Renderer::CreateSamplerState()
 	sd.MinLOD = 0;
 	sd.MaxLOD = D3D11_FLOAT32_MAX;
 	HR_T(m_pDevice->CreateSamplerState(&sd, m_pSampler.GetAddressOf()));
+
+	sd = {};
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.MaxAnisotropy = (sd.Filter == D3D11_FILTER_ANISOTROPIC) ? D3D11_REQ_MAXANISOTROPY : 1;
+	sd.MinLOD = 0;
+	sd.MaxLOD = D3D11_FLOAT32_MAX;
+	HR_T(m_pDevice->CreateSamplerState(&sd, m_pSamplerClamp.GetAddressOf()));
+
+	m_pDeviceContext->PSSetSamplers(1, 1, Renderer::Instance->m_pSamplerClamp.GetAddressOf());
 }
 
 void Renderer::FrustumCulling(StaticModel* model)
@@ -270,12 +280,14 @@ void Renderer::ApplyMaterial(Material* pMaterial)
 
 	if (pMaterial->m_pRoughnessRV)
 		m_pDeviceContext->PSSetShaderResources(6, 1, pMaterial->m_pRoughnessRV->m_pTextureRV.GetAddressOf());
+	if (pMaterial->m_pAmbientOcclusionRV)
+		m_pDeviceContext->PSSetShaderResources(12, 1, pMaterial->m_pAmbientOcclusionRV->m_pTextureRV.GetAddressOf());
 }
 
 void Renderer::MeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
-
+	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 	Material* pPrevMaterial = nullptr;
 
 	for (auto it : m_pMeshInstance)
@@ -354,6 +366,21 @@ void Renderer::RenderDebugDraw()
     DebugDraw::g_Batch->End();
 }
 
+void Renderer::SetEnvironment(string filename)
+{
+	auto it = ResourceManager::Instance->m_pOriginalEnvironments.find(filename);
+	if (it != ResourceManager::Instance->m_pOriginalEnvironments.end())
+	{
+		auto pEnvironment = it->second;
+		m_pDeviceContext->PSSetShaderResources(8, 1, pEnvironment->m_pEnvironmentTextureResource->m_pTextureRV.GetAddressOf());
+		m_pDeviceContext->PSSetShaderResources(9, 1, pEnvironment->m_pIBLDiffuseTextureResource->m_pTextureRV.GetAddressOf());
+		m_pDeviceContext->PSSetShaderResources(10, 1, pEnvironment->m_pIBLSpecularTextureResource->m_pTextureRV.GetAddressOf());
+		m_pDeviceContext->PSSetShaderResources(11, 1, pEnvironment->m_pIBLBRDFTextureResource->m_pTextureRV.GetAddressOf());
+		
+	}
+
+}
+
 void Renderer::Update()
 {
 	//라이트 방향 업데이트
@@ -393,7 +420,6 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
     m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
     for (auto& model : m_pStaticModels)
@@ -491,15 +517,37 @@ void Renderer::Render()
 	//메쉬 렌더
 	MeshRender();
 
-	RenderDebugDraw();
+
+	RenderEnvironment();
+
+	RenderDebugDraw();	
+
+
 	m_spriteBatch->Begin();
 	RenderText();
-    RenderSprite();
+	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 
 	//임구이 렌더
 	//RenderImgui();
+}
+
+void Renderer::RenderEnvironment()
+{
+	m_pDeviceContext->PSSetShader(ps.Get(), nullptr, 0);
+
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+	m_pDeviceContext->RSSetState(m_pRasterizerStateCCW.Get());
+	m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+
+	auto test = ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"];
+	m_worldMatrixCB.mWorld = ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_worldTransform.Transpose();
+	m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Initialize();
+	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Render(m_pDeviceContext.Get());
+	
 }
 
 void Renderer::RenderEnd()
@@ -632,6 +680,21 @@ void Renderer::RenderImgui()
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
 		string str = to_string(m_shadowDirection.x) + ", " + to_string(m_shadowDirection.y) + ", " + to_string(m_shadowDirection.z);
 		ImGui::Text("ShadowDirection : %s", str.c_str());
+		ImGui::End();
+	}
+	//Point Light
+	{
+		ImGui::Begin("Point Light Properties");
+		ImGui::Text("position");
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpx", &m_pointLight.m_position.x, -1000.f, 1000.f);
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpy", &m_pointLight.m_position.y, -1000.f, 1000.f);
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpz", &m_pointLight.m_position.z, -1000.f, 1000.f);
 		ImGui::End();
 	}
 
@@ -784,6 +847,10 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     rasterizerDesc.FrontCounterClockwise = false;
     rasterizerDesc.DepthClipEnable = true;
     HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
+	
+	rasterizerDesc.FrontCounterClockwise = true;
+	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerStateCCW.GetAddressOf()));
+
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
@@ -801,9 +868,17 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
     //포인트 라이트 테스트용
     m_pointLight.SetPosition(Vector3(0, 0, 0));
-	m_pointLight.SetRadius(600.f);
-	m_pointLight.SetColor();
-	m_pointLight.SetIntensity(1.f);
+	  m_pointLight.SetRadius(600.f);
+	  m_pointLight.SetColor();
+	  m_pointLight.SetIntensity(1.f);
+
+	  ResourceManager::Instance->CreateEnvironment("BakerSample");
+	  SetEnvironment("BakerSample");
+	  ComPtr < ID3DBlob> buffer;
+	
+	  buffer.Reset();
+	  HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	  HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, ps.GetAddressOf()));
 
   	//Imgui
 	/*if (!InitImgui(*hWnd))
