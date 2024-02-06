@@ -544,16 +544,75 @@ namespace ECS
 
 		Entity* getParent() const { return parentEntity; }
 
+		//void addChild(Entity* child)
+		//{
+		//	child->SetParent(this);
+		//	m_children.push_back(child);
+		//}
+
+		//void SetParent(Entity* parent)
+		//{
+		//	this->m_parent = parent;
+		//}
+
+		// 수민 --------------------------------------------------------------------------------------------------------
+
+		void RemoveChild(Entity* child)
+		{
+			// 자식 목록에서 제거한다.
+			auto it = std::find_if(m_children.begin(), m_children.end(),
+				[child](const Entity* entity)
+				{
+					return entity->id == child->id;
+				});
+
+			m_children.erase(it, m_children.end());
+
+			//m_children.erase(std::remove(m_children.begin(), m_children.end(), child), m_children.end());
+
+			//if (it != m_children.end())
+			//	m_children.erase(it);
+
+			// 자식쪽 부모도 연결을 해제
+			child->SetParent(nullptr);
+			int test = 1;
+		}
+
 		void addChild(Entity* child)
 		{
-			child->SetParent(this);
+			if (child == this)
+				return;
+
+			for (Entity* it : m_children)
+			{
+				if (child->id == it->id)
+					return;
+			}
+
+			if (child->m_parent != nullptr)
+				child->m_parent->RemoveChild(child);
+
 			m_children.push_back(child);
+
+
+
+			child->SetParent(this);
 		}
 
 		void SetParent(Entity* parent)
 		{
+			if (parent == m_parent || parent == this)
+				return;
+
 			this->m_parent = parent;
+
+			if (m_parent != nullptr)
+			{
+				m_parent->addChild(this);
+			}
 		}
+
+		// 수민 End --------------------------------------------------------------------------------------------------------
 
 		Entity* m_parent = nullptr;
 		std::vector<Entity*> m_children;
@@ -871,7 +930,7 @@ namespace ECS
 			return ent;
 		}*/
 
-		std::vector<Entity*> GetEntities()
+		std::vector<Entity*>& GetEntities()
 		{
 			return entities;
 		}

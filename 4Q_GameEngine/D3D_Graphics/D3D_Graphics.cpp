@@ -48,10 +48,8 @@ void Renderer::Clear(Math::Vector3 color)
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
-void Renderer::AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale)
+void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 {
-	Vector4 quaternion = Math::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.x), DirectX::XMConvertToRadians(rot.y), DirectX::XMConvertToRadians(rot.z));
-	Math::Matrix worldTM = Math::Matrix::CreateScale(scale) * Math::Matrix::CreateFromQuaternion(quaternion) * Math::Matrix::CreateTranslation(pos);
 	for (auto& model : m_pStaticModels)
 	{
 		if (nullptr == model->GetSceneResource())

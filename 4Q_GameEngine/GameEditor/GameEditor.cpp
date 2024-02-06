@@ -225,13 +225,13 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 		/* Viewport ------------------------ */
-		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
-		//ImGui::Begin("Viewport");
-		//ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		//ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
-		//ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
+		ImGui::Begin("Viewport");
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
+		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
 
-		//Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
 		// CameraEntity가 나와야 다시 할 수 있을듯?
 		// Projection행렬 필요
@@ -261,8 +261,8 @@ void GameEditor::RenderImGui()
 		//	//ImGuizmo::Manipulate(cameratransformMatrix, )
 		//}
 
-		//ImGui::End();
-		//ImGui::PopStyleVar();
+		ImGui::End();
+		ImGui::PopStyleVar();
 
 	}
 	else
@@ -464,10 +464,15 @@ void GameEditor::NewScene()
 	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Camera");
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
-	SetParent(m_Pot, m_Box);
+
+	m_Box->addChild(m_Pot);
+	//SetParent(m_Pot, m_Box);
 
 	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
-	SetParent(m_Wall, m_Pot);
+
+	m_Pot->addChild(m_Wall);
+	//SetParent(m_Wall, m_Pot);
+
 	m_Camera->Assign<Transform>();
 	m_Box->Assign<Transform>(pos1);
 	m_Pot->Assign<Transform>(pos2);

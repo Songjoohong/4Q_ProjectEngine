@@ -18,7 +18,7 @@ public:
 	ECS::Entity* GetSelectedEntity() const { return m_SelectionContext; }
 	void SetSelectedEntity(ECS::Entity* entity) { m_SelectionContext = entity; }
 
-	void DragDropEntity(ECS::Entity* entity);
+	void DragDropEntityHierarchy(ECS::Entity* entity);
 
 private:
 	template <typename T>
@@ -30,6 +30,7 @@ private:
 private:
 	ECS::World* m_Context;
 	ECS::Entity* m_SelectionContext;
+	ECS::Entity* picked;
 };
 
 template <typename T>
