@@ -86,9 +86,12 @@ public:
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;
 
+	ComPtr<ID3D11DepthStencilState> m_pSkyboxDSS = nullptr;
+
 	// minjeong : shadow Interface
 	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
+	ComPtr<ID3D11PixelShader> m_pEnvironmentPS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
 	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
@@ -212,6 +215,8 @@ public:
 	void MakeModelEmpty();
 
 	void RenderDebugDraw();
+
+	void RenderQueueSort();
 
 
 	void RenderBegin();

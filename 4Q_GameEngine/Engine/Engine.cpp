@@ -122,6 +122,19 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
 
+	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
+
+	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+
+	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent5->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent5->Assign<Transform>(Vector3D(100.f, 0.f, 100.f));
+
+
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");

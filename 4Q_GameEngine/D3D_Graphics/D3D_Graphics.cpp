@@ -366,6 +366,16 @@ void Renderer::RenderDebugDraw()
     DebugDraw::g_Batch->End();
 }
 
+void Renderer::RenderQueueSort()
+{
+	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
+		return lhs->m_pMaterial < rhs->m_pMaterial;
+		});
+	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
+		return lhs->m_pNodeWorldTransform < rhs->m_pNodeWorldTransform;
+		});
+}
+
 void Renderer::SetEnvironment(string filename)
 {
 	auto it = ResourceManager::Instance->m_pOriginalEnvironments.find(filename);
@@ -407,6 +417,17 @@ void Renderer::Update()
 
 	m_viewMatrixCB.mShadowView = shadowView.Transpose();
 	m_projectionMatrixCB.mShadowProjection = shadowProjection.Transpose();
+
+	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
+	m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
+	for (auto& model : m_pStaticModels)
+	{
+		if (model->GetSceneResource() == nullptr)
+			break;
+		FrustumCulling(model);
+	}
+
+	RenderQueueSort();
 }
 
 void Renderer::RenderBegin()
@@ -420,14 +441,10 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
-    m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
-    for (auto& model : m_pStaticModels)
-    {
-        if (model->GetSceneResource() == nullptr)
-            break;
-        FrustumCulling(model);
-    }
+	
+
+    
+
     m_pointLightCB.mPos = m_pointLight.GetPosition();
     m_pointLightCB.mRadius = m_pointLight.GetRadius();
     m_pointLightCB.mLightColor = m_pointLight.GetColor();
@@ -515,10 +532,10 @@ void Renderer::Render()
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 
 	//메쉬 렌더
+	RenderEnvironment();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	MeshRender();
 
-
-	RenderEnvironment();
 
 	RenderDebugDraw();	
 
@@ -530,16 +547,17 @@ void Renderer::Render()
 
 
 	//임구이 렌더
-	//RenderImgui();
+	RenderImgui();
 }
 
 void Renderer::RenderEnvironment()
 {
-	m_pDeviceContext->PSSetShader(ps.Get(), nullptr, 0);
+	m_pDeviceContext->PSSetShader(m_pEnvironmentPS.Get(), nullptr, 0);
 
 	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerStateCCW.Get());
+	m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDSS.Get(),0);
 	m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
 
 	auto test = ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"];
@@ -682,22 +700,23 @@ void Renderer::RenderImgui()
 		ImGui::Text("ShadowDirection : %s", str.c_str());
 		ImGui::End();
 	}
+	Math::Vector3 pointlightPos = m_pointLight.GetPosition();
 	//Point Light
 	{
 		ImGui::Begin("Point Light Properties");
 		ImGui::Text("position");
 		ImGui::Text("X");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##lpx", &m_pointLight.m_position.x, -1000.f, 1000.f);
+		ImGui::SliderFloat("##lpx", &pointlightPos.x, -1000.f, 1000.f);
 		ImGui::Text("Y");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##lpy", &m_pointLight.m_position.y, -1000.f, 1000.f);
+		ImGui::SliderFloat("##lpy", &pointlightPos.y, -1000.f, 1000.f);
 		ImGui::Text("Z");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##lpz", &m_pointLight.m_position.z, -1000.f, 1000.f);
+		ImGui::SliderFloat("##lpz", &pointlightPos.z, -1000.f, 1000.f);
 		ImGui::End();
 	}
-
+	m_pointLight.SetPosition(pointlightPos);
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
@@ -804,7 +823,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pProjectionBuffer));
-	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, width / (FLOAT)height, 0.1f, 100000.0f);
+	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, width / (FLOAT)height, 0.1f, 100000.0f);
 	m_projectionMatrixCB.mProjection = m_projectionMatrix.Transpose();
 
 	//라이트 상수버퍼
@@ -837,6 +856,11 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
     dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
     HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
+
+	dsd = CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} };
+	dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pSkyboxDSS.GetAddressOf()));
 
     //래스터라이저 스테이트 초기화
     D3D11_RASTERIZER_DESC rasterizerDesc = {};
@@ -878,11 +902,11 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	
 	  buffer.Reset();
 	  HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
-	  HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, ps.GetAddressOf()));
+	  HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pEnvironmentPS.GetAddressOf()));
 
   	//Imgui
-	/*if (!InitImgui(*hWnd))
-		return false;*/
+	if (!InitImgui(*hWnd))
+		return false;
   
     return true;
 }

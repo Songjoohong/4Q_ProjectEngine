@@ -3,43 +3,36 @@
 static const float Epsilon = 0.00001;
 static const float PI= 3.141592;
 
-//鍮湲 � 怨
 static const float3 Fdielectric = 0.04;
 
-//踰 遺 ⑥ : 몃 踰≫곗 踰≫ ъ닿  濡 諛ъ⑥ 而ㅼ怨 ыㅺ 而ㅼ 濡 諛ъ⑥ 吏.
-float NDF(float NdotH,float roughness)  //몃踰≫곗 踰≫곕� 댁 곗고 媛怨 ыㅻ� 留ㅺ蹂濡 諛
+float NDF(float NdotH,float roughness) 
 {
     float alpha = roughness * roughness;
     float alphaSq = alpha * alpha;
     float denominator = (NdotH * NdotH) * (alphaSq - 1.0f) + 1.0f;
     return alphaSq / (PI * denominator * denominator);
 }
-//� 諛 ⑥ 
-float3 FresnelSchlick(float3 F0, float HdotV)    //F0 : 理� 諛ъ lerp(鍮湲 � 怨,BaseColor,metalness) HdotV : 踰≫곗 酉곕깹곕� 댁 곗고 媛
+
+float3 FresnelSchlick(float3 F0, float HdotV)   
 {
 
     return F0 + (1.0f - F0) * pow(1.0f - HdotV, 5.0f);
 }
 
-//GGX곗  G⑥
 float GSub(float cosTheta,float k)
 {
     return cosTheta / (cosTheta * (1.0f - k) + k);
 }
-
-//湲고� 媛 ⑥
-float GGX(float NdoL,float NdotV,float roughness)
+ 
+float GGX(float NdoL, float NdotV, float roughness)
 {
     float r = roughness + 1.0f;
     float k = (r * r) / 8.0f;
     return GSub(NdoL, k) * GSub(NdotV, k);
 }
 
-
-
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    //湲곕낯� 蹂 ㅼ
     float4 BaseColor = txDiffuse.Sample(samplerLinear, input.Texcoord);
     float3 Normal = normalize(input.NorWorld);
     float3 Tangent = normalize(input.TanWorld);
@@ -52,18 +45,19 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float AmbientOcclusion = txAmbient.Sample(samplerLinear, input.Texcoord);
     
-    //Normal Tangent space (몃留듭 寃쎌)
+    float3 LightColor = 1.0f;
+    //Normal Tangent space 
     float3 NormalTangent = txNormal.Sample(samplerLinear, input.Texcoord);
     float3x3 WorldTransform = float3x3(Tangent, BiTangent, Normal);
     Normal = mul(NormalTangent, WorldTransform);
     Normal = normalize(Normal);
     
     //dot production
-    //몃怨 쇱댄몃� 媛
+  
     float NDotL = max(0, dot(Normal, LightDirection));
-    //몃怨 踰≫곗 媛
+   
     float NDotH = max(0, dot(Normal, HalfVector));
-    //몃怨 酉곕깹곗 媛
+  
     float NDotV = max(0, dot(Normal, ViewVector));
     
     //Gamma correction
@@ -143,7 +137,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     //DirectionLighting += (DiffuseBRDF + SpecularBRDF) * LightColor * NDotL;
     float3 PointLighting = 0.0;
     
-    float3 LightVector = LightPos - input.PosWorld;
+    float3 LightVector = PointLightPos - input.PosWorld;
     float4 light=1.f;
     float len = length(LightVector);
     float att = 1;
@@ -169,7 +163,6 @@ float4 main(PS_INPUT input) : SV_TARGET
         float3 ReflectionVector = 2.0 * NDotV * Normal - ViewVector;
         float3 Irradiance = txIBL_Diffuse.Sample(samplerLinear, Normal).rgb;
         
-        //硫댁 諛 鍮 諛⑺μ 뱀   댁 踰≫곗 댁 媛 ъ⑺吏 怨 몃踰≫곗 쇰깹곕� 댁댁 ъ⑺.
         float3 F = FresnelSchlick(F0, NDotV);
         
         float3 Kd = lerp(1.9 - F, 0.0, Metalness);
