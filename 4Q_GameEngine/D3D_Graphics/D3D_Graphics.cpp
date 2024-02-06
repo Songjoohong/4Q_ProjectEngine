@@ -15,6 +15,8 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
+#include "../Engine/InputManager.h"
+
 #define SHADOWMAP_SIZE 4096
 
 Renderer* Renderer::Instance = nullptr;
@@ -499,6 +501,10 @@ void Renderer::RenderText() const
 	const wchar_t* wFPS = ConvertToWchar(strFPS);
 	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
 	delete[] wFPS;
+
+	string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
+	const wchar_t* wMousePos = ConvertToWchar(mousePos);
+	m_spriteFont->DrawString(m_spriteBatch.get(), wMousePos, XMFLOAT2(0.f, 60.f), Colors::White, 0.f, XMFLOAT2(0.f, 0.f), 0.7f);
 }
 
 void Renderer::RenderSprite() const
