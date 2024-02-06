@@ -19,7 +19,12 @@
 #include "../Engine/StaticMesh.h"
 #include "../Engine/Debug.h"
 #include "../Engine/RenderSystem.h"
+#include "../Engine/TransformSystem.h"
+#include "../Engine/CameraSystem.h"
+#include "../Engine/MovementSystem.h"
 #include "../Engine/Sound.h"
+#include "../Engine/RenderManager.h"
+#include "../Engine/ScriptSystem.h"
 
 
 using json = nlohmann::json;
@@ -43,11 +48,15 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	m_Renderer = Renderer::Instance;
 	
-	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
-	m_EditorWorld->registerSystem(new RenderSystem);
+	//m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
 
-	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();		// test
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld);			// test
 
+	//m_EditorWorld->registerSystem(new RenderSystem);
+	//m_EditorWorld->registerSystem(new TransformSystem);
+
+	//WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 
 
 	/* ---- test end --------------------------------------------------------------------------- */
@@ -73,10 +82,10 @@ void GameEditor::Update()
 
 void GameEditor::Render()
 {
-	m_Renderer->Instance->RenderBegin();
-	m_Renderer->Instance->Render();
+	RenderManager::GetInstance()->RenderBegin();
+	RenderManager::GetInstance()->Render();
 	RenderImGui();
-	m_Renderer->Instance->RenderEnd();
+	RenderManager::GetInstance()->RenderEnd();
 }
 
 
@@ -452,6 +461,11 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 void GameEditor::NewScene()
 {
 	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_EditorWorld->registerSystem(new RenderSystem);
+	m_EditorWorld->registerSystem(new TransformSystem);
+	m_EditorWorld->registerSystem(new MovementSystem);
+	m_EditorWorld->registerSystem(new CameraSystem);
+	m_EditorWorld->registerSystem(new ScriptSystem);
 
 	m_Camera = m_EditorWorld->create();
 	m_Box = m_EditorWorld->create();
@@ -461,7 +475,14 @@ void GameEditor::NewScene()
 	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
 	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
+
 	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Camera");
+	m_Camera->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
+	//m_Camera->Assign<Camera>();
+	//m_Camera->Assign<CameraScript>(m_Camera);
+	//m_Camera->Assign<Movement>();
+	//m_Camera->Assign<Debug>();
+
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
 
@@ -473,14 +494,14 @@ void GameEditor::NewScene()
 	m_Pot->addChild(m_Wall);
 	//SetParent(m_Wall, m_Pot);
 
-	m_Camera->Assign<Transform>();
 	m_Box->Assign<Transform>(pos1);
 	m_Pot->Assign<Transform>(pos2);
-	m_Wall->Assign<Transform>(pos3);
+
 	m_Wall->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
-	m_Camera->Assign<Camera>();
+	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+	m_Wall->Assign<Debug>();
+
 	m_Camera->Assign<Light>();
-	m_Camera->Assign<CameraScript>(m_Camera);
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
 
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);

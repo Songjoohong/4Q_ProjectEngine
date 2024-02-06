@@ -44,7 +44,6 @@ void SceneHierarchyPanel::RenderImGui()
 
 			ECS::Entity* entity2 = entity;
 
-			int test = 1;		//TESTSTETESTTEST!!
 		}
 
 		// Unselect object when left-clicking on blank space.
@@ -77,20 +76,32 @@ void SceneHierarchyPanel::RenderImGui()
 
 void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 {
-	size_t entityID = entity->getEntityId();
-
-
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 	{
-		ImGui::Text(entity->get<EntityIdentifier>()->m_EntityName.c_str());
-		ImGui::SetDragDropPayload("EntityID", &entityID, 1 * sizeof(size_t));
-		
+		// TODO: 예외처리 필요!!
+		const auto& selectedEntityID = m_SelectionContext->getEntityId();
+		size_t entityID = entity->getEntityId();
+
+		if (m_SelectionContext != entity)
+		{
+			ImGui::Text(entity->get<EntityIdentifier>()->m_EntityName.c_str());
+			ImGui::SetDragDropPayload("EntityID", &entityID, 1 * sizeof(size_t));
+		}
+		else
+		{
+			ECS::Entity* entt = m_Context->getByIndex(selectedEntityID);
+			const char* name = entt->get<EntityIdentifier>()->m_EntityName.c_str();
+			ImGui::TextUnformatted(name);
+
+			ImGui::SetDragDropPayload("EntityID", &selectedEntityID, 1 * sizeof(size_t));
+		}
+
 		ImGui::EndDragDropSource();
 	}
 
 	if (ImGui::BeginDragDropTarget())
 	{
-		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
+		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID"); // TODO: ', ImGuiDragDropFlags_AcceptNoDrawDefaultRect'  -> 매개변수로 추가하면 노란 박스 사라짐. 계층구조 설정 끝나면 '' 안에 있는 거 적용하기 
 
 		if (payLoad)
 		{
