@@ -13,6 +13,7 @@ struct Sprite2D
 
 	int m_EntityID;
 	const char* m_FileName;
+	// Layer는 0 과 1 사이
 	float m_Layer;
 	POINT m_Position;
 	bool m_IsRendered = true;
