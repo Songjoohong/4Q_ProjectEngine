@@ -105,34 +105,24 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	EntitySystem* cameraSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CameraSystem());
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
+
 	
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
+	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<CameraScript>(ent);
 	ent->Assign<Movement>();
 
 	//bool b = ent->has<Script>();
-	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
+	/*Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_unity.fbx");
+	ent1->Assign<Transform>(Vector3D(100.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });*/
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
-
-	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
-
-	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
-
-	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent5->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent5->Assign<Transform>(Vector3D(100.f, 0.f, 100.f));
+	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/lantern.fbx");
+	ent2->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
+	ent2->Assign<BoxCollider>();
 
 
 

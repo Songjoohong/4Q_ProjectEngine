@@ -43,11 +43,11 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float3 EmissiveLighting = txEmissive.Sample(samplerLinear, input.Texcoord);
     
-    float AmbientOcclusion = txAmbient.Sample(samplerLinear, input.Texcoord);
+    float AmbientOcclusion = txAmbient.Sample(samplerLinear, input.Texcoord).r;
     
     float3 LightColor = 1.0f;
     //Normal Tangent space 
-    float3 NormalTangent = txNormal.Sample(samplerLinear, input.Texcoord);
+    float3 NormalTangent = txNormal.Sample(samplerLinear, input.Texcoord).rgb;
     float3x3 WorldTransform = float3x3(Tangent, BiTangent, Normal);
     Normal = mul(NormalTangent, WorldTransform);
     Normal = normalize(Normal);
@@ -65,10 +65,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     
     float Metalness = 1.0f;
-    Metalness = txMetalic.Sample(samplerLinear, input.Texcoord).r;
+    Metalness = txMetalic.Sample(samplerLinear, input.Texcoord).b;
     
     float Roughness = 0.0f;
-    Roughness = txRoughness.Sample(samplerLinear, input.Texcoord).r;
+    Roughness = txRoughness.Sample(samplerLinear, input.Texcoord).g;
     
     float3 Emissive = 0.0f;
     Emissive = txEmissive.Sample(samplerLinear, input.Texcoord).rgb;
@@ -135,26 +135,26 @@ float4 main(PS_INPUT input) : SV_TARGET
         }
     }
     //DirectionLighting += (DiffuseBRDF + SpecularBRDF) * LightColor * NDotL;
-    float3 PointLighting = 0.0;
+    //float3 PointLighting = 0.0;
     
-    float3 LightVector = PointLightPos - input.PosWorld;
-    float4 light=1.f;
-    float len = length(LightVector);
-    float att = 1;
-    if (len < Radius)
-    {
-        float3 NL = LightVector / len;
-        F = FresnelSchlick(F0, max(0, dot(NL + ViewVector, ViewVector)));
-        D = NDF(max(0, dot(Normal, NL + ViewVector)), Roughness);
-        G = GGX(max(0, dot(Normal, NL)), NDotV, Roughness);
+    //float3 LightVector = PointLightPos - input.PosWorld;
+    //float4 light=1.f;
+    //float len = length(LightVector);
+    //float att = 1;
+    //if (len < Radius)
+    //{
+    //    float3 NL = LightVector / len;
+    //    F = FresnelSchlick(F0, max(0, dot(NL + ViewVector, ViewVector)));
+    //    D = NDF(max(0, dot(Normal, NL + ViewVector)), Roughness);
+    //    G = GGX(max(0, dot(Normal, NL)), NDotV, Roughness);
         
-        Kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), Metalness);
-        DiffuseBRDF = Kd * BaseColor.rgb;
+    //    Kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), Metalness);
+    //    DiffuseBRDF = Kd * BaseColor.rgb;
         
-        SpecularBRDF = (F * D * G) / max(Epsilon, 4.0 * dot(Normal, NL) * NDotV);
-        float pow = 2000 / (len * len);
-        PointLighting += (DiffuseBRDF + SpecularBRDF) * pow;
-    }
+    //    SpecularBRDF = (F * D * G) / max(Epsilon, 4.0 * dot(Normal, NL) * NDotV);
+    //    float pow = 2000 / (len * len);
+    //    PointLighting += (DiffuseBRDF + SpecularBRDF) * pow;
+    //}
     
     //IBL
     float3 AmbientLighting = 0.0f;
@@ -165,7 +165,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         
         float3 F = FresnelSchlick(F0, NDotV);
         
-        float3 Kd = lerp(1.9 - F, 0.0, Metalness);
+        float3 Kd = lerp(1.0 - F, 0.0, Metalness);
         
         float3 DiffuseIBL = Kd * BaseColor.rgb * Irradiance;
         
@@ -179,15 +179,15 @@ float4 main(PS_INPUT input) : SV_TARGET
         
         float3 SpecularIBL = (F0 * SpecularBRDF.x + SpecularBRDF.y) * SpecularIrradiance;
         
-        AmbientLighting = (DiffuseIBL + SpecularIBL) * AmbientOcclusion;
+        AmbientLighting = (DiffuseIBL + SpecularIBL) * 0.35; //AmbientOcclusion;
 
     }
 
-    float3 final = DirectionLighting + PointLighting + AmbientLighting + EmissiveLighting; //saturate(directionLighting + BaseColor);
+    float3 final = DirectionLighting + AmbientLighting + EmissiveLighting; //saturate(directionLighting + BaseColor);
    
 
 
-    final = final + (Attenuation * Intensity * (PhongD + PhongS));
+    //final = final + (Attenuation * Intensity * (PhongD + PhongS));
      final.rgb = pow(final.rgb, 1 / 2.2);
 
     return float4(final, 1.0f);

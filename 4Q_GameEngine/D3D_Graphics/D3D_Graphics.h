@@ -9,6 +9,17 @@ class Material;
 class StaticMeshInstance;
 class Environment;
 
+struct ColliderBox
+{
+	ColliderBox(Vector3 center, Vector3 extents, bool collision) {
+		colliderBox.Center = center;
+		colliderBox.Extents = extents;
+		isCollision = collision;
+	}
+	DirectX::BoundingBox colliderBox;
+	bool isCollision = false;
+};
+
 const size_t BUFFER_SIZE = 2;
 
 struct cbPointLight
@@ -108,6 +119,7 @@ public:
 	ComPtr<ID3D11Buffer> m_pPointLightBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pLightBuffer = nullptr;
 
+	vector<ColliderBox> m_colliderBox;
 	
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
@@ -161,6 +173,9 @@ public:
 
 	//빈 모델에 정보 입력
 	void AddStaticModel(string filename, const Math::Matrix& worldTM);
+
+	//디버그용 콜라이더 박스
+	void AddColliderBox(Vector3 center, Vector3 extents, bool isCollision);
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
@@ -216,11 +231,13 @@ public:
 
 	void RenderDebugDraw();
 
+	//머테리얼 별로 소팅
 	void RenderQueueSort();
 
 
 	void RenderBegin();
 	void Render();
+
 
 	void RenderEnvironment();
 

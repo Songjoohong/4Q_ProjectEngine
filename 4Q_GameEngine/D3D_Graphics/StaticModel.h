@@ -12,6 +12,8 @@ private:
 
 public:
     DirectX::BoundingBox m_boundingBox;
+    DirectX::BoundingBox m_AABBBox;
+
     std::vector<StaticMeshInstance> m_meshInstance = {};
     bool m_bIsCulled=false;
 
