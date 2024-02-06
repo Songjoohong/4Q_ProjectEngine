@@ -28,7 +28,7 @@
 #include "StaticMesh.h"
 #include "TransformSystem.h"
 #include "imgui.h"
-
+#include "EntityIdentifier.h"
 #define ENGINE_DEBUG
 
 #ifdef ENGINE_DEBUG
@@ -99,7 +99,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	SoundManager::GetInstance()->Initialize();
 
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"../Test/TestScene1.json"));
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Test/TestScene1.json"));
 	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
 	EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
 	EntitySystem* transformSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new TransformSystem());
@@ -109,10 +109,10 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>();
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
+	ent->Assign<EntityIdentifier>();
 	ent->Assign<CameraScript>(ent);
 	ent->Assign<Movement>();
 
@@ -121,12 +121,12 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent1->Assign<EntityIdentifier>();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
 	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
-
+	ent1->Assign<EntityIdentifier>();
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>();
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
-
+	ent2->Assign<EntityIdentifier>();
 	// minjeong : dummy test
 	/*{
 		Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
@@ -176,16 +176,18 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	{
 		Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 		ent->Assign<StaticMesh>("FBXLoad_Test/fbx/Character.fbx");
+		ent->Assign<EntityIdentifier>();
 		ent->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(1.f, 1.f, 1.f));
 		ent->Assign<Debug>();
 
 		Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 		ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
 		ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D(2000.f, 2000.f, 2000.f));
-
+		ent1->Assign<EntityIdentifier>();
 		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 		ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/wallTest.fbx");
 		ent2->Assign<Transform>(Vector3D(100.f, 100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D(100.f, 100.f, 1.f));
+		ent2->Assign<EntityIdentifier>();
 	}
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	

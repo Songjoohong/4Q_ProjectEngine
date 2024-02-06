@@ -10,7 +10,6 @@
 #include "../Engine/Transform.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/Camera.h"
-#include "../Engine/CameraScript.h"
 #include "../Engine/Light.h"
 #include "../Engine/EntityIdentifier.h"
 #include "../Engine/Movement.h"
@@ -18,15 +17,16 @@
 #include "../Engine/SampleScript.h"
 #include "../Engine/StaticMesh.h"
 #include "../Engine/Debug.h"
-#include "../Engine/RenderSystem.h"
 #include "../Engine/TransformSystem.h"
 #include "../Engine/CameraSystem.h"
 #include "../Engine/MovementSystem.h"
 #include "../Engine/Sound.h"
 #include "../Engine/RenderManager.h"
 #include "../Engine/ScriptSystem.h"
+#include "../Engine/Sprite2D.h"
+#include "../Engine/CameraScript.h"
 
-
+#include "Prefab.h"
 using json = nlohmann::json;
 namespace ECS { class Entity; }
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -60,13 +60,17 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 
 	/* ---- test end --------------------------------------------------------------------------- */
-
 	//// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
 	//// 값은 어떻게 넣지?
 	//for (const auto& a : test.GetTypeInfo().GetProperties())
 	//{
 	//	std::cout << a->GetName();
 	//}
+
+	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld);
+
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
 
 	if (!InitImGui())
 	{
@@ -196,7 +200,7 @@ void GameEditor::RenderImGui()
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
-					LoadWorld(L"TestScene1");	// Test
+					LoadWorld("TestScene1");	// Test
 
 				ImGui::Separator();
 
@@ -205,17 +209,22 @@ void GameEditor::RenderImGui()
 
 				if (ImGui::MenuItem("Save World"))
 				{
-					SaveWorld(L"TestScene1.json");
+					SaveWorld("TestScene1.json");
 				}
 
 				if (ImGui::MenuItem("Load World"))
 				{
-					LoadWorld(L"TestScene1.json");
+					LoadWorld("TestScene1.json");
 				}
 
 				if (ImGui::MenuItem("Exit"))
 				{
 					Close();
+				}
+
+				if (ImGui::MenuItem("ClearPrefabFile"))
+				{
+					m_PrefabManager->DeleteAllDataInJsonFile("Prefab.json");
 				}
 
 				ImGui::EndMenu();
@@ -234,13 +243,13 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 		/* Viewport ------------------------ */
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
-		ImGui::Begin("Viewport");
-		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
-		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
+		//ImGui::Begin("Viewport");
+		//ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		//ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
+		//ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
 
-		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		//Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
 		// CameraEntity가 나와야 다시 할 수 있을듯?
 		// Projection행렬 필요
@@ -270,8 +279,8 @@ void GameEditor::RenderImGui()
 		//	//ImGuizmo::Manipulate(cameratransformMatrix, )
 		//}
 
-		ImGui::End();
-		ImGui::PopStyleVar();
+		//ImGui::End();
+		//ImGui::PopStyleVar();
 
 	}
 	else
@@ -342,23 +351,26 @@ void GameEditor::SetDarkThemeColors()
 
 
 // jsonFile 이름 넘기기
-void GameEditor::SaveWorld(const std::wstring& _filename)
+void GameEditor::SaveWorld(const std::string& _filename)
 {
-	std::wstring fullPath = basePath + _filename;
+	std::string fullPath = basePath + _filename;
 
 	std::ofstream outputFile(fullPath);
 
 	json worldData;
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
-		SaveComponents<EntityIdentifier>(entity, worldData, fullPath);
-		SaveComponents<Transform>(entity, worldData, fullPath);
-		SaveComponents<StaticMesh>(entity, worldData, fullPath);
-		SaveComponents<BoxCollider>(entity, worldData, fullPath);
-		SaveComponents<Camera>(entity, worldData, fullPath);
-		SaveComponents<Light>(entity, worldData, fullPath);
-		SaveComponents<Movement>(entity, worldData, fullPath);
-		SaveComponents<Script>(entity, worldData, fullPath);
+		SaveComponents<EntityIdentifier>(entity, worldData);
+		SaveComponents<Transform>(entity, worldData);
+		SaveComponents<StaticMesh>(entity, worldData);
+		SaveComponents<BoxCollider>(entity, worldData);
+		SaveComponents<Camera>(entity, worldData);
+		SaveComponents<Light>(entity, worldData);
+		SaveComponents<Movement>(entity, worldData);
+		SaveComponents<Debug>(entity, worldData);
+		SaveComponents<Sound>(entity, worldData);
+		SaveComponents<Sprite2D>(entity, worldData);
+		SaveComponents<CameraScript>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -367,20 +379,18 @@ void GameEditor::SaveWorld(const std::wstring& _filename)
 
 }
 
-void GameEditor::LoadWorld(const std::wstring& _filename)
+void GameEditor::LoadWorld(const std::string& _filename)
 {
 	// 월드 생성
 	m_EditorWorld = ECS::World::CreateWorld(_filename);
 
-	std::wstring fullPath = basePath + _filename;
+	std::string fullPath = basePath + _filename;
 
 	// Deserialize
 	std::ifstream inputFile(fullPath);
 	json jsonObject;
 	inputFile >> jsonObject;
 	inputFile.close();
-
-	bool foundComponent = false;
 
 	for (const auto& entity : jsonObject["WorldEntities"])
 	{
@@ -433,34 +443,39 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 				{
 					AssignComponents<Sound>(myEntity, component["Sound"][0]);
 				}
+				else if (componentName == "CameraScript")
+				{
+					AssignComponents<CameraScript>(myEntity, component["CameraScript"][0]);
+				}
 			}
 		}
 	}
 
 
 	//부모자식 관계 설정
-	for (const auto& entity : m_EditorWorld->GetEntities())
+	for (const auto& childEntity : m_EditorWorld->GetEntities())
 	{	
-		for (const auto& secondEntity : m_EditorWorld->GetEntities())
+		for (const auto& parentEntity : m_EditorWorld->GetEntities())
 		{
-			if (entity->get<EntityIdentifier>().get().m_HasParent == true)
+			if (childEntity->get<EntityIdentifier>().get().m_HasParent == true)
 			{
-				if (entity->get<EntityIdentifier>().get().m_ParentEntityId == secondEntity->getEntityId())
+				if (childEntity->get<EntityIdentifier>().get().m_ParentEntityId == parentEntity->getEntityId())
 				{
-					SetParent(entity, secondEntity);
+					SetParent(childEntity, parentEntity);
 				}
 			}
 		}
 	}
 
 	// HierarchyPanel에 등록
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 
 void GameEditor::NewScene()
 {
-	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
 	m_EditorWorld->registerSystem(new RenderSystem);
 	m_EditorWorld->registerSystem(new TransformSystem);
 	m_EditorWorld->registerSystem(new MovementSystem);
@@ -485,25 +500,20 @@ void GameEditor::NewScene()
 
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
-
-	m_Box->addChild(m_Pot);
-	//SetParent(m_Pot, m_Box);
+	SetParent(m_Pot, m_Box);
 
 	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
-
-	m_Pot->addChild(m_Wall);
-	//SetParent(m_Wall, m_Pot);
-
+	SetParent(m_Wall, m_Pot);
 	m_Box->Assign<Transform>(pos1);
 	m_Pot->Assign<Transform>(pos2);
 
-	m_Wall->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
+	m_Wall->Assign<StaticMesh>("box.fbx");
 	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
 	m_Wall->Assign<Debug>();
 
 	m_Camera->Assign<Light>();
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
-
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 

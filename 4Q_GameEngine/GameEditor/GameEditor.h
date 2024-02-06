@@ -2,11 +2,13 @@
 #include "ContentsBrowserPanel.h"
 #include "SceneHierarchyPanel.h"
 #include "../Engine/Engine.h"
-
+#include <codecvt>
 class ContentsBrowserPanel;
 class SceneHierarchyPanel;
 class Renderer;
 class EntityIdentifier;
+class Script;
+class PrefabManager;
 namespace ECS { class Entity; }
 namespace ECS { class World; }
 
@@ -30,10 +32,10 @@ public:
 	void SetDarkThemeColors();
 
 	//Save/Load
-	void SaveWorld(const std::wstring& _strRelativePath);
+	void SaveWorld(const std::string& _strRelativePath);
 	template<typename ComponentType>
-	void SaveComponents(ECS::Entity* entity, json& worldData, std::wstring& filename);
-	void LoadWorld(const std::wstring& _strRelativePath);
+	void SaveComponents(ECS::Entity* entity, json& worldData);
+	void LoadWorld(const std::string& _strRelativePath);
 
 	template<typename ComponentType>
 	void AssignComponents(ECS::Entity* entity, const json& componentData);
@@ -41,10 +43,12 @@ public:
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
 
+	std::shared_ptr<PrefabManager> m_PrefabManager;
+
 private:
 	Renderer* m_Renderer = nullptr;
 
-	std::wstring basePath = L"../Test/";
+	std::string basePath = "../Test/";
 
 	// Panels
 	SceneHierarchyPanel m_SceneHierarchyPanel;
@@ -64,13 +68,13 @@ private:
 };
 
 template<typename ComponentType>
-inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData, std::wstring& filename)
+inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 {
 	if (entity->has<ComponentType>())
 	{
 		std::vector<ComponentType> container;
 		container.push_back(entity->get<ComponentType>().get());
-		auto serializedData = SerializeContainer(container, filename);
+		auto serializedData = SerializeContainer(container);
 
 		json componentData;
 		componentData[(entity->get<ComponentType>().get()).m_ComponentName] = json::parse(serializedData);
@@ -101,7 +105,14 @@ inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData, std
 template<typename ComponentType>
 inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& componentData)
 {
-	entity->Assign<ComponentType>();
+	if constexpr (std::is_base_of_v<Script, ComponentType>)
+	{
+		entity->Assign<ComponentType>(this);
+	}
+	else
+	{
+		entity->Assign<ComponentType>();
+	}
 
 	auto& component = entity->get<ComponentType>().get();
 

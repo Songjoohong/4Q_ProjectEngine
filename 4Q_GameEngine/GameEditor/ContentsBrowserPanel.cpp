@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "ContentsBrowserPanel.h"
-
-static const std::filesystem::path s_AssetsPath = "Assets";
+#include "Prefab.h"
+#include "d3d11.h"
+#include "../D3D_Graphics/D3D_Graphics.h"
+static const std::filesystem::path s_AssetsPath = "../Test";
 
 ContentsBrowserPanel::ContentsBrowserPanel()
 	:m_CurrentDirectory(s_AssetsPath)
@@ -38,8 +40,13 @@ void ContentsBrowserPanel::RenderImGui()
 		auto relativePath = std::filesystem::relative(path, s_AssetsPath);
 		std::string filenameString = relativePath.string();
 
-		// 나중에 ImageButton으로 수정
-		ImGui::Button(filenameString.c_str(), { thumbnailSize, thumbnailSize });
+		ID3D11ShaderResourceView* texture;
+		std::string pngPath = "../Test/Png/box.png";
+		auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
+		CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &texture);
+		//나중에 ImageButton으로 수정
+		//ImGui::Button(filenameString.c_str(), { thumbnailSize, thumbnailSize });
+		ImGui::ImageButton((void*)texture, { 128,128 });
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
 			if (directoryEntry.is_directory())
@@ -56,4 +63,9 @@ void ContentsBrowserPanel::RenderImGui()
 	ImGui::SliderFloat("Padding", &padding, 0, 32);
 
 	ImGui::End();
+}
+
+void ContentsBrowserPanel::SetContext(ECS::World* world)
+{
+	m_World = world;
 }

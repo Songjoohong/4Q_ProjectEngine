@@ -1,0 +1,47 @@
+{
+    "Prefabs": {
+        " ": [
+            {
+                "EntityIdentifier": [
+                    {
+                        "m_ComponentName": "EntityIdentifier",
+                        "m_EntityId": 0,
+                        "m_EntityName": " ",
+                        "m_HasParent": false,
+                        "m_ParentEntityId": 0
+                    }
+                ]
+            },
+            {
+                "Transform": [
+                    {
+                        "m_ComponentName": "Transform",
+                        "m_Position": {
+                            "m_X": 100.0,
+                            "m_Y": 100.0,
+                            "m_Z": 0.0
+                        },
+                        "m_Rotation": {
+                            "m_X": 0.0,
+                            "m_Y": 90.0,
+                            "m_Z": 0.0
+                        },
+                        "m_Scale": {
+                            "m_X": 100.0,
+                            "m_Y": 100.0,
+                            "m_Z": 1.0
+                        }
+                    }
+                ]
+            },
+            {
+                "StaticMesh": [
+                    {
+                        "m_ComponentName": "StaticMesh",
+                        "m_FileName": "FBXLoad_Test/fbx/wallTest.fbx"
+                    }
+                ]
+            }
+        ]
+    }
+}

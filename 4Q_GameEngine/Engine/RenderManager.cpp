@@ -65,7 +65,7 @@ void RenderManager::AddDebug(int entID, const std::string& text, const Vector3D&
 	Renderer::Instance->AddDebugInformation(entID, text, pos);
 }
 
-void RenderManager::AddSprite(int entID, const std::string& filePath, POINT pos, float layer)
+void RenderManager::AddSprite(int entID, const std::string& filePath, MyPoint pos, float layer)
 {
 	Renderer::Instance->AddSpriteInformation(entID, filePath, DirectX::XMFLOAT2{static_cast<float>(pos.x), static_cast<float>(pos.y)}, layer);
 }

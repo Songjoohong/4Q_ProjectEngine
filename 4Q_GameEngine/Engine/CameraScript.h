@@ -29,4 +29,8 @@ public:
 		
 		m_pOwner->get<Movement>()->m_CurrentRotation = Input->GetMouseMove();
 	}
+
+	std::string m_ComponentName = "CameraScript";
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(CameraScript, m_ComponentName)
 };
