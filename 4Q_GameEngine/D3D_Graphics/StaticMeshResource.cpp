@@ -28,7 +28,7 @@ void StaticSceneResource::Create(const std::string& path)
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
 	const aiScene* scene = importer.ReadFile(path, importFlags);
-	
+	//Math::Matrix* localTM = scene->mRootNode->mTransformation.a1;
 	// Mesh, Material Á¤º¸ Create
 	m_meshes.resize(scene->mNumMeshes);
 	for (unsigned int i = 0; i < scene->mNumMeshes; i++)

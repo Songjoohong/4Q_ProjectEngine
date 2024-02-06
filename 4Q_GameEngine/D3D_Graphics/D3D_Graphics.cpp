@@ -55,10 +55,16 @@ void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 		if (nullptr == model->GetSceneResource())
 		{
 			model->m_worldTransform = worldTM;
+			
 			model->Load(filename);
 			break;
 		}
 	}
+}
+
+void Renderer::AddColliderBox(Vector3 center, Vector3 extents,bool isCollision)
+{
+	m_colliderBox.push_back(ColliderBox(center, extents, isCollision));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
@@ -363,18 +369,24 @@ void Renderer::RenderDebugDraw()
     {
         DebugDraw::Draw(DebugDraw::g_Batch.get(), model->m_boundingBox,
             model->m_bIsCulled ? Colors::Red : Colors::Blue);
+		
     }
-
+	for (auto& box : m_colliderBox)
+	{
+		DebugDraw::Draw(DebugDraw::g_Batch.get(), box.colliderBox,
+			box.isCollision ? Colors::Red : Colors::Green);
+	}
+	m_colliderBox.clear();
     DebugDraw::g_Batch->End();
 }
 
 void Renderer::RenderQueueSort()
 {
 	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
-		return lhs->m_pMaterial < rhs->m_pMaterial;
+		return lhs->m_pNodeWorldTransform < rhs->m_pNodeWorldTransform;
 		});
 	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
-		return lhs->m_pNodeWorldTransform < rhs->m_pNodeWorldTransform;
+		return lhs->m_pMaterial < rhs->m_pMaterial;
 		});
 }
 
@@ -555,6 +567,7 @@ void Renderer::Render()
 	//임구이 렌더
 	RenderImgui();
 }
+
 
 void Renderer::RenderEnvironment()
 {
