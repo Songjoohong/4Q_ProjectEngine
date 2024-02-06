@@ -8,18 +8,20 @@
 
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
-
+#include "Prefab.h"
 
 
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
-	SetContext(context);
+	SetContext(context, m_PrefabManager);
 }
 
-void SceneHierarchyPanel::SetContext(ECS::World* context)
+void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab)
 {
 	m_Context = context;
 	m_SelectionContext = nullptr;	// 현재 World에서 Entity 를 초기화.
+
+	m_PrefabManager = prefab;
 }
 
 void SceneHierarchyPanel::RenderImGui()
@@ -41,8 +43,6 @@ void SceneHierarchyPanel::RenderImGui()
 				DrawEntityNode(entity);
 
 			DragDropEntityHierarchy(entity);
-
-			ECS::Entity* entity2 = entity;
 
 			int test = 1;		//TESTSTETESTTEST!!
 		}
@@ -71,14 +71,63 @@ void SceneHierarchyPanel::RenderImGui()
 	if (m_SelectionContext)
 	{
 		DrawComponents(m_SelectionContext);
+		SetPrefabFileName(m_SelectionContext);
 	}
 	ImGui::End();	/* Properties End */
+}
+
+void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
+{
+	if (m_OpenTextPopup)
+	{
+		ImGui::SetNextWindowSize(ImVec2(320, 120));
+		ImGui::OpenPopup("Prefab Name");
+		if (ImGui::BeginPopupModal("Prefab Name"))
+		{
+			static char prefabName[256] = ""; // Fixed-size buffer for input
+
+			ImGui::InputText("Prefab Name", prefabName, sizeof(prefabName));
+			//ImGui::EndGroup();
+			ImGui::Spacing();
+			//ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::GetStyle().ItemSpacing.x - ImGui::CalcTextSize("Submit").x - 250.f);
+			if (ImGui::Button("Submit"))
+			{
+				std::string prefabFile = prefabName;
+				prefabFile += ".prefab";
+				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
+				ImGui::CloseCurrentPopup();
+				m_SelectionContext = nullptr;
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_Enter))
+			{
+				std::string prefabFile = prefabName;
+				prefabFile += ".prefab";
+				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
+				ImGui::CloseCurrentPopup();
+				m_SelectionContext = nullptr;
+			}
+
+			//ImGui::EndGroup();
+			ImGui::Spacing();
+			//ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::GetStyle().ItemSpacing.x - ImGui::CalcTextSize("Close").x -270.f);
+
+			if (ImGui::Button("Close"))
+			{
+				ImGui::CloseCurrentPopup(); // Close the current popup window
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+			{
+				ImGui::CloseCurrentPopup(); // Close the current popup window
+			}
+
+			ImGui::EndPopup();
+		}
+	}
 }
 
 void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 {
 	size_t entityID = entity->getEntityId();
-
 
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 	{
@@ -90,7 +139,7 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 
 	if (ImGui::BeginDragDropTarget())
 	{
-		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
+		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID");
 
 		if (payLoad)
 		{
@@ -139,7 +188,11 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	{
 		if (ImGui::MenuItem("Delete Entity"))
 			entityDeleted = true;
-
+		if (ImGui::MenuItem("Make Prefab"))
+		{
+			m_OpenTextPopup = true;
+			m_SelectionContext = entity;
+		}
 		ImGui::EndPopup();
 	}
 

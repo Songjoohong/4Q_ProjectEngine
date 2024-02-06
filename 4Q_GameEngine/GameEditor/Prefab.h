@@ -11,20 +11,30 @@ using json = nlohmann::json;
 class PrefabManager
 {
 public:
-	PrefabManager();
+	PrefabManager(ECS::World* currentWorld);
 	~PrefabManager();
 
 public:
 	void SavePrefab(ECS::Entity* _selectedEntity, const std::string& _filename);
     ECS::Entity* LoadPrefab(const std::string& _filename);
-	void DeleteAllDataInJsonFile(const std::string& filename);
-	template<typename ComponentType>
-	void SaveComponents(ECS::Entity* entity, json& prefabData);
+
     void RecursiveSaveComponents(ECS::Entity* entity, json& prefabData);
 
+	template<typename ComponentType>
+	void SaveComponents(ECS::Entity* entity, json& prefabData);
+    template<typename ComponentType>
+    void AssignComponents(ECS::Entity* entity, const json& componentData);
+
+    void SetParent(ECS::Entity* child, ECS::Entity* parent);
+
+	void DeleteAllDataInJsonFile(const std::string& filename);
 public:
 	std::string basePath = "../Test/";
     json prefabData;
+
+    ECS::World* m_CurrentWorld;
+
+    std::vector<ECS::Entity*> m_prefabContainer;
 };
 
 template<typename ComponentType>
@@ -57,4 +67,21 @@ inline void PrefabManager::SaveComponents(ECS::Entity* entity, json& prefabData)
             prefabData["Prefabs"][entityName] = entityEntry;
         }
     }
+}
+
+template<typename ComponentType>
+inline void PrefabManager::AssignComponents(ECS::Entity* entity, const json& componentData)
+{
+    if constexpr (std::is_base_of_v<Script, ComponentType>)
+    {
+        entity->Assign<ComponentType>(this);
+    }
+    else
+    {
+        entity->Assign<ComponentType>();
+    }
+
+    auto& component = entity->get<ComponentType>().get();
+
+    component = componentData;
 }

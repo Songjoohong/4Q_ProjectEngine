@@ -112,7 +112,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<EntityIdentifier>();
-	//ent->Assign<CameraScript>(ent);
+	ent->Assign<CameraScript>(ent);
 	ent->Assign<Movement>();
 
 	//bool b = ent->has<Script>();

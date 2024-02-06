@@ -1,12 +1,12 @@
 {
     "Prefabs": {
-        "Box": [
+        " ": [
             {
                 "EntityIdentifier": [
                     {
                         "m_ComponentName": "EntityIdentifier",
-                        "m_EntityId": 2,
-                        "m_EntityName": "Box",
+                        "m_EntityId": 0,
+                        "m_EntityName": " ",
                         "m_HasParent": false,
                         "m_ParentEntityId": 0
                     }
@@ -17,84 +17,14 @@
                     {
                         "m_ComponentName": "Transform",
                         "m_Position": {
-                            "m_X": 1.0,
-                            "m_Y": 3.0,
-                            "m_Z": 5.0
-                        },
-                        "m_Rotation": {
                             "m_X": 0.0,
-                            "m_Y": 0.0,
+                            "m_Y": 10.0,
                             "m_Z": 0.0
                         },
-                        "m_Scale": {
-                            "m_X": 1.0,
-                            "m_Y": 1.0,
-                            "m_Z": 1.0
-                        }
-                    }
-                ]
-            }
-        ],
-        "Pot": [
-            {
-                "EntityIdentifier": [
-                    {
-                        "m_ComponentName": "EntityIdentifier",
-                        "m_EntityId": 3,
-                        "m_EntityName": "Pot",
-                        "m_HasParent": true,
-                        "m_ParentEntityId": 2
-                    }
-                ]
-            },
-            {
-                "Transform": [
-                    {
-                        "m_ComponentName": "Transform",
-                        "m_Position": {
+                        "m_Rotation": {
                             "m_X": 10.0,
-                            "m_Y": 30.0,
-                            "m_Z": 50.0
-                        },
-                        "m_Rotation": {
-                            "m_X": 0.0,
-                            "m_Y": 0.0,
-                            "m_Z": 0.0
-                        },
-                        "m_Scale": {
-                            "m_X": 1.0,
-                            "m_Y": 1.0,
-                            "m_Z": 1.0
-                        }
-                    }
-                ]
-            }
-        ],
-        "Wall": [
-            {
-                "EntityIdentifier": [
-                    {
-                        "m_ComponentName": "EntityIdentifier",
-                        "m_EntityId": 4,
-                        "m_EntityName": "Wall",
-                        "m_HasParent": true,
-                        "m_ParentEntityId": 3
-                    }
-                ]
-            },
-            {
-                "Transform": [
-                    {
-                        "m_ComponentName": "Transform",
-                        "m_Position": {
-                            "m_X": 100.0,
-                            "m_Y": 300.0,
-                            "m_Z": 500.0
-                        },
-                        "m_Rotation": {
-                            "m_X": 0.0,
-                            "m_Y": 0.0,
-                            "m_Z": 0.0
+                            "m_Y": 10.0,
+                            "m_Z": 10.0
                         },
                         "m_Scale": {
                             "m_X": 1.0,
@@ -105,10 +35,36 @@
                 ]
             },
             {
-                "StaticMesh": [
+                "Camera": [
                     {
-                        "m_ComponentName": "StaticMesh",
-                        "m_FileName": "box.fbx"
+                        "m_ComponentName": "Camera"
+                    }
+                ]
+            },
+            {
+                "Movement": [
+                    {
+                        "m_ComponentName": "Movement",
+                        "m_CurrentMoveState": 0,
+                        "m_DirectionVector": {
+                            "m_X": -0.1710100919008255,
+                            "m_Y": 0.17364820837974548,
+                            "m_Z": -0.9698463082313538
+                        },
+                        "m_RightVector": {
+                            "m_X": 0.9750824570655823,
+                            "m_Y": 0.1710101068019867,
+                            "m_Z": -0.14131450653076172
+                        },
+                        "m_Sensitivity": 0.10000000149011612,
+                        "m_Speed": 100.0
+                    }
+                ]
+            },
+            {
+                "Debug": [
+                    {
+                        "m_ComponentName": "Debug"
                     }
                 ]
             }

@@ -19,6 +19,8 @@
 #include "../Engine/Debug.h"
 #include "../Engine/Sound.h"
 #include "../Engine/Sprite2D.h"
+#include "../Engine/CameraScript.h"
+
 #include "Prefab.h"
 using json = nlohmann::json;
 namespace ECS { class Entity; }
@@ -52,7 +54,7 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	//	std::cout << a->GetName();
 	//}
 
-	m_PrefabManager = std::make_shared<PrefabManager>();
+	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld);
 
 	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
@@ -355,6 +357,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<Debug>(entity, worldData);
 		SaveComponents<Sound>(entity, worldData);
 		SaveComponents<Sprite2D>(entity, worldData);
+		SaveComponents<CameraScript>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -375,8 +378,6 @@ void GameEditor::LoadWorld(const std::string& _filename)
 	json jsonObject;
 	inputFile >> jsonObject;
 	inputFile.close();
-
-	bool foundComponent = false;
 
 	for (const auto& entity : jsonObject["WorldEntities"])
 	{
@@ -429,21 +430,25 @@ void GameEditor::LoadWorld(const std::string& _filename)
 				{
 					AssignComponents<Sound>(myEntity, component["Sound"][0]);
 				}
+				else if (componentName == "CameraScript")
+				{
+					AssignComponents<CameraScript>(myEntity, component["CameraScript"][0]);
+				}
 			}
 		}
 	}
 
 
 	//부모자식 관계 설정
-	for (const auto& entity : m_EditorWorld->GetEntities())
+	for (const auto& childEntity : m_EditorWorld->GetEntities())
 	{	
-		for (const auto& secondEntity : m_EditorWorld->GetEntities())
+		for (const auto& parentEntity : m_EditorWorld->GetEntities())
 		{
-			if (entity->get<EntityIdentifier>().get().m_HasParent == true)
+			if (childEntity->get<EntityIdentifier>().get().m_HasParent == true)
 			{
-				if (entity->get<EntityIdentifier>().get().m_ParentEntityId == secondEntity->getEntityId())
+				if (childEntity->get<EntityIdentifier>().get().m_ParentEntityId == parentEntity->getEntityId())
 				{
-					SetParent(entity, secondEntity);
+					SetParent(childEntity, parentEntity);
 				}
 			}
 		}
