@@ -9,20 +9,17 @@
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
 
-#include "Prefab.h"
 
 
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
-	
+	SetContext(context);
 }
 
-void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab)
+void SceneHierarchyPanel::SetContext(ECS::World* context)
 {
 	m_Context = context;
 	m_SelectionContext = nullptr;	// 현재 World에서 Entity 를 초기화.
-
-	m_PrefabManager = prefab;
 }
 
 void SceneHierarchyPanel::RenderImGui()
@@ -44,6 +41,9 @@ void SceneHierarchyPanel::RenderImGui()
 				DrawEntityNode(entity);
 
 			DragDropEntityHierarchy(entity);
+
+			ECS::Entity* entity2 = entity;
+
 			int test = 1;		//TESTSTETESTTEST!!
 		}
 
@@ -71,64 +71,43 @@ void SceneHierarchyPanel::RenderImGui()
 	if (m_SelectionContext)
 	{
 		DrawComponents(m_SelectionContext);
-		SetPrefabFileName(m_SelectionContext);
 	}
-
 	ImGui::End();	/* Properties End */
-}
-
-void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
-{
-	if (m_OpenTextPopup)
-	{
-		ImGui::OpenPopup("Prefab Name");
-		if (ImGui::BeginPopupModal("Prefab Name"))
-		{
-			static char prefabName[256] = "";
-			ImGui::InputText("Prefab Name", prefabName, sizeof(prefabName));
-
-			if (ImGui::Button("Submit"))
-			{
-				std::string prefabFile = prefabName;
-				prefabFile += ".prefab";
-				m_PrefabManager->SavePrefab(entity, prefabFile);
-				ImGui::CloseCurrentPopup();
-				m_SelectionContext = nullptr;
-			}
-			ImGui::EndPopup();
-		}
-	}
 }
 
 void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 {
-	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+	size_t entityID = entity->getEntityId();
+
+
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 	{
 		ImGui::Text(entity->get<EntityIdentifier>()->m_EntityName.c_str());
-
-		ImGui::SetDragDropPayload("EntityID", entity, sizeof(ECS::Entity*));
+		ImGui::SetDragDropPayload("EntityID", &entityID, 1 * sizeof(size_t));
+		
 		ImGui::EndDragDropSource();
 	}
 
 	if (ImGui::BeginDragDropTarget())
 	{
-		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID");
+		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
 
 		if (payLoad)
 		{
-			ECS::Entity** picked = static_cast<ECS::Entity**>(payLoad->Data);
+			size_t pickedID = *(static_cast<size_t*>(payLoad->Data));
+
+			ECS::Entity* picked = m_Context->getByIndex(pickedID - 1);
 			ECS::Entity* target = entity;
 
 			// 현재 자신의 부모 위에 올려두면 부모자식 관계를 해제한다.
-			if (*picked == target)
-				target->RemoveChild(*picked);
+			if (picked == target)
+				target->RemoveChild(picked);
 			else
 			{
-				(*picked)->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
-				target->addChild(*picked);
+				(picked)->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
+				target->addChild(picked);
+				m_SelectionContext = nullptr;
 			}
-
-			int wait = 1;
 		}
 
 		ImGui::EndDragDropTarget();
@@ -137,7 +116,6 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 
 void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지 않으면 함수 종료시 객체의 소멸자가 호출되어서 오류가 뜰 수 있음.
 {
-
 	bool temp = entity->has<EntityIdentifier>();
 	if (!temp)
 	{
@@ -157,16 +135,11 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 
 	// Entity 삭제 메뉴
 	bool entityDeleted = false;
-
 	if (ImGui::BeginPopupContextItem())
 	{
 		if (ImGui::MenuItem("Delete Entity"))
 			entityDeleted = true;
-		if (ImGui::MenuItem("Make Prefab"))
-		{
-			m_OpenTextPopup = true;
-			m_SelectionContext = entity;
-		}
+
 		ImGui::EndPopup();
 	}
 
