@@ -71,8 +71,33 @@ void SceneHierarchyPanel::RenderImGui()
 	if (m_SelectionContext)
 	{
 		DrawComponents(m_SelectionContext);
+		SetPrefabFileName(m_SelectionContext);
 	}
+
 	ImGui::End();	/* Properties End */
+}
+
+void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
+{
+	if (m_OpenTextPopup)
+	{
+		ImGui::OpenPopup("Prefab Name");
+		if (ImGui::BeginPopupModal("Prefab Name"))
+		{
+			static char prefabName[256] = "";
+			ImGui::InputText("Prefab Name", prefabName, sizeof(prefabName));
+
+			if (ImGui::Button("Submit"))
+			{
+				std::string prefabFile = prefabName;
+				prefabFile += ".prefab";
+				m_PrefabManager->SavePrefab(entity, prefabFile);
+				ImGui::CloseCurrentPopup();
+				m_SelectionContext = nullptr;
+			}
+			ImGui::EndPopup();
+		}
+	}
 }
 
 void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
@@ -81,7 +106,7 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 	{
 		ImGui::Text(entity->get<EntityIdentifier>()->m_EntityName.c_str());
 
-		ImGui::SetDragDropPayload("EntityID", entity, sizeof(ECS::Entity));
+		ImGui::SetDragDropPayload("EntityID", entity, sizeof(ECS::Entity*));
 		ImGui::EndDragDropSource();
 	}
 
@@ -91,16 +116,16 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 
 		if (payLoad)
 		{
-			ECS::Entity* picked = static_cast<ECS::Entity*>(payLoad->Data);
+			ECS::Entity** picked = static_cast<ECS::Entity**>(payLoad->Data);
 			ECS::Entity* target = entity;
 
 			// 현재 자신의 부모 위에 올려두면 부모자식 관계를 해제한다.
-			if (picked == target)
-				target->RemoveChild(picked);
+			if (*picked == target)
+				target->RemoveChild(*picked);
 			else
 			{
-				picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
-				target->addChild(picked);
+				(*picked)->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
+				target->addChild(*picked);
 			}
 
 			int wait = 1;
@@ -112,6 +137,7 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 
 void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지 않으면 함수 종료시 객체의 소멸자가 호출되어서 오류가 뜰 수 있음.
 {
+
 	bool temp = entity->has<EntityIdentifier>();
 	if (!temp)
 	{
@@ -131,16 +157,20 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 
 	// Entity 삭제 메뉴
 	bool entityDeleted = false;
+
 	if (ImGui::BeginPopupContextItem())
 	{
 		if (ImGui::MenuItem("Delete Entity"))
 			entityDeleted = true;
 		if (ImGui::MenuItem("Make Prefab"))
 		{
-			m_PrefabManager->SavePrefab(entity, "Prefab.json");
+			m_OpenTextPopup = true;
+			m_SelectionContext = entity;
 		}
 		ImGui::EndPopup();
 	}
+
+
 	// 노드가 펼쳐졌다면 자식도 출력.
 	if (opened)
 	{

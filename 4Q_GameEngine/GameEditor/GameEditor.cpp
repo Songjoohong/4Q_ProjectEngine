@@ -41,9 +41,9 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	m_Renderer = Renderer::Instance;
 	
-	m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
+	//m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
 
-	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();
 	/* ---- test end --------------------------------------------------------------------------- */
 	//// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
 	//// 값은 어떻게 넣지?
@@ -53,6 +53,9 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	//}
 
 	m_PrefabManager = std::make_shared<PrefabManager>();
+
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
 
 	if (!InitImGui())
 	{

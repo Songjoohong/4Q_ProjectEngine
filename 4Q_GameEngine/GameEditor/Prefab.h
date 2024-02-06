@@ -16,10 +16,11 @@ public:
 
 public:
 	void SavePrefab(ECS::Entity* _selectedEntity, const std::string& _filename);
-	void LoadPrefab(const std::string& _filename);
+    ECS::Entity* LoadPrefab(const std::string& _filename);
 	void DeleteAllDataInJsonFile(const std::string& filename);
 	template<typename ComponentType>
 	void SaveComponents(ECS::Entity* entity, json& prefabData);
+    void RecursiveSaveComponents(ECS::Entity* entity, json& prefabData);
 
 public:
 	std::string basePath = "../Test/";

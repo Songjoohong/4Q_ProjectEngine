@@ -17,7 +17,7 @@ public:
 
 	ECS::Entity* GetSelectedEntity() const { return m_SelectionContext; }
 	void SetSelectedEntity(ECS::Entity* entity) { m_SelectionContext = entity; }
-
+	void SetPrefabFileName(ECS::Entity* entity);
 	void DragDropEntityHierarchy(ECS::Entity* entity);
 
 private:
@@ -32,6 +32,7 @@ private:
 	ECS::Entity* m_SelectionContext;
 	ECS::Entity* picked;
 	std::shared_ptr<PrefabManager> m_PrefabManager;
+	bool m_OpenTextPopup = false;
 };
 
 template <typename T>

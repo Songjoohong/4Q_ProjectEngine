@@ -28,25 +28,29 @@ void PrefabManager::SavePrefab(ECS::Entity* _selectedEntity, const std::string& 
 {
 	std::string fullPath = basePath + _filename;
 
-	std::ofstream outputFile(fullPath, std::ios::app);
+	json prefabData;
 
-	SaveComponents<EntityIdentifier>(_selectedEntity, prefabData);
-	SaveComponents<Transform>(_selectedEntity, prefabData);
-	SaveComponents<StaticMesh>(_selectedEntity, prefabData);
-	SaveComponents<BoxCollider>(_selectedEntity, prefabData);
-	SaveComponents<Camera>(_selectedEntity, prefabData);
-	SaveComponents<Light>(_selectedEntity, prefabData);
-	SaveComponents<Movement>(_selectedEntity, prefabData);
-	SaveComponents<Debug>(_selectedEntity, prefabData);
-	SaveComponents<Sound>(_selectedEntity, prefabData);
-	SaveComponents<Sprite2D>(_selectedEntity, prefabData);
+	if (!_selectedEntity->m_children.empty())
+	{
+		RecursiveSaveComponents(_selectedEntity, prefabData);
 
-	outputFile << std::setw(4) << prefabData << std::endl;
+		std::ofstream outputFile(fullPath);
+		outputFile << std::setw(4) << prefabData << std::endl;
 
-	outputFile.close();
+		outputFile.close();
+	}
+	else
+	{
+		RecursiveSaveComponents(_selectedEntity, prefabData);
+		std::ofstream outputFile(fullPath);
+		outputFile << std::setw(4) << prefabData << std::endl;
+
+		outputFile.close();
+	}
 }
 
-void PrefabManager::LoadPrefab(const std::string& _filename)
+
+ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 {
 	std::string fullPath = basePath + _filename;
 
@@ -55,8 +59,9 @@ void PrefabManager::LoadPrefab(const std::string& _filename)
 	inputFile >> prefabData;
 	inputFile.close();
 
-	Entity* prefabEntity;
+	//Entity* prefabEntity = 
 
+	return nullptr;
 }
 
 void PrefabManager::DeleteAllDataInJsonFile(const std::string& filename)
@@ -69,4 +74,23 @@ void PrefabManager::DeleteAllDataInJsonFile(const std::string& filename)
 
 	outputFile << emptyJson.dump(4);
 	outputFile.close();
+}
+
+void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabData)
+{
+	SaveComponents<EntityIdentifier>(entity, prefabData);
+	SaveComponents<Transform>(entity, prefabData);
+	SaveComponents<StaticMesh>(entity, prefabData);
+	SaveComponents<BoxCollider>(entity, prefabData);
+	SaveComponents<Camera>(entity, prefabData);
+	SaveComponents<Light>(entity, prefabData);
+	SaveComponents<Movement>(entity, prefabData);
+	SaveComponents<Debug>(entity, prefabData);
+	SaveComponents<Sound>(entity, prefabData);
+	SaveComponents<Sprite2D>(entity, prefabData);
+
+	for (const auto& child : entity->m_children)
+	{
+		RecursiveSaveComponents(child, prefabData);
+	}
 }
