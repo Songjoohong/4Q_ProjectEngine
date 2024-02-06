@@ -10,9 +10,15 @@ public:
 
 	void SetRadius(float rad) { m_radius = rad; }
 	float GetRadius() { return m_radius; }
-	Math::Vector3 m_position;
-	float m_radius;
-	Math::Vector3 m_color;
+
+	void SetIntensity(float intensity) { m_intensity = intensity; }
+	float GetIntensity() { return m_intensity; }
+
 private:
+	Math::Vector3 m_position;
+	Math::Vector3 m_color;
+	float m_radius;
+	float m_intensity;
+
 };
 

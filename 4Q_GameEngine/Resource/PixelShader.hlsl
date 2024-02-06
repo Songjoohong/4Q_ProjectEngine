@@ -3,30 +3,31 @@
 static const float Epsilon = 0.00001;
 static const float PI= 3.141592;
 
-//비금속 프레넥 계수
+//鍮湲 � 怨
 static const float3 Fdielectric = 0.04;
 
-//법선 분포 함수 : 노말 벡터와 하프벡터 사이각이 작을 수록 반사율이 커지고 러프니스가 커질 수록 반사율이 작아진다.
-float NDF(float NdotH,float roughness)  //노말벡터와 하프벡터를 내적 연산한 값과 러프니스를 매개변수로 받아옴
+//踰 遺 ⑥ : 몃 踰≫곗 踰≫ ъ닿  濡 諛ъ⑥ 而ㅼ怨 ыㅺ 而ㅼ 濡 諛ъ⑥ 吏.
+float NDF(float NdotH,float roughness)  //몃踰≫곗 踰≫곕� 댁 곗고 媛怨 ыㅻ� 留ㅺ蹂濡 諛
 {
     float alpha = roughness * roughness;
     float alphaSq = alpha * alpha;
     float denominator = (NdotH * NdotH) * (alphaSq - 1.0f) + 1.0f;
     return alphaSq / (PI * denominator * denominator);
 }
-//프레넬 반사 함수 
-float3 FresnelSchlick(float3 F0, float HdotV)    //F0 : 최저 반사율 lerp(비금속 프레넬 계수,BaseColor,metalness) HdotV : 하프벡터와 뷰벡터를 내적 연산한 값
+//� 諛 ⑥ 
+float3 FresnelSchlick(float3 F0, float HdotV)    //F0 : 理� 諛ъ lerp(鍮湲 � 怨,BaseColor,metalness) HdotV : 踰≫곗 酉곕깹곕� 댁 곗고 媛
 {
+
     return F0 + (1.0f - F0) * pow(1.0f - HdotV, 5.0f);
 }
 
-//GGX연산 할 G함수
+//GGX곗  G⑥
 float GSub(float cosTheta,float k)
 {
     return cosTheta / (cosTheta * (1.0f - k) + k);
 }
 
-//기하학적 감쇠 함수
+//湲고� 媛 ⑥
 float GGX(float NdoL,float NdotV,float roughness)
 {
     float r = roughness + 1.0f;
@@ -38,7 +39,7 @@ float GGX(float NdoL,float NdotV,float roughness)
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    //기본적인 변수 설정
+    //湲곕낯� 蹂 ㅼ
     float4 BaseColor = txDiffuse.Sample(samplerLinear, input.Texcoord);
     float3 Normal = normalize(input.NorWorld);
     float3 Tangent = normalize(input.TanWorld);
@@ -51,18 +52,18 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float AmbientOcclusion = txAmbient.Sample(samplerLinear, input.Texcoord);
     
-    //Normal Tangent space (노말맵이 있을경우)
+    //Normal Tangent space (몃留듭 寃쎌)
     float3 NormalTangent = txNormal.Sample(samplerLinear, input.Texcoord);
     float3x3 WorldTransform = float3x3(Tangent, BiTangent, Normal);
     Normal = mul(NormalTangent, WorldTransform);
     Normal = normalize(Normal);
     
     //dot production
-    //노말과 라이트디렉션의 각
+    //몃怨 쇱댄몃� 媛
     float NDotL = max(0, dot(Normal, LightDirection));
-    //노말과 하프벡터의 각
+    //몃怨 踰≫곗 媛
     float NDotH = max(0, dot(Normal, HalfVector));
-    //노말과 뷰벡터의 각
+    //몃怨 酉곕깹곗 媛
     float NDotV = max(0, dot(Normal, ViewVector));
     
     //Gamma correction
@@ -96,29 +97,49 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     DirectionLighting += (DiffuseBRDF + SpecularBRDF) * LightColor * NDotL;
     
-    //// �׸���ó�� �κ�
-	// ����NDC ��ǥ�迡���� ��ǥ�� ��������� �����Ƿ� ����Ѵ�.
+    //// 占쌓몌옙占쏙옙처占쏙옙 占싸븝옙
+	// 占쏙옙占쏙옙NDC 占쏙옙표占썼에占쏙옙占쏙옙 占쏙옙표占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙占 占쏙옙占쏙옙占실뤄옙 占쏙옙占쏙옙磯占.
+
+    // 포인트 라이트
+    float3 PointLight = 0;
+
+    float3 PointLightVector = normalize(input.PosWorld - PointLightPos);
+    float PointLightDiffuse = max(dot(-PointLightVector, Normal), 0);
+    float PointLightDistance = distance(PointLightPos, input.PosWorld);
+    float3 PhongD = PointLightDiffuse * (PointLightColor.rgb * BaseColor.rgb);
+    float3 PhongS = float3(0.f, 0.f, 0.f);
+    float Attenuation = 0.f;
+
+    if (PointLightDiffuse > 0.f)
+    {
+        float3 ViewVector = normalize(input.PosWorld - CameraPos);
+        float3 ReflectionVector = normalize(reflect(PointLightVector.xyz, Normal));
+        float Specular = max(dot(ReflectionVector, -ViewVector), 0);
+        Specular = pow(Specular, 30.f);
+        PhongS = Specular * (PointLightColor.rgb * float3(0.7f, 0.7f, 0.7f));
+        if (PointLightDistance <= Radius)
+        {
+            Attenuation = 1.f / (1.f + (LinearTerm * PointLightDistance) +
+            (QuadraticTerm * (PointLightDistance * PointLightDistance)));
+        }
+    }
+
+    // 그림자
     float currentShadowDepth = input.PosShadow.z / input.PosShadow.w;
-	// ����NDC ��ǥ�迡���� x(-1 ~ +1) , y(-1 ~ +1)  
     float2 uv = input.PosShadow.xy / input.PosShadow.w;
-	// NDC��ǥ�� ��ǥ�� ���ø��ϱ����� Texture ��ǥ��� ��ȯ�Ѵ�.
-    uv.y = -uv.y; // y�� �ݴ�
-    uv = uv * 0.5 + 0.5; // -1 ���� 1�� 0~1�� ��ȯ
-	
-	// ShadowMap�� ��ϵ� Depth�������� 
-	// Ŀ���Ҽ� �ִ� ������ �ƴϸ� ó����������
-    
+
+    uv.y = -uv.y;
+    uv = uv * 0.5 + 0.5;
+
     if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0)
     {
         float sampleShadowDepth = txShadow.Sample(samplerLinear, uv).r;
-		// currentShadowDepth�� ũ�� �� ���ʿ� �����Ƿ� �������� ���ܵȴ�.
+		
         if (currentShadowDepth > sampleShadowDepth + 0.001)
         {
             //DirectionLighting = 0.0f;
         }
     }
-    
-    
     //DirectionLighting += (DiffuseBRDF + SpecularBRDF) * LightColor * NDotL;
     float3 PointLighting = 0.0;
     
@@ -148,7 +169,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         float3 ReflectionVector = 2.0 * NDotV * Normal - ViewVector;
         float3 Irradiance = txIBL_Diffuse.Sample(samplerLinear, Normal).rgb;
         
-        //표면에서 받는 빛 방향을 특정 할 수 없어서 하프벡터와 내적한 값을 사용하지 않고 노말벡터와 시야벡터를 내적해서 사용한다.
+        //硫댁 諛 鍮 諛⑺μ 뱀   댁 踰≫곗 댁 媛 ъ⑺吏 怨 몃踰≫곗 쇰깹곕� 댁댁 ъ⑺.
         float3 F = FresnelSchlick(F0, NDotV);
         
         float3 Kd = lerp(1.9 - F, 0.0, Metalness);
@@ -170,7 +191,13 @@ float4 main(PS_INPUT input) : SV_TARGET
     }
 
     float3 final = DirectionLighting + PointLighting + AmbientLighting + EmissiveLighting; //saturate(directionLighting + BaseColor);
-    final.rgb = pow(final.rgb, 1 / 2.2);
-    return float4(final.rgb, 1.0f);
+   
+
+
+    final = final + (Attenuation * Intensity * (PhongD + PhongS));
+     final.rgb = pow(final.rgb, 1 / 2.2);
+
+    return float4(final, 1.0f);
+
 
 }

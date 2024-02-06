@@ -54,8 +54,14 @@
     <Filter Include="Model\Mesh\StaticMesh">
       <UniqueIdentifier>{66ee21f0-3ba0-4c90-b8eb-fe54f50facfc}</UniqueIdentifier>
     </Filter>
+
     <Filter Include="Environment">
       <UniqueIdentifier>{4e09823e-d6ea-4bf9-92a5-4167a639b298}</UniqueIdentifier>
+
+    <Filter Include="소스 파일\리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="StaticModel.h">
       <Filter>Model</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderTextureClass.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="DebugDraw.h">
       <Filter>0.Helper</Filter>
@@ -156,6 +165,9 @@
     </ClCompile>
     <ClCompile Include="StaticModel.cpp">
       <Filter>Model</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderTextureClass.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DebugDraw.cpp">
       <Filter>0.Helper</Filter>

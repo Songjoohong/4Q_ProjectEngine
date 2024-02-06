@@ -15,7 +15,7 @@
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
 
-#define SHADOWMAP_SIZE 1024
+#define SHADOWMAP_SIZE 4096
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -46,10 +46,8 @@ void Renderer::Clear(Math::Vector3 color)
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
-void Renderer::AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale)
+void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 {
-	Vector4 quaternion = Math::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(rot.x), DirectX::XMConvertToRadians(rot.y), DirectX::XMConvertToRadians(rot.z));
-	Math::Matrix worldTM = Math::Matrix::CreateScale(scale) * Math::Matrix::CreateFromQuaternion(quaternion) * Math::Matrix::CreateTranslation(pos);
 	for (auto& model : m_pStaticModels)
 	{
 		if (nullptr == model->GetSceneResource())
@@ -58,7 +56,6 @@ void Renderer::AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3
 			model->Load(filename);
 			break;
 		}
-		AddMeshInstance(model);
 	}
 }
 
@@ -261,10 +258,6 @@ void Renderer::FrustumCulling(StaticModel* model)
 	}
 }
 
-
-
-
-
 void Renderer::ApplyMaterial(Material* pMaterial)
 {
 	if (pMaterial->m_pDiffuseRV)
@@ -296,16 +289,19 @@ void Renderer::MeshRender()
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 	Material* pPrevMaterial = nullptr;
+
 	for (auto it : m_pMeshInstance)
 	{
 		if (pPrevMaterial != it->m_pMaterial)
 		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(it->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetShader(it->m_pMaterial->m_pixelShader.m_pPixelShader.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 
 			Renderer::Instance->ApplyMaterial(it->m_pMaterial);	// 머터리얼 적용
 			pPrevMaterial = it->m_pMaterial;
 		}
+		m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
 		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(Renderer::Instance->m_pDeviceContext.Get());
@@ -321,6 +317,7 @@ void Renderer::ShadowRender()
 	{
 		if (pPrevMaterial != it->m_pMaterial)
 		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(m_pShadowVS.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pShadowPS.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetSamplers(1, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 
@@ -367,7 +364,6 @@ void Renderer::RenderDebugDraw()
     }
 
     DebugDraw::g_Batch->End();
-
 }
 
 void Renderer::SetEnvironment(string filename)
@@ -395,12 +391,15 @@ void Renderer::Update()
 	//뷰 매트릭스(카메라) 업데이트
 	m_viewMatrix = DirectX::XMMatrixLookToLH(m_cameraPos, m_cameraEye, m_cameraUp);
 
+	//m_cameraEye = m_cameraEye - m_cameraEye.Forward;
+	//m_viewMatrix = DirectX::XMMatrixLookAtLH(m_cameraPos, m_cameraEye, m_cameraUp);
+
 	m_viewMatrixCB.mView = m_viewMatrix.Transpose();
 
 	//그림자 View, Projection 매트릭스 생성
 	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 300.0f, 20000.0f);
 	Vector3 shadowLookAt = { 0, 0, 0 };
-	Vector3 shadowPos = shadowLookAt + (m_lightCB.mDirection * 1000);
+	Vector3 shadowPos = shadowLookAt + (-m_lightCB.mDirection * 1000);
 	Matrix shadowView = DirectX::XMMatrixLookAtLH(shadowPos, shadowLookAt, Vector3(0.f, 1.f, 0.f));
 
 	m_shadowDirection = shadowLookAt - shadowPos;
@@ -421,7 +420,6 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    //SetCamera();
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
     m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
     for (auto& model : m_pStaticModels)
@@ -433,13 +431,14 @@ void Renderer::RenderBegin()
     m_pointLightCB.mPos = m_pointLight.GetPosition();
     m_pointLightCB.mRadius = m_pointLight.GetRadius();
     m_pointLightCB.mLightColor = m_pointLight.GetColor();
-    m_pointLightCB.mCameraPos = m_cameraPos;
+	m_pointLightCB.mIntensity = m_pointLight.GetIntensity();
+	m_pointLightCB.mCameraPos = m_cameraPos;
 
     m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
     m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-    Clear();
+    Clear(0,1,0);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
@@ -448,7 +447,6 @@ void Renderer::RenderBegin()
 
 void Renderer::RenderText() const
 {
-	m_spriteBatch->Begin();
 	for (int i = 0; i < m_debugs.size(); i++)
 	{
 		const wchar_t* text = ConvertToWchar(m_debugs[i].mText);
@@ -472,8 +470,6 @@ void Renderer::RenderText() const
 	const wchar_t* wFPS = ConvertToWchar(strFPS);
 	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
 	delete[] wFPS;
-	
-
 }
 
 void Renderer::RenderSprite() const
@@ -482,12 +478,14 @@ void Renderer::RenderSprite() const
         {
             return lhs.mLayer < rhs.mLayer;
         });*/
-
+	
     for(const auto& it : m_sprites)
     {
         m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0,0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
     }
-    m_spriteBatch->End();
+
+	m_spriteBatch->End();
+	
 }
 
 void Renderer::Render()
@@ -515,21 +513,24 @@ void Renderer::Render()
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
 
 	//메쉬 렌더
 	MeshRender();
+
 
 	RenderEnvironment();
 
 	RenderDebugDraw();	
 
+
+	m_spriteBatch->Begin();
 	RenderText();
 	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
+
 	//임구이 렌더
-	RenderImgui();
+	//RenderImgui();
 }
 
 void Renderer::RenderEnvironment()
@@ -566,7 +567,6 @@ bool Renderer::InitImgui(HWND hWnd)
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
 
-
 	// 플랫폼, 렌더러 설정
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX11_Init(m_pDevice.Get(), m_pDeviceContext.Get());
@@ -576,13 +576,22 @@ bool Renderer::InitImgui(HWND hWnd)
 
 void Renderer::UnInitImgui()
 {
-	ImGui_ImplDX11_Shutdown();
+	/*ImGui_ImplDX11_Shutdown();
 	ImGui_ImplWin32_Shutdown();
-	ImGui::DestroyContext();
+	ImGui::DestroyContext();*/
+}
+
+void Renderer::CreateShadowVS()
+{
+	// minjeong : CreateShadowVS
+	ID3D10Blob* vertexShaderBuffer = nullptr;
+	HR_T(CompileShaderFromFile(L"../Resource/ShadowVertexShader.hlsl", 0, "main", "vs_5_0", &vertexShaderBuffer));
+	HR_T(m_pDevice->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, m_pShadowVS.GetAddressOf()));
 }
 
 void Renderer::CreateShadowPS()
 {
+	// minjeong : CreateShadowPS
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 	HR_T(CompileShaderFromFile(L"../Resource/ShadowDepthPS.hlsl", 0, "main", "ps_5_0", &pixelShaderBuffer));
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, m_pShadowPS.GetAddressOf()));
@@ -590,6 +599,7 @@ void Renderer::CreateShadowPS()
 
 void Renderer::RenderImgui()
 {
+	// minjeong : Debug Shader Window
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -598,7 +608,7 @@ void Renderer::RenderImgui()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	//Camera Property
+	// Camera Property
 	{
 		ImGui::Begin("Camera Properties");
 		float x = DirectX::XMVectorGetX(m_cameraPos);
@@ -618,10 +628,11 @@ void Renderer::RenderImgui()
 		ImGui::End();
 	}
 
-	//Light Property
+	// Light Property
 	{
+		// Directional Light
 		ImGui::Begin("Light Properties");
-		ImGui::Text("Direction");
+		ImGui::Text("Direction Light Dir");
 		ImGui::Text("X");
 		ImGui::SameLine();
 		ImGui::SliderFloat("##lpx", &m_lightCB.mDirection.x, -1.f, 1.f);
@@ -631,6 +642,40 @@ void Renderer::RenderImgui()
 		ImGui::Text("Z");
 		ImGui::SameLine();
 		ImGui::SliderFloat("##lpz", &m_lightCB.mDirection.z, -1.f, 1.f);
+
+		// Point Light
+		ImGui::Text("Point Light Pos");
+		Vector3 pointLightPos = m_pointLight.GetPosition();
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##plx", &pointLightPos.x, -1000.f, 1000.f);
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ply", &pointLightPos.y, -1000.f, 1000.f);
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##plz", &pointLightPos.z, -1000.f, 1000.f);
+		m_pointLight.SetPosition(pointLightPos);
+
+		float pointLightIntensity = m_pointLight.GetIntensity();
+		ImGui::Text("Intensity");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 30.f);
+		m_pointLight.SetIntensity(pointLightIntensity);
+
+		float pointLightRadius = m_pointLight.GetRadius();
+		ImGui::Text("Radius");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##prad", &pointLightRadius, 0.f, 600.f);
+		m_pointLight.SetRadius(pointLightRadius);
+
+		float pointLightColor[3] = { m_pointLight.GetColor().x, m_pointLight.GetColor().y, m_pointLight.GetColor().z};
+		ImGui::Text("Color");
+		ImGui::SameLine();
+		ImGui::ColorEdit3("##plc", pointLightColor, 0);
+		m_pointLight.SetColor(pointLightColor[0], pointLightColor[1], pointLightColor[2]);
+
+		// Shadow
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
 		string str = to_string(m_shadowDirection.x) + ", " + to_string(m_shadowDirection.y) + ", " + to_string(m_shadowDirection.z);
@@ -673,11 +718,11 @@ void Renderer::GetSystemMemoryInfo(std::string& out) const
 	out = "System Memory : " + std::to_string((pmc.PagefileUsage) / 1024 / 1024) + " MB";
 }
 
-void Renderer::SetCamera(Math::Vector3 position, Math::Vector3 eye, Math::Vector3 up)
+void Renderer::SetCamera(Math::Matrix matrix)
 {
-	m_cameraPos = position;
-	m_cameraEye = eye;
-	m_cameraUp = up;
+	m_cameraPos = matrix.Translation();
+	m_cameraEye = matrix.Forward();
+	m_cameraUp = matrix.Up();
 }
 
 bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
@@ -717,21 +762,17 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	// If the project is in a debug build, enable the debug layer.
 	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
+    //디바이스, 스왑체인, 디바이스 컨텍스트 생성
+    HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, m_pSwapChain.GetAddressOf(), m_pDevice.GetAddressOf(), NULL, m_pDeviceContext.GetAddressOf()));
+    
+    m_spriteFont = std::make_unique<DirectX::SpriteFont>(m_pDevice.Get()
+        , m_fontFilePath);
+    m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(m_pDeviceContext.Get());
 
-
-
-  //디바이스, 스왑체인, 디바이스 컨텍스트 생성
-  HR_T(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, NULL, D3D11_SDK_VERSION, &swapDesc, m_pSwapChain.GetAddressOf(), m_pDevice.GetAddressOf(), NULL, m_pDeviceContext.GetAddressOf()));
-
-  m_spriteFont = std::make_unique<DirectX::SpriteFont>(m_pDevice.Get()
-      , m_fontFilePath);
-  m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(m_pDeviceContext.Get());
-
-
-  //렌더타겟 뷰 생성
-  ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
-  HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
-  HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
+    //렌더타겟 뷰 생성
+    ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
+    HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
+    HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
   
 	//뷰포트, 뎁스 스텐실 뷰, 샘플러 상태 설정
 	CreateViewport(width, height);
@@ -745,7 +786,6 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	worldbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	worldbd.CPUAccessFlags = 0;
 	worldbd.MiscFlags = 0;
-
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&worldbd, nullptr, &m_pWorldBuffer));
 
 	//뷰 상수버퍼
@@ -755,7 +795,6 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	viewbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	viewbd.CPUAccessFlags = 0;
 	viewbd.MiscFlags = 0;
-
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&viewbd, nullptr, &m_pViewBuffer));
 
 	//프로젝션 상수버퍼
@@ -775,14 +814,12 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	lightbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	lightbd.CPUAccessFlags = 0;
 	lightbd.MiscFlags = 0;
-
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&lightbd, nullptr, &m_pLightBuffer));
 
-	//그림자 픽셀쉐이더
+	// minjeong : Create VS & PS
 	CreateShadowPS();
+	CreateShadowVS();
 
-
-  
     //뎁스 스텐실 스테이트 초기화
     D3D11_DEPTH_STENCIL_DESC dsd = {};
     dsd.DepthEnable = true;
@@ -799,15 +836,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     dsd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
     dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
     dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
     HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
-
-
-    
-
-    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-
-    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
     //래스터라이저 스테이트 초기화
     D3D11_RASTERIZER_DESC rasterizerDesc = {};
@@ -826,7 +855,6 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
-   
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 
     DebugDraw::Initialize(m_pDevice, m_pDeviceContext);
@@ -839,23 +867,24 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
 
     //포인트 라이트 테스트용
-    m_pointLight.SetPosition(Vector3(480, 00, 1000));
-    m_pointLight.SetRadius(500);
-    m_pointLight.SetColor();
+    m_pointLight.SetPosition(Vector3(0, 0, 0));
+	  m_pointLight.SetRadius(600.f);
+	  m_pointLight.SetColor();
+	  m_pointLight.SetIntensity(1.f);
 
-	ResourceManager::Instance->CreateEnvironment("BakerSample");
-	SetEnvironment("BakerSample");
-	ComPtr < ID3DBlob> buffer;
+	  ResourceManager::Instance->CreateEnvironment("BakerSample");
+	  SetEnvironment("BakerSample");
+	  ComPtr < ID3DBlob> buffer;
 	
-	buffer.Reset();
-	HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
-	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, ps.GetAddressOf()));
+	  buffer.Reset();
+	  HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	  HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, ps.GetAddressOf()));
+
   	//Imgui
-	if (!InitImgui(*hWnd))
-		return false;
+	/*if (!InitImgui(*hWnd))
+		return false;*/
   
     return true;
-
 }
 
 void Renderer::UnInitialize()

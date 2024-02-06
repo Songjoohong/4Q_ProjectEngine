@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "PointLight.h"
 
+class RenderTextureClass;
 class StaticMeshResource;
 class StaticModel;
 class Material;
@@ -13,11 +14,13 @@ const size_t BUFFER_SIZE = 2;
 struct cbPointLight
 {
 	Math::Vector3 mPos;
-	float mRadius;
+	float mRadius = 600.f;
 	Math::Vector3 mLightColor;
-	float pad;
+	float mLinearTerm = 0.007f;
 	Math::Vector3 mCameraPos;
-	float pad2;
+	float mQuadraticTerm = 0.0002f;
+	float mIntensity = 1.0f;
+	Math::Vector3 mPad0;
 };
 
 struct cbWorld
@@ -83,10 +86,8 @@ public:
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;
 
-	ComPtr<ID3D11PixelShader>ps;
-
-
-	// shadow ���� ��ü
+	// minjeong : shadow Interface
+	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
@@ -96,6 +97,8 @@ public:
 	D3D11_VIEWPORT m_shadowViewport;
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
+	RenderTextureClass* m_RenderTexture = nullptr;	// 수민 추가.
+
 	ComPtr<ID3D11Buffer> m_pViewBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
 
@@ -122,7 +125,7 @@ public:
 	cbWorld m_worldMatrixCB;
 
 	//카메라 행렬
-	Math::Vector3 m_cameraPos, m_cameraEye, m_cameraUp;
+	Math::Vector3 m_cameraPos, m_cameraEye = { 0.f,0.f,1.f }, m_cameraUp = { 0.f,1.f,0.f };
 	Math::Matrix m_viewMatrix;
 	cbView m_viewMatrixCB;
 
@@ -130,16 +133,13 @@ public:
 	Math::Matrix m_projectionMatrix;
 	cbProjection m_projectionMatrixCB;
 
-
+	// minejong : directional light constant buffer
 	cbLight m_lightCB;
-
+	// minejong : shadow dir
 	Vector3 m_shadowDirection;
-
 
 	DirectX::BoundingFrustum m_frustumCmaera;
 
-
-	
 public:
 	//d3d객체 초기화
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
@@ -148,7 +148,7 @@ public:
 
 
 	//화면 클리어
-	void Clear(float r=0,float g=0,float b=0);
+	void Clear(float r=0.3,float g=1,float b=0.3);
 
 	void Clear(Math::Vector3 color);
 
@@ -157,7 +157,7 @@ public:
 	string GetPath() { return BasePath; }
 
 	//빈 모델에 정보 입력
-	void AddStaticModel(string filename, Math::Vector3& pos, Math::Vector3& rot, Math::Vector3& scale);
+	void AddStaticModel(string filename, const Math::Matrix& worldTM);
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
@@ -192,7 +192,7 @@ public:
 
 	void FrustumCulling(StaticModel* model);
 
-	void SetCamera(Math::Vector3 position={200.f,0.f,-100.f},Math::Vector3 eye={0,0,1},Math::Vector3 up = {0,1,0});
+	void SetCamera(Math::Matrix matrix);
 
 	void ApplyMaterial(Material* pMaterial);
 
@@ -216,16 +216,20 @@ public:
 
 	void RenderBegin();
 	void Render();
-	void RenderEnvironment();
-	void RenderEnd();
 
+	void RenderEnvironment();
+
+	void RenderScene();	// 수민
+	void RenderToTexture();	// 수민
+
+	void RenderEnd();
 	bool InitImgui(HWND hWnd);
 	void RenderImgui();
 	void UnInitImgui();
 
-	void CreateShadowPS();
-
-private:
+	// minjeong : Create Shadow VS & PS
+	void CreateShadowVS();
+	void CreateShadowPS();private:
 	string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
 	vector<DebugInformation> m_debugs;

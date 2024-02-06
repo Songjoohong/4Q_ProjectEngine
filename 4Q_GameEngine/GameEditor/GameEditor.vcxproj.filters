@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Panels">
+      <UniqueIdentifier>{b5103d3b-87ae-4af1-a322-d5280842eb18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\ImGui">
+      <UniqueIdentifier>{0ec93f5f-c359-4e10-a5c0-00eb1830428a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiLayer.h">
+      <Filter>소스 파일\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Colors.h">
+      <Filter>소스 파일\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="GameEditor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneHierarchyPanel.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="ContentsBrowserPanel.h">
+      <Filter>Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="jsonSerializer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameEditor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiLayer.cpp">
+      <Filter>소스 파일\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Colors.cpp">
+      <Filter>소스 파일\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="EditorMain.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneHierarchyPanel.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="ContentsBrowserPanel.cpp">
+      <Filter>Panels</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
