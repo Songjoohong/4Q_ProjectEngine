@@ -109,9 +109,6 @@
     <ClInclude Include="SampleScript.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="CollisionSystem.h">
       <Filter>System\Collision</Filter>
     </ClInclude>

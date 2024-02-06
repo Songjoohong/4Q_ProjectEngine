@@ -160,7 +160,6 @@
     <ClInclude Include="jsonSerializer.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Sprite2D.h" />
-    <ClInclude Include="Animation.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CollisionSystem.h" />
