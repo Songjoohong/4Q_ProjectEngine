@@ -81,7 +81,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<StaticMesh>();
-	ent->Assign<Transform>(Vector3D(500.f, 0.f, 1000.f));
+	ent->Assign<Transform>(Vector3D(0.f, 0.f, 500.f), Vector3D(0, 90, 0), Vector3D(1, 1, 1));
 	ent->Assign<Debug>();
 
 

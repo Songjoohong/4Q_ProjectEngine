@@ -6,7 +6,7 @@ class StaticMeshResource;
 class StaticModel;
 class Material;
 class StaticMeshInstance;
-
+class Environment;
 
 const size_t BUFFER_SIZE = 2;
 
@@ -75,8 +75,13 @@ public:
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
 	ComPtr<ID3D11DepthStencilState>m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
-	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
+
+	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
+	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;				//샘플러(clamp)
+
+
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
+	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;
 
 	ComPtr<ID3D11PixelShader>ps;
 
@@ -197,6 +202,8 @@ public:
 	void MeshRender();
 	void ShadowRender();
 
+	//환경맵 세팅
+	void SetEnvironment(string filename);
 
 	void Update();
 
@@ -209,6 +216,7 @@ public:
 
 	void RenderBegin();
 	void Render();
+	void RenderEnvironment();
 	void RenderEnd();
 
 	bool InitImgui(HWND hWnd);
