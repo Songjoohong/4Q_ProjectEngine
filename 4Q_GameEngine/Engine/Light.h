@@ -2,23 +2,26 @@
 #include "Vector3D.h"
 #include "ECS.h"
 
-namespace Component
+
+enum LightType
 {
-	enum LightType
-	{
-		Directional,
-		Point,
-	};
+	Directional,
+	Point,
+};
 
-	struct Light
-	{
-		ECS_DECLARE_TYPE
+struct Light
+{
+	ECS_DECLARE_TYPE
+		Light() = default;
 
-			LightType m_Type = LightType::Directional;
-		Vector3D m_Color = { 1.f,1.f,1.f };
-		float m_Intensity = 1.f;
+	std::string m_ComponentName = "Light";
 
-	};
+	LightType m_Type = LightType::Directional;
+	Vector3D m_Color = { 1.f,1.f,1.f };
+	float m_Intensity = 1.f;
 
-	ECS_DEFINE_TYPE(Light)
-}
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Light, m_ComponentName, m_Type, m_Color, m_Intensity)
+};
+
+ECS_DEFINE_TYPE(Light)
+

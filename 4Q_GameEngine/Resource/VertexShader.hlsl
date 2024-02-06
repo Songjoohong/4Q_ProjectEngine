@@ -25,5 +25,9 @@ PS_INPUT main(STATIC_INPUT input)
     output.NorWorld = normalize(mul(input.normal, (float3x3) matWorld));
     output.TanWorld = normalize(mul(input.tangent, (float3x3) matWorld));
 
+    // 그림자 위치
+    output.PosShadow = mul(float4(output.PosWorld, 1.0f), ShadowView);
+    output.PosShadow = mul(output.PosShadow, ShadowProjection);
+
     return output;
 }

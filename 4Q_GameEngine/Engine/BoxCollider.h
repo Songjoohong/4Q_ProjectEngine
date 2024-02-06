@@ -2,20 +2,21 @@
 #include "ECS.h"
 #include "Vector3D.h"
 
-namespace Component
+
+enum CollisionState
 {
-	enum CollisionState
-	{
-		NONE,
-		ENTER,
-		STAY,
-		EXIT
-	};
-	struct BoxCollider
-	{
-		ECS_DECLARE_TYPE
+	NONE,
+	ENTER,
+	STAY,
+	EXIT
+};
+struct BoxCollider
+{
+	ECS_DECLARE_TYPE
+		BoxCollider() = default;
 
 		BoxCollider() = default;
+		std::string m_ComponentName = "BoxCollider";
 
 		CollisionState m_CurrentState = CollisionState::NONE;
 		Vector3D m_Center = { 0.f,0.f,0.f };
@@ -24,5 +25,8 @@ namespace Component
 		bool m_IsTrigger = false;
 	};
 
-	ECS_DEFINE_TYPE(BoxCollider)
-}
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(BoxCollider, m_ComponentName, m_CurrentState, m_Center, m_Size, m_IsTrigger)
+};
+
+ECS_DEFINE_TYPE(BoxCollider)
+

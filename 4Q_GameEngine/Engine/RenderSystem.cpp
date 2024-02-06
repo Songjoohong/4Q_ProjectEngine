@@ -1,12 +1,16 @@
 #include "pch.h"
+#include "ECS.h"
 #include "RenderSystem.h"
+#include "StaticMesh.h"
+#include "Transform.h"
 
 #include "RenderManager.h"
 
+using namespace ECS;
+
 void RenderSystem::Configure(ECS::World* world)
 {
-	world->Subscribe<ECS::Events::OnComponentAssigned<Component::StaticMesh>>(this);
-	world->Subscribe<ECS::Events::OnComponentAssigned<Component::SkinnedMesh>>(this);
+	world->Subscribe<ECS::Events::OnComponentAssigned<StaticMesh>>(this);
 }
 
 void RenderSystem::Deconfigure(ECS::World* world)
@@ -16,15 +20,15 @@ void RenderSystem::Deconfigure(ECS::World* world)
 
 void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 {
-	
+	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> collider, ComponentHandle<Transform> transform)->void
+		{
+			RenderManager::GetInstance()->AddStaticMesh(collider->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+
+		});
 }
 
-void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<Component::SkinnedMesh>& event)
+void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<StaticMesh>& event)
 {
-
-}
-
-void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<Component::StaticMesh>& event)
-{
-	RenderManager::GetInstance()->AddStaticMesh("FBXLoad_Test/fbx/box.fbx", Vector3D(0.f, 0.f, 100.f), Vector3D(0.f, 0.f, 0.f));
+	// minjeong : fbx load test
+	RenderManager::GetInstance()->CreateModel(event.component->m_FileName);
 }

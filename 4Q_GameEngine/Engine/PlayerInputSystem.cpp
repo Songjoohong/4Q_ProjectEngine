@@ -25,7 +25,7 @@ void PlayerInputSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 		vec += {0.f, 1.f, 0.f};
 	}
 
-	world->each<Component::Transform, Component::Movement>([&](ECS::Entity* entity, ECS::ComponentHandle<Component::Transform> transform, ECS::ComponentHandle<Component::Movement> movement)->void
+	world->each<Transform, Movement>([&](ECS::Entity* entity, ECS::ComponentHandle<Transform> transform, ECS::ComponentHandle<Movement> movement)->void
 		{
 			movement->m_DirectionVector = vec;
 		});
