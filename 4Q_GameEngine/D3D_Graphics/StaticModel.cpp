@@ -29,7 +29,7 @@ void StaticModel::SetSceneResource(shared_ptr<StaticSceneResource> sceneResource
 	Vector4 aabb = (aabbMax - aabbMin) / 2;
 	m_boundingBox.Extents = Vector3(aabb.x, aabb.y, aabb.z);
 	m_boundingBox.Center = m_worldTransform.Translation() +Vector3(0, sceneResource->m_AABBmax.y - sceneResource->m_AABBmin.y, 0) * 0.5;
-	//DirectX::XMVector3TransformCoord
+	//m_boundingBox.Center=Vector3(DirectX::XMVector3TransformCoord(m_worldTransform.Translation(), m_worldTransform));
 
 }
 
@@ -38,8 +38,8 @@ bool StaticModel::Load(string filename)
 	shared_ptr<StaticSceneResource> sceneResource = ResourceManager::Instance->CreateStaticMeshResource(Renderer::Instance->GetPath()  + filename);
 	if(!sceneResource)
 		return false;
-	SetSceneResource(sceneResource);
 	m_boundingBox.Center = Math::Vector3(sceneResource->m_AABBmin + sceneResource->m_AABBmax) * 0.5f;	// Calculate extent	
+	SetSceneResource(sceneResource);
 	//m_boundingBox.Extents = Math::Vector3(sceneResource->m_AABBmax - sceneResource->m_AABBmin) * 0.5f;
 	RenderInit();
 	return true;
