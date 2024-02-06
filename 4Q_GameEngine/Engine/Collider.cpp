@@ -28,7 +28,7 @@ void Collider::UpdateTransform()
 	*/
 
 	m_Transform.p.x = m_pOwner->m_Center.GetX();
-	m_Transform.p.y = m_pOwner->m_Center.GetY()+m_pOwner->m_Size.GetY();
+	m_Transform.p.y = m_pOwner->m_Center.GetY() + m_pOwner->m_Size.GetY();
 	m_Transform.p.z = m_pOwner->m_Center.GetZ();
 
 	PxReal angle = PxPi / 180.f;
@@ -37,13 +37,13 @@ void Collider::UpdateTransform()
 	m_Transform.q.z = m_pOwner->m_Rotation.GetZ() * angle;
 }
 
-void Collider::SetObjectType(ObjectType type)
-{
-	m_ObjectType = type;
-	/*
-		석영 : 오브젝트 종류별 세팅도 같이 해주기.
-	*/
-
-	m_pShape->setSimulationFilterData(*(PhysicsManager::GetInstance()->GetFilterData(type)));
-	m_pRigidActor->userData = (PhysicsManager::GetInstance()->GetUserData(type));
-}
+//void Collider::SetObjectType(ObjectType type)
+//{
+//	m_ObjectType = type;
+//	/*
+//		석영 : 오브젝트 종류별 세팅도 같이 해주기.
+//	*/
+//
+//	m_pShape->setSimulationFilterData(*(PhysicsManager::GetInstance()->GetFilterData(type)));
+//	m_pRigidActor->userData = (PhysicsManager::GetInstance()->GetUserData(type));
+//}

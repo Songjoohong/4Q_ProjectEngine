@@ -11,7 +11,7 @@ void DynamicCollider::Initialize()
 {
 	__super::Initialize();
 
-	m_Rigid = PhysicsManager::GetInstance()->GetPhysics()->createRigidDynamic(m_Transform);
+	m_Rigid = PhysicsManager::GetInstance()->GetPhysics()->createRigidDynamic(PxTransform(m_Transform.p));
 	// 석영 : Box만 사용중.
 	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
 	m_pRigidActor = m_Rigid;

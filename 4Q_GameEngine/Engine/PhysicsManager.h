@@ -5,15 +5,10 @@
 #include <map>
 #include <vector>
 
+#include "BoxCollider.h"
+
 using namespace physx;
 using namespace std;
-
-enum PhysicsType
-{
-	DYNAMIC,
-	STATIC,
-	PLANE
-};
 
 class StaticCollider;
 class DynamicCollider;
@@ -27,7 +22,7 @@ public:
 	void Initialize();
 	void Update(float deltatime);
 
-	void CreateCollider(BoxCollider* boxcollider, PhysicsType type);
+	void CreateCollider(BoxCollider* boxcollider);
 	void DebugSetUp();
 
 	PxPhysics* GetPhysics() { return m_pPhysics; }

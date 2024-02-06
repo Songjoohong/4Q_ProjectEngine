@@ -10,6 +10,7 @@
 #include "BoxCollider.h"
 #include "CameraScript.h"
 #include "CameraSystem.h"
+#include "CollisionSystem.h"
 #include "Debug.h"
 #include "DebugSystem.h"
 #include "TimeManager.h"
@@ -27,6 +28,7 @@
 #include "StaticMesh.h"
 #include "TransformSystem.h"
 #include "imgui.h"
+#include "PhysicsManager.h"
 
 #define ENGINE_DEBUG
 
@@ -97,17 +99,19 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
+	PhysicsManager::GetInstance()->Initialize();
 
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"../Test/TestScene1.json"));
 	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
 	EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
+	EntitySystem* collisionSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CollisionSystem());
 	EntitySystem* transformSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new TransformSystem());
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	EntitySystem* cameraSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CameraSystem());
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
+	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<CameraScript>(ent);
@@ -116,12 +120,14 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	//bool b = ent->has<Script>();
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
+	ent1->Assign<Transform>(Vector3D(0.f, -100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D{ 100.f,100.f,100.f });
+	ent1->Assign<BoxCollider>(CollisionType::STATIC, 10000);
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
-
+	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
+	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, 3);
+	ent2->Assign<Debug>();
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
@@ -168,6 +174,7 @@ void Engine::Update()
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
+	PhysicsManager::GetInstance()->Update(deltaTime);
 	RenderManager::GetInstance()->Update();
 }
 

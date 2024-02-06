@@ -47,9 +47,6 @@
     <Filter Include="Manager\PhysX">
       <UniqueIdentifier>{a47efb48-6871-42ce-8ad3-71c25ad602d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="System\FSM\Input">
-      <UniqueIdentifier>{f02e9943-7d0b-421d-9527-d7ee6cb04985}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Instance">
       <UniqueIdentifier>{90bc4681-c72e-488d-b165-2ed7780ac434}</UniqueIdentifier>
     </Filter>
@@ -197,6 +194,7 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="jsonSerializer.h" />
+    <ClInclude Include="PlayerInputSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
@@ -265,5 +263,6 @@
     <ClCompile Include="MyPOINT.cpp">
       <Filter>headers</Filter>
     </ClCompile>
+    <ClCompile Include="PlayerInputSystem.cpp" />
   </ItemGroup>
 </Project>

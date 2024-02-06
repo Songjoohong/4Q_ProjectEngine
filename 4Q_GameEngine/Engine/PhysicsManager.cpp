@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "PxEnum.h"
 #include "PhysicsManager.h"
 #include "WorldManager.h"
 #include "DynamicCollider.h"
@@ -8,20 +7,21 @@
 void PhysicsManager::Initialize()
 {
 	m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, m_ErrorCallback);
-#ifdef _DEBUG
-	DebugSetUp();
-#endif // _DEBUG
 
 	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
 
 	// 석영 : PxScene 생성 
 	PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -981.f, 0.0f);
+	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
 	m_pDispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = m_pDispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 
 	m_pPxScene = m_pPhysics->createScene(sceneDesc); 
+
+	#ifdef _DEBUG
+	DebugSetUp();
+#endif // _DEBUG
 }
 
 void PhysicsManager::Update(float deltatime)
@@ -45,16 +45,16 @@ void PhysicsManager::Update(float deltatime)
 			collider->UpdatePhysics();
 }
 
-void PhysicsManager::CreateCollider(BoxCollider* boxcollider, PhysicsType type)
+void PhysicsManager::CreateCollider(BoxCollider* boxcollider)
 {
-	if (type == PhysicsType::DYNAMIC)
+	if (boxcollider->m_CollisionType == CollisionType::DYNAMIC)
 	{
 		DynamicCollider* newDynamicCollider = new DynamicCollider(boxcollider);
 
 		newDynamicCollider->Initialize();
 		m_pDynamicColliders.push_back(newDynamicCollider);
 	}
-	else if (type == PhysicsType::STATIC)
+	else if (boxcollider->m_CollisionType == CollisionType::STATIC)
 	{
 		StaticCollider* newStaticCollider = new StaticCollider(boxcollider);
 

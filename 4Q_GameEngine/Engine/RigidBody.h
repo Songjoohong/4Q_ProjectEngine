@@ -1,2 +1,16 @@
 #pragma once
-// 아직 사용할 지 모르겠음
+#include "ECS.h"
+
+struct RigidBody
+{
+	ECS_DECLARE_TYPE
+
+	RigidBody() = default;
+	~RigidBody() = default;
+
+	float m_Mass = 0.f;
+	bool m_IsGravity = false;
+	bool m_FreezeRotation[3] = { false, false, false };
+};
+
+ECS_DEFINE_TYPE(RigidBody)

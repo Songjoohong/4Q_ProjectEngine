@@ -239,9 +239,6 @@
     <ProjectReference Include="..\D3D_Graphics\D3D_Graphics.vcxproj">
       <Project>{c1eef062-45a1-44a9-88b0-404737ba039f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\ReflectionLib\ReflectionLib.vcxproj">
-      <Project>{bd864c59-42c3-4e9c-a7fb-dc6f385aba84}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

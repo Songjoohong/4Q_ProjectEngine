@@ -10,7 +10,7 @@ class DynamicCollider
 {
 public:
 	DynamicCollider(BoxCollider* owner);
-	virtual ~DynamicCollider();
+	virtual ~DynamicCollider() override = default;
 
 public:
 	virtual void Initialize() override;

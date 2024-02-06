@@ -1,9 +1,7 @@
 #pragma once
 #include "BoxCollider.h"
-#include "PxEnum.h"
 
 using namespace physx; 
-using namespace Component; // 석영 : main 에서는 지워도 된다.
 
 /*
 	석영 : modifypair 만들어야함
@@ -26,11 +24,11 @@ public:
 	virtual void SetMaterial(float staticFriction, float DynamicFriction, float restitution) {}
 
 	void UpdateTransform();
-	void SetObjectType(ObjectType type);
+	//void SetObjectType(ObjectType type);
 public:
 	BoxCollider* m_pOwner;
 	Vector3D m_Scale;
-	ObjectType m_ObjectType;
+	//ObjectType m_ObjectType;
 
 	PxRigidActor* m_pRigidActor=nullptr;
 	PxTransform m_Transform;
