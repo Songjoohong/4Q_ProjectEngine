@@ -5,7 +5,13 @@
 #include <directxtk/SimpleMath.h>
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
+struct MyPoint
+{
+	LONG x;
+	LONG y;
 
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(MyPoint, x, y)
+};
 class Vector3D
 {
 public:
@@ -61,3 +67,4 @@ public:
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Vector3D, m_X, m_Y, m_Z)
 };
+

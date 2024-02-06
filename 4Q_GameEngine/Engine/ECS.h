@@ -587,7 +587,7 @@ namespace ECS
 		/**
 		* Use this function to construct the world with a custom allocator.
 		*/
-		static World* CreateWorld(Allocator alloc, std::wstring fileName)
+		static World* CreateWorld(Allocator alloc, std::string fileName)
 		{
 			WorldAllocator worldAlloc(alloc);
 			World* world = std::allocator_traits<WorldAllocator>::allocate(worldAlloc, 1);
@@ -601,7 +601,7 @@ namespace ECS
 		/**
 		* Use this function to construct the world with the default allocator.
 		*/
-		static World* CreateWorld(std::wstring fileName)
+		static World* CreateWorld(std::string fileName)
 		{
 			return CreateWorld(Allocator(), fileName);
 		}

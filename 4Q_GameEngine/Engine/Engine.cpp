@@ -21,7 +21,8 @@
 #include "SpriteSystem.h"
 #include "StaticMesh.h"
 #include "imgui.h"
-
+#include "Camera.h"
+#include "Movement.h"
 #define ENGINE_DEBUG
 
 #ifdef ENGINE_DEBUG
@@ -85,15 +86,25 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"TestScene1.json"));
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("TestScene1.json"));
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<StaticMesh>();
-	ent->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
-	ent->Assign<Transform>();
+	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
 	ent->Assign<Debug>();
+	ent->Assign<Camera>();
+	//ent->Assign<CameraScript>(ent);
+	ent->Assign<Movement>();
+
+	bool b = ent->has<Script>();
+	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
+
+	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
 
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	

@@ -4,14 +4,14 @@
 #include "../Engine/ECS.h"
 
 struct StaticMesh;
-
+class PrefabManager;
 class SceneHierarchyPanel
 {
 public:
 	SceneHierarchyPanel() = default;
 	SceneHierarchyPanel(ECS::World* context);
 
-	void SetContext(ECS::World* context);
+	void SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab);
 
 	void RenderImGui();
 
@@ -30,6 +30,8 @@ private:
 private:
 	ECS::World* m_Context;
 	ECS::Entity* m_SelectionContext;
+
+	std::shared_ptr<PrefabManager> m_PrefabManager;
 };
 
 template <typename T>

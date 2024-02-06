@@ -22,8 +22,6 @@ struct Transform
 	Vector3D m_Position;
 	Vector3D m_Scale;
 
-	int a = 0;
-
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale)
 };
 

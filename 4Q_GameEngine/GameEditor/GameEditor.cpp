@@ -18,8 +18,8 @@
 #include "../Engine/StaticMesh.h"
 #include "../Engine/Debug.h"
 #include "../Engine/Sound.h"
-
-
+#include "../Engine/Sprite2D.h"
+#include "Prefab.h"
 using json = nlohmann::json;
 namespace ECS { class Entity; }
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -41,17 +41,18 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	m_Renderer = Renderer::Instance;
 	
-	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
 
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 	/* ---- test end --------------------------------------------------------------------------- */
-
 	//// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
 	//// 값은 어떻게 넣지?
 	//for (const auto& a : test.GetTypeInfo().GetProperties())
 	//{
 	//	std::cout << a->GetName();
 	//}
+
+	m_PrefabManager = std::make_shared<PrefabManager>();
 
 	if (!InitImGui())
 	{
@@ -181,7 +182,7 @@ void GameEditor::RenderImGui()
 			if (ImGui::BeginMenu("File"))
 			{
 				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
-					LoadWorld(L"TestScene1");	// Test
+					LoadWorld("TestScene1");	// Test
 
 				ImGui::Separator();
 
@@ -190,17 +191,22 @@ void GameEditor::RenderImGui()
 
 				if (ImGui::MenuItem("Save World"))
 				{
-					SaveWorld(L"TestScene1.json");
+					SaveWorld("TestScene1.json");
 				}
 
 				if (ImGui::MenuItem("Load World"))
 				{
-					LoadWorld(L"TestScene1.json");
+					LoadWorld("TestScene1.json");
 				}
 
 				if (ImGui::MenuItem("Exit"))
 				{
 					Close();
+				}
+
+				if (ImGui::MenuItem("ClearPrefabFile"))
+				{
+					m_PrefabManager->DeleteAllDataInJsonFile("Prefab.json");
 				}
 
 				ImGui::EndMenu();
@@ -327,23 +333,25 @@ void GameEditor::SetDarkThemeColors()
 
 
 // jsonFile 이름 넘기기
-void GameEditor::SaveWorld(const std::wstring& _filename)
+void GameEditor::SaveWorld(const std::string& _filename)
 {
-	std::wstring fullPath = basePath + _filename;
+	std::string fullPath = basePath + _filename;
 
 	std::ofstream outputFile(fullPath);
 
 	json worldData;
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
-		SaveComponents<EntityIdentifier>(entity, worldData, fullPath);
-		SaveComponents<Transform>(entity, worldData, fullPath);
-		SaveComponents<StaticMesh>(entity, worldData, fullPath);
-		SaveComponents<BoxCollider>(entity, worldData, fullPath);
-		SaveComponents<Camera>(entity, worldData, fullPath);
-		SaveComponents<Light>(entity, worldData, fullPath);
-		SaveComponents<Movement>(entity, worldData, fullPath);
-		SaveComponents<Script>(entity, worldData, fullPath);
+		SaveComponents<EntityIdentifier>(entity, worldData);
+		SaveComponents<Transform>(entity, worldData);
+		SaveComponents<StaticMesh>(entity, worldData);
+		SaveComponents<BoxCollider>(entity, worldData);
+		SaveComponents<Camera>(entity, worldData);
+		SaveComponents<Light>(entity, worldData);
+		SaveComponents<Movement>(entity, worldData);
+		SaveComponents<Debug>(entity, worldData);
+		SaveComponents<Sound>(entity, worldData);
+		SaveComponents<Sprite2D>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -352,12 +360,12 @@ void GameEditor::SaveWorld(const std::wstring& _filename)
 
 }
 
-void GameEditor::LoadWorld(const std::wstring& _filename)
+void GameEditor::LoadWorld(const std::string& _filename)
 {
 	// 월드 생성
 	m_EditorWorld = ECS::World::CreateWorld(_filename);
 
-	std::wstring fullPath = basePath + _filename;
+	std::string fullPath = basePath + _filename;
 
 	// Deserialize
 	std::ifstream inputFile(fullPath);
@@ -439,13 +447,14 @@ void GameEditor::LoadWorld(const std::wstring& _filename)
 	}
 
 	// HierarchyPanel에 등록
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 
 void GameEditor::NewScene()
 {
-	m_EditorWorld = ECS::World::CreateWorld(L"TestScene1.json");
+	m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
 
 	m_Camera = m_EditorWorld->create();
 	m_Box = m_EditorWorld->create();
@@ -469,8 +478,8 @@ void GameEditor::NewScene()
 	m_Wall->Assign<StaticMesh>("box.fbx");
 	m_Camera->Assign<Camera>();
 	m_Camera->Assign<Light>();
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld);
-
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 

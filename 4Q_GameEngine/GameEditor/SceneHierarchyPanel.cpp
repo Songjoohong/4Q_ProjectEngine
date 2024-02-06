@@ -9,17 +9,20 @@
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
 
+#include "Prefab.h"
 
 
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
-	SetContext(context);
+	
 }
 
-void SceneHierarchyPanel::SetContext(ECS::World* context)
+void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab)
 {
 	m_Context = context;
 	m_SelectionContext = nullptr;	// 현재 World에서 Entity 를 초기화.
+
+	m_PrefabManager = prefab;
 }
 
 void SceneHierarchyPanel::RenderImGui()
@@ -93,11 +96,12 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	{
 		if (ImGui::MenuItem("Delete Entity"))
 			entityDeleted = true;
-
+		if (ImGui::MenuItem("Make Prefab"))
+		{
+			m_PrefabManager->SavePrefab(entity, "Prefab.json");
+		}
 		ImGui::EndPopup();
 	}
-
-
 	// 노드가 펼쳐졌다면 자식도 출력.
 	if (opened)
 	{
