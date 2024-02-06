@@ -12,6 +12,8 @@ enum MoveState
 	BACK = 0x0010,
 	LEFT = 0x0100,
 	RIGHT = 0x1000,
+	UPWARD = 0x10000,
+	DOWNWARD = 0x100000,
 };
 struct Movement
 {

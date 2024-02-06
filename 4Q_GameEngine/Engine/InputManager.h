@@ -14,7 +14,8 @@ enum Key
 	A,
 	S,
 	D,
-
+	Q,
+	E,
 	KEY_END,
 
 };

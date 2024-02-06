@@ -27,6 +27,12 @@ void MovementSystem::Tick(World* world, float deltaTime)
 			if (movement->m_CurrentMoveState & 0x1000)
 				moveVector -= movement->m_RightVector;
 
+			if (movement->m_CurrentMoveState & 0x10000)
+				moveVector += Vector3D{ 0.f,1.f,0.f };
+
+			if (movement->m_CurrentMoveState & 0x100000)
+				moveVector -= Vector3D{ 0.f,1.f,0.f };
+
 			// 이동 설정
 			movement->m_CurrentMoveState = 0;
 			moveVector = moveVector.Normalize();

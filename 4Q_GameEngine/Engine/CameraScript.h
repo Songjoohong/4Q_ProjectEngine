@@ -25,6 +25,11 @@ public:
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
 		if (Input->GetKey(Key::D))
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::RIGHT;
+		if (Input->GetKey(Key::Q))
+			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::UPWARD;
+		if (Input->GetKey(Key::E))
+			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::DOWNWARD;
+
 
 		
 		m_pOwner->get<Movement>()->m_CurrentRotation = Input->GetMouseMove();
