@@ -35,12 +35,16 @@ void SceneHierarchyPanel::RenderImGui()
 		for (auto entity : m_Context->GetEntities())
 		{
 			// 최상위 부모로 등록된 애들만 먼저 그림
-			if (entity->get<EntityIdentifier>().get().m_HasParent == false)
+			/*if (entity->get<EntityIdentifier>().get().m_HasParent == false)
 			{
 				DrawEntityNode(entity);
-			}
+			}*/
 
-			//ImGui::Text(std::to_string(entity->getEntityId()).c_str());		// 토글 없이 그냥 출력
+			if (entity->m_parent == nullptr)
+				DrawEntityNode(entity);
+
+			DragDropEntityHierarchy(entity);
+			int test = 1;		//TESTSTETESTTEST!!
 		}
 
 		// Unselect object when left-clicking on blank space.
@@ -71,13 +75,48 @@ void SceneHierarchyPanel::RenderImGui()
 	ImGui::End();	/* Properties End */
 }
 
-void SceneHierarchyPanel::DragDropEntity(ECS::Entity* entity)
+void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 {
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+	{
+		ImGui::Text(entity->get<EntityIdentifier>()->m_EntityName.c_str());
 
+		ImGui::SetDragDropPayload("EntityID", entity, sizeof(ECS::Entity));
+		ImGui::EndDragDropSource();
+	}
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID");
+
+		if (payLoad)
+		{
+			ECS::Entity* picked = static_cast<ECS::Entity*>(payLoad->Data);
+			ECS::Entity* target = entity;
+
+			// 현재 자신의 부모 위에 올려두면 부모자식 관계를 해제한다.
+			if (picked == target)
+				target->RemoveChild(picked);
+			else
+			{
+				picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
+				target->addChild(picked);
+			}
+
+			int wait = 1;
+		}
+
+		ImGui::EndDragDropTarget();
+	}
 }
 
 void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지 않으면 함수 종료시 객체의 소멸자가 호출되어서 오류가 뜰 수 있음.
 {
+	bool temp = entity->has<EntityIdentifier>();
+	if (!temp)
+	{
+		return;
+	}
 	std::string entID = std::to_string(entity->getEntityId());
 	auto entityName = entity->get<EntityIdentifier>()->m_EntityName;
 	std::string imguiID = "entt" + entID + " " + entityName;
@@ -105,20 +144,12 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	// 노드가 펼쳐졌다면 자식도 출력.
 	if (opened)
 	{
-		// TODO: 자식이 있다면 토글시 자식 오브젝트들도 나타내기
+		if (entID == "1")					// TEST!!!!!!!!!!
+			int a = 1324;
 
-		// 예시 코드 1    -> TODO: 이런 식으로 구현하기.. Entity 의 id 값을 보고 자식 있는 지 확인 후 자식 노드도 다 나타내야 한다.
-		//for (Transform* child : entity->get<Transform>().get().GetChildren())		
-		//	DrawEntityNode(child->GetEntity());										// GetChildren 과 GetEntity 는 아직 없는 함수.
-
-		// 예시 코드 2
-		//ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-		//bool opened = ImGui::TreeNodeEx((void*)9817239, flags, imguiID.c_str());
-		//if (opened)
-		//	ImGui::TreePop();
-		for (const auto& children : entity->m_children)
+		for (const auto& child : entity->m_children)
 		{
-			DrawEntityNode(children);
+			DrawEntityNode(child);
 		}
 
 		ImGui::TreePop();
@@ -292,10 +323,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DrawVec3Control("Scale", component->m_Scale, 1.0f);
 	});
 
-	DrawComponent<StaticMesh>("StaticMesh", entity, [&](auto component)		// & 는 임시.
+	DrawComponent<StaticMesh>("StaticMesh", entity, [](auto component)
 	{
-		// 이 컴포너트는 어떻게 사용해야할지 모르겠다.
-		// TODO: 사용법 물어보기.
+		std::string temp = component->m_FileName;
+
+		ImGui::Text(temp.c_str());
 	});
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
@@ -305,9 +337,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Camera>("Camera", entity, [](auto component)
 	{
-		ImGui::DragFloat("FOV", &component->m_FOV);
-		ImGui::DragFloat("Near", &component->m_Near);
-		ImGui::DragFloat("Far", &component->m_Far);
 	});
 
 	DrawComponent<Light>("Light", entity, [](auto component)

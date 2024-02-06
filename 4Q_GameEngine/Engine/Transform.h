@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ECS.h"
+#include "Matrix4x4.h"
 #include "Vector3D.h"
 
 struct Transform
@@ -21,6 +22,9 @@ struct Transform
 	Vector3D m_Rotation;
 	Vector3D m_Position;
 	Vector3D m_Scale;
+
+	Matrix4x4 m_RelativeMatrix;
+	Matrix4x4 m_WorldMatrix;
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale)
 };

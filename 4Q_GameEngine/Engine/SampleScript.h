@@ -8,7 +8,7 @@ class SampleScript : public Script
 public:
 	SampleScript() = default;
 
-	virtual void Update() override
+	virtual void Update(float deltaTime) override
 	{
 		//Entity* owner = GetOwner(); // 이 스크립트의 엔티티를 가리킴
 		//World* world = GetOwner()->getWorld(); // 엔티티의 월드
