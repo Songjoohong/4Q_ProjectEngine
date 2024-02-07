@@ -12,6 +12,7 @@
 #include "CameraSystem.h"
 #include "Debug.h"
 #include "DebugSystem.h"
+#include "EntityIdentifier.h"
 #include "TimeManager.h"
 #include "InputManager.h"
 #include "Movement.h"
@@ -117,10 +118,12 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	//bool b = ent->has<Script>();
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent1->Assign<EntityIdentifier>();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
 	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
 	ent1->Assign<EntityIdentifier>();
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent2->Assign<EntityIdentifier>();
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
 	ent2->Assign<EntityIdentifier>();

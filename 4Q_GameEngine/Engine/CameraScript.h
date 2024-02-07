@@ -9,7 +9,6 @@ class CameraScript : public Script
 {
 public:
 	CameraScript() {}
-
 	CameraScript(Entity* ent)
 		:Script(ent)
 	{

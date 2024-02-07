@@ -36,16 +36,16 @@ void Renderer::Clear(float r, float g, float b)
 {
 	const float clearColor[4] = { r,g,b,1 };
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
+	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	//m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
 void Renderer::Clear(Math::Vector3 color)
 {
 	const float clearColor[4] = { color.x,color.y,color.z,1 };
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
+	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	//m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
 void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
@@ -469,11 +469,18 @@ void Renderer::RenderSprite() const
 
 void Renderer::Render()
 {
+	//그림자 맵 생성
+	m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
+	m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pShadowMapDSV.Get());
+	m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->PSSetShader(NULL, NULL, 0);
+
 	// 24.02.05 수민. 원래 여기있던 코드는 Render::RenderScene() 함수로 이동하였슴.
 
 	// 전체 장면을 먼저 텍스처로 렌더링합니다.
 	RenderToTexture();
 
+	// 씬을 그리기 위해 버퍼를 지웁니다
 	Clear();
 
 	// 백 버퍼의 장면을 정상적으로 렌더링합니다.
@@ -482,11 +489,7 @@ void Renderer::Render()
 
 void Renderer::RenderScene()
 {
-	//그림자 맵 생성
-	m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
-	m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pShadowMapDSV.Get());
-	m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->PSSetShader(NULL, NULL, 0);
+	
 
 	//그림자의 View, Projection 포함하여 버퍼에 업데이트
 	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
@@ -498,14 +501,13 @@ void Renderer::RenderScene()
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
 	//그림자 렌더
-
 	ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 
 	//메쉬 렌더
 
@@ -862,9 +864,12 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 	/*if (!InitImgui(*hWnd))
 		return false;*/
-  
-    return true;
 
+	Matrix cameraInitPos = Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(180.f), DirectX::XMConvertToRadians(0.f), DirectX::XMConvertToRadians(0.f)) * Matrix::CreateTranslation(0, 150, -250);
+	SetCamera(cameraInitPos);
+
+
+    return true;
 }
 
 void Renderer::UnInitialize()

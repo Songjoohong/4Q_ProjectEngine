@@ -1,7 +1,6 @@
 ﻿#include "pch.h"
 #include "GameEditor.h"
 #include "../D3D_Graphics/D3D_Graphics.h"
-#include "../D3D_Graphics/RenderTextureClass.h"
 #include "../Engine/ECS.h"
 #include "../Engine/WorldManager.h"
 
@@ -13,15 +12,22 @@
 #include "../Engine/Light.h"
 #include "../Engine/EntityIdentifier.h"
 #include "../Engine/Movement.h"
-#include "../Engine/Script.h"
-#include "../Engine/SampleScript.h"
 #include "../Engine/StaticMesh.h"
 #include "../Engine/Debug.h"
+#include "../Engine/TransformSystem.h"
+#include "../Engine/CameraSystem.h"
+#include "../Engine/MovementSystem.h"
 #include "../Engine/Sound.h"
+#include "../Engine/RenderManager.h"
+#include "../Engine/ScriptSystem.h"
 #include "../Engine/Sprite2D.h"
 #include "../Engine/CameraScript.h"
+#include "../Engine/RenderSystem.h"
 
 #include "Prefab.h"
+#include "../D3D_Graphics/RenderTextureClass.h"
+
+
 using json = nlohmann::json;
 namespace ECS { class Entity; }
 
@@ -43,8 +49,17 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	m_Renderer = Renderer::Instance;
 	
+	//m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
 
-	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();
+	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();		// test
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);			// test
+
+	//m_EditorWorld->registerSystem(new RenderSystem);
+	//m_EditorWorld->registerSystem(new TransformSystem);
+
+	//WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+
+
 
 	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld);
 
@@ -65,10 +80,10 @@ void GameEditor::Update()
 
 void GameEditor::Render()
 {
-	m_Renderer->Instance->RenderBegin();
-	m_Renderer->Instance->Render();
+	RenderManager::GetInstance()->RenderBegin();
+	RenderManager::GetInstance()->Render();
 	RenderImGui();
-	m_Renderer->Instance->RenderEnd();
+	RenderManager::GetInstance()->RenderEnd();
 }
 
 
@@ -225,9 +240,8 @@ void GameEditor::RenderImGui()
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
 		ImGui::Begin("Viewport");
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
+		ID3D11ShaderResourceView* myViewportTexture = RenderManager::GetInstance()->GetRender()->m_RenderTexture->GetShaderResourceView();
 		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
-
 		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
 		// CameraEntity가 나와야 다시 할 수 있을듯?
@@ -455,6 +469,11 @@ void GameEditor::LoadWorld(const std::string& _filename)
 void GameEditor::NewScene()
 {
 	m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
+	m_EditorWorld->registerSystem(new RenderSystem);
+	m_EditorWorld->registerSystem(new TransformSystem);
+	m_EditorWorld->registerSystem(new MovementSystem);
+	m_EditorWorld->registerSystem(new CameraSystem);
+	m_EditorWorld->registerSystem(new ScriptSystem);
 
 	m_Camera = m_EditorWorld->create();
 	m_Box = m_EditorWorld->create();
@@ -464,19 +483,30 @@ void GameEditor::NewScene()
 	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
 	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
+
 	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Camera");
+	m_Camera->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
+	//m_Camera->Assign<Camera>();
+	//m_Camera->Assign<CameraScript>(m_Camera);
+	//m_Camera->Assign<Movement>();
+	//m_Camera->Assign<Debug>();
+
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
+
 	SetParent(m_Pot, m_Box);
 
 	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
+
 	SetParent(m_Wall, m_Pot);
-	m_Camera->Assign<Transform>();
+
 	m_Box->Assign<Transform>(pos1);
 	m_Pot->Assign<Transform>(pos2);
-	m_Wall->Assign<Transform>(pos3);
-	m_Wall->Assign<StaticMesh>("box.fbx");
-	m_Camera->Assign<Camera>();
+
+	m_Wall->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
+	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+	m_Wall->Assign<Debug>();
+
 	m_Camera->Assign<Light>();
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
 	m_ContentsBrowserPanel.SetContext(m_EditorWorld);

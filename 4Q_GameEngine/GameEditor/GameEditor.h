@@ -116,5 +116,5 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& compon
 
 	auto& component = entity->get<ComponentType>().get();
 
-	component = componentData;
+	//component = componentData;
 }
