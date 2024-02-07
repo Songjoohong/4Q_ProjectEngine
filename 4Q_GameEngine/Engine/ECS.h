@@ -557,6 +557,19 @@ namespace ECS
 
 		// 수민 --------------------------------------------------------------------------------------------------------
 
+		bool isDescendant(const Entity* target)
+		{
+			for (Entity* child : m_children)
+			{
+				if (target == child || child->isDescendant(target))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		void RemoveChild(Entity* child)
 		{
 			// 자식 목록에서 제거한다.

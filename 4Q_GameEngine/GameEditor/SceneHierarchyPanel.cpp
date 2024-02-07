@@ -42,7 +42,6 @@ void SceneHierarchyPanel::RenderImGui()
 			if (entity->m_parent == nullptr)
 				DrawEntityNode(entity);
 
-			DragDropEntityHierarchy(entity);
 
 		}
 
@@ -128,30 +127,29 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 {
 	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 	{
-		// TODO: 예외처리 필요!!
-		const auto& selectedEntityID = m_SelectionContext->getEntityId();
+		//const auto& selectedEntityID = m_SelectionContext->getEntityId();
 		size_t entityID = entity->getEntityId();
 
-		if (m_SelectionContext != entity)
-		{
+		//if (m_SelectionContext != entity)
+		//{
 			ImGui::Text(entity->get<EntityIdentifier>()->m_EntityName.c_str());
 			ImGui::SetDragDropPayload("EntityID", &entityID, 1 * sizeof(size_t));
-		}
-		else
-		{
-			ECS::Entity* entt = m_Context->getByIndex(selectedEntityID);
-			const char* name = entt->get<EntityIdentifier>()->m_EntityName.c_str();
-			ImGui::TextUnformatted(name);
+		//}
+		//else
+		//{
+		//	ECS::Entity* entt = m_Context->getByIndex(selectedEntityID);
+		//	const char* name = entt->get<EntityIdentifier>()->m_EntityName.c_str();
+		//	ImGui::Text(name);
 
-			ImGui::SetDragDropPayload("EntityID", &selectedEntityID, 1 * sizeof(size_t));
-		}
+		//	ImGui::SetDragDropPayload("EntityID", &selectedEntityID, 1 * sizeof(size_t));
+		//}
 
 		ImGui::EndDragDropSource();
 	}
 
 	if (ImGui::BeginDragDropTarget())
 	{
-		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID"); // TODO: ', ImGuiDragDropFlags_AcceptNoDrawDefaultRect'  -> 매개변수로 추가하면 노란 박스 사라짐. 계층구조 설정 끝나면 '' 안에 있는 거 적용하기 
+		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
 
 		if (payLoad)
 		{
@@ -160,15 +158,16 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 			ECS::Entity* picked = m_Context->getByIndex(pickedID - 1);
 			ECS::Entity* target = entity;
 
-			// 현재 자신의 부모 위에 올려두면 부모자식 관계를 해제한다.
-			if (picked == target)
-				target->RemoveChild(picked);
-			else
+			// 자기 자식의 자식으로 등록하려는 경우 아무런 처리를 하지 않는다. (이거 허용하면 엔티티가 삭제됨.)
+			if (picked->isDescendant(target))
 			{
-				(picked)->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
-				target->addChild(picked);
-				m_SelectionContext = nullptr;
+				return;
 			}
+
+			picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
+			target->addChild(picked);
+			m_SelectionContext = nullptr;
+
 		}
 
 		ImGui::EndDragDropTarget();
@@ -207,6 +206,8 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 		}
 		ImGui::EndPopup();
 	}
+
+	DragDropEntityHierarchy(entity);
 
 
 	// 노드가 펼쳐졌다면 자식도 출력.
