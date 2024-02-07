@@ -1,5 +1,6 @@
 #pragma once
 #include <directxtk/SimpleMath.h>
+#include "Vector3D.h"
 struct Matrix4x4
 {
     float m_11, m_12, m_13, m_14;
@@ -14,6 +15,11 @@ struct Matrix4x4
                                             m_31, m_32, m_33, m_34,
                                             m_41, m_42, m_43, m_44 };
         return mat;
+    }
+
+    Vector3D ConverToVector3D() const
+    {
+        return Vector3D(m_41, m_42, m_43);
     }
 
     Matrix4x4& operator=(const DirectX::SimpleMath::Matrix& mat)

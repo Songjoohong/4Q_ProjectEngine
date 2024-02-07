@@ -50,6 +50,7 @@ void ContentsBrowserPanel::RenderImGui()
 		
 		//나중에 ImageButton으로 수정
 		//ImGui::Button(filenameString.c_str(), { thumbnailSize, thumbnailSize });
+
 		ImGui::ImageButton((void*)texture, { 128,128 });
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{

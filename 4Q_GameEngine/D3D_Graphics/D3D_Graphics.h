@@ -191,6 +191,9 @@ public:
 
 	void ApplyMaterial(Material* pMaterial);
 
+	Math::Matrix GetViewMatrix() { return m_viewMatrix; }
+
+	Math::Matrix GetProjectionMatrix() { return m_projectionMatrix; }
 	
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더

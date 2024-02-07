@@ -27,7 +27,6 @@
 #include "Prefab.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
 
-
 using json = nlohmann::json;
 namespace ECS { class Entity; }
 
@@ -244,33 +243,64 @@ void GameEditor::RenderImGui()
 		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
 		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
-		// CameraEntity가 나와야 다시 할 수 있을듯?
-		// Projection행렬 필요
-		//if (selectedEntity)
-		//{
-		//	ImGuizmo::SetOrthographic(false);
-		//	ImGuizmo::SetDrawlist();
-		//	float windowWidth = (float)ImGui::GetWindowWidth();
-		//	float windowHeight = (float)ImGui::GetWindowHeight();
-		//	ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_R))
+		{
+			m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+		}
+		else if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_S))
+		{
+			m_GizmoType = ImGuizmo::OPERATION::SCALE;
+		}
+		else if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_T))
+		{
+			m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+		}
 
-		//	// Camera
-		//	const auto& camera = m_Camera->get<Transform>().get();
-		//	DirectX::XMMATRIX camTranslation = DirectX::XMMatrixTranslationFromVector(camera.m_Position.ConvertToVector3());
-		//	DirectX::XMMATRIX camRotation = DirectX::XMMatrixRotationQuaternion(camera.m_Rotation.ConvertToVector3());
-		//	DirectX::XMMATRIX camScale = DirectX::XMMatrixScalingFromVector(camera.m_Scale.ConvertToVector3());
-		//	auto cameratransformMatrix = camScale * camRotation * camTranslation;
+		// Gizmos
+		if (selectedEntity)
+		{
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+			float windowWidth = (float)ImGui::GetWindowWidth();
+			float windowHeight = (float)ImGui::GetWindowHeight();
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-		//	// Entity Transform
-		//	auto& tc = selectedEntity->get<Transform>().get();
-		//	DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector(tc.m_Position.ConvertToVector3());
-		//	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationQuaternion(tc.m_Rotation.ConvertToVector3());
-		//	DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector(tc.m_Scale.ConvertToVector3());
+			// Camera
+			DirectX::XMMATRIX viewMatrix = RenderManager::GetInstance()->GetRender()->GetViewMatrix();
+			auto floatViewMatrix = reinterpret_cast<const float*>(&viewMatrix);
 
-		//	auto transformMatrix = scale * rotation * translation;
-		//	
-		//	//ImGuizmo::Manipulate(cameratransformMatrix, )
-		//}
+			DirectX::XMMATRIX projectionMatrix = RenderManager::GetInstance()->GetRender()->GetProjectionMatrix();
+			auto floatProjectionMatrix = reinterpret_cast<const float*>(&projectionMatrix);
+			
+			// Entity Transform
+			auto& tc = selectedEntity->get<Transform>().get();
+			DirectX::SimpleMath::Matrix entityMatrix = tc.m_WorldMatrix.ConvertToMatrix();
+
+			auto floatEntityMatrix = reinterpret_cast<float*>(&entityMatrix);
+
+			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, floatEntityMatrix);
+
+			if (ImGuizmo::IsUsing())
+			{
+				Vector3 translation, scale;
+				Quaternion rotation;
+				entityMatrix.Decompose(scale, rotation, translation);
+				
+				Vector3D eulerRoation;
+
+				eulerRoation.QuaternionToEulerAngles(rotation);
+
+				Vector3D deltaRotation;
+				deltaRotation.m_X = eulerRoation.m_X - tc.m_Rotation.m_X;
+				deltaRotation.m_Y = eulerRoation.m_Y - tc.m_Rotation.m_Y;
+				deltaRotation.m_Z = eulerRoation.m_Z - tc.m_Rotation.m_Z;
+
+
+				tc.m_Position = translation;
+				tc.m_Rotation += deltaRotation;
+				tc.m_Scale = scale;
+			}
+		}
 
 		ImGui::End();
 		ImGui::PopStyleVar();
