@@ -8,11 +8,22 @@
 class CameraScript : public Script
 {
 public:
+	CameraScript() {}
+
 	CameraScript(Entity* ent)
 		:Script(ent)
 	{
 	}
 	virtual ~CameraScript() override = default;
+
+	CameraScript& operator=(const json& componentData)
+	{
+		// Copy data from the JSON object to the class members
+		m_ComponentName = componentData.value("m_ComponentName", "");
+		// You need to handle other members similarly based on your JSON structure
+
+		return *this;
+	}
 
 	virtual void Update(float deltaTime) override
 	{

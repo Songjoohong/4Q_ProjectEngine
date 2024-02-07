@@ -24,10 +24,10 @@
 #include "Prefab.h"
 using json = nlohmann::json;
 namespace ECS { class Entity; }
+
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
 {
-	//NLOHMANN_DEFINE_TYPE_INTRUSIVE
 }
 
 GameEditor::~GameEditor()
@@ -43,22 +43,14 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	m_Renderer = Renderer::Instance;
 	
-	//m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
 
 	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();
-	/* ---- test end --------------------------------------------------------------------------- */
-	//// 이런식으로 변수 이름 가져와서 ImGui에서 컴포넌트들이 가지고 있는 멤버 변수들 출력할 수 있음
-	//// 값은 어떻게 넣지?
-	//for (const auto& a : test.GetTypeInfo().GetProperties())
-	//{
-	//	std::cout << a->GetName();
-	//}
 
 	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld);
 
 	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
-
+	m_ContentsBrowserPanel.Initialize();
 	if (!InitImGui())
 	{
 		return false;
@@ -230,13 +222,13 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 		/* Viewport ------------------------ */
-		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
-		//ImGui::Begin("Viewport");
-		//ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		//ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
-		//ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
+		ImGui::Begin("Viewport");
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		ID3D11ShaderResourceView* myViewportTexture = Renderer::Instance->m_RenderTexture->GetShaderResourceView();
+		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
 
-		//Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
 		// CameraEntity가 나와야 다시 할 수 있을듯?
 		// Projection행렬 필요
@@ -266,8 +258,8 @@ void GameEditor::RenderImGui()
 		//	//ImGuizmo::Manipulate(cameratransformMatrix, )
 		//}
 
-		//ImGui::End();
-		//ImGui::PopStyleVar();
+		ImGui::End();
+		ImGui::PopStyleVar();
 
 	}
 	else

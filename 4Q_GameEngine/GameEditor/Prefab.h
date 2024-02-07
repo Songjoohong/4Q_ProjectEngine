@@ -74,7 +74,7 @@ inline void PrefabManager::AssignComponents(ECS::Entity* entity, const json& com
 {
     if constexpr (std::is_base_of_v<Script, ComponentType>)
     {
-        entity->Assign<ComponentType>(this);
+        entity->Assign<ComponentType>();
     }
     else
     {
