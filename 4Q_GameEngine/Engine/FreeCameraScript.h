@@ -30,11 +30,11 @@ public:
 			if (Input->GetKey(Key::W))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::FRONT;
 			if (Input->GetKey(Key::A))
-				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::LEFT;
+				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::LEFTWARD;
 			if (Input->GetKey(Key::S))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
 			if (Input->GetKey(Key::D))
-				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::RIGHT;
+				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::RIGHTWARD;
 			if (Input->GetKey(Key::Q))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::UPWARD;
 			if (Input->GetKey(Key::E))

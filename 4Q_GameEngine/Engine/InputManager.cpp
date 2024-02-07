@@ -8,6 +8,8 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	VK_RBUTTON,
 	VK_UP,
 	VK_DOWN,
+	VK_LEFT,
+	VK_RIGHT,
 	VK_SPACE,
 	'W',
 	'A',

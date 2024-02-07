@@ -10,6 +10,8 @@ enum Key
 	RBUTTON,
 	UP,
 	DOWN,
+	LEFT,
+	RIGHT,
 	SPACE,
 	W,
 	A,
