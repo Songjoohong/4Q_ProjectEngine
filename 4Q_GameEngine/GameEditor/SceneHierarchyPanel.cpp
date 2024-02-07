@@ -42,7 +42,6 @@ void SceneHierarchyPanel::RenderImGui()
 			if (entity->m_parent == nullptr)
 				DrawEntityNode(entity);
 
-
 		}
 
 		// Unselect object when left-clicking on blank space.
@@ -167,7 +166,7 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 			picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
 			target->addChild(picked);
 			m_SelectionContext = nullptr;
-
+			
 		}
 
 		ImGui::EndDragDropTarget();
@@ -198,12 +197,24 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	if (ImGui::BeginPopupContextItem())
 	{
 		if (ImGui::MenuItem("Delete Entity"))
+		{
 			entityDeleted = true;
+		}
+
 		if (ImGui::MenuItem("Make Prefab"))
 		{
 			m_OpenTextPopup = true;
 			m_SelectionContext = entity;
 		}
+
+		if (ImGui::MenuItem("Set Top Level Parent"))
+		{
+			if (entity->m_parent != nullptr)
+			{
+				entity->m_parent->RemoveChild(entity);
+			}
+		}
+
 		ImGui::EndPopup();
 	}
 
@@ -213,9 +224,6 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	// 노드가 펼쳐졌다면 자식도 출력.
 	if (opened)
 	{
-		if (entID == "1")					// TEST!!!!!!!!!!
-			int a = 1324;
-
 		for (const auto& child : entity->m_children)
 		{
 			DrawEntityNode(child);
@@ -394,9 +402,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<StaticMesh>("StaticMesh", entity, [](auto component)
 	{
-		std::string temp = component->m_FileName;
+		//std::string temp = component->m_FileName;
 
-		ImGui::Text(temp.c_str());
+		//ImGui::Text(temp.c_str());
 	});
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
