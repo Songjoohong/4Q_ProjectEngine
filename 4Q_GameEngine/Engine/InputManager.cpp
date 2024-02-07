@@ -37,17 +37,17 @@ void InputManager::Update(float deltaTime)
 		if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width)
 		{
 			POINT clientPoint = { static_cast<long>(m_Width) / 2, m_CurrentCursorPos.y };
-			ScreenToClient(hWnd, &clientPoint);
-			SetCursorPos(clientPoint.x, clientPoint.y);
 			m_PreviousCursorPos = clientPoint;
+			ClientToScreen(hWnd, &clientPoint);
+			SetCursorPos(clientPoint.x, clientPoint.y);
 		}
 
 		if(m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 1)
 		{
 			POINT clientPoint = { m_CurrentCursorPos.x, static_cast<long>(m_Height) / 2 };
-			ScreenToClient(hWnd, &clientPoint);
-			SetCursorPos(clientPoint.x, clientPoint.y);
 			m_PreviousCursorPos = clientPoint;
+			ClientToScreen(hWnd, &clientPoint);
+			SetCursorPos(clientPoint.x, clientPoint.y);
 		}
 			
 	}
