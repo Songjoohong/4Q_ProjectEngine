@@ -8,7 +8,7 @@
 
 
 #include "BoxCollider.h"
-#include "CameraScript.h"
+#include "FreeCameraScript.h"
 #include "CameraSystem.h"
 #include "Debug.h"
 #include "DebugSystem.h"
@@ -89,13 +89,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
-#ifdef NDEBUG
-	int speed = 10;
-	SystemParametersInfo(SPI_SETMOUSESPEED, 0, (void*)speed, SPIF_SENDCHANGE);
-	ShowCursor(FALSE);
-#endif
-
-
 	// 매니저 초기화
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
@@ -116,7 +109,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
-	ent->Assign<CameraScript>(ent);
+	ent->Assign<FreeCameraScript>(ent);
 	ent->Assign<Movement>();
 
 	//bool b = ent->has<Script>();
