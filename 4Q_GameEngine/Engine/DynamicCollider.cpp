@@ -46,7 +46,7 @@ void DynamicCollider::SetDensity(float mass)
 void DynamicCollider::AddForce(Vector3D dir)
 {
 	PxVec3 direction(dir.GetX(), dir.GetY(), dir.GetZ());
-	m_Rigid->addForce(direction*m_Rigid->getMass()*10.f, PxForceMode::eIMPULSE, true);
+	m_Rigid->addForce(direction*m_Rigid->getMass()*0.1f, PxForceMode::eIMPULSE, true);
 }
 
 void DynamicCollider::FreezeRotationX(bool active)

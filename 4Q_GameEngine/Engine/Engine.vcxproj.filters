@@ -191,7 +191,6 @@
       <Filter>headers</Filter>
     </ClInclude>
     <ClInclude Include="jsonSerializer.h" />
-    <ClInclude Include="PlayerInputSystem.h" />
     <ClInclude Include="jsonSerializer.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -205,6 +204,9 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="TestUIScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerScript.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
@@ -275,6 +277,5 @@
     <ClCompile Include="UISystem.cpp">
       <Filter>System\UI</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerInputSystem.cpp" />
   </ItemGroup>
 </Project>

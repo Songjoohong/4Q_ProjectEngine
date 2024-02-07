@@ -30,6 +30,8 @@
 #include "UISystem.h"
 #include "imgui.h"
 #include "PhysicsManager.h"
+#include "PlayerScript.h"
+#include "RigidBody.h"
 #include "TestUIScript.h"
 #include "UI.h"
 
@@ -127,13 +129,11 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
-	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, 3);
+	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, 100);
 	ent2->Assign<Debug>();
-
-	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/lantern.fbx");
-	ent2->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
-	ent2->Assign<BoxCollider>();
+	ent2->Assign<PlayerScript>(ent2);
+	ent2->Assign<RigidBody>();
+	ent2->Assign<Movement>();
 
 	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");

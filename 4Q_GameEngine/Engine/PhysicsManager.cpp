@@ -48,18 +48,18 @@ void PhysicsManager::Update(float deltatime)
 
 	// 석영 : 결과로 나온 값을 오브젝트로 넣어주기
 	for (auto& collider : m_pDynamicColliders)
-		if (collider->m_pOwner->m_IsTrigger == false)
-			collider->UpdatePhysics();
+		if (collider.second->m_pOwner->m_IsTrigger == false)
+			collider.second->UpdatePhysics();
 }
 
-void PhysicsManager::CreateCollider(BoxCollider* boxcollider)
+void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 {
 	if (boxcollider->m_CollisionType == CollisionType::DYNAMIC)
 	{
 		DynamicCollider* newDynamicCollider = new DynamicCollider(boxcollider);
 
 		newDynamicCollider->Initialize();
-		m_pDynamicColliders.push_back(newDynamicCollider);
+		m_pDynamicColliders.push_back(make_pair(entId, newDynamicCollider));
 	}
 	else if (boxcollider->m_CollisionType == CollisionType::STATIC)
 	{
@@ -81,6 +81,15 @@ void PhysicsManager::DebugSetUp()
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
+}
+
+DynamicCollider* PhysicsManager::GetDynamicCollider(int entId)
+{
+	const auto it = std::find_if(m_pDynamicColliders.begin(), m_pDynamicColliders.end(), [entId](pair<int, DynamicCollider*> collider)
+		{
+			return collider.first == entId;
+		});
+	return it->second;
 }
 
 

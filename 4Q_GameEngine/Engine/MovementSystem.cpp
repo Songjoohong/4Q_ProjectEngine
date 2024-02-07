@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "MovementSystem.h"
 
+#include "DynamicCollider.h"
 #include "Movement.h"
+#include "PhysicsManager.h"
+#include "RigidBody.h"
 #include "Transform.h"
 
 void MovementSystem::Tick(World* world, float deltaTime)
@@ -36,9 +39,17 @@ void MovementSystem::Tick(World* world, float deltaTime)
 			if (movement->m_CurrentMoveState & 0x100000)
 				moveVector -= Vector3D{ 0.f,1.f,0.f };
 
-			// 이동 설정
 			movement->m_CurrentMoveState = 0;
 			moveVector = moveVector.Normalize();
-			transform->m_Position += moveVector * movement->m_Speed * deltaTime;			
+			// 이동 설정
+			if(entity->has<RigidBody>())
+			{
+				PhysicsManager::GetInstance()->GetDynamicCollider(entity->getEntityId())->AddForce(moveVector);
+			}
+			else
+			{
+				transform->m_Position += moveVector * movement->m_Speed * deltaTime;
+			}
+						
 		});
 }

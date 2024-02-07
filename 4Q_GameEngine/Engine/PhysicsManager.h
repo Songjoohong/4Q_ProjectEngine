@@ -22,12 +22,12 @@ public:
 	void Initialize();
 	void Update(float deltatime);
 
-	void CreateCollider(BoxCollider* boxcollider);
+	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
 
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
-
+	DynamicCollider* GetDynamicCollider(int entId);
 public:
 	PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> 시각화 하여 디버깅 할 수 있는 프로그램
 	PxFoundation* m_pFoundation = nullptr;
@@ -40,7 +40,7 @@ private:
 	PxScene* m_pPxScene = nullptr;
 
 	// Colliders
-	vector<DynamicCollider*> m_pDynamicColliders;
+	vector<pair<int, DynamicCollider*>> m_pDynamicColliders;
 	vector<StaticCollider*> m_pStaticColliders;
 };
 
