@@ -148,7 +148,7 @@
     <ClInclude Include="SpriteSystem.h">
       <Filter>System\Sprite</Filter>
     </ClInclude>
-    <ClInclude Include="CameraScript.h">
+    <ClInclude Include="FreeCameraScript.h">
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="CameraSystem.h">
@@ -238,9 +238,6 @@
       <Filter>headers</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
-      <Filter>headers</Filter>
-    </ClCompile>
-    <ClCompile Include="MyPOINT.cpp">
       <Filter>headers</Filter>
     </ClCompile>
     <ClCompile Include="UISystem.cpp">

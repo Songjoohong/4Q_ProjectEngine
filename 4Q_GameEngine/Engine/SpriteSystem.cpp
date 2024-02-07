@@ -18,7 +18,7 @@ void SpriteSystem::Deconfigure(World* world)
 
 void SpriteSystem::Receive(World* world, const Events::OnComponentAssigned<Sprite2D>& event)
 {
-	RenderManager::GetInstance()->AddSprite(event.entity->getEntityId(), event.component->m_FileName, event.component->m_Position, event.component->m_Layer);
+	RenderManager::GetInstance()->AddSprite(event.entity->getEntityId(), event.component->m_FileName, { event.component->m_Position[0], event.component->m_Position[1] }, event.component->m_Layer);
 }
 
 void SpriteSystem::Receive(World* world, const Events::OnEntityDestroyed& event)
