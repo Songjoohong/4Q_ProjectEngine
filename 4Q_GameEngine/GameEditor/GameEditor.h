@@ -107,7 +107,7 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& compon
 {
 	if constexpr (std::is_base_of_v<Script, ComponentType>)
 	{
-		entity->Assign<ComponentType>(this);
+		entity->Assign<ComponentType>();
 	}
 	else
 	{
@@ -116,5 +116,5 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& compon
 
 	auto& component = entity->get<ComponentType>().get();
 
-	component = componentData;
+	//component = componentData;
 }
