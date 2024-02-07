@@ -516,6 +516,7 @@ void GameEditor::NewScene()
 	m_Wall->Assign<Debug>();
 
 	m_Camera->Assign<Light>();
+
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
 	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
