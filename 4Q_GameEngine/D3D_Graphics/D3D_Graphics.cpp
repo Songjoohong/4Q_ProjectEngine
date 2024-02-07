@@ -489,8 +489,6 @@ void Renderer::Render()
 
 void Renderer::RenderScene()
 {
-	
-
 	//그림자의 View, Projection 포함하여 버퍼에 업데이트
 	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
@@ -505,9 +503,9 @@ void Renderer::RenderScene()
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
-	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 이거하면 에디터의 뷰포트에 렌더가 안됨.
 
 	//메쉬 렌더
 

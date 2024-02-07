@@ -557,25 +557,28 @@ namespace ECS
 
 		// 수민 --------------------------------------------------------------------------------------------------------
 
+		bool isDescendant(const Entity* target)
+		{
+			for (Entity* child : m_children)
+			{
+				if (target == child || child->isDescendant(target))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		void RemoveChild(Entity* child)
 		{
 			// 자식 목록에서 제거한다.
-			auto it = std::find_if(m_children.begin(), m_children.end(),
-				[child](const Entity* entity)
-				{
-					return entity->id == child->id;
-				});
-
-			m_children.erase(it, m_children.end());
-
-			//m_children.erase(std::remove(m_children.begin(), m_children.end(), child), m_children.end());
-
-			//if (it != m_children.end())
-			//	m_children.erase(it);
-
-			// 자식쪽 부모도 연결을 해제
-			child->SetParent(nullptr);
-			int test = 1;
+			auto it2 = std::find(m_children.begin(), m_children.end(), child);
+			if (it2 != m_children.end())
+			{
+				m_children.erase(it2);
+				child->SetParent(nullptr);				// 자식쪽 부모도 연결을 해제
+			}
 		}
 
 		void addChild(Entity* child)
@@ -593,8 +596,6 @@ namespace ECS
 				child->m_parent->RemoveChild(child);
 
 			m_children.push_back(child);
-
-
 
 			child->SetParent(this);
 		}
