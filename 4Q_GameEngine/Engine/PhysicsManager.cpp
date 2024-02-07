@@ -7,9 +7,16 @@
 void PhysicsManager::Initialize()
 {
 	m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, m_ErrorCallback);
+#ifdef _DEBUG
+	// PhysX Visual Debbugger 보기위한 세팅
+	m_pPvd = PxCreatePvd(*m_pFoundation);
+	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
+	m_pPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
+
+	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
 
 	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
-
+#endif // _DEBUG
 	// 석영 : PxScene 생성 
 	PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
@@ -17,9 +24,9 @@ void PhysicsManager::Initialize()
 	sceneDesc.cpuDispatcher = m_pDispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 
-	m_pPxScene = m_pPhysics->createScene(sceneDesc); 
+	m_pPxScene = m_pPhysics->createScene(sceneDesc);
 
-	#ifdef _DEBUG
+#ifdef _DEBUG
 	DebugSetUp();
 #endif // _DEBUG
 }
@@ -27,9 +34,9 @@ void PhysicsManager::Initialize()
 void PhysicsManager::Update(float deltatime)
 {
 	// 석영 : Collider 위치를 오브젝트 위치로 변경 먼저 해주기
-	for (auto& collider : m_pDynamicColliders)
+	/*for (auto& collider : m_pDynamicColliders)
 		if (collider->m_pOwner->m_IsTrigger == false)
-			collider->UpdateTransform();
+			collider->UpdateTransform();*/
 
 	for (auto& collider : m_pStaticColliders)
 		if (collider->m_pOwner->m_IsTrigger == false)
@@ -66,11 +73,6 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider)
 void PhysicsManager::DebugSetUp()
 {
 	// PhysX Visual Debbugger 보기위한 세팅
-	m_pPvd = PxCreatePvd(*m_pFoundation);
-	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
-	m_pPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
-
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
 
 	PxPvdSceneClient* pvdClient = m_pPxScene->getScenePvdClient();
 	if (pvdClient)
