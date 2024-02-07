@@ -10,6 +10,7 @@
 #include "BoxCollider.h"
 #include "FreeCameraScript.h"
 #include "CameraSystem.h"
+#include "CollisionSystem.h"
 #include "Debug.h"
 #include "DebugSystem.h"
 #include "TimeManager.h"
@@ -28,6 +29,7 @@
 #include "TransformSystem.h"
 #include "UISystem.h"
 #include "imgui.h"
+#include "PhysicsManager.h"
 #include "TestUIScript.h"
 #include "UI.h"
 
@@ -93,11 +95,14 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
+	PhysicsManager::GetInstance()->Initialize();
 	InputManager::GetInstance()->Initialize(m_ClientWidth, m_ClientHeight);
+
 
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"../Test/TestScene1.json"));
 	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
 	EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
+	EntitySystem* collisionSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CollisionSystem());
 	EntitySystem* transformSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new TransformSystem());
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	EntitySystem* cameraSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CameraSystem());
@@ -114,6 +119,16 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	//bool b = ent->has<Script>();
 
+	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
+	ent1->Assign<Transform>(Vector3D(0.f, -100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D{ 100.f,100.f,100.f });
+	ent1->Assign<BoxCollider>(CollisionType::STATIC, 10000);
+
+	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
+	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, 3);
+	ent2->Assign<Debug>();
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/lantern.fbx");
@@ -176,7 +191,8 @@ void Engine::Update()
 	TimeManager::GetInstance()->Update();
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	InputManager::GetInstance()->Update(deltaTime);
-	SoundManager::GetInstance()->Update();
+  SoundManager::GetInstance()->Update();
+	PhysicsManager::GetInstance()->Update(deltaTime);
 	WorldManager::GetInstance()->Update(deltaTime);
 	RenderManager::GetInstance()->Update();
 }

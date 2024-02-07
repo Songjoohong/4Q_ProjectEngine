@@ -3,6 +3,7 @@
 #include <cmath>
 #include <DirectXMath.h>
 #include <directxtk/SimpleMath.h>
+
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
 

@@ -289,7 +289,6 @@ namespace ECS
 			return component != nullptr;
 		}
 
-	private:
 		T* component;
 	};
 

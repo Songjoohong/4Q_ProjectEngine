@@ -16,7 +16,8 @@
 #include <directxtk/SimpleMath.h>
 
 #include "framework.h"
-
+#include "PxPhysicsAPI.h"
 #include "nlohmann/json.hpp"
 
 #endif //PCH_H
+ 

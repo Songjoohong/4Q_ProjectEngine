@@ -1,0 +1,36 @@
+#pragma once
+#include "Collider.h"
+
+/*
+	석영 : 플레이어의 경우 키 입력을 받아야하는데..?
+*/
+
+class DynamicCollider
+	:public Collider
+{
+public:
+	DynamicCollider(BoxCollider* owner);
+	virtual ~DynamicCollider() override = default;
+
+public:
+	virtual void Initialize() override;
+
+	void UpdatePhysics();
+
+	/*
+	* 석영: 물체 질량 설정->기본 60.f 로 설정.
+	* 질량 넣어주면 density 계산해서 업데이트 해준다.
+	*/ 
+	void SetDensity(float mass);
+
+	// 석영 : 이동을 위한 함수
+	void AddForce(Vector3D dir);
+
+	// 석영 : 물리 효과에서 회전축 고정용
+	void FreezeRotationX(bool active);
+	void FreezeRotationY(bool active);
+	void FreezeRotationZ(bool active);
+public:
+	PxRigidDynamic* m_Rigid;
+};
+
