@@ -8,7 +8,7 @@
 
 
 #include "BoxCollider.h"
-#include "CameraScript.h"
+#include "FreeCameraScript.h"
 #include "CameraSystem.h"
 #include "CollisionSystem.h"
 #include "Debug.h"
@@ -27,8 +27,11 @@
 #include "SpriteSystem.h"
 #include "StaticMesh.h"
 #include "TransformSystem.h"
+#include "UISystem.h"
 #include "imgui.h"
 #include "PhysicsManager.h"
+#include "TestUIScript.h"
+#include "UI.h"
 
 #define ENGINE_DEBUG
 
@@ -88,18 +91,13 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
-#ifdef NDEBUG
-	int speed = 10;
-	SystemParametersInfo(SPI_SETMOUSESPEED, 0, (void*)speed, SPIF_SENDCHANGE);
-	ShowCursor(FALSE);
-#endif
-
-
 	// 매니저 초기화
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
 	SoundManager::GetInstance()->Initialize();
 	PhysicsManager::GetInstance()->Initialize();
+	InputManager::GetInstance()->Initialize(m_ClientWidth, m_ClientHeight);
+
 
 	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld(L"../Test/TestScene1.json"));
 	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
@@ -109,15 +107,18 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
 	EntitySystem* cameraSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CameraSystem());
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
-	
+	EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
+	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
+
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
-	ent->Assign<CameraScript>(ent);
+	ent->Assign<FreeCameraScript>(ent);
 	ent->Assign<Movement>();
 
 	//bool b = ent->has<Script>();
+
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
 	ent1->Assign<Transform>(Vector3D(0.f, -100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D{ 100.f,100.f,100.f });
@@ -129,11 +130,29 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, 3);
 	ent2->Assign<Debug>();
 
+	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/lantern.fbx");
+	ent2->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
+	ent2->Assign<BoxCollider>();
+
+	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
+
+	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+
+	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent5->Assign<UI>(100, 100);
+	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, POINT{ 100,100 });
+	ent5->Assign<TestUIScript>(ent5);
+
+
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
   
-	RenderManager::GetInstance()->AddSprite(1, "../Resource/UI/image.jpg", { 0,0 }, 0);
-	RenderManager::GetInstance()->AddSprite(2, "../Resource/UI/image2.jpg", { 50,0 }, 1);
+	
 
 	 
 
@@ -170,11 +189,11 @@ void Engine::Run()
 void Engine::Update()
 {
 	TimeManager::GetInstance()->Update();
-	SoundManager::GetInstance()->Update();
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
-	WorldManager::GetInstance()->Update(deltaTime);
 	InputManager::GetInstance()->Update(deltaTime);
+  SoundManager::GetInstance()->Update();
 	PhysicsManager::GetInstance()->Update(deltaTime);
+	WorldManager::GetInstance()->Update(deltaTime);
 	RenderManager::GetInstance()->Update();
 }
 

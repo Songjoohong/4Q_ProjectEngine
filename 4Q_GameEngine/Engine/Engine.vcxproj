@@ -162,12 +162,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CameraScript.h" />
+    <ClInclude Include="FreeCameraScript.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="jsonSerializer.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Sprite2D.h" />
-    <ClInclude Include="Animation.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
@@ -200,9 +199,12 @@
     <ClInclude Include="SpriteSystem.h" />
     <ClInclude Include="StaticCollider.h" />
     <ClInclude Include="StaticMesh.h" />
+    <ClInclude Include="TestUIScript.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="TransformSystem.h" />
+    <ClInclude Include="UI.h" />
+    <ClInclude Include="UISystem.h" />
     <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <ItemGroup>
@@ -214,7 +216,6 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
-    <ClCompile Include="MyPOINT.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -232,6 +233,7 @@
     <ClCompile Include="SpriteSystem.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="TransformSystem.cpp" />
+    <ClCompile Include="UISystem.cpp" />
     <ClCompile Include="Vector3D.h" />
     <ClCompile Include="WorldManager.cpp" />
   </ItemGroup>

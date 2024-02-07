@@ -27,6 +27,7 @@
 #include <imgui_impl_dx11.h>
 #include <Directxtk/DDSTextureLoader.h>
 #include <directxtk/WICTextureLoader.h>
+#include <DirectXTex.h>
 #include <d3dcompiler.h>
 #include <filesystem>
 #include <directxtk/SpriteBatch.h>

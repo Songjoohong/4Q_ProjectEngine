@@ -27,6 +27,8 @@ public:
 
 	void AddStaticMesh(const std::string& fileName, DirectX::SimpleMath::Matrix worldTM) const;
 
+	void AddColliderBox(const Vector3D center, const Vector3D extents, const bool collision);
+
 	void SetBasePath(std::string filePath);
 
 	void SetCamera(const DirectX::SimpleMath::Matrix matrix);

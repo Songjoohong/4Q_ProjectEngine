@@ -35,13 +35,15 @@ public:
 	vector<Vertex> m_vertices;
 	vector<UINT> m_indices;
 
+	
 private:
 	void CreateVertexBuffer(ID3D11Device* device, const vector<Vertex>& vertices, UINT vertexCount);
 	void CreateIndexBuffer(ID3D11Device* device, const vector<UINT>& indices, UINT indexCount);
 
 public:
 	void Create(ID3D11Device* device, aiMesh* mesh);
-	void Setting();
+	void CreateEnvironment(ID3D11Device* device, aiMesh* mesh);
+	void Setting(wstring vs_name);
 
 };
 
@@ -56,6 +58,8 @@ public:
 	std::vector<StaticMeshResource>m_meshes;
 	std::vector<Material> m_materials;
 
+	Math::Matrix m_localMatrix;
+
 	Math::Vector3 m_AABBmin;
 	Math::Vector3 m_AABBmax;
 	Math::Vector3 m_BoundingBoxMin;	// 회전을 고려한 느슨한AABB
@@ -63,6 +67,7 @@ public:
 
 public:
 	void Create(const std::string& path);
+	void CreateEnvironment(const std::string& path);
 	Material* GetMeshMaterial(UINT index);
 
 	void GetAABB(DirectX::XMFLOAT3& center, DirectX::XMFLOAT3& Extents);

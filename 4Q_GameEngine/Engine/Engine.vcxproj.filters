@@ -71,6 +71,9 @@
     <Filter Include="headers">
       <UniqueIdentifier>{de3e12bc-a24a-4646-a500-c30d3226d24b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\UI">
+      <UniqueIdentifier>{25721fc5-5a9d-4c1c-945d-f58fc90c9f12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ISingleton.h">
@@ -110,12 +113,6 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="SampleScript.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>System</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation.h">
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="CollisionSystem.h">
@@ -169,7 +166,7 @@
     <ClInclude Include="SpriteSystem.h">
       <Filter>System\Sprite</Filter>
     </ClInclude>
-    <ClInclude Include="CameraScript.h">
+    <ClInclude Include="FreeCameraScript.h">
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="CameraSystem.h">
@@ -195,6 +192,21 @@
     </ClInclude>
     <ClInclude Include="jsonSerializer.h" />
     <ClInclude Include="PlayerInputSystem.h" />
+    <ClInclude Include="jsonSerializer.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="UISystem.h">
+      <Filter>System\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="TestUIScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
@@ -260,8 +272,8 @@
     <ClCompile Include="pch.cpp">
       <Filter>headers</Filter>
     </ClCompile>
-    <ClCompile Include="MyPOINT.cpp">
-      <Filter>headers</Filter>
+    <ClCompile Include="UISystem.cpp">
+      <Filter>System\UI</Filter>
     </ClCompile>
     <ClCompile Include="PlayerInputSystem.cpp" />
   </ItemGroup>
