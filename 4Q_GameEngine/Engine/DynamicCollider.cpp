@@ -37,6 +37,7 @@ void DynamicCollider::UpdatePhysics()
 	m_pOwner->m_Rotation.SetY(pxTrans.q.y * angle);
 	m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
 
+	m_Rigid->clearForce(PxForceMode::eIMPULSE);
 }
 
 void DynamicCollider::SetDensity(float mass)
@@ -51,11 +52,31 @@ void DynamicCollider::AddForce(Vector3D dir)
 		석영 : 떨어지는 동안 움직일 수 없게 할 예정.
 	*/
 	PxVec3 direction(dir.GetX(), dir.GetY(), dir.GetZ());
+	m_CurrentDir = direction;
 	PxVec3 checkmove(0.f, 0.f, 0.f);
-	if (direction != checkmove)
-		m_Rigid->addForce(direction * m_Rigid->getMass() * 0.1f, PxForceMode::eIMPULSE, true);
-	else
-		m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass(), PxForceMode::eIMPULSE, true);
+
+	PxVec3 dirTest;
+	dirTest.x = m_CurrentDir.x * m_PrevDir.x;
+	dirTest.y = m_CurrentDir.y * m_PrevDir.y;
+	dirTest.z = m_CurrentDir.z * m_PrevDir.z;
+
+	if (m_CurrentDir != checkmove)
+	{
+		if (dirTest.x<0|| dirTest.y < 0||dirTest.z<0)
+		{
+			m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass()*1000.f, PxForceMode::eIMPULSE, true);
+		}
+		m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 10.f, PxForceMode::eIMPULSE, true);
+
+		m_bKeyUp = false;
+	}
+	else if(m_CurrentDir==checkmove&& m_bKeyUp==false)
+	{
+		m_bKeyUp=true;
+		m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass()*1000.f, PxForceMode::eIMPULSE, true);
+	}
+
+	m_PrevDir = m_CurrentDir;
 }
 
 void DynamicCollider::FreezeRotationX(bool active)
