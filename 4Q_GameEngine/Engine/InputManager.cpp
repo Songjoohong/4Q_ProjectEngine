@@ -12,6 +12,7 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	'A',
 	'S',
 	'D',
+	VK_CONTROL
 };
 void InputManager::Update(float deltaTime)
 {

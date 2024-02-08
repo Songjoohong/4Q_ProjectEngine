@@ -14,7 +14,7 @@ enum Key
 	A,
 	S,
 	D,
-
+	CTRL,
 	KEY_END,
 
 };

@@ -38,7 +38,7 @@ void NameManager::CheckNameDuplicated(ECS::Entity* entity)
 		}
 		else
 		{
-			name = entity->get<EntityIdentifier>().get().m_EntityName + std::to_string(overlappedNameCount);
+			name = entity->get<EntityIdentifier>().get().m_EntityName + " (" + std::to_string(overlappedNameCount) + ")";
 		}
 
 		if (entityName == name)
@@ -52,6 +52,6 @@ void NameManager::CheckNameDuplicated(ECS::Entity* entity)
 	}
 	else
 	{
-		entity->get<EntityIdentifier>().get().m_EntityName += std::to_string(overlappedNameCount);
+		entity->get<EntityIdentifier>().get().m_EntityName += " (" + std::to_string(overlappedNameCount) + ")";
 	}
 }

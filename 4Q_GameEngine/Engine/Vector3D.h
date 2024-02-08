@@ -54,13 +54,6 @@ public:
 		return Vector3{ m_X, m_Y, m_Z };
 	}
 
-	Vector3D& operator=(const DirectX::SimpleMath::Vector3& vec)
-	{
-		m_X = vec.x;
-		m_Y = vec.y;
-		m_Z = vec.z;
-		return *this;
-	}
 
 	void operator+=(const Vector3D& other)
 	{
@@ -76,6 +69,13 @@ public:
 		this->m_Z = m_Z + other.z;
 	}
 
+	Vector3D& operator=(const DirectX::SimpleMath::Vector3& vec) 
+	{
+		m_X = vec.x;
+		m_Y = vec.y;
+		m_Z = vec.z;
+		return *this;
+	}
 	Vector3D& operator=(const DirectX::XMVECTOR& q) {
 		// Convert XMVECTOR to Quaternion
 		DirectX::XMFLOAT4 quat;

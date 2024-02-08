@@ -27,16 +27,7 @@
 #include "Prefab.h"
 #include "NameManager.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
-
 using json = nlohmann::json;
-namespace ECS { class Entity; }
-
-static const float identityMatrix[16] =
-{ 1.f, 0.f, 0.f, 0.f,
-	0.f, 1.f, 0.f, 0.f,
-	0.f, 0.f, 1.f, 0.f,
-	0.f, 0.f, 0.f, 1.f };
-
 
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
@@ -260,22 +251,26 @@ void GameEditor::RenderImGui()
 		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
 		{
 			m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+			m_CurrentSnapMode = &m_TranslationSnapValue;
 		}
 		else if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_X))
 		{
 			m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+			m_CurrentSnapMode = &m_RotationSnapValue;
 		}
 		else if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C))
 		{
 			m_GizmoType = ImGuizmo::OPERATION::SCALE;
+			m_CurrentSnapMode = &m_ScaleSnapValue;
 		}
 
-			// Camera
-			DirectX::XMMATRIX viewMatrix = RenderManager::GetInstance()->GetRender()->GetViewMatrix();
-			auto floatViewMatrix = reinterpret_cast<const float*>(&viewMatrix);
 
-			DirectX::XMMATRIX projectionMatrix = RenderManager::GetInstance()->GetRender()->GetProjectionMatrix();
-			auto floatProjectionMatrix = reinterpret_cast<const float*>(&projectionMatrix);
+		// Camera
+		DirectX::XMMATRIX viewMatrix = RenderManager::GetInstance()->GetRender()->GetViewMatrix();
+		auto floatViewMatrix = reinterpret_cast<const float*>(&viewMatrix);
+
+		DirectX::XMMATRIX projectionMatrix = RenderManager::GetInstance()->GetRender()->GetProjectionMatrix();
+		auto floatProjectionMatrix = reinterpret_cast<const float*>(&projectionMatrix);
 			
 		// Gizmos
 		if (selectedEntity)
@@ -292,10 +287,17 @@ void GameEditor::RenderImGui()
 
 			auto floatEntityMatrix = reinterpret_cast<float*>(&entityMatrix);
 
-			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, floatEntityMatrix);
+			float* snapValue = 0;
+			if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftCtrl))
+			{
+				snapValue = reinterpret_cast<float*>(m_CurrentSnapMode);
+				int  a = 0;
+			}
+			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, floatEntityMatrix, 0 , snapValue);
 
 			if (ImGuizmo::IsUsing())
 			{
+	
 				Vector3 translation, scale;
 				Quaternion rotation;
 				entityMatrix.Decompose(scale, rotation, translation);
@@ -418,7 +420,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<Debug>(entity, worldData);
 		SaveComponents<Sound>(entity, worldData);
 		SaveComponents<Sprite2D>(entity, worldData);
-		SaveComponents<CameraScript>(entity, worldData);
+		SaveComponents<Script>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -483,7 +485,8 @@ void GameEditor::LoadWorld(const std::string& _filename)
 				else if (componentName == "StaticMesh")
 				{
 					//AssignComponents<StaticMesh>(myEntity, component["StaticMesh"][0]);
-					myEntity->Assign<StaticMesh>(component["StaticMesh"][0]["m_FileName"]);
+					std::string fileName = component["StaticMesh"][0]["m_FileName"];
+					myEntity->Assign<StaticMesh>(fileName);
 					myEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
 					myEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
 					myEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];

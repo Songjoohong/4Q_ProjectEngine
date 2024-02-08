@@ -7,6 +7,7 @@
 
 class CameraScript : public Script
 {
+	ECS_DECLARE_TYPE
 public:
 	CameraScript() {}
 	CameraScript(Entity* ent)
@@ -44,3 +45,5 @@ public:
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(CameraScript, m_ComponentName)
 };
+
+ECS_DEFINE_TYPE(CameraScript)

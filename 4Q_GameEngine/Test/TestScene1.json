@@ -23,8 +23,8 @@
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {
-                                "m_X": 10.0,
-                                "m_Y": 10.0,
+                                "m_X": 26.10015869140625,
+                                "m_Y": -10.200043678283691,
                                 "m_Z": 10.0
                             },
                             "m_Scale": {
@@ -36,29 +36,56 @@
                     ]
                 },
                 {
-                    "Light": [
+                    "Camera": [
                         {
-                            "m_Color": {
-                                "m_X": 1.0,
-                                "m_Y": 1.0,
-                                "m_Z": 1.0
+                            "m_ComponentName": "Camera"
+                        }
+                    ]
+                },
+                {
+                    "Movement": [
+                        {
+                            "m_ComponentName": "Movement",
+                            "m_CurrentMoveState": 0,
+                            "m_DirectionVector": {
+                                "m_X": -0.43298864364624023,
+                                "m_Y": -0.1770855039358139,
+                                "m_Z": -0.8838334679603577
                             },
-                            "m_ComponentName": "Light",
-                            "m_Intensity": 1.0,
-                            "m_Type": 0
+                            "m_RightVector": {
+                                "m_X": 0.8708548545837402,
+                                "m_Y": 0.170903742313385,
+                                "m_Z": -0.4608728289604187
+                            },
+                            "m_Sensitivity": 0.10000000149011612,
+                            "m_Speed": 100.0
+                        }
+                    ]
+                },
+                {
+                    "Debug": [
+                        {
+                            "m_ComponentName": "Debug"
+                        }
+                    ]
+                },
+                {
+                    "Script": [
+                        {
+                            "m_ComponentName": "Script"
                         }
                     ]
                 }
             ]
         },
         {
-            "Box": [
+            "Plane": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
                             "m_EntityId": 2,
-                            "m_EntityName": "Box",
+                            "m_EntityName": "Plane",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -69,83 +96,9 @@
                         {
                             "m_ComponentName": "Transform",
                             "m_Position": {
-                                "m_X": 1.0,
-                                "m_Y": 3.0,
-                                "m_Z": 5.0
-                            },
-                            "m_Rotation": {
                                 "m_X": 0.0,
                                 "m_Y": 0.0,
                                 "m_Z": 0.0
-                            },
-                            "m_Scale": {
-                                "m_X": 1.0,
-                                "m_Y": 1.0,
-                                "m_Z": 1.0
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "Pot": [
-                {
-                    "EntityIdentifier": [
-                        {
-                            "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 3,
-                            "m_EntityName": "Pot",
-                            "m_HasParent": true,
-                            "m_ParentEntityId": 2
-                        }
-                    ]
-                },
-                {
-                    "Transform": [
-                        {
-                            "m_ComponentName": "Transform",
-                            "m_Position": {
-                                "m_X": 10.0,
-                                "m_Y": 30.0,
-                                "m_Z": 50.0
-                            },
-                            "m_Rotation": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
-                            },
-                            "m_Scale": {
-                                "m_X": 1.0,
-                                "m_Y": 1.0,
-                                "m_Z": 1.0
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "Wall": [
-                {
-                    "EntityIdentifier": [
-                        {
-                            "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 4,
-                            "m_EntityName": "Wall",
-                            "m_HasParent": true,
-                            "m_ParentEntityId": 3
-                        }
-                    ]
-                },
-                {
-                    "Transform": [
-                        {
-                            "m_ComponentName": "Transform",
-                            "m_Position": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": -50.0
                             },
                             "m_Rotation": {
                                 "m_X": 0.0,
@@ -161,6 +114,107 @@
                     ]
                 },
                 {
+                    "StaticMesh": [
+                        {
+                            "m_ComponentName": "StaticMesh",
+                            "m_FileName": "FBXLoad_Test/fbx/plane.fbx",
+                            "m_IsModelCreated": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Zelda": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 3,
+                            "m_EntityName": "Zelda",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 100.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "StaticMesh": [
+                        {
+                            "m_ComponentName": "StaticMesh",
+                            "m_FileName": "FBXLoad_Test/fbx/zeldaPosed001.fbx",
+                            "m_IsModelCreated": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Character": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 4,
+                            "m_EntityName": "Character",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "StaticMesh": [
+                        {
+                            "m_ComponentName": "StaticMesh",
+                            "m_FileName": "FBXLoad_Test/fbx/Character.fbx",
+                            "m_IsModelCreated": true
+                        }
+                    ]
+                },
+                {
                     "Debug": [
                         {
                             "m_ComponentName": "Debug"
@@ -170,13 +224,13 @@
             ]
         },
         {
-            "Empty Entity": [
+            "Plane (1)": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 0,
-                            "m_EntityName": "Empty Entity",
+                            "m_EntityId": 5,
+                            "m_EntityName": "Plane (1)",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -192,28 +246,37 @@
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {
-                                "m_X": 0.0,
+                                "m_X": 90.0,
                                 "m_Y": 0.0,
                                 "m_Z": 0.0
                             },
                             "m_Scale": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
+                                "m_X": 2000.0,
+                                "m_Y": 2000.0,
+                                "m_Z": 2000.0
                             }
+                        }
+                    ]
+                },
+                {
+                    "StaticMesh": [
+                        {
+                            "m_ComponentName": "StaticMesh",
+                            "m_FileName": "FBXLoad_Test/fbx/plane.fbx",
+                            "m_IsModelCreated": true
                         }
                     ]
                 }
             ]
         },
         {
-            "Empty Entity1": [
+            "Wall": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 0,
-                            "m_EntityName": "Empty Entity1",
+                            "m_EntityId": 6,
+                            "m_EntityName": "Wall",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -224,94 +287,29 @@
                         {
                             "m_ComponentName": "Transform",
                             "m_Position": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {
                                 "m_X": 0.0,
-                                "m_Y": 0.0,
+                                "m_Y": 90.0,
                                 "m_Z": 0.0
                             },
                             "m_Scale": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
+                                "m_Z": 1.0
                             }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "Empty Entity2": [
-                {
-                    "EntityIdentifier": [
-                        {
-                            "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 0,
-                            "m_EntityName": "Empty Entity2",
-                            "m_HasParent": false,
-                            "m_ParentEntityId": 0
                         }
                     ]
                 },
                 {
-                    "Transform": [
+                    "StaticMesh": [
                         {
-                            "m_ComponentName": "Transform",
-                            "m_Position": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
-                            },
-                            "m_Rotation": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
-                            },
-                            "m_Scale": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
-                            }
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "Empty Entity3": [
-                {
-                    "EntityIdentifier": [
-                        {
-                            "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 0,
-                            "m_EntityName": "Empty Entity3",
-                            "m_HasParent": false,
-                            "m_ParentEntityId": 0
-                        }
-                    ]
-                },
-                {
-                    "Transform": [
-                        {
-                            "m_ComponentName": "Transform",
-                            "m_Position": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
-                            },
-                            "m_Rotation": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
-                            },
-                            "m_Scale": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
-                            }
+                            "m_ComponentName": "StaticMesh",
+                            "m_FileName": "FBXLoad_Test/fbx/wallTest.fbx",
+                            "m_IsModelCreated": true
                         }
                     ]
                 }

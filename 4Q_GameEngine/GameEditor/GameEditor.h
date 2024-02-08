@@ -2,6 +2,7 @@
 #include "ContentsBrowserPanel.h"
 #include "SceneHierarchyPanel.h"
 #include "../Engine/Engine.h"
+#include "../Engine/Vector3D.h"
 #include <codecvt>
 class ContentsBrowserPanel;
 class SceneHierarchyPanel;
@@ -10,6 +11,7 @@ class EntityIdentifier;
 class Script;
 class PrefabManager;
 class NameManager;
+
 namespace ECS { class Entity; }
 namespace ECS { class World; }
 
@@ -46,6 +48,12 @@ public:
 
 	std::shared_ptr<PrefabManager> m_PrefabManager;
 	std::shared_ptr< NameManager> m_NameManager;
+
+	Vector3D m_TranslationSnapValue = {	4.0f, 4.0f, 4.0f };
+	Vector3D m_RotationSnapValue = { 1.0f, 1.0f, 1.0f };
+	Vector3D m_ScaleSnapValue = { 1.0f, 1.0f, 1.0f };
+
+	Vector3D* m_CurrentSnapMode = &m_TranslationSnapValue;
 private:
 	Renderer* m_Renderer = nullptr;
 
