@@ -39,7 +39,7 @@ void Material::Create(aiMaterial* material)
 
     for (const auto& entry : std::filesystem::recursive_directory_iterator(basePath))
     {
-        if (entry.is_regular_file() && (entry.path().extension() == L".png" || entry.path().extension() == L".jpg"))
+        if (entry.is_regular_file() )//&& (entry.path().extension() == L".png" || entry.path().extension() == L".jpg"))
         {
             // fbx 이름이랑 폴더 이름이랑 같으면 folderPath 생성
             folderPath = entry.path().parent_path().wstring();
@@ -118,7 +118,10 @@ void Material::Create(aiMaterial* material)
         std::wstring finalPath = folderPath + L"/" + path.filename().wstring();
         m_pAmbientOcclusionRV = ResourceManager::Instance->CreateMaterial(finalPath);
     }
-    m_pixelShader.SetShader(L"PixelShader");
+    if(m_pOpacityRV)
+        m_pixelShader.SetShader(L"PixelShader");
+    else
+        m_pixelShader.SetShader(L"OpaquePBR");
     //m_shadowPixelShader.SetShader(L"ShadowPixelShader");
 }
 

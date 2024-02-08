@@ -14,11 +14,11 @@ StaticMeshInstance::~StaticMeshInstance()
 }
 
 
-void StaticMeshInstance::Create(StaticMeshResource* pMeshResource, Math::Matrix* pWorld, Material* pMaterial)
+void StaticMeshInstance::Create(StaticMeshResource* pMeshResource, Math::Matrix pWorld, Material* pMaterial)
 {
 	m_pMeshResource = pMeshResource;
 	m_pMaterial = pMaterial;
-	m_pNodeWorldTransform = pWorld;
+	m_pNodeWorldTransform =  pMeshResource->m_localMatrix*pWorld;
 	
 }
 

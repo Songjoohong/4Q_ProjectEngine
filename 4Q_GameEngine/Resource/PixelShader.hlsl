@@ -43,7 +43,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float3 EmissiveLighting = txEmissive.Sample(samplerLinear, input.Texcoord);
     
-    float AmbientOcclusion = txAmbient.Sample(samplerLinear, input.Texcoord).r;
+    float AmbientOcclusion = txMetalic.Sample(samplerLinear, input.Texcoord).r;
     
     float3 LightColor = 1.0f;
     //Normal Tangent space 
@@ -65,10 +65,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     
     float Metalness = 1.0f;
-    Metalness = txMetalic.Sample(samplerLinear, input.Texcoord).b;
+    //Metalness = txMetalic.Sample(samplerLinear, input.Texcoord).r;
     
     float Roughness = 0.0f;
-    Roughness = txRoughness.Sample(samplerLinear, input.Texcoord).g;
+    //Roughness = txRoughness.Sample(samplerLinear, input.Texcoord).r;
     
     float3 Emissive = 0.0f;
     Emissive = txEmissive.Sample(samplerLinear, input.Texcoord).rgb;
@@ -89,10 +89,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float3 SpecularBRDF = (F * D * G) / max(Epsilon, 4.0 * NDotL * NDotV);
     
-    DirectionLighting += (DiffuseBRDF + SpecularBRDF) * LightColor * NDotL;
-    
-    //// 占쌓몌옙占쏙옙처占쏙옙 占싸븝옙
-	// 占쏙옙占쏙옙NDC 占쏙옙표占썼에占쏙옙占쏙옙 占쏙옙표占쏙옙 占쏙옙占쏙옙占쏙옙占쏙옙占 占쏙옙占쏙옙占실뤄옙 占쏙옙占쏙옙磯占.
+    DirectionLighting += (DiffuseBRDF + SpecularBRDF) * LightColor * NDotL; 
 
     // 포인트 라이트
     float3 PointLight = 0;
@@ -131,7 +128,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 		
         if (currentShadowDepth > sampleShadowDepth + 0.001)
         {
-            //DirectionLighting = 0.0f;
+            DirectionLighting = 0.0f;
         }
     }
     //DirectionLighting += (DiffuseBRDF + SpecularBRDF) * LightColor * NDotL;
@@ -179,7 +176,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         
         float3 SpecularIBL = (F0 * SpecularBRDF.x + SpecularBRDF.y) * SpecularIrradiance;
         
-        AmbientLighting = (DiffuseIBL + SpecularIBL) * 0.35; //AmbientOcclusion;
+        AmbientLighting = (DiffuseIBL + SpecularIBL) * 0.2;
 
     }
 
@@ -190,7 +187,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     //final = final + (Attenuation * Intensity * (PhongD + PhongS));
      final.rgb = pow(final.rgb, 1 / 2.2);
 
-    return float4(final, 1.0f);
+    return float4(final, Opacity);
 
 
 }

@@ -50,6 +50,14 @@ cbuffer PointLight : register(b4)
     float3 Pad0;
 }
 
+cbuffer BallBuffer : register(b5)
+{
+    float Metalic;
+    float Roughness;
+    float Ambient;
+    bool useIBL;
+}
+
 struct ENVIRONMENT_PS_INPUT
 {
     float4 posProjection : SV_POSITION;

@@ -56,6 +56,11 @@ struct cbLight
 	Vector4 mDirection = {0.f, 0.f, 1.f, 1.f};
 };
 
+struct cbBall
+{
+
+};
+
 struct DebugInformation
 {
 	int entityID;
@@ -88,10 +93,11 @@ public:
 	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;					//스왑체인
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
-	ComPtr<ID3D11DepthStencilState>m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
+	ComPtr<ID3D11DepthStencilState> m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
+	ComPtr<ID3D11BlendState> m_pAlphaBlendState = nullptr;			//알파 블렌드 스테이트
 
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
-	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;				//샘플러(clamp)
+	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;			//샘플러(clamp)
 
 
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
@@ -109,6 +115,9 @@ public:
 	ComPtr<ID3D11SamplerState> m_pShadowSampler;
 	D3D11_VIEWPORT m_viewport;
 	D3D11_VIEWPORT m_shadowViewport;
+
+
+
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	RenderTextureClass* m_RenderTexture = nullptr;	// 수민 추가.
@@ -161,6 +170,7 @@ public:
 
 	void UnInitialize();
 
+	void SetAlphaBlendState();
 
 	//화면 클리어
 	void Clear(float r=0.3,float g=1,float b=0.3);
