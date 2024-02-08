@@ -34,6 +34,7 @@ public:
 	PxRigidDynamic* m_Rigid;
 
 	bool m_bKeyUp = false;
+	float m_MaxVelocity = 150.f;
 	PxVec3 m_CurrentDir = { 0.f,0.f,0.f };
 	PxVec3 m_PrevDir = { 0.f,0.f,0.f };
 };
