@@ -227,4 +227,8 @@ public:
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
 	vector<DebugInformation> m_debugs;
 	vector<SpriteInformation> m_sprites;
+
+
+	// 수민
+	void DrawGrid(int gridSize, int gridSpacing);
 };

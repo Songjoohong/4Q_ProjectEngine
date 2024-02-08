@@ -77,6 +77,7 @@ void ContentsBrowserPanel::SetContext(ECS::World* world, std::shared_ptr<PrefabM
 {
 	m_World = world;
 	m_PrefabManager = prefabManager;
+	m_PrefabManager->SetContext(world);
 }
 
 void ContentsBrowserPanel::DragDropContentsBrowser(ECS::Entity* entity, std::filesystem::path file)

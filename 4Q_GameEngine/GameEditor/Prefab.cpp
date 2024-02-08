@@ -175,6 +175,11 @@ void PrefabManager::DeleteAllDataInJsonFile(const std::string& filename)
 	outputFile.close();
 }
 
+void PrefabManager::SetContext(ECS::World* world)
+{
+	m_CurrentWorld = world;
+}
+
 ECS::Entity* PrefabManager::FindEntityByName(std::string entityName)
 {
 	for (const auto& entity : m_CurrentWorld->GetEntities())

@@ -55,3 +55,8 @@ void NameManager::CheckNameDuplicated(ECS::Entity* entity)
 		entity->get<EntityIdentifier>().get().m_EntityName += " (" + std::to_string(overlappedNameCount) + ")";
 	}
 }
+
+void NameManager::ClearContainer()
+{
+	m_NameContainer.clear();
+}

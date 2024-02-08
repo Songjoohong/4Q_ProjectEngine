@@ -116,11 +116,11 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent->Assign<CameraScript>(ent);
 	ent->Assign<Movement>();
 
-	//bool b = ent->has<Script>();
-	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Plane");
-	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
+	////bool b = ent->has<Script>();
+	//Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Plane");
+	//ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
+	//ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 100.f,100.f,100.f });
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Zelda");
@@ -179,15 +179,15 @@ bool Engine::Initialize(const UINT width, const UINT height)
 		ent->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D(1.f, 1.f, 1.f));
 		ent->Assign<Debug>();
 
-		Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-		ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-		ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D(2000.f, 2000.f, 2000.f));
-		ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Plane");
+		//Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		//ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
+		//ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D(2000.f, 2000.f, 2000.f));
+		//ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Plane");
 
-		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-		ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/wallTest.fbx");
-		ent2->Assign<Transform>(Vector3D(100.f, 100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D(100.f, 100.f, 1.f));
-		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Wall");
+		//Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		//ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/wallTest.fbx");
+		//ent2->Assign<Transform>(Vector3D(100.f, 100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D(100.f, 100.f, 1.f));
+		//ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Wall");
 	}
 
 	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	

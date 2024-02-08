@@ -28,6 +28,8 @@ public:
     void SetParent(ECS::Entity* child, ECS::Entity* parent);
 	void DeleteAllDataInJsonFile(const std::string& filename);
 
+    void SetContext(ECS::World* world);
+
     ECS::Entity* FindEntityByName(std::string entityName);
 public:
 	std::string basePath = "../Test/";

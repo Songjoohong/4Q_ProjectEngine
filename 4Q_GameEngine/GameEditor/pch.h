@@ -14,12 +14,15 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
+
+// json
 #include "nlohmann/json.hpp"
 
-//#include <imgui.h>
-//#include <imgui_internal.h>
-
-#include "imgui.h"
-#include "imgui_internal.h"
+// imgui
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include <imgui.h>
+#include <imgui_internal.h>
+#include "ImGuiFileDialog.h"
+//#include "ImGuiFileDialogConfig.h"
 
 #endif //PCH_H
