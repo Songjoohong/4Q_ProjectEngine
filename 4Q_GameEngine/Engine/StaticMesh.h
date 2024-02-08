@@ -13,8 +13,8 @@ struct StaticMesh
 
 	std::string m_ComponentName = "StaticMesh";
 	std::string m_FileName = "";
-
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(StaticMesh, m_ComponentName, m_FileName)
+	bool m_IsModelCreated = false;
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(StaticMesh, m_ComponentName, m_FileName, m_IsModelCreated)
 };
 
 ECS_DEFINE_TYPE(StaticMesh)

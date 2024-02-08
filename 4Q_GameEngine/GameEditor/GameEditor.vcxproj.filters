@@ -38,6 +38,9 @@
     <ClInclude Include="Prefab.h">
       <Filter>Prefab</Filter>
     </ClInclude>
+    <ClInclude Include="NameManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameEditor.cpp">
@@ -60,6 +63,9 @@
     </ClCompile>
     <ClCompile Include="Prefab.cpp">
       <Filter>Prefab</Filter>
+    </ClCompile>
+    <ClCompile Include="NameManager.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

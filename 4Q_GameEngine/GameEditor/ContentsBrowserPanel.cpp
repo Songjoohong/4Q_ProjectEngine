@@ -54,8 +54,11 @@ void ContentsBrowserPanel::RenderImGui()
 		ImGui::ImageButton((void*)texture, { 128,128 });
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
-			if (directoryEntry.is_directory())
-				m_CurrentDirectory /= path.filename();
+			/*if (directoryEntry.is_directory())
+				m_CurrentDirectory /= path.filename();*/
+			m_PrefabManager->LoadPrefab(filenameString);
+			//m_PrefabManager->SavePrefab(m_PrefabManager->LoadPrefab(filenameString), filenameString);
+			m_PrefabManager->m_prefabContainer.clear();
 		}
 		ImGui::Text(filenameString.c_str());
 
@@ -70,9 +73,10 @@ void ContentsBrowserPanel::RenderImGui()
 	ImGui::End();
 }
 
-void ContentsBrowserPanel::SetContext(ECS::World* world)
+void ContentsBrowserPanel::SetContext(ECS::World* world, std::shared_ptr<PrefabManager> prefabManager)
 {
 	m_World = world;
+	m_PrefabManager = prefabManager;
 }
 
 void ContentsBrowserPanel::DragDropContentsBrowser(ECS::Entity* entity, std::filesystem::path file)

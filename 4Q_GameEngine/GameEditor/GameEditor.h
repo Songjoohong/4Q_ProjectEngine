@@ -9,6 +9,7 @@ class Renderer;
 class EntityIdentifier;
 class Script;
 class PrefabManager;
+class NameManager;
 namespace ECS { class Entity; }
 namespace ECS { class World; }
 
@@ -38,13 +39,13 @@ public:
 	void LoadWorld(const std::string& _strRelativePath);
 
 	template<typename ComponentType>
-	void AssignComponents(ECS::Entity* entity, const json& componentData);
+	void AssignComponents(ECS::Entity* entity, json& componentData);
 	void NewScene();
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
 
 	std::shared_ptr<PrefabManager> m_PrefabManager;
-
+	std::shared_ptr< NameManager> m_NameManager;
 private:
 	Renderer* m_Renderer = nullptr;
 
@@ -106,9 +107,13 @@ inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 }
 
 template<typename ComponentType>
-inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& componentData)
+inline void GameEditor::AssignComponents(ECS::Entity* entity, json& componentData)
 {
 	if constexpr (std::is_base_of_v<Script, ComponentType>)
+	{
+		entity->Assign<ComponentType>();
+	}
+	else if (std::is_same_v<StaticMesh, ComponentType>)
 	{
 		entity->Assign<ComponentType>();
 	}
@@ -119,5 +124,5 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& compon
 
 	auto& component = entity->get<ComponentType>().get();
 
-	//component = componentData;
+	component = componentData;
 }

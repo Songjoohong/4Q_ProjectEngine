@@ -1,6 +1,8 @@
 #pragma once
 #include <directxtk/SimpleMath.h>
 #include "Vector3D.h"
+
+
 struct Matrix4x4
 {
     float m_11, m_12, m_13, m_14;
@@ -31,4 +33,5 @@ struct Matrix4x4
 
         return *this;
     }
+
 };

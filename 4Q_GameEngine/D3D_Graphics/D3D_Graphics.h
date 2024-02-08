@@ -78,6 +78,7 @@ public:
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
 	ComPtr<ID3D11DepthStencilState>m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
+	ComPtr<ID3D11DepthStencilState>m_pGizmoDSS = nullptr;	//뎁스 스텐실 스테이트
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 

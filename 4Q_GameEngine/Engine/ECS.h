@@ -542,7 +542,7 @@ namespace ECS
 			return bPendingDestroy;
 		}
 
-		Entity* getParent() const { return parentEntity; }
+		Entity* getParent() const { return m_parent; }
 
 		//void addChild(Entity* child)
 		//{
@@ -614,16 +614,14 @@ namespace ECS
 		}
 
 		// ¼ö¹Î End --------------------------------------------------------------------------------------------------------
-
 		Entity* m_parent = nullptr;
 		std::vector<Entity*> m_children;
 	private:
 		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> components;
 		World* world;
-
+		
 		size_t id;
 		bool bPendingDestroy = false;
-		Entity* parentEntity = nullptr;
 	};
 
 	/**
@@ -1211,6 +1209,7 @@ namespace ECS
 
 			auto handle = ComponentHandle<T>(&container->data);
 			world->emit<Events::OnComponentAssigned<T>>({ this, handle });
+
 			return handle;
 		}
 		else

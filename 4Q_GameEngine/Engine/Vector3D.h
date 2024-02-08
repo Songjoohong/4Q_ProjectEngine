@@ -76,28 +76,17 @@ public:
 		this->m_Z = m_Z + other.z;
 	}
 
-	Vector3D QuaternionToEulerAngles(const Quaternion& q) 
-	{
-		Vector3D euler;
+	Vector3D& operator=(const DirectX::XMVECTOR& q) {
+		// Convert XMVECTOR to Quaternion
+		DirectX::XMFLOAT4 quat;
+		DirectX::XMStoreFloat4(&quat, q);
 
-		// Roll (x-axis rotation)
-		double sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z);
-		double cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
-		euler.m_X = std::atan2(sinr_cosp, cosr_cosp);
+		// Assign quaternion components to Vector3D components
+		m_X = quat.x;
+		m_Y = quat.y;
+		m_Z = quat.z;
 
-		// Pitch (y-axis rotation)
-		double sinp = 2.0 * (q.w * q.y - q.z * q.x);
-		if (std::abs(sinp) >= 1)
-			euler.m_Y = std::copysign(3.14159265358979323846 / 2.0, sinp); // Use 90 degrees if out of range
-		else
-			euler.m_Y = std::asin(sinp);
-
-		// Yaw (z-axis rotation)
-		double siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
-		double cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
-		euler.m_Z = std::atan2(siny_cosp, cosy_cosp);
-
-		return euler;
+		return *this;
 	}
 
 	void operator-=(const Vector3D& other)

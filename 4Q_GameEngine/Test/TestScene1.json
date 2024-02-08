@@ -19,29 +19,19 @@
                             "m_ComponentName": "Transform",
                             "m_Position": {
                                 "m_X": 0.0,
-                                "m_Y": 0.0,
+                                "m_Y": 10.0,
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
+                                "m_X": 10.0,
+                                "m_Y": 10.0,
+                                "m_Z": 10.0
                             },
                             "m_Scale": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
                             }
-                        }
-                    ]
-                },
-                {
-                    "Camera": [
-                        {
-                            "m_ComponentName": "Camera",
-                            "m_FOV": 90.0,
-                            "m_Far": 1000.0,
-                            "m_Near": 1.0
                         }
                     ]
                 },
@@ -153,9 +143,9 @@
                         {
                             "m_ComponentName": "Transform",
                             "m_Position": {
-                                "m_X": 100.0,
-                                "m_Y": 300.0,
-                                "m_Z": 500.0
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": -50.0
                             },
                             "m_Rotation": {
                                 "m_X": 0.0,
@@ -163,18 +153,165 @@
                                 "m_Z": 0.0
                             },
                             "m_Scale": {
-                                "m_X": 1.0,
-                                "m_Y": 1.0,
-                                "m_Z": 1.0
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
+                                "m_Z": 100.0
                             }
                         }
                     ]
                 },
                 {
-                    "StaticMesh": [
+                    "Debug": [
                         {
-                            "m_ComponentName": "StaticMesh",
-                            "m_FileName": "box.fbx"
+                            "m_ComponentName": "Debug"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Empty Entity": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 0,
+                            "m_EntityName": "Empty Entity",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Empty Entity1": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 0,
+                            "m_EntityName": "Empty Entity1",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Empty Entity2": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 0,
+                            "m_EntityName": "Empty Entity2",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Empty Entity3": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 0,
+                            "m_EntityName": "Empty Entity3",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            }
                         }
                     ]
                 }
