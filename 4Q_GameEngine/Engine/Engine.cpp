@@ -124,12 +124,12 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
 	ent1->Assign<Transform>(Vector3D(0.f, -100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D{ 100.f,100.f,100.f });
-	ent1->Assign<BoxCollider>(CollisionType::STATIC, 10000);
+	ent1->Assign<BoxCollider>(CollisionType::STATIC, Vector3D{100.f,1.f,100.f});
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
-	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, 100);
+	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, Vector3D{100.f,100.f,100.f});
 	ent2->Assign<Debug>();
 	ent2->Assign<PlayerScript>(ent2);
 	ent2->Assign<RigidBody>();
