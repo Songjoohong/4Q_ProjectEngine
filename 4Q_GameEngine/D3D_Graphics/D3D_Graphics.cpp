@@ -506,7 +506,7 @@ void Renderer::RenderScene()
 	//그림자 렌더
 	ShadowRender();
 
-	ImGuizmo::DrawGrid(m_viewMatrix.m[0], m_projectionMatrix.m[0], identityMatrix, 10);
+	//ImGuizmo::DrawGrid(m_viewMatrix.m[0], m_projectionMatrix.m[0], identityMatrix, 10);
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?

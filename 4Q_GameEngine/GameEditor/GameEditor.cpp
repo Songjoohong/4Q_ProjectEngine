@@ -533,11 +533,17 @@ void GameEditor::LoadWorld(const std::string& _filename)
 void GameEditor::NewScene()
 {
 	m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
+	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+	m_NameManager->ClearContainer();
+
 	m_EditorWorld->registerSystem(new RenderSystem);
 	m_EditorWorld->registerSystem(new TransformSystem);
 	m_EditorWorld->registerSystem(new MovementSystem);
 	m_EditorWorld->registerSystem(new CameraSystem);
 	m_EditorWorld->registerSystem(new ScriptSystem);
+
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
 
 	m_Camera = m_EditorWorld->create();
 	m_Box = m_EditorWorld->create();
@@ -578,9 +584,6 @@ void GameEditor::NewScene()
 		m_NameManager->AddEntityName(entity);
 	}
 
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
-	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
-	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 
 void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)

@@ -98,6 +98,7 @@ void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
 				ImGui::CloseCurrentPopup();
 				m_SelectionContext = nullptr;
+				m_OpenTextPopup = false;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_Enter))
 			{
@@ -106,6 +107,7 @@ void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
 				ImGui::CloseCurrentPopup();
 				m_SelectionContext = nullptr;
+				m_OpenTextPopup = false;
 			}
 
 			ImGui::Spacing();
@@ -114,11 +116,13 @@ void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 			{
 				ImGui::CloseCurrentPopup(); 
 				m_SelectionContext = nullptr;
+				m_OpenTextPopup = false;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
 				ImGui::CloseCurrentPopup();
 				m_SelectionContext = nullptr;
+				m_OpenTextPopup = false;
 			}
 
 

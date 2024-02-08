@@ -12,6 +12,7 @@ public:
 
 	void AddEntityName(ECS::Entity* entity);
 	void CheckNameDuplicated(ECS::Entity* entity);
+	void ClearContainer();
 	std::vector<std::string> m_NameContainer;
 };
 
