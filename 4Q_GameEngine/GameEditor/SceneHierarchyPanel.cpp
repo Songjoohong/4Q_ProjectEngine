@@ -377,6 +377,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	ImGui::PushItemWidth(-1);
 	ImGui::SameLine();
 
+
+
 	if (ImGui::Button("Add Component"))
 		ImGui::OpenPopup("AddComponent");
 
@@ -391,6 +393,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		ImGui::EndPopup();
 	}
+
+	ShowStaticModelDialog();	// TODO: 수정..?
+
 	ImGui::PopItemWidth();
 
 	DrawComponent<Transform>("Transform", entity, [](auto component)
@@ -402,9 +407,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<StaticMesh>("StaticMesh", entity, [](auto component)
 	{
-		//std::string temp = component->m_FileName;
+		std::string temp = component->m_FileName;
 
-		//ImGui::Text(temp.c_str());
+		ImGui::Text(temp.c_str());
 	});
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
@@ -446,5 +451,34 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		/// -> 라이트 타입별 나타내야 하는 정보가 다르다.     다른가? 흐음..
 	});
+}
+
+void SceneHierarchyPanel::ShowStaticModelDialog()	// TODO: 이걸 World 파일 불러오는 거에도 쓸 수 있을듯
+{
+	std::string fileName;
+	std::string filePathName;
+	std::string filePath;
+
+	if (m_IsDialogOpen)
+	{
+		IGFD::FileDialogConfig config; config.path = ".";
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".fbx", config);
+	}
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+			fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
+			filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+			// action
+
+			m_SelectionContext->Assign<StaticMesh>("FBXLoad_Test/fbx/" + fileName);
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+		m_IsDialogOpen = false;
+	}
 }
 

@@ -511,10 +511,12 @@ void Renderer::RenderScene()
 
 	MeshRender();
 
+	//DrawGrid(1960, 1);
+
 	//RenderDebugDraw();
 	//RenderText();
 	//RenderSprite();
-	//m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 	//임구이 렌더
 	//RenderImgui();
@@ -582,6 +584,99 @@ void Renderer::CreateShadowPS()
 	ID3D10Blob* pixelShaderBuffer = nullptr;
 	HR_T(CompileShaderFromFile(L"../Resource/ShadowDepthPS.hlsl", 0, "main", "ps_5_0", &pixelShaderBuffer));
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, m_pShadowPS.GetAddressOf()));
+}
+
+void Renderer::DrawGrid(int gridSize, int gridSpacing)
+{
+	// 그리드 라인의 간격
+	int numLines = gridSize / gridSpacing;
+
+	// 그리드를 그리기 위한 버텍스 버퍼 생성
+	struct Vertex {
+		XMFLOAT3 position;
+		XMFLOAT4 color;
+	};
+
+	Vertex* vertices = new Vertex[numLines * 4];
+
+	// 그리드 라인 생성
+	for (int i = 0; i < numLines; ++i) {
+		float offset = static_cast<float>(i * gridSpacing) - static_cast<float>(gridSize) / 2.0f;
+
+		// 색상 변경
+		XMFLOAT4 lineColor = (i % 2 == 0) ? XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f) : XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
+
+		// 수평 라인
+		vertices[i * 4] = { XMFLOAT3(-static_cast<float>(gridSize) / 2.0f, 0.0f, offset), lineColor };
+		vertices[i * 4 + 1] = { XMFLOAT3(static_cast<float>(gridSize) / 2.0f, 0.0f, offset), lineColor };
+
+		// 수직 라인
+		vertices[i * 4 + 2] = { XMFLOAT3(offset, 0.0f, -static_cast<float>(gridSize) / 2.0f), lineColor };
+		vertices[i * 4 + 3] = { XMFLOAT3(offset, 0.0f, static_cast<float>(gridSize) / 2.0f), lineColor };
+	}
+
+	// 정점 버퍼 생성
+	D3D11_BUFFER_DESC bd;
+	ZeroMemory(&bd, sizeof(bd));
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = sizeof(Vertex) * numLines * 4;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA initData;
+	ZeroMemory(&initData, sizeof(initData));
+	initData.pSysMem = vertices;
+
+	ID3D11Buffer* vertexBuffer;
+	m_pDevice->CreateBuffer(&bd, &initData, &vertexBuffer);
+
+	// 정점 버퍼 바인딩
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	m_pDeviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+
+	// 월드 뷰 프로젝션 매트릭스 설정
+	XMMATRIX worldViewProjTransposed = XMMatrixTranspose(m_projectionMatrix);
+
+	// 셰이더 상수 버퍼 설정
+	struct ConstantBuffer {
+		XMMATRIX wvp;
+	};
+
+	ConstantBuffer cb;
+	cb.wvp = worldViewProjTransposed;
+
+	// 셰이더 상수 버퍼 생성
+	D3D11_BUFFER_DESC cbd;
+	ZeroMemory(&cbd, sizeof(cbd));
+	cbd.Usage = D3D11_USAGE_DEFAULT;
+	cbd.ByteWidth = sizeof(ConstantBuffer);
+	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbd.CPUAccessFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA cbInitData;
+	ZeroMemory(&cbInitData, sizeof(cbInitData));
+	cbInitData.pSysMem = &cb;
+
+	ID3D11Buffer* constantBuffer;
+	m_pDevice->CreateBuffer(&cbd, &cbInitData, &constantBuffer);
+
+	// 셰이더 상수 버퍼 바인딩
+	m_pDeviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
+
+	// 정점 셰이더 및 픽셀 셰이더 설정 (간단한 선을 그리기 위한 셰이더)
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	// 셰이더 로드 및 실행
+// 여기에서 셰이더를 컴파일하고 로드하여 사용하는 코드를 작성
+
+
+
+// 정점 그리기
+	m_pDeviceContext->Draw(numLines * 4, 0);
+
+	// 정점 버퍼 해제
+	vertexBuffer->Release();
 }
 
 void Renderer::RenderImgui()

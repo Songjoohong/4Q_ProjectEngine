@@ -15,6 +15,9 @@
     <Filter Include="Prefab">
       <UniqueIdentifier>{4d8414dd-cbcd-4587-88ff-5168056ec7fa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{1b5f4260-767d-48f4-85a7-f2a71dc7074c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -38,6 +41,12 @@
     <ClInclude Include="Prefab.h">
       <Filter>Prefab</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiFileDialog.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiFileDialogConfig.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameEditor.cpp">
@@ -60,6 +69,9 @@
     </ClCompile>
     <ClCompile Include="Prefab.cpp">
       <Filter>Prefab</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiFileDialog.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

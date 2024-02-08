@@ -211,6 +211,10 @@ void GameEditor::RenderImGui()
 					LoadWorld("TestScene1.json");
 				}
 
+				//if (ImGui::MenuItem("Test Dialog"))
+				//{
+				//}
+
 				if (ImGui::MenuItem("Exit"))
 				{
 					Close();
@@ -281,7 +285,7 @@ void GameEditor::RenderImGui()
 		static bool show = true;
 		ImGui::ShowDemoWindow();
 	}
-	
+
 	EndRenderImGui();
 }
 
