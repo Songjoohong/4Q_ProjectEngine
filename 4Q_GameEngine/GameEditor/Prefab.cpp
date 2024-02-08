@@ -15,12 +15,14 @@
 #include "../Engine/Sound.h"
 #include "../Engine/Sprite2D.h"
 #include "../Engine/CameraScript.h"
-
+#include "NameManager.h"
+#include <set>
 using json = nlohmann::json;
 
-PrefabManager::PrefabManager(ECS::World* currentWorld)
+PrefabManager::PrefabManager(ECS::World* currentWorld, std::shared_ptr<NameManager> nameManager)
 {
 	m_CurrentWorld = currentWorld;
+	m_NameManager = nameManager;
 }
 
 PrefabManager::~PrefabManager()
@@ -67,13 +69,19 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 		for (auto it = entity.begin(); it != entity.end(); ++it)
 		{
 			Entity* prefabEntity = m_CurrentWorld->create();
-
+			int oldID = 0;
 			for (const auto& component : it.value())
 			{
 				std::string componentName = component.begin().key();
 				if (componentName == "EntityIdentifier")
 				{
-					AssignComponents<EntityIdentifier>(prefabEntity, component["EntityIdentifier"][0]);
+					prefabEntity->Assign<EntityIdentifier>();
+					oldID = component["EntityIdentifier"][0]["m_EntityId"];
+					prefabEntity->get<EntityIdentifier>()->m_ComponentName = component["EntityIdentifier"][0]["m_ComponentName"];
+					prefabEntity->get<EntityIdentifier>()->m_EntityName = component["EntityIdentifier"][0]["m_EntityName"];
+					prefabEntity->get<EntityIdentifier>()->m_HasParent = component["EntityIdentifier"][0]["m_HasParent"];
+					prefabEntity->get<EntityIdentifier>()->m_ParentEntityId = component["EntityIdentifier"][0]["m_ParentEntityId"];
+					prefabEntity->get<EntityIdentifier>()->m_EntityId = prefabEntity->getEntityId();
 				}
 				else if (componentName == "Transform")
 				{
@@ -101,7 +109,11 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 
 				else if (componentName == "StaticMesh")
 				{
-					AssignComponents<StaticMesh>(prefabEntity, component["StaticMesh"][0]);
+					std::string fileName = component["StaticMesh"][0]["m_FileName"];
+					prefabEntity->Assign<StaticMesh>(fileName);
+					prefabEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
+					prefabEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
+					prefabEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
 				}
 				else if (componentName == "Debug")
 				{
@@ -116,25 +128,31 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 					AssignComponents<CameraScript>(prefabEntity, component["CameraScript"][0]);
 				}
 			}
-			m_prefabContainer.push_back(prefabEntity);
+			m_prefabContainer.push_back({ prefabEntity, oldID });
 		}
 	}
+
 
 	for (const auto& prefabChild : m_prefabContainer)
 	{
 		for (const auto& prefabParent : m_prefabContainer)
 		{
-			if (prefabChild->get<EntityIdentifier>().get().m_HasParent == true)
+			if (prefabChild.first->get<EntityIdentifier>().get().m_HasParent == true)
 			{
-				if (prefabChild->get<EntityIdentifier>().get().m_ParentEntityId == prefabParent->getEntityId())
+				if (prefabChild.first->get<EntityIdentifier>().get().m_ParentEntityId == prefabParent.second)
 				{
-					SetParent(prefabChild, prefabParent);
+					SetParent(prefabChild.first, prefabParent.first);
 				}
 			}
 		}
 	}
 
-	return nullptr;
+	for (const auto& prefab : m_prefabContainer)
+	{
+		m_NameManager->AddEntityName(prefab.first);
+	}
+
+	return m_prefabContainer[0].first;
 }
 
 void PrefabManager::SetParent(ECS::Entity* child, ECS::Entity* parent)
@@ -155,6 +173,15 @@ void PrefabManager::DeleteAllDataInJsonFile(const std::string& filename)
 
 	outputFile << emptyJson.dump(4);
 	outputFile.close();
+}
+
+ECS::Entity* PrefabManager::FindEntityByName(std::string entityName)
+{
+	for (const auto& entity : m_CurrentWorld->GetEntities())
+	{
+		if (entity->get<EntityIdentifier>().get().m_EntityName == entityName)
+			return entity;
+	}	
 }
 
 void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabData)

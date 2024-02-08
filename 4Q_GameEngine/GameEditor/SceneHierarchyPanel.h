@@ -6,13 +6,14 @@
 
 struct StaticMesh;
 class PrefabManager;
+class NameManager;
 class SceneHierarchyPanel
 {
 public:
 	SceneHierarchyPanel() = default;
 	SceneHierarchyPanel(ECS::World* context);
 
-	void SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab);
+	void SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab, std::shared_ptr<NameManager> nameManager);
 
 	void RenderImGui();
 
@@ -39,6 +40,7 @@ private:
 	ECS::Entity* m_SelectionContext;
 	ECS::Entity* picked;
 	std::shared_ptr<PrefabManager> m_PrefabManager;
+	std::shared_ptr<NameManager> m_NameManager;
 	bool m_OpenTextPopup = false;
 };
 

@@ -23,8 +23,8 @@
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {
-                                "m_X": 25.300003051757813,
-                                "m_Y": -10.200003623962402,
+                                "m_X": 10.0,
+                                "m_Y": 10.0,
                                 "m_Z": 10.0
                             },
                             "m_Scale": {
@@ -36,49 +36,29 @@
                     ]
                 },
                 {
-                    "Camera": [
+                    "Light": [
                         {
-                            "m_ComponentName": "Camera"
-                        }
-                    ]
-                },
-                {
-                    "Movement": [
-                        {
-                            "m_ComponentName": "Movement",
-                            "m_CurrentMoveState": 0,
-                            "m_DirectionVector": {
-                                "m_X": -0.4206037223339081,
-                                "m_Y": -0.1770848035812378,
-                                "m_Z": -0.8897940516471863
+                            "m_Color": {
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
                             },
-                            "m_RightVector": {
-                                "m_X": 0.8772060871124268,
-                                "m_Y": 0.170903742313385,
-                                "m_Z": -0.4486663043498993
-                            },
-                            "m_Sensitivity": 0.10000000149011612,
-                            "m_Speed": 100.0
-                        }
-                    ]
-                },
-                {
-                    "Debug": [
-                        {
-                            "m_ComponentName": "Debug"
+                            "m_ComponentName": "Light",
+                            "m_Intensity": 1.0,
+                            "m_Type": 0
                         }
                     ]
                 }
             ]
         },
         {
-            "Zelda": [
+            "Box": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
                             "m_EntityId": 2,
-                            "m_EntityName": "Zelda",
+                            "m_EntityName": "Box",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -89,9 +69,9 @@
                         {
                             "m_ComponentName": "Transform",
                             "m_Position": {
-                                "m_X": 100.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
+                                "m_X": 1.0,
+                                "m_Y": 3.0,
+                                "m_Z": 5.0
                             },
                             "m_Rotation": {
                                 "m_X": 0.0,
@@ -103,29 +83,21 @@
                                 "m_Y": 1.0,
                                 "m_Z": 1.0
                             }
-                        }
-                    ]
-                },
-                {
-                    "StaticMesh": [
-                        {
-                            "m_ComponentName": "StaticMesh",
-                            "m_FileName": "FBXLoad_Test/fbx/zeldaPosed001.fbx"
                         }
                     ]
                 }
             ]
         },
         {
-            "Character": [
+            "Pot": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
                             "m_EntityId": 3,
-                            "m_EntityName": "Character",
-                            "m_HasParent": false,
-                            "m_ParentEntityId": 0
+                            "m_EntityName": "Pot",
+                            "m_HasParent": true,
+                            "m_ParentEntityId": 2
                         }
                     ]
                 },
@@ -134,9 +106,9 @@
                         {
                             "m_ComponentName": "Transform",
                             "m_Position": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
+                                "m_X": 10.0,
+                                "m_Y": 30.0,
+                                "m_Z": 50.0
                             },
                             "m_Rotation": {
                                 "m_X": 0.0,
@@ -150,12 +122,41 @@
                             }
                         }
                     ]
+                }
+            ]
+        },
+        {
+            "Wall": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 4,
+                            "m_EntityName": "Wall",
+                            "m_HasParent": true,
+                            "m_ParentEntityId": 3
+                        }
+                    ]
                 },
                 {
-                    "StaticMesh": [
+                    "Transform": [
                         {
-                            "m_ComponentName": "StaticMesh",
-                            "m_FileName": "FBXLoad_Test/fbx/Character.fbx"
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": -50.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
+                                "m_Z": 100.0
+                            }
                         }
                     ]
                 },
@@ -163,6 +164,154 @@
                     "Debug": [
                         {
                             "m_ComponentName": "Debug"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Empty Entity": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 0,
+                            "m_EntityName": "Empty Entity",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Empty Entity1": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 0,
+                            "m_EntityName": "Empty Entity1",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Empty Entity2": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 0,
+                            "m_EntityName": "Empty Entity2",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Empty Entity3": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 0,
+                            "m_EntityName": "Empty Entity3",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            }
                         }
                     ]
                 }

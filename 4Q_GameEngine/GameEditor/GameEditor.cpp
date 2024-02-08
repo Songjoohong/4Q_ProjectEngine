@@ -25,11 +25,18 @@
 #include "../Engine/RenderSystem.h"
 
 #include "Prefab.h"
+#include "NameManager.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
-
 
 using json = nlohmann::json;
 namespace ECS { class Entity; }
+
+static const float identityMatrix[16] =
+{ 1.f, 0.f, 0.f, 0.f,
+	0.f, 1.f, 0.f, 0.f,
+	0.f, 0.f, 1.f, 0.f,
+	0.f, 0.f, 0.f, 1.f };
+
 
 GameEditor::GameEditor(HINSTANCE hInstance)
 	:Engine(hInstance)
@@ -52,7 +59,7 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	//m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
 
 	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();		// test
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);			// test
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);			// test
 
 	//m_EditorWorld->registerSystem(new RenderSystem);
 	//m_EditorWorld->registerSystem(new TransformSystem);
@@ -61,10 +68,16 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 
 
-	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld);
+	m_NameManager = std::make_shared<NameManager>();
+	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld, m_NameManager);
 
-	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
+	for (const auto& entity : m_EditorWorld->GetEntities())
+	{
+		m_NameManager->AddEntityName(entity);
+	}
+
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.Initialize();
 	if (!InitImGui())
 	{
@@ -128,12 +141,12 @@ void GameEditor::BeginRenderImGui()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	ImGuizmo::BeginFrame();
+
 }
 
 void GameEditor::RenderImGui()
 {
 	BeginRenderImGui();
-
 	// Note : Swtich this to true to enable dockspace
 	static bool dockingEnabled = true;
 	if (dockingEnabled)
@@ -248,33 +261,75 @@ void GameEditor::RenderImGui()
 		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
 		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
-		// CameraEntity가 나와야 다시 할 수 있을듯?
-		// Projection행렬 필요
-		//if (selectedEntity)
-		//{
-		//	ImGuizmo::SetOrthographic(false);
-		//	ImGuizmo::SetDrawlist();
-		//	float windowWidth = (float)ImGui::GetWindowWidth();
-		//	float windowHeight = (float)ImGui::GetWindowHeight();
-		//	ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
+		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
+		{
+			m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+		}
+		else if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_X))
+		{
+			m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+		}
+		else if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_C))
+		{
+			m_GizmoType = ImGuizmo::OPERATION::SCALE;
+		}
 
-		//	// Camera
-		//	const auto& camera = m_Camera->get<Transform>().get();
-		//	DirectX::XMMATRIX camTranslation = DirectX::XMMatrixTranslationFromVector(camera.m_Position.ConvertToVector3());
-		//	DirectX::XMMATRIX camRotation = DirectX::XMMatrixRotationQuaternion(camera.m_Rotation.ConvertToVector3());
-		//	DirectX::XMMATRIX camScale = DirectX::XMMatrixScalingFromVector(camera.m_Scale.ConvertToVector3());
-		//	auto cameratransformMatrix = camScale * camRotation * camTranslation;
+			// Camera
+			DirectX::XMMATRIX viewMatrix = RenderManager::GetInstance()->GetRender()->GetViewMatrix();
+			auto floatViewMatrix = reinterpret_cast<const float*>(&viewMatrix);
 
-		//	// Entity Transform
-		//	auto& tc = selectedEntity->get<Transform>().get();
-		//	DirectX::XMMATRIX translation = DirectX::XMMatrixTranslationFromVector(tc.m_Position.ConvertToVector3());
-		//	DirectX::XMMATRIX rotation = DirectX::XMMatrixRotationQuaternion(tc.m_Rotation.ConvertToVector3());
-		//	DirectX::XMMATRIX scale = DirectX::XMMatrixScalingFromVector(tc.m_Scale.ConvertToVector3());
+			DirectX::XMMATRIX projectionMatrix = RenderManager::GetInstance()->GetRender()->GetProjectionMatrix();
+			auto floatProjectionMatrix = reinterpret_cast<const float*>(&projectionMatrix);
+			
+		// Gizmos
+		if (selectedEntity)
+		{
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+			float windowWidth = (float)ImGui::GetWindowWidth();
+			float windowHeight = (float)ImGui::GetWindowHeight();
+			ImGuizmo::SetRect(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, windowWidth, windowHeight);
 
-		//	auto transformMatrix = scale * rotation * translation;
-		//	
-		//	//ImGuizmo::Manipulate(cameratransformMatrix, )
-		//}
+			// Entity Transform
+			auto& tc = selectedEntity->get<Transform>().get();
+			DirectX::SimpleMath::Matrix entityMatrix = tc.m_WorldMatrix.ConvertToMatrix();
+
+			auto floatEntityMatrix = reinterpret_cast<float*>(&entityMatrix);
+
+			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, floatEntityMatrix);
+
+			if (ImGuizmo::IsUsing())
+			{
+				Vector3 translation, scale;
+				Quaternion rotation;
+				entityMatrix.Decompose(scale, rotation, translation);
+
+				if (m_GizmoType == ImGuizmo::OPERATION::TRANSLATE)
+				{
+					tc.m_Position = translation;
+				}
+				else if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+				{
+					Quaternion deltaRotation = Quaternion::CreateFromYawPitchRoll(
+						tc.m_Rotation.m_X * DirectX::XM_PI / 180.0f,
+						tc.m_Rotation.m_Y * DirectX::XM_PI / 180.0f,
+						tc.m_Rotation.m_Z * DirectX::XM_PI / 180.0f);
+
+					// Update rotation
+					rotation *= deltaRotation;
+					rotation.Normalize();
+
+					// Set the new rotation
+					tc.m_Rotation.SetX(rotation.x);
+					tc.m_Rotation.SetY(rotation.y);
+					tc.m_Rotation.SetZ(rotation.z);
+				}
+				else if (m_GizmoType == ImGuizmo::OPERATION::SCALE)
+				{
+					tc.m_Scale = scale;
+				}
+			}
+		}
 
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -396,13 +451,14 @@ void GameEditor::LoadWorld(const std::string& _filename)
 			// Entity 생성 후 정보 push
 			Entity* myEntity = m_EditorWorld->create();
 
-			for (const auto& component : it.value())
+			for (auto component : it.value())
 			{
 				std::string componentName = component.begin().key();
 
 				if (componentName == "EntityIdentifier")
 				{
 					AssignComponents<EntityIdentifier>(myEntity, component["EntityIdentifier"][0]);
+					//m_NameManager->AddEntityName(myEntity);
 				}
 				else if (componentName == "Transform")
 				{
@@ -430,7 +486,11 @@ void GameEditor::LoadWorld(const std::string& _filename)
 
 				else if (componentName == "StaticMesh")
 				{
-					AssignComponents<StaticMesh>(myEntity, component["StaticMesh"][0]);
+					//AssignComponents<StaticMesh>(myEntity, component["StaticMesh"][0]);
+					myEntity->Assign<StaticMesh>(component["StaticMesh"][0]["m_FileName"]);
+					myEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
+					myEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
+					myEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
 				}
 				else if (componentName == "Debug")
 				{
@@ -465,8 +525,8 @@ void GameEditor::LoadWorld(const std::string& _filename)
 	}
 
 	// HierarchyPanel에 등록
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
-	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 
@@ -513,8 +573,13 @@ void GameEditor::NewScene()
 
 	m_Camera->Assign<Light>();
 
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager);
-	m_ContentsBrowserPanel.SetContext(m_EditorWorld);
+	for (const auto& entity : m_EditorWorld->GetEntities())
+	{
+		m_NameManager->AddEntityName(entity);
+	}
+
+	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 }
 

@@ -146,6 +146,7 @@
     <ClInclude Include="ContentsBrowserPanel.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GameEditor.h" />
+    <ClInclude Include="NameManager.h" />
     <ClInclude Include="ImGuiFileDialog.h" />
     <ClInclude Include="ImGuiFileDialogConfig.h" />
     <ClInclude Include="pch.h" />
@@ -159,6 +160,7 @@
     <ClCompile Include="ContentsBrowserPanel.cpp" />
     <ClCompile Include="EditorMain.cpp" />
     <ClCompile Include="GameEditor.cpp" />
+    <ClCompile Include="NameManager.cpp" />
     <ClCompile Include="ImGuiFileDialog.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>

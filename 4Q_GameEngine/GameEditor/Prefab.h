@@ -5,13 +5,13 @@ namespace ECS { class Entity; }
 namespace ECS { class World; }
 
 class EntityIdentifier;
-
+class NameManager;
 using json = nlohmann::json;
 
 class PrefabManager
 {
 public:
-	PrefabManager(ECS::World* currentWorld);
+	PrefabManager(ECS::World* currentWorld, std::shared_ptr<NameManager> nameManager);
 	~PrefabManager();
 
 public:
@@ -26,15 +26,16 @@ public:
     void AssignComponents(ECS::Entity* entity, const json& componentData);
 
     void SetParent(ECS::Entity* child, ECS::Entity* parent);
-
 	void DeleteAllDataInJsonFile(const std::string& filename);
+
+    ECS::Entity* FindEntityByName(std::string entityName);
 public:
 	std::string basePath = "../Test/";
     json prefabData;
 
     ECS::World* m_CurrentWorld;
-
-    std::vector<ECS::Entity*> m_prefabContainer;
+    std::shared_ptr<NameManager> m_NameManager;
+    std::vector<std::pair<ECS::Entity*,int>> m_prefabContainer;
 };
 
 template<typename ComponentType>
@@ -53,18 +54,22 @@ inline void PrefabManager::SaveComponents(ECS::Entity* entity, json& prefabData)
         std::string entityName = entity->get<EntityIdentifier>().get().m_EntityName;
 
         // Check if the "Prefabs" key exists and create it if not
-        if (!prefabData.contains("Prefabs")) {
-            prefabData["Prefabs"] = json::object();
+        // Check if the entity already exists in the JSON structure
+        bool entityExists = false;
+        for (auto& entityEntry : prefabData["Prefabs"]) {
+            if (entityEntry.find(entityName) != entityEntry.end()) {
+                // Add the component data to the existing entity entry
+                entityEntry[entityName].push_back(componentData);
+                entityExists = true;
+                break;
+            }
         }
 
-        // Check if the entity already exists in the JSON structure
-        if (prefabData["Prefabs"].contains(entityName)) {
-            prefabData["Prefabs"][entityName].push_back(componentData);
-        }
-        else {
+        // If the entity does not exist, create a new entry for it
+        if (!entityExists) {
             json entityEntry;
-            entityEntry.push_back(componentData);
-            prefabData["Prefabs"][entityName] = entityEntry;
+            entityEntry[entityName].push_back(componentData);
+            prefabData["Prefabs"].push_back(entityEntry);
         }
     }
 }

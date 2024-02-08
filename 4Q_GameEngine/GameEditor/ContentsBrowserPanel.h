@@ -13,13 +13,13 @@ public:
 	ContentsBrowserPanel();
 	void Initialize();
 	void RenderImGui();
-	void SetContext(ECS::World* world);
+	void SetContext(ECS::World* world, std::shared_ptr<PrefabManager> prefabManager);
 
 	void DragDropContentsBrowser(ECS::Entity* entity, std::filesystem::path file);
 private:
 	std::filesystem::path m_CurrentDirectory;
 	ECS::World* m_World;
-
+	std::shared_ptr<PrefabManager> m_PrefabManager;
 	ID3D11ShaderResourceView* texture;
 };
 

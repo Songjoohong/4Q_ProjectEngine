@@ -9,19 +9,20 @@
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
 #include "Prefab.h"
-
+#include "NameManager.h"
 
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
-	SetContext(context, m_PrefabManager);
+	SetContext(context, m_PrefabManager, m_NameManager);
 }
 
-void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab)
+void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab, std::shared_ptr<NameManager> nameManager)
 {
 	m_Context = context;
 	m_SelectionContext = nullptr;	// 현재 World에서 Entity 를 초기화.
 
 	m_PrefabManager = prefab;
+	m_NameManager = nameManager;
 }
 
 void SceneHierarchyPanel::RenderImGui()
@@ -54,7 +55,9 @@ void SceneHierarchyPanel::RenderImGui()
 			if (ImGui::MenuItem("Create Empty Entity"))
 			{
 				ECS::Entity* entity = m_Context->create();
+
 				entity->Assign<EntityIdentifier>();	// 기본적으로 생성한다. (이름정보 때문)
+				m_NameManager->AddEntityName(entity);
 				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Transform은 기본적으로 생성해준다.
 			}
 
@@ -69,6 +72,7 @@ void SceneHierarchyPanel::RenderImGui()
 	{
 		DrawComponents(m_SelectionContext);
 		SetPrefabFileName(m_SelectionContext);
+
 	}
 	ImGui::End();	/* Properties End */
 }
@@ -104,18 +108,20 @@ void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 				m_SelectionContext = nullptr;
 			}
 
-			//ImGui::EndGroup();
 			ImGui::Spacing();
-			//ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::GetStyle().ItemSpacing.x - ImGui::CalcTextSize("Close").x -270.f);
 
 			if (ImGui::Button("Close"))
 			{
-				ImGui::CloseCurrentPopup(); // Close the current popup window
+				ImGui::CloseCurrentPopup(); 
+				m_SelectionContext = nullptr;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
-				ImGui::CloseCurrentPopup(); // Close the current popup window
+				ImGui::CloseCurrentPopup();
+				m_SelectionContext = nullptr;
 			}
+
+
 
 			ImGui::EndPopup();
 		}
@@ -164,6 +170,7 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 			}
 
 			picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
+			picked->get<EntityIdentifier>().get().m_HasParent = true;
 			target->addChild(picked);
 			m_SelectionContext = nullptr;
 			
@@ -182,7 +189,7 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	}
 	std::string entID = std::to_string(entity->getEntityId());
 	auto entityName = entity->get<EntityIdentifier>()->m_EntityName;
-	std::string imguiID = "entt" + entID + " " + entityName;
+	std::string imguiID = entityName;
 
 	ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;		// 클릭하여 선택한 아이템 하이라이트 + 화살표 클릭시 노드 펼쳐지게
 	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;

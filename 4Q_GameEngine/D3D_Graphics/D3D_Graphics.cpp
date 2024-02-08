@@ -16,10 +16,16 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
-
+#include "ImGuizmo.h"
 #define SHADOWMAP_SIZE 16384
 
 Renderer* Renderer::Instance = nullptr;
+
+static const float identityMatrix[16] =
+{ 1.f, 0.f, 0.f, 0.f,
+	0.f, 1.f, 0.f, 0.f,
+	0.f, 0.f, 1.f, 0.f,
+	0.f, 0.f, 0.f, 1.f };
 
 Renderer::Renderer()
 {
@@ -482,7 +488,6 @@ void Renderer::Render()
 
 	// 씬을 그리기 위해 버퍼를 지웁니다
 	Clear();
-
 	// 백 버퍼의 장면을 정상적으로 렌더링합니다.
 	RenderScene();
 }
@@ -501,6 +506,7 @@ void Renderer::RenderScene()
 	//그림자 렌더
 	ShadowRender();
 
+	ImGuizmo::DrawGrid(m_viewMatrix.m[0], m_projectionMatrix.m[0], identityMatrix, 10);
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
@@ -908,6 +914,12 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
     HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
+
+	dsd = CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} };
+	dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+
+	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pGizmoDSS.GetAddressOf()));
 
 
     

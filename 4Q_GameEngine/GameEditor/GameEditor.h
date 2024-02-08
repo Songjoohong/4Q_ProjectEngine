@@ -9,6 +9,7 @@ class Renderer;
 class EntityIdentifier;
 class Script;
 class PrefabManager;
+class NameManager;
 namespace ECS { class Entity; }
 namespace ECS { class World; }
 
@@ -38,13 +39,13 @@ public:
 	void LoadWorld(const std::string& _strRelativePath);
 
 	template<typename ComponentType>
-	void AssignComponents(ECS::Entity* entity, const json& componentData);
+	void AssignComponents(ECS::Entity* entity, json& componentData);
 	void NewScene();
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
 
 	std::shared_ptr<PrefabManager> m_PrefabManager;
-
+	std::shared_ptr< NameManager> m_NameManager;
 private:
 	Renderer* m_Renderer = nullptr;
 
@@ -59,6 +60,9 @@ private:
 	ECS::World* m_EditorWorld;
 	/// 씬이 두개인 이유
 	///	게임 플레이와 씬 편집 화면을 나누기 위해. -> 게임 play 와 stop 그리고 pause 를 위해서인데 이를 위해선 엔진에서 먼저 기능이 구현되어야 한다. 고로 보류
+
+	// gizmo
+	int m_GizmoType = 0;
 
 	// TextEntities
 	ECS::Entity* m_Camera;
@@ -103,9 +107,13 @@ inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 }
 
 template<typename ComponentType>
-inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& componentData)
+inline void GameEditor::AssignComponents(ECS::Entity* entity, json& componentData)
 {
 	if constexpr (std::is_base_of_v<Script, ComponentType>)
+	{
+		entity->Assign<ComponentType>();
+	}
+	else if (std::is_same_v<StaticMesh, ComponentType>)
 	{
 		entity->Assign<ComponentType>();
 	}
@@ -116,5 +124,5 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& compon
 
 	auto& component = entity->get<ComponentType>().get();
 
-	//component = componentData;
+	component = componentData;
 }
