@@ -64,7 +64,7 @@ void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 
 void Renderer::AddColliderBox(Vector3 center, Vector3 extents,bool isCollision)
 {
-	m_colliderBox.push_back(ColliderBox(center, extents, isCollision));
+	m_colliderBox.push_back(ColliderBox(center + Vector3{0.f,extents.y, 0.f}, extents, isCollision));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)

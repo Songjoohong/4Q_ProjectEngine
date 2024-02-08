@@ -209,6 +209,9 @@
     <ClInclude Include="CollisionSystem.h">
       <Filter>System\Collision</Filter>
     </ClInclude>
+    <ClInclude Include="CameraScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

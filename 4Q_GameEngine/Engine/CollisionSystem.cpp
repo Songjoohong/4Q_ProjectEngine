@@ -13,7 +13,6 @@ void CollisionSystem::Deconfigure(World* world)
 	world->UnsubscribeAll(this);
 }
 
-
 void CollisionSystem::Receive(World* world, const Events::OnComponentAssigned<BoxCollider>& event)
 {
 	event.component->m_Center = event.entity->get<Transform>()->m_Position;

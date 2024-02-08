@@ -541,7 +541,7 @@ namespace ECS
 			return bPendingDestroy;
 		}
 
-		Entity* getParent() const { return parentEntity; }
+		Entity* getParent() const { return m_parent; }
 
 		void addChild(Entity* child)
 		{

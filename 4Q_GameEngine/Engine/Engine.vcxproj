@@ -162,6 +162,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CameraScript.h" />
     <ClInclude Include="FreeCameraScript.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="jsonSerializer.h" />

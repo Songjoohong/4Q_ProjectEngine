@@ -16,6 +16,9 @@ void MovementSystem::Tick(World* world, float deltaTime)
 
 			Vector3D deltaRotation = { movement->m_CurrentRotation[0] * movement->m_Sensitivity, movement->m_CurrentRotation[1] * movement->m_Sensitivity, 0.f };
 
+			movement->m_CurrentRotation[0] = 0;
+			movement->m_CurrentRotation[1] = 0;
+
 			if (transform->m_FreezeRotationX)
 				deltaRotation.SetX(0.f);
 			if (transform->m_FreezeRotationY)

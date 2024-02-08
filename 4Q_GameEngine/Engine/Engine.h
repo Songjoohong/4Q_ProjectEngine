@@ -24,8 +24,7 @@ private:
 	WCHAR m_szWindowClass[MAX_LOADSTRING];
 	WNDCLASSEXW m_Wcex;
 
-
-	//std::unique_ptr<TimeManager> m_Time = nullptr;
+	bool m_IsPaused = false;
 	InputManager* m_Input = nullptr;
 	RenderManager* m_Render = nullptr;
 

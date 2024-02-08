@@ -1,4 +1,5 @@
 #pragma once
+#include "DynamicCollider.h"
 #include "InputManager.h"
 #include "Movement.h"
 #include "Script.h"
@@ -15,6 +16,10 @@ public:
 	{
 		m_pOwner->get<Transform>()->m_FreezeRotationY = true;
 		m_pOwner->get<Transform>()->m_FreezeRotationZ = true;
+
+		PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotationX(true);
+		PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotationY(true);
+		PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotationZ(true);
 	}
 
 	virtual void Update(float deltaTime) override
