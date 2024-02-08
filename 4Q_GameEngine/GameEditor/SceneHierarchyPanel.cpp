@@ -72,6 +72,7 @@ void SceneHierarchyPanel::RenderImGui()
 	{
 		DrawComponents(m_SelectionContext);
 		SetPrefabFileName(m_SelectionContext);
+
 	}
 	ImGui::End();	/* Properties End */
 }
@@ -107,18 +108,20 @@ void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 				m_SelectionContext = nullptr;
 			}
 
-			//ImGui::EndGroup();
 			ImGui::Spacing();
-			//ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::GetStyle().ItemSpacing.x - ImGui::CalcTextSize("Close").x -270.f);
 
 			if (ImGui::Button("Close"))
 			{
-				ImGui::CloseCurrentPopup(); // Close the current popup window
+				ImGui::CloseCurrentPopup(); 
+				m_SelectionContext = nullptr;
 			}
 			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
-				ImGui::CloseCurrentPopup(); // Close the current popup window
+				ImGui::CloseCurrentPopup();
+				m_SelectionContext = nullptr;
 			}
+
+
 
 			ImGui::EndPopup();
 		}
