@@ -49,7 +49,9 @@ void PhysicsManager::Update(float deltatime)
 	// 석영 : 결과로 나온 값을 오브젝트로 넣어주기
 	for (auto& collider : m_pDynamicColliders)
 		if (collider.second->m_pOwner->m_IsTrigger == false)
+		{
 			collider.second->UpdatePhysics();
+		}
 }
 
 void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
@@ -90,6 +92,16 @@ DynamicCollider* PhysicsManager::GetDynamicCollider(int entId)
 			return collider.first == entId;
 		});
 	return it->second;
+}
+
+// 석영 : filter 설정 어떻게 해줄지
+PxFilterFlags PhysicsManager::CustomFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
+{
+	if (filterData0.word0 == Collision_Mask::IS_TRIGGER || filterData1.word0 == Collision_Mask::IS_TRIGGER)
+		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+	else
+		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+	return PxFilterFlag::eDEFAULT;
 }
 
 
