@@ -11,6 +11,12 @@ public:
 	{}
 	virtual ~PlayerScript() override = default;
 
+	virtual void Awake() override
+	{
+		m_pOwner->get<Transform>()->m_FreezeRotationY = true;
+		m_pOwner->get<Transform>()->m_FreezeRotationZ = true;
+	}
+
 	virtual void Update(float deltaTime) override
 	{
 		if(Input->GetKey(Key::UP))
@@ -29,5 +35,8 @@ public:
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
 		}
+
+		m_pOwner->get<Movement>()->m_CurrentRotation[0] = Input->GetMouseMove().x;
+		m_pOwner->get<Movement>()->m_CurrentRotation[1] = Input->GetMouseMove().y;
 	}
 };
