@@ -15,9 +15,9 @@ struct BoxCollider
 	ECS_DECLARE_TYPE
 
 	BoxCollider() = default;
-	BoxCollider(CollisionType type, float a)
+	BoxCollider(CollisionType type, Vector3D scale)
 		: m_CollisionType(type)
-		, m_Size({ a,1,a })
+		, m_Size(scale)
 	{}
 
 	std::string m_ComponentName = "BoxCollider";
