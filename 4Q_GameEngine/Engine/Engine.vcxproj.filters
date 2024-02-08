@@ -115,9 +115,6 @@
     <ClInclude Include="SampleScript.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionSystem.h">
-      <Filter>System\Collision</Filter>
-    </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>Manager\Input</Filter>
     </ClInclude>
@@ -208,6 +205,9 @@
     </ClInclude>
     <ClInclude Include="PlayerScript.h">
       <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>System\Collision</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
