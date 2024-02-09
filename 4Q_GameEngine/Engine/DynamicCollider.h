@@ -14,6 +14,7 @@ public:
 
 public:
 	virtual void Initialize() override;
+	virtual void SetFilterData() override;
 
 	void UpdatePhysics();
 
@@ -27,9 +28,8 @@ public:
 	void AddForce(Vector3D dir);
 
 	// 석영 : 물리 효과에서 회전축 고정용
-	void FreezeRotationX(bool active);
-	void FreezeRotationY(bool active);
-	void FreezeRotationZ(bool active);
+	void FreezeRotation(bool x_active,bool y_active,bool z_active);
+	void FreezeLinear(bool x_active,bool y_active,bool z_active);
 public:
 	PxRigidDynamic* m_Rigid;
 

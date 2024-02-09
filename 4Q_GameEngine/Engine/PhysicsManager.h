@@ -7,15 +7,6 @@
 
 #include "BoxCollider.h"
 
-enum Collision_Mask
-{
-	PLAYER,
-	WALL,
-	GROUND,
-	SLOPE,
-	IS_TRIGGER
-};
-
 using namespace physx;
 using namespace std;
 
@@ -30,10 +21,12 @@ public:
 public:
 	void Initialize();
 	void Update(float deltatime);
+	void RayCast(Vector3D dir);
 
+	void InitFilterDatas();
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
-
+	
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
 	PxFilterData* GetFilterData(Collision_Mask type) { return m_pFilterDatas[type]; }
@@ -57,7 +50,12 @@ private:
 	vector<pair<int, DynamicCollider*>> m_pDynamicColliders;
 	vector<StaticCollider*> m_pStaticColliders;
 
-	// Filter
+	// Filter 관련 ---석영 : 일단 이렇게 해놓고..깔끔하게 바꿀 수 있으면 바꿀게요..
 	map<Collision_Mask, PxFilterData*> m_pFilterDatas;
+	PxU32 m_Collision_Mask_Player;
+	PxU32 m_Collision_Mask_Ground;
+	PxU32 m_Collision_Mask_Slope;
+	PxU32 m_Collision_Mask_Object;
+	PxU32 m_Collision_Mask_Block;
 };
 

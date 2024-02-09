@@ -22,7 +22,7 @@ public:
 	*/
 	virtual void Initialize();
 	virtual void SetMaterial(float staticFriction, float DynamicFriction, float restitution) {}
-
+	virtual void SetFilterData(){}
 	void UpdateTransform();
 public:
 	BoxCollider* m_pOwner;
