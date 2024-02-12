@@ -14,7 +14,7 @@ public:
 
 	virtual void Awake() override
 	{
-		m_pOwner->get<Transform>()->m_FreezeRotationY = true;
+		m_pOwner->get<Transform>()->m_FreezeRotationX = true;
 		m_pOwner->get<Transform>()->m_FreezeRotationZ = true;
 
 		PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotation(true,true,true);

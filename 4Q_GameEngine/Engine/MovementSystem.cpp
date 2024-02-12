@@ -14,7 +14,7 @@ void MovementSystem::Tick(World* world, float deltaTime)
 			Vector3D moveVector;
 			const DirectX::SimpleMath::Matrix worldMatrix = transform->m_WorldMatrix.ConvertToMatrix();
 
-			Vector3D deltaRotation = { movement->m_CurrentRotation[0] * movement->m_Sensitivity, movement->m_CurrentRotation[1] * movement->m_Sensitivity, 0.f };
+			Vector3D deltaRotation = { movement->m_CurrentRotation[1] * movement->m_Sensitivity, movement->m_CurrentRotation[0] * movement->m_Sensitivity, 0.f };
 
 			movement->m_CurrentRotation[0] = 0;
 			movement->m_CurrentRotation[1] = 0;

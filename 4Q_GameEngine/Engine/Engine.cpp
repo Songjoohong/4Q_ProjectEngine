@@ -123,7 +123,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D{ 1000.f,1000.f,1000.f });
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D{ 1000.f,1000.f,1000.f });
 	ent1->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND,Vector3D{10000.f,1.f,10000.f});
 
 
@@ -138,14 +138,13 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
-	ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::OBJECT, Vector3D{ 100.f,100.f,100.f });
 
 	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
 
 	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent5->Assign<UI>(100, 100);ent1->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND,Vector3D{10000.f,1.f,10000.f});
+	ent5->Assign<UI>(100, 100);
 	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, POINT{ 100,100 });
 	ent5->Assign<TestUIScript>(ent5);
 
