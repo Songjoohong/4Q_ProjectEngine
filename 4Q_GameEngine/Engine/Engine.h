@@ -12,7 +12,6 @@ public:
 	Engine(HINSTANCE hInstance);
 	virtual ~Engine();
 
-	float m_ClientRatio;
 protected:
 	HWND m_hWnd;
 	UINT m_ClientWidth;
@@ -25,10 +24,6 @@ private:
 	WNDCLASSEXW m_Wcex;
 
 	bool m_IsPaused = false;
-	InputManager* m_Input = nullptr;
-	RenderManager* m_Render = nullptr;
-
-private:
 	bool m_bIsRunning = false;
 public:
 	virtual bool Initialize(UINT width, UINT height);

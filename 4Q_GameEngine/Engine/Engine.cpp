@@ -8,7 +8,7 @@
 
 
 #include "BoxCollider.h"
-#include "CameraScript.h"
+#include "POVCameraScript.h"
 #include "FreeCameraScript.h"
 #include "CameraSystem.h"
 #include "CollisionSystem.h"
@@ -85,7 +85,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	AdjustWindowRect(&rcClient, WS_OVERLAPPEDWINDOW, FALSE);
 
 	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_OVERLAPPEDWINDOW,
-		100, 100, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top
+		0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top
 		, nullptr, nullptr, m_hInstance, nullptr);
 
 	if (!m_hWnd)
@@ -113,22 +113,21 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//Free Camera
+	/*Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<FreeCameraScript>(ent);
-	ent->Assign<Movement>();
-
-	
+	ent->Assign<Movement>();*/
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
 	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D{ 1000.f,1000.f,1000.f });
 	ent1->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND,Vector3D{10000.f,1.f,10000.f});
 
+
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
 	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, Collision_Mask::PLAYER,Vector3D{100.f,100.f,100.f});
 	ent2->Assign<Debug>();
@@ -141,7 +140,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
 	ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::OBJECT, Vector3D{ 100.f,100.f,100.f });
 
-	/*Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
 
@@ -153,15 +152,12 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent6->Assign<Transform>(Vector3D{ -20.f,100.f,0.f });
 	ent6->Assign<Camera>();
-	ent6->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent6->Assign<CameraScript>(ent6);
+	ent6->Assign<POVCameraScript>(ent6);
 	ent6->Assign<Movement>();
-	ent6->SetParent(ent2);*/
+	ent6->SetParent(ent2);
 
-	SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
-	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");
-
-	 
+	/*SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
+	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");*/	 
 
 	return true;
 }

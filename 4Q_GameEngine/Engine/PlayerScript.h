@@ -18,6 +18,8 @@ public:
 		m_pOwner->get<Transform>()->m_FreezeRotationZ = true;
 
 		PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotation(true,true,true);
+
+		Input->SetCameraMode(true);
 	}
 
 	virtual void Update(float deltaTime) override
@@ -40,6 +42,5 @@ public:
 		}
 
 		m_pOwner->get<Movement>()->m_CurrentRotation[0] = Input->GetMouseMove().x;
-		m_pOwner->get<Movement>()->m_CurrentRotation[1] = Input->GetMouseMove().y;
 	}
 };

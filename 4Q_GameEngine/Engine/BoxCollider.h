@@ -40,7 +40,7 @@ struct BoxCollider
 	bool m_IsTrigger = false;
 
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(BoxCollider, m_ComponentName,m_CollisionType,m_CollisionMask, m_Center, m_Size, m_IsTrigger)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(BoxCollider, m_ComponentName, m_CollisionType, m_CollisionMask, m_Center, m_Size, m_IsTrigger)
 };
 
 ECS_DEFINE_TYPE(BoxCollider)

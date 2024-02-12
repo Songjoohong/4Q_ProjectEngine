@@ -209,7 +209,7 @@
     <ClInclude Include="CollisionSystem.h">
       <Filter>System\Collision</Filter>
     </ClInclude>
-    <ClInclude Include="CameraScript.h">
+    <ClInclude Include="POVCameraScript.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
