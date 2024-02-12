@@ -353,7 +353,9 @@ void GameEditor::RenderImGui()
 					std::cout << " Y : " << deltaRotation.y;
 					std::cout << " Z : " << deltaRotation.z << std::endl;
 
-					tc.m_Rotation += deltaRotation;
+					tc.m_Rotation.m_X += deltaRotation.x;
+					tc.m_Rotation.m_Y += deltaRotation.y;
+					tc.m_Rotation.m_Z += deltaRotation.z;
 				}
 				else if (m_GizmoType == ImGuizmo::OPERATION::SCALE)
 				{

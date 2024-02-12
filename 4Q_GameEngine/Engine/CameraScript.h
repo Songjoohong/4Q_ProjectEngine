@@ -16,14 +16,14 @@ public:
 	}
 	virtual ~CameraScript() override = default;
 
-	CameraScript& operator=(const json& componentData)
-	{
-		// Copy data from the JSON object to the class members
-		m_ComponentName = componentData.value("m_ComponentName", "");
-		// You need to handle other members similarly based on your JSON structure
+	//CameraScript& operator=(const json& componentData)
+	//{
+	//	// Copy data from the JSON object to the class members
+	//	m_ComponentName = componentData.value("m_ComponentName", "");
+	//	// You need to handle other members similarly based on your JSON structure
 
-		return *this;
-	}
+	//	return *this;
+	//}
 
 	virtual void Update(float deltaTime) override
 	{

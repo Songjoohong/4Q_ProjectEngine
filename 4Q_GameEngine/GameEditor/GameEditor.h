@@ -38,6 +38,7 @@ public:
 	void SaveWorld(const std::string& _strRelativePath);
 	template<typename ComponentType>
 	void SaveComponents(ECS::Entity* entity, json& worldData);
+
 	void LoadWorld(const std::string& _strRelativePath);
 
 	template<typename ComponentType>
@@ -82,7 +83,36 @@ private:
 template<typename ComponentType>
 inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 {
-	if (entity->has<ComponentType>())
+	if (std::is_base_of_v <Script, ComponentType>)
+	{
+		std::vector<ComponentType> container;
+		container.push_back(entity->get<ComponentType>().get());
+		auto ScriptData = SerializeContainer(container);
+
+		json componentData;
+		componentData[(entity->get<ComponentType>().get()).m_ComponentName] = json::parse(ScriptData);
+
+		std::string entityName = entity->get<EntityIdentifier>().get().m_EntityName;
+
+		// Check if the entity already exists in the JSON structure
+		bool entityExists = false;
+		for (auto& entityEntry : worldData["WorldEntities"]) {
+			if (entityEntry.find(entityName) != entityEntry.end()) {
+				// Add the component data to the existing entity entry
+				entityEntry[entityName].push_back(componentData);
+				entityExists = true;
+				break;
+			}
+		}
+
+		// If the entity does not exist, create a new entry for it
+		if (!entityExists) {
+			json entityEntry;
+			entityEntry[entityName].push_back(componentData);
+			worldData["WorldEntities"].push_back(entityEntry);
+		}
+	}
+	else if (entity->has<ComponentType>())
 	{
 		std::vector<ComponentType> container;
 		container.push_back(entity->get<ComponentType>().get());
