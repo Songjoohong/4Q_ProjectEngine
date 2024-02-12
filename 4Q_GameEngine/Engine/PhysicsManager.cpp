@@ -15,6 +15,11 @@ PxFilterFlags CustomFilterShader(PxFilterObjectAttributes attributes0, PxFilterD
 	// 플레이어와 다른 물체들은 충돌 처리 / 나머지는 물리X 
 	if (filterData0.word0 == g_Collision_Mask_Player || filterData1.word0 == g_Collision_Mask_Player)
 	{
+		if (filterData0.word0 == g_Collision_Mask_Slope || filterData1.word0 == g_Collision_Mask_Slope)
+			PhysicsManager::GetInstance()->SetState(true);
+		else
+			PhysicsManager::GetInstance()->SetState(false);
+
 		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
 		return PxFilterFlag::eDEFAULT;
 	}
@@ -77,7 +82,7 @@ void PhysicsManager::Update(float deltatime)
 		}
 }
 
-void PhysicsManager::RayCast(Vector3D dir)
+void PhysicsManager::CheckObject(Vector3D dir)
 {
 	PxRaycastBuffer hit;
 	PxVec3 Dir = { dir.GetX(),dir.GetY(),dir.GetZ() };
@@ -89,6 +94,50 @@ void PhysicsManager::RayCast(Vector3D dir)
 		void* checkData = (void*)g_Collision_Mask_Object;
 
 		assert(data != checkData);
+	}
+}
+
+bool PhysicsManager::CheckGround(PxVec3 dir)
+{
+	PxRaycastBuffer groundhit;
+	bool bHit = m_pPxScene->raycast(dir, PxVec3(0.f, -1.f, 0.f), 5.f, groundhit, PxHitFlag::eDEFAULT);
+
+	if (bHit)
+	{
+		void* data = groundhit.block.actor->userData;
+		if (data != (void*)0&& data != (void*)1)
+		{
+			PxVec3 normal = groundhit.block.normal;
+			{
+				if (normal.y > 0.f)
+				{
+					return true;
+				}
+			}
+
+		}
+	}
+
+	return false;
+}
+
+bool PhysicsManager::CheckStairs(PxVec3 dir)
+{
+	PxRaycastBuffer hit;
+	bool bhit2 = m_pPxScene->raycast(dir, PxVec3(0.0f, 0.0f, -1.0f), 300.f, hit, PxHitFlag::eDEFAULT);
+	if (bhit2)
+	{
+		void* data = hit.block.actor->userData;
+		void* SlopeData = (void*)g_Collision_Mask_Slope;
+
+		if (data == SlopeData)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
 

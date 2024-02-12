@@ -21,12 +21,19 @@ public:
 public:
 	void Initialize();
 	void Update(float deltatime);
-	void RayCast(Vector3D dir);
+
+	// Player 관련 --> 시간 된다면 따로 빼기
+	void CheckObject(Vector3D dir);
+	bool CheckGround(PxVec3 dir);
+	bool CheckStairs(PxVec3 dir);
+	void SetState(bool is) { TestStairs = is; }
+	bool GetState() { return TestStairs; }
+	bool TestStairs = false; //Test
 
 	void InitFilterDatas();
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
-	
+
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
 	PxFilterData* GetFilterData(Collision_Mask type) { return m_pFilterDatas[type]; }
@@ -49,6 +56,6 @@ private:
 
 	// Filter 관련 ---석영 : 일단 이렇게 해놓고..깔끔하게 바꿀 수 있으면 바꿀게요..
 	map<Collision_Mask, PxFilterData*> m_pFilterDatas;
-	
+
 };
 

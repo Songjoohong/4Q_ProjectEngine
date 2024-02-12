@@ -34,4 +34,5 @@ void Collider::UpdateTransform()
 	m_Transform.q.x = m_pOwner->m_Rotation.GetX() * angle;
 	m_Transform.q.y = m_pOwner->m_Rotation.GetY() * angle;
 	m_Transform.q.z = m_pOwner->m_Rotation.GetZ() * angle;
+
 }

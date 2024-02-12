@@ -27,5 +27,5 @@ void StaticCollider::SetFilterData()
 	assert(filter != nullptr);
 	m_pShape->setSimulationFilterData(*filter);
 	PxU32 filterdata = filter->word0;
-	m_Rigid->userData = (void*)filter;
+	m_Rigid->userData = (void*)filterdata;
 }

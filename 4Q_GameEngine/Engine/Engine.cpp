@@ -114,12 +114,12 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 
 	//Free Camera
-	/*Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<FreeCameraScript>(ent);
-	ent->Assign<Movement>();*/
+	ent->Assign<Movement>();
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
@@ -136,12 +136,24 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent2->Assign<Movement>();
 
 	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent3->Assign<Transform>(Vector3D(100.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D{ 200.f,40.f,100.f });
+	ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::SLOPE, Vector3D{ 100.f,40.f,100.f });
+
+	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent4->Assign<Transform>(Vector3D(200.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D{ 200.f,80.f,100.f });
+	ent4->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::SLOPE, Vector3D{ 100.f,80.f,100.f });
+
+	Entity* ent7 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent7->Assign<Transform>(Vector3D(300.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D{ 200.f,120.f,100.f });
+	ent7->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::SLOPE, Vector3D{ 100.f,120.f,100.f });
+
+	/*Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
 
 	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));*/
 
 	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent5->Assign<UI>(100, 100);

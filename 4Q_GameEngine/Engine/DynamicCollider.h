@@ -24,8 +24,9 @@ public:
 	*/ 
 	void SetDensity(float mass);
 
-	// 석영 : 이동을 위한 함수
+	// 석영 : 플레이어 이동을 위한 함수
 	void AddForce(Vector3D dir);
+	void CheckTerrain();
 
 	// 석영 : 물리 효과에서 회전축 고정용
 	void FreezeRotation(bool x_active,bool y_active,bool z_active);
@@ -37,5 +38,10 @@ public:
 	float m_MaxVelocity = 150.f;
 	PxVec3 m_CurrentDir = { 0.f,0.f,0.f };
 	PxVec3 m_PrevDir = { 0.f,0.f,0.f };
+
+	// Player 이동 상태..?
+	bool m_IsGround = false;
+	bool m_IsStairs = false;
+	bool m_MoveStairs = false;
 };
 
