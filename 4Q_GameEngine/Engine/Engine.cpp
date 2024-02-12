@@ -124,7 +124,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Zelda");
-	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 0.f, 0.f));
 	// minjeong : dummy test
 	/*{

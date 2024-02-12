@@ -41,6 +41,28 @@ GameEditor::~GameEditor()
 	ShutDownImGui();
 }
 
+void QuaternionToYawPitchRoll(const XMVECTOR& quaternion, float& yaw, float& pitch, float& roll) {
+	XMFLOAT4 q;
+	XMStoreFloat4(&q, quaternion);
+
+	float sinPitchCosYaw = 2.0f * (q.x * q.y + q.z * q.w);
+	float cosPitchCosYaw = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
+	yaw = atan2(sinPitchCosYaw, cosPitchCosYaw);
+
+	float sinPitch = 2.0f * (q.x * q.w - q.z * q.y);
+	if (fabs(sinPitch) >= 1.0f) {
+		pitch = copysign(XM_PIDIV2, sinPitch);
+	}
+	else {
+		pitch = asin(sinPitch);
+	}
+
+	float sinRollCosPitch = 2.0f * (q.x * q.z + q.y * q.w);
+	float cosRollCosPitch = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+	roll = atan2(sinRollCosPitch, cosRollCosPitch);
+}
+
+
 bool GameEditor::Initialize(UINT width, UINT height)
 {
 	__super::Initialize(width, height);
@@ -287,48 +309,55 @@ void GameEditor::RenderImGui()
 
 			// Entity Transform
 			auto& tc = selectedEntity->get<Transform>().get();
-			DirectX::SimpleMath::Matrix entityMatrix = tc.m_WorldMatrix.ConvertToMatrix();
+			DirectX::XMFLOAT4X4 transform;
 
-			auto floatEntityMatrix = reinterpret_cast<float*>(&entityMatrix);
+			float Ftranslation[3] = { tc.m_Position.m_X, tc.m_Position.m_Y, tc.m_Position.m_Z };
+			float Frotation[3] = { tc.m_Rotation.m_X, tc.m_Rotation.m_Y, tc.m_Rotation.m_Z };
+			float Fscale[3] = { tc.m_Scale.m_X, tc.m_Scale.m_Y, tc.m_Scale.m_Z };
+			ImGuizmo::RecomposeMatrixFromComponents(Ftranslation, Frotation, Fscale, *transform.m);
 
-			float* snapValue = 0;
-			if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftCtrl))
+			bool snap = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftCtrl);
+
+			float snapValue = 100.0f;
+
+			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
 			{
-				snapValue = reinterpret_cast<float*>(m_CurrentSnapMode);
-				int  a = 0;
+				snapValue = 45.0f;
 			}
-			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, floatEntityMatrix, 0 , snapValue);
+
+			float snapValues[3] = { snapValue, snapValue, snapValue };
+
+			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, *transform.m, 0 , snap ? snapValues : nullptr);
 
 			if (ImGuizmo::IsUsing())
 			{
-	
-				Vector3 translation, scale;
-				Quaternion rotation;
-				entityMatrix.Decompose(scale, rotation, translation);
+				float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
+				float fRotation[3] = { 0.0f, 0.0f, 0.0f };
+				float fScale[3] = { 0.0f, 0.0f, 0.0f };
+
+				ImGuizmo::DecomposeMatrixToComponents(*transform.m, fTranslation, fRotation, fScale);
 
 				if (m_GizmoType == ImGuizmo::OPERATION::TRANSLATE)
 				{
-					tc.m_Position = translation;
+					tc.m_Position = DirectX::XMFLOAT3(fTranslation);
 				}
 				else if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
 				{
-					Quaternion deltaRotation = Quaternion::CreateFromYawPitchRoll(
-						tc.m_Rotation.m_X * DirectX::XM_PI / 180.0f,
-						tc.m_Rotation.m_Y * DirectX::XM_PI / 180.0f,
-						tc.m_Rotation.m_Z * DirectX::XM_PI / 180.0f);
+					XMFLOAT3 deltaRotation;
+					
+					deltaRotation.x = fRotation[0] - tc.m_Rotation.m_X;
+					deltaRotation.y = fRotation[1] - tc.m_Rotation.m_Y;
+					deltaRotation.z = fRotation[2] - tc.m_Rotation.m_Z;
 
-					// Update rotation
-					rotation *= deltaRotation;
-					rotation.Normalize();
+					std::cout << " X : " << deltaRotation.x;
+					std::cout << " Y : " << deltaRotation.y;
+					std::cout << " Z : " << deltaRotation.z << std::endl;
 
-					// Set the new rotation
-					tc.m_Rotation.SetX(rotation.x);
-					tc.m_Rotation.SetY(rotation.y);
-					tc.m_Rotation.SetZ(rotation.z);
+					tc.m_Rotation += deltaRotation;
 				}
 				else if (m_GizmoType == ImGuizmo::OPERATION::SCALE)
 				{
-					tc.m_Scale = scale;
+					tc.m_Scale = DirectX::XMFLOAT3(fScale);
 				}
 			}
 		}
@@ -559,10 +588,10 @@ void GameEditor::NewScene()
 
 	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Camera");
 	m_Camera->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
-	//m_Camera->Assign<Camera>();
-	//m_Camera->Assign<CameraScript>(m_Camera);
-	//m_Camera->Assign<Movement>();
-	//m_Camera->Assign<Debug>();
+	m_Camera->Assign<Camera>();
+	m_Camera->Assign<CameraScript>(m_Camera);
+	m_Camera->Assign<Movement>();
+	m_Camera->Assign<Debug>();
 
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
@@ -576,7 +605,7 @@ void GameEditor::NewScene()
 	m_Box->Assign<Transform>(pos1);
 	m_Pot->Assign<Transform>(pos2);
 
-	m_Wall->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
+	m_Box->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
 	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
 	m_Wall->Assign<Debug>();
 

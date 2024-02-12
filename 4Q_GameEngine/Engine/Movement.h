@@ -28,7 +28,7 @@ struct Movement
 	Vector3D m_DirectionVector = { 0.f, 0.f, 1.f };
 	Vector3D m_RightVector = { 0.f,0.f,0.f };
 
-	POINT m_CurrentRotation = { 0,0 };
+	int m_CurrentRotation [2] = {0,0};
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Movement, m_ComponentName, m_Speed, m_Sensitivity, m_CurrentMoveState, m_DirectionVector, m_RightVector)
 };

@@ -7,7 +7,7 @@ void TransformSystem::Tick(World* world, ECS::DefaultTickData data)
 {
 	world->each<Transform>([&](Entity* ent, const ComponentHandle<Transform> transform)
 		{
-			const DirectX::SimpleMath::Vector4 quaternion = DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(transform->m_Rotation.GetX()), DirectX::XMConvertToRadians(transform->m_Rotation.GetY()), DirectX::XMConvertToRadians(transform->m_Rotation.GetZ()));
+			const DirectX::SimpleMath::Vector4 quaternion = DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(transform->m_Rotation.GetY()), DirectX::XMConvertToRadians(transform->m_Rotation.GetX()), DirectX::XMConvertToRadians(transform->m_Rotation.GetZ()));
 
 			transform->m_RelativeMatrix = DirectX::SimpleMath::Matrix::CreateScale(transform->m_Scale.ConvertToVector3()) * DirectX::SimpleMath::Matrix::CreateFromQuaternion(quaternion) * DirectX::SimpleMath::Matrix::CreateTranslation(transform->m_Position.ConvertToVector3());
 		});

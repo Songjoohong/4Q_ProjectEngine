@@ -88,8 +88,8 @@ void InputManager::Update(float deltaTime)
 
 	for (int i = 0; i < Key::KEY_END; i++)
 	{
-		if (m_CurrentKeyState[i].KeyState == KeyState::STAY)
-			std::cout << "KeyDown " << i << std::endl;
+		/*if (m_CurrentKeyState[i].KeyState == KeyState::STAY)
+			std::cout << "KeyDown " << i << std::endl;*/
 	}
 }
 
