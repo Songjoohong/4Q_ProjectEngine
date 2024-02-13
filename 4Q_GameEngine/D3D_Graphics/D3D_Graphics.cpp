@@ -292,6 +292,41 @@ void Renderer::ApplyMaterial(Material* pMaterial)
 		m_pDeviceContext->PSSetShaderResources(12, 1, pMaterial->m_pAmbientOcclusionRV->m_pTextureRV.GetAddressOf());
 }
 
+void Renderer::SphereInit(string filename)
+{
+	m_pSphere = new StaticModel();
+	m_pSphere->Load(filename);
+	m_pSphere->m_worldTransform = Math::Matrix::Identity;
+}
+
+void Renderer::SphereRender()
+{
+	m_pDeviceContext->UpdateSubresource(m_pSphereBuffer.Get(), 0, nullptr, &m_sphereCB, 0, 0);
+	m_pDeviceContext->PSSetConstantBuffers(5, 1, m_pSphereBuffer.GetAddressOf());
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	Material* pPrevMaterial = nullptr;
+
+	for (auto it : m_pSphere->m_meshInstance)
+	{
+		string name = it.m_pMeshResource->m_meshName;
+		if (pPrevMaterial != it.m_pMaterial)
+		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(it.m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pSpherePS.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+
+			Renderer::Instance->ApplyMaterial(it.m_pMaterial);	// 머터리얼 적용
+			pPrevMaterial = it.m_pMaterial;
+		}
+		m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
+		m_worldMatrixCB.mWorld = it.m_pNodeWorldTransform.Transpose();
+		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+		it.Render(Renderer::Instance->m_pDeviceContext.Get());
+	}
+}
+
 void Renderer::MeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
@@ -549,9 +584,11 @@ void Renderer::Render()
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 
+
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	SphereRender();
 	MeshRender();
 
 
@@ -735,6 +772,24 @@ void Renderer::RenderImgui()
 		ImGui::SliderFloat("##lpz", &pointlightPos.z, -1000.f, 1000.f);
 		ImGui::End();
 	}
+
+	{
+		bool useIBL = m_sphereCB.mUseIBL;
+		ImGui::Begin("IBL");
+		ImGui::Text("IBL");
+		ImGui::Text("Metalic");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpx", &m_sphereCB.mMetalic, 0.f, 1.f);
+		ImGui::Text("Roughness");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpy", &m_sphereCB.mRoughness, 0.f, 1.f);
+		ImGui::Text("Ambient");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpz", &m_sphereCB.mAmbient, 0.f, 1.f);
+		ImGui::Checkbox("UseIBL", &useIBL);
+		m_sphereCB.mUseIBL = useIBL;
+		ImGui::End();
+	}
 	m_pointLight.SetPosition(pointlightPos);
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -909,6 +964,13 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     pbd.CPUAccessFlags = 0;
     HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
 
+	pbd = {};
+    pbd.Usage = D3D11_USAGE_DEFAULT;
+    pbd.ByteWidth = sizeof(cbBall);
+    pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    pbd.CPUAccessFlags = 0;
+    HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
+
     //포인트 라이트 테스트용
     m_pointLight.SetPosition(Vector3(0, 0, 0));
 	m_pointLight.SetRadius(600.f);
@@ -926,7 +988,11 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
 	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pEnvironmentPS.GetAddressOf()));
 
+	buffer.Reset();
+	HR_T(CompileShaderFromFile(L"../Resource/BallPBR.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pSpherePS.GetAddressOf()));
 	
+	SphereInit("FBXLoad_Test/fbx/8Ball.fbx");
 
   	//Imgui
 	if (!InitImgui(*hWnd))

@@ -58,7 +58,10 @@ struct cbLight
 
 struct cbBall
 {
-
+	float mMetalic;
+	float mRoughness;
+	float mAmbient;
+	int mUseIBL;
 };
 
 struct DebugInformation
@@ -109,6 +112,7 @@ public:
 	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
 	ComPtr<ID3D11PixelShader> m_pEnvironmentPS;
+	ComPtr<ID3D11PixelShader> m_pSpherePS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
 	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
@@ -127,6 +131,7 @@ public:
 
 	ComPtr<ID3D11Buffer> m_pPointLightBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pLightBuffer = nullptr;
+	ComPtr<ID3D11Buffer> m_pSphereBuffer = nullptr;
 
 	vector<ColliderBox> m_colliderBox;
 	
@@ -161,6 +166,10 @@ public:
 	cbLight m_lightCB;
 	// minejong : shadow dir
 	Vector3 m_shadowDirection;
+
+	//스피어 테스트
+	cbBall m_sphereCB;
+	StaticModel* m_pSphere;
 
 	DirectX::BoundingFrustum m_frustumCmaera;
 
@@ -224,6 +233,9 @@ public:
 
 	void ApplyMaterial(Material* pMaterial);
 
+	//스피어 렌더
+	void SphereInit(string filename);
+	void SphereRender();
 	
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
