@@ -8,6 +8,13 @@
 #include "../Engine/Script.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
+#include "../Engine/Debug.h"
+#include "../Engine/Movement.h"
+#include "../Engine/RigidBody.h"
+#include "../Engine/Sound.h"
+#include "../Engine/Sprite2D.h"
+#include "../Engine/UI.h"
+
 #include "Prefab.h"
 #include "NameManager.h"
 
@@ -176,6 +183,7 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 			picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
 			picked->get<EntityIdentifier>().get().m_HasParent = true;
 			target->addChild(picked);
+
 			m_SelectionContext = nullptr;
 			
 		}
@@ -388,8 +396,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	ImGui::PushItemWidth(-1);
 	ImGui::SameLine();
 
-
-
 	if (ImGui::Button("Add Component"))
 		ImGui::OpenPopup("AddComponent");
 
@@ -438,11 +444,54 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
 	{
-		// 이것도 사용법을..
+		switch (component->m_CollisionType)
+		{
+		case(0):
+			ImGui::Text("CollisionType : Dynamic");
+			break;
+		case(1):
+			ImGui::Text("CollisionType : Static");
+			break;
+		case(2):
+			ImGui::Text("CollisionType : Plane");
+			break;
+		}
+
+		switch (component->m_CollisionMask)
+		{
+		case(0):
+			ImGui::Text("CollisionMask : Player");
+			break;
+		case(1):
+			ImGui::Text("CollisionMask : Wall");
+			break;
+		case(2):
+			ImGui::Text("CollisionMask : Ground");
+			break;
+		case(3):
+			ImGui::Text("CollisionMask : Slope");
+			break;
+		case(4):
+			ImGui::Text("CollisionMask : Object");
+			break;
+		case(5):
+			ImGui::Text("CollisionMask : Block");
+			break;
+		}
+
+		DrawVec3Control("Center", component->m_Center);
+		DrawVec3Control("Size", component->m_Size);
+		DrawVec3Control("Rotation", component->m_Rotation);
+
+		std::string trueOrFalse = component->m_IsTrigger ? "true" : "false";
+		std::string Trigger = "IsTrigger : " + trueOrFalse;
+		ImGui::Text(Trigger.c_str());
+
 	});
 
 	DrawComponent<Camera>("Camera", entity, [](auto component)
 	{
+
 	});
 
 	DrawComponent<Light>("Light", entity, [](auto component)
@@ -478,7 +527,12 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Script>("Script", entity, [](auto component)
 	{
-		const char* scripts[] = { "CameraScript", "SampleScript" };
+		const char* scripts[] = { 
+			"FreeCameraScript"
+			, "SampleScript"
+			, "PlayerScript"
+			, "POVCameraScript"
+			, "TestUIScript" };
 
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
@@ -494,6 +548,16 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		ImGui::Text(s.c_str());
 	});
+
+	DrawComponent<Debug>("Debug", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Debug>("MoveMent", entity, [](auto component)
+	{
+
+	});
 }
 
 void SceneHierarchyPanel::ShowStaticModelDialog()	// TODO: 이걸 World 파일 불러오는 거에도 쓸 수 있을듯
@@ -504,7 +568,7 @@ void SceneHierarchyPanel::ShowStaticModelDialog()	// TODO: 이걸 World 파일 불러�
 
 	if (m_IsDialogOpen)
 	{
-		IGFD::FileDialogConfig config; config.path = ".";
+		IGFD::FileDialogConfig config; config.path = "../Resource/FBXLoad_Test/fbx";
 		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".fbx", config);
 	}
 

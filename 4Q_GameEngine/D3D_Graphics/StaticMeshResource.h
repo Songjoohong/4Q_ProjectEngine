@@ -32,18 +32,18 @@ public:
 	UINT m_indexCount = 0;				// 인덱스 개수
 	UINT m_materialIndex = 0;			// 머테리얼 인덱스
 
-	vector<Vertex> m_vertices;
-	vector<UINT> m_indices;
+	std::vector<Vertex> m_vertices;
+	std::vector<UINT> m_indices;
 
 	
 private:
-	void CreateVertexBuffer(ID3D11Device* device, const vector<Vertex>& vertices, UINT vertexCount);
-	void CreateIndexBuffer(ID3D11Device* device, const vector<UINT>& indices, UINT indexCount);
+	void CreateVertexBuffer(ID3D11Device* device, const std::vector<Vertex>& vertices, UINT vertexCount);
+	void CreateIndexBuffer(ID3D11Device* device, const std::vector<UINT>& indices, UINT indexCount);
 
 public:
 	void Create(ID3D11Device* device, aiMesh* mesh);
 	void CreateEnvironment(ID3D11Device* device, aiMesh* mesh);
-	void Setting(wstring vs_name);
+	void Setting(std::wstring vs_name);
 
 };
 

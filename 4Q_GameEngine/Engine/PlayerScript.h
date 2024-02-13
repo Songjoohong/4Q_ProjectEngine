@@ -3,6 +3,7 @@
 #include "InputManager.h"
 #include "Movement.h"
 #include "Script.h"
+#include "PhysicsManager.h"
 
 class PlayerScript : public Script
 {

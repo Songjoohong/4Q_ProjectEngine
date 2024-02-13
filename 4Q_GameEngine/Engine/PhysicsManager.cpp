@@ -152,7 +152,7 @@ void PhysicsManager::DebugSetUp()
 
 DynamicCollider* PhysicsManager::GetDynamicCollider(int entId)
 {
-	const auto it = std::find_if(m_pDynamicColliders.begin(), m_pDynamicColliders.end(), [entId](pair<int, DynamicCollider*> collider)
+	const auto it = std::find_if(m_pDynamicColliders.begin(), m_pDynamicColliders.end(), [entId](std::pair<int, DynamicCollider*> collider)
 		{
 			return collider.first == entId;
 		});

@@ -17,15 +17,18 @@
                     "Transform": [
                         {
                             "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
                             "m_Position": {
                                 "m_X": 0.0,
                                 "m_Y": 10.0,
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {
-                                "m_X": -10.600058555603027,
-                                "m_Y": 31.300193786621094,
-                                "m_Z": 10.0
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
                             },
                             "m_Scale": {
                                 "m_X": 1.0,
@@ -48,14 +51,177 @@
                             "m_ComponentName": "Movement",
                             "m_CurrentMoveState": 0,
                             "m_DirectionVector": {
-                                "m_X": -0.510656476020813,
-                                "m_Y": -0.18395236134529114,
-                                "m_Z": -0.8398758769035339
+                                "m_X": -0.0,
+                                "m_Y": -0.0,
+                                "m_Z": -1.0
                             },
                             "m_RightVector": {
-                                "m_X": 0.824880838394165,
-                                "m_Y": 0.17068490386009216,
-                                "m_Z": -0.5389232635498047
+                                "m_X": 1.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Sensitivity": 0.10000000149011612,
+                            "m_Speed": 100.0
+                        }
+                    ]
+                },
+                {
+                    "Debug": [
+                        {
+                            "m_ComponentName": "Debug"
+                        }
+                    ]
+                },
+                {
+                    "FreeCameraScript": [
+                        {
+                            "m_ComponentName": "FreeCameraScript"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Ground": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 2,
+                            "m_EntityName": "Ground",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 90.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 1000.0,
+                                "m_Y": 1000.0,
+                                "m_Z": 1000.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "StaticMesh": [
+                        {
+                            "m_ComponentName": "StaticMesh",
+                            "m_FileName": "FBXLoad_Test/fbx/plane.fbx",
+                            "m_IsModelCreated": true
+                        }
+                    ]
+                },
+                {
+                    "BoxCollider": [
+                        {
+                            "m_Center": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_CollisionMask": 2,
+                            "m_CollisionType": 1,
+                            "m_ComponentName": "BoxCollider",
+                            "m_IsTrigger": false,
+                            "m_Size": {
+                                "m_X": 10000.0,
+                                "m_Y": 1.0,
+                                "m_Z": 10000.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Player": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 3,
+                            "m_EntityName": "Player",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": true,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": true,
+                            "m_Position": {
+                                "m_X": 100.0,
+                                "m_Y": 571.8160400390625,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 7.199905872344971,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "BoxCollider": [
+                        {
+                            "m_Center": {
+                                "m_X": 100.0,
+                                "m_Y": 571.8160400390625,
+                                "m_Z": 0.0
+                            },
+                            "m_CollisionMask": 0,
+                            "m_CollisionType": 0,
+                            "m_ComponentName": "BoxCollider",
+                            "m_IsTrigger": false,
+                            "m_Size": {
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
+                                "m_Z": 100.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Movement": [
+                        {
+                            "m_ComponentName": "Movement",
+                            "m_CurrentMoveState": 0,
+                            "m_DirectionVector": {
+                                "m_X": -0.12533161044120789,
+                                "m_Y": -0.0,
+                                "m_Z": -0.9921149015426636
+                            },
+                            "m_RightVector": {
+                                "m_X": 0.9921149015426636,
+                                "m_Y": 0.0,
+                                "m_Z": -0.12533161044120789
                             },
                             "m_Sensitivity": 0.10000000149011612,
                             "m_Speed": 100.0
@@ -84,7 +250,7 @@
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 2,
+                            "m_EntityId": 4,
                             "m_EntityName": "Zelda",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
@@ -95,10 +261,13 @@
                     "Transform": [
                         {
                             "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
                             "m_Position": {
                                 "m_X": 100.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
+                                "m_Y": 100.0,
+                                "m_Z": 100.0
                             },
                             "m_Rotation": {
                                 "m_X": 0.0,
@@ -117,21 +286,41 @@
                     "StaticMesh": [
                         {
                             "m_ComponentName": "StaticMesh",
-                            "m_FileName": "FBXLoad_Test/fbx/box.fbx",
+                            "m_FileName": "FBXLoad_Test/fbx/zeldaPosed001.fbx",
                             "m_IsModelCreated": true
+                        }
+                    ]
+                },
+                {
+                    "BoxCollider": [
+                        {
+                            "m_Center": {
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
+                                "m_Z": 100.0
+                            },
+                            "m_CollisionMask": 2,
+                            "m_CollisionType": 1,
+                            "m_ComponentName": "BoxCollider",
+                            "m_IsTrigger": false,
+                            "m_Size": {
+                                "m_X": 10000.0,
+                                "m_Y": 1.0,
+                                "m_Z": 10000.0
+                            }
                         }
                     ]
                 }
             ]
         },
         {
-            "Character": [
+            "Zelda2": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 3,
-                            "m_EntityName": "Character",
+                            "m_EntityId": 5,
+                            "m_EntityName": "Zelda2",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -141,9 +330,12 @@
                     "Transform": [
                         {
                             "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
                             "m_Position": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {
@@ -163,22 +355,68 @@
                     "StaticMesh": [
                         {
                             "m_ComponentName": "StaticMesh",
-                            "m_FileName": "FBXLoad_Test/fbx/Character.fbx",
+                            "m_FileName": "FBXLoad_Test/fbx/zeldaPosed001.fbx",
                             "m_IsModelCreated": true
                         }
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "ui": [
                 {
-                    "Debug": [
+                    "EntityIdentifier": [
                         {
-                            "m_ComponentName": "Debug"
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 6,
+                            "m_EntityName": "ui",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
                         }
                     ]
                 },
                 {
-                    "SampleScript": [
+                    "Transform": [
                         {
-                            "m_ComponentName": "SampleScript"
+                            "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
+                            "m_Position": {
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Sprite2D": [
+                        {
+                            "m_FileName": "../Resource/UI/image.jpg",
+                            "m_IsRendered": true,
+                            "m_Layer": 0.0,
+                            "m_Position": [
+                                100,
+                                100
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "Script": [
+                        {
+                            "m_ComponentName": "Script"
                         }
                     ]
                 }

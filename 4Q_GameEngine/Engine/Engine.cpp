@@ -151,7 +151,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
-	ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND, Vector3D{ 10000.f,1.f,10000.f });
+	ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::OBJECT, Vector3D{ 100.f,1.f,100.f });
 
 	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent4->Assign<EntityIdentifier>(ent4->getEntityId(), "Zelda2");
