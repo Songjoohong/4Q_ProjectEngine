@@ -23,6 +23,7 @@
 #include "../Engine/Sprite2D.h"
 #include "../Engine/CameraScript.h"
 #include "../Engine/RenderSystem.h"
+#include "../Engine/SampleScript.h"
 
 #include "Prefab.h"
 #include "NameManager.h"
@@ -316,7 +317,7 @@ void GameEditor::RenderImGui()
 			float Fscale[3] = { tc.m_Scale.m_X, tc.m_Scale.m_Y, tc.m_Scale.m_Z };
 			ImGuizmo::RecomposeMatrixFromComponents(Ftranslation, Frotation, Fscale, *transform.m);
 
-			bool snap = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftCtrl);
+			bool snap = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftShift);
 
 			float snapValue = 100.0f;
 
@@ -343,19 +344,26 @@ void GameEditor::RenderImGui()
 				}
 				else if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
 				{
-					XMFLOAT3 deltaRotation;
+					// Convert degrees to radians for quaternion creation
+					float yawRadians = DirectX::XMConvertToRadians(fRotation[1]);  // Yaw
+					float pitchRadians = DirectX::XMConvertToRadians(fRotation[0]); // Pitch
+					float rollRadians = DirectX::XMConvertToRadians(fRotation[2]);  // Roll
 					
-					deltaRotation.x = fRotation[0] - tc.m_Rotation.m_X;
-					deltaRotation.y = fRotation[1] - tc.m_Rotation.m_Y;
-					deltaRotation.z = fRotation[2] - tc.m_Rotation.m_Z;
+					// Create a quaternion from Euler angles (in radians)
+					DirectX::SimpleMath::Quaternion quaternion = DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(yawRadians, pitchRadians, rollRadians);
 
-					std::cout << " X : " << deltaRotation.x;
-					std::cout << " Y : " << deltaRotation.y;
-					std::cout << " Z : " << deltaRotation.z << std::endl;
+					// Convert radians back to degrees for storing in tc.m_Rotation
+					float yawDegrees = DirectX::XMConvertToDegrees(yawRadians);
+					float pitchDegrees = DirectX::XMConvertToDegrees(pitchRadians);
+					float rollDegrees = DirectX::XMConvertToDegrees(rollRadians);
 
-					tc.m_Rotation.m_X += deltaRotation.x;
-					tc.m_Rotation.m_Y += deltaRotation.y;
-					tc.m_Rotation.m_Z += deltaRotation.z;
+					/*tc.m_Rotation.SetX(fRotation[0]);
+					tc.m_Rotation.SetY(fRotation[1]);
+					tc.m_Rotation.SetZ(fRotation[2]);*/
+					tc.m_Rotation.SetX(pitchDegrees);
+					tc.m_Rotation.SetY(yawDegrees);
+					tc.m_Rotation.SetZ(rollDegrees);
+					
 				}
 				else if (m_GizmoType == ImGuizmo::OPERATION::SCALE)
 				{
@@ -537,6 +545,10 @@ void GameEditor::LoadWorld(const std::string& _filename)
 				else if (componentName == "CameraScript")
 				{
 					AssignComponents<CameraScript>(myEntity, component["CameraScript"][0]);
+				}
+				else if (componentName == "SampleScript")
+				{
+					AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
 				}
 			}
 		}

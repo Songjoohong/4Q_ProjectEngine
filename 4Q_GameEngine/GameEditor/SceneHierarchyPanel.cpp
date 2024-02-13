@@ -5,7 +5,7 @@
 #include "../Engine/Camera.h"
 #include "../Engine/EntityIdentifier.h"
 #include "../Engine/Light.h"
-
+#include "../Engine/Script.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
 #include "Prefab.h"
@@ -401,13 +401,26 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<BoxCollider>("BoxCollider");
 		DisplayAddComponentEntry<Camera>("Camera");
 		DisplayAddComponentEntry<Light>("Light");
-
+		DisplayAddComponentEntry<Script>("Script");
 		ImGui::EndPopup();
 	}
 
 	ShowStaticModelDialog();	// TODO: 수정..?
 
 	ImGui::PopItemWidth();
+
+	DrawComponent<EntityIdentifier>("EntityIdentifier", entity, [](auto component)
+	{
+			std::string entityName = "EntityName : " + component->m_EntityName;
+			ImGui::Text(entityName.c_str());
+			std::string entityID = "EntityID : " + std::to_string(component->m_EntityId);
+			ImGui::Text(entityID.c_str());
+			std::string trueOrFalse = component->m_HasParent ? "true" : "false";
+			std::string HasParent = "HasParent : " + trueOrFalse;
+			ImGui::Text(HasParent.c_str());
+			std::string parentID = "ParentID : " + std::to_string(component->m_ParentEntityId);
+			ImGui::Text(parentID.c_str());
+	});
 
 	DrawComponent<Transform>("Transform", entity, [](auto component)
 	{
@@ -461,6 +474,25 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		// TODO: 조건 2. Directional Light 일 때
 
 		/// -> 라이트 타입별 나타내야 하는 정보가 다르다.     다른가? 흐음..
+	});
+
+	DrawComponent<Script>("Script", entity, [](auto component)
+	{
+		const char* scripts[] = { "CameraScript", "SampleScript" };
+
+		static int item_current = 1;
+		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			if (item_current >= 0 && item_current < IM_ARRAYSIZE(scripts)) // Check if the index is valid
+			{
+				component->m_ComponentName = scripts[item_current]; // Assign the selected script name
+			}
+		}
+		std::string s = "SelectedScript : " + component->m_ComponentName;
+
+		ImGui::Text(s.c_str());
 	});
 }
 
