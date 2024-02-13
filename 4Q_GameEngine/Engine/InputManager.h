@@ -1,7 +1,7 @@
-#pragma once
+ #pragma once
 #include "ISingleton.h"
 
-#define Input InputManager::GetInstance()
+#define InputM InputManager::GetInstance()
 
 enum Key
 {
@@ -10,12 +10,16 @@ enum Key
 	RBUTTON,
 	UP,
 	DOWN,
+	LEFT,
+	RIGHT,
+	SPACE,
 	W,
 	A,
 	S,
 	D,
 	Q,
 	E,
+	CTRL,
 	KEY_END,
 
 };
@@ -46,7 +50,8 @@ public:
 	void operator=(const InputManager&&) = delete;
 
 private:
-	bool isPressed[Key::KEY_END] = {false, };
+	bool m_IsPressed[Key::KEY_END] = {false, };
+	bool m_IsCursorCameraMode = false;
 	KeyInfo m_CurrentKeyState[Key::KEY_END] = {};
 	KeyState m_PreviousKeyState[Key::KEY_END] = { KeyState::NONE, };
 	POINT m_CurrentCursorPos = { 0,0 };
@@ -56,6 +61,7 @@ private:
 public:
 	void Initialize(UINT width, UINT height);
 	void Update(float deltaTime);
+	void SetCameraMode(bool isCameraMode) { m_IsCursorCameraMode = isCameraMode; }
 	[[nodiscard]] KeyInfo& GetKeyState(Key key);
 	[[nodiscard]] bool GetKey(Key key) const;
 	[[nodiscard]] bool GetKeyDown(Key key) const;

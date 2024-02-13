@@ -10,7 +10,7 @@ concept SerializeableContainer = requires(const T & container) {
 
 
 template<typename Container>
-std::string SerializeContainer(const Container& myContainer, std::wstring& filename) requires SerializeableContainer<Container>
+std::string SerializeContainer(const Container& myContainer) requires SerializeableContainer<Container>
 {
 	nlohmann::json jsonObject = myContainer;
 
@@ -18,7 +18,7 @@ std::string SerializeContainer(const Container& myContainer, std::wstring& filen
 }
 
 template <typename Container>
-Container DeserializeContainerFromFile(const std::wstring& filename) requires SerializeableContainer<Container> {
+Container DeserializeContainerFromFile(const std::string& filename) requires SerializeableContainer<Container> {
 	std::ifstream inputFile(filename);
 	nlohmann::json jsonObject;
 	inputFile >> jsonObject;

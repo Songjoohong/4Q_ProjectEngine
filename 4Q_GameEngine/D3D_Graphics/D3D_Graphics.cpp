@@ -11,6 +11,8 @@
 
 #include "../Engine/TimeManager.h"
 
+#include "RenderTextureClass.h"
+
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
@@ -36,16 +38,16 @@ void Renderer::Clear(float r, float g, float b)
 {
 	const float clearColor[4] = { r,g,b,1 };
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
+	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	//m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
 void Renderer::Clear(Math::Vector3 color)
 {
 	const float clearColor[4] = { color.x,color.y,color.z,1 };
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
+	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	//m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
 void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
@@ -64,7 +66,7 @@ void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 
 void Renderer::AddColliderBox(Vector3 center, Vector3 extents,bool isCollision)
 {
-	m_colliderBox.push_back(ColliderBox(center, extents, isCollision));
+	m_colliderBox.push_back(ColliderBox(center + Vector3{0.f,extents.y, 0.f}, extents, isCollision));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
@@ -566,6 +568,19 @@ void Renderer::Render()
 	m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->PSSetShader(NULL, NULL, 0);
 
+	// 24.02.05 수민. 원래 여기있던 코드는 Render::RenderScene() 함수로 이동하였슴.
+
+	// 전체 장면을 먼저 텍스처로 렌더링합니다.
+	RenderToTexture();
+
+	// 씬을 그리기 위해 버퍼를 지웁니다
+	Clear();
+	// 백 버퍼의 장면을 정상적으로 렌더링합니다.
+	RenderScene();
+}
+
+void Renderer::RenderScene()
+{
 	//그림자의 View, Projection 포함하여 버퍼에 업데이트
 	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
@@ -580,9 +595,9 @@ void Renderer::Render()
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	//Clear();
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 이거하면 에디터의 뷰포트에 렌더가 안됨.
 
 
 	//메쉬 렌더
@@ -602,7 +617,7 @@ void Renderer::Render()
 
 
 	//임구이 렌더
-	RenderImgui();
+	//RenderImgui();
 }
 
 
@@ -622,6 +637,22 @@ void Renderer::RenderEnvironment()
 	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Initialize();
 	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Render(m_pDeviceContext.Get());
 	
+}
+
+void Renderer::RenderToTexture()
+{
+	// 렌더링 대상을 렌더링에 맞게 설정합니다.
+	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
+
+	// 렌더링을 텍스처에 지웁니다.
+	m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
+
+	// 이제 장면을 렌더링하면 백 버퍼 대신 텍스처로 렌더링됩니다.
+	RenderScene();
+
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+
 }
 
 void Renderer::RenderEnd()
@@ -706,6 +737,7 @@ void Renderer::RenderImgui()
 	{
 		// Directional Light
 		ImGui::Begin("Light Properties");
+		ImGui::Text("Direction Light Dir");
 		ImGui::Text("Direction Light Dir");
 		ImGui::Text("X");
 		ImGui::SameLine();
@@ -994,10 +1026,21 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	
 	SphereInit("FBXLoad_Test/fbx/8Ball.fbx");
 
-  	//Imgui
-	if (!InitImgui(*hWnd))
-		return false;
+
+	// 렌더링 텍스처 객체를 생성한다.
+	m_RenderTexture = new RenderTextureClass;
+	// 렌더링 텍스처 객체를 초기화한다.
+	m_RenderTexture->Initialize(m_pDevice.Get(), width, height);
   
+  	//Imgui
+
+	/*if (!InitImgui(*hWnd))
+		return false;*/
+
+	Matrix cameraInitPos = Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(180.f), DirectX::XMConvertToRadians(0.f), DirectX::XMConvertToRadians(0.f)) * Matrix::CreateTranslation(0, 150, -250);
+	SetCamera(cameraInitPos);
+
+
     return true;
 }
 

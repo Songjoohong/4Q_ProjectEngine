@@ -19,14 +19,18 @@ struct Transform
 
 	std::string m_ComponentName = "Transform";
 
-	Vector3D m_Rotation;
-	Vector3D m_Position;
-	Vector3D m_Scale;
+	Vector3D m_Rotation = { 0.f, 0.f, 0.f };
+	Vector3D m_Position = { 0.f, 0.f, 0.f };
+	Vector3D m_Scale = { 1.f, 1.f, 1.f };
 
 	Matrix4x4 m_RelativeMatrix;
 	Matrix4x4 m_WorldMatrix;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale)
+	bool m_FreezeRotationX = false;
+	bool m_FreezeRotationY = false;
+	bool m_FreezeRotationZ = false;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale, m_FreezeRotationX, m_FreezeRotationY, m_FreezeRotationZ)
 };
 
 ECS_DEFINE_TYPE(Transform)

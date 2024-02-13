@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "MovementSystem.h"
 
+#include "DynamicCollider.h"
 #include "Movement.h"
+#include "PhysicsManager.h"
+#include "RigidBody.h"
 #include "Transform.h"
 
 void MovementSystem::Tick(World* world, float deltaTime)
@@ -10,7 +13,20 @@ void MovementSystem::Tick(World* world, float deltaTime)
 		{
 			Vector3D moveVector;
 			const DirectX::SimpleMath::Matrix worldMatrix = transform->m_WorldMatrix.ConvertToMatrix();
-			transform->m_Rotation = { transform->m_Rotation.GetX() + movement->m_CurrentRotation.x * movement->m_Sensitivity, transform->m_Rotation.GetY() + movement->m_CurrentRotation.y * movement->m_Sensitivity, transform->m_Rotation.GetZ() };
+
+			Vector3D deltaRotation = { movement->m_CurrentRotation[1] * movement->m_Sensitivity, movement->m_CurrentRotation[0] * movement->m_Sensitivity, 0.f };
+
+			movement->m_CurrentRotation[0] = 0;
+			movement->m_CurrentRotation[1] = 0;
+
+			if (transform->m_FreezeRotationX)
+				deltaRotation.SetX(0.f);
+			if (transform->m_FreezeRotationY)
+				deltaRotation.SetY(0.f);
+			if (transform->m_FreezeRotationZ)
+				deltaRotation.SetZ(0.f);
+
+			transform->m_Rotation += deltaRotation;
 
 			movement->m_RightVector = Vector3D{ worldMatrix.Right().x, worldMatrix.Right().y, worldMatrix.Right().z }.Normalize();
 			movement->m_DirectionVector = Vector3D{ worldMatrix.Forward().x, worldMatrix.Forward().y , worldMatrix.Forward().z }.Normalize();
@@ -33,9 +49,17 @@ void MovementSystem::Tick(World* world, float deltaTime)
 			if (movement->m_CurrentMoveState & 0x100000)
 				moveVector -= Vector3D{ 0.f,1.f,0.f };
 
-			// 이동 설정
 			movement->m_CurrentMoveState = 0;
 			moveVector = moveVector.Normalize();
-			transform->m_Position += moveVector * movement->m_Speed * deltaTime;			
+			// 이동 설정
+			if(entity->has<RigidBody>())
+			{
+				PhysicsManager::GetInstance()->GetDynamicCollider(entity->getEntityId())->AddForce(moveVector);
+			}
+			else
+			{
+				transform->m_Position += moveVector * movement->m_Speed * deltaTime;
+			}
+						
 		});
 }

@@ -233,9 +233,15 @@ public:
 
 	void ApplyMaterial(Material* pMaterial);
 
+
 	//스피어 렌더
 	void SphereInit(string filename);
 	void SphereRender();
+
+	Math::Matrix GetViewMatrix() { return m_viewMatrix; }
+
+	Math::Matrix GetProjectionMatrix() { return m_projectionMatrix; }
+
 	
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
