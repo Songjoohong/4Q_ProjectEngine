@@ -164,7 +164,7 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 		{
 			size_t pickedID = *(static_cast<size_t*>(payLoad->Data));
 
-			ECS::Entity* picked = m_Context->getByIndex(pickedID - 1);
+			ECS::Entity* picked = m_Context->getById(pickedID);
 			ECS::Entity* target = entity;
 
 			// 자기 자식의 자식으로 등록하려는 경우 아무런 처리를 하지 않는다. (이거 허용하면 엔티티가 삭제됨.)

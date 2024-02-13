@@ -543,21 +543,14 @@ namespace ECS
 
 		Entity* getParent() const { return m_parent; }
 
-		//void addChild(Entity* child)
-		//{
-		//	child->SetParent(this);
-		//	m_children.push_back(child);
-		//}
-
-		//void SetParent(Entity* parent)
-		//{
-		//	this->m_parent = parent;
-		//}
 
 		// ¼ö¹Î --------------------------------------------------------------------------------------------------------
 
 		bool isDescendant(const Entity* target)
 		{
+			if (target->m_children.size() == 0)
+				return false;
+
 			for (Entity* child : m_children)
 			{
 				if (target == child || child->isDescendant(target))
@@ -1119,6 +1112,12 @@ namespace ECS
 			entities.erase(std::remove(entities.begin(), entities.end(), ent), entities.end());
 			std::allocator_traits<EntityAllocator>::destroy(entAlloc, ent);
 			std::allocator_traits<EntityAllocator>::deallocate(entAlloc, ent, 1);
+		}
+
+		for (Entity* child : ent->m_children)
+		{
+			destroy(child);
+			ent->RemoveChild(child);
 		}
 	}
 

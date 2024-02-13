@@ -591,10 +591,11 @@ void GameEditor::NewScene()
 	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
 
-	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Camera");
+	// Free Camera
+	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Main Camera");
 	m_Camera->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
 	m_Camera->Assign<Camera>();
-	m_Camera->Assign<CameraScript>(m_Camera);
+	m_Camera->Assign<FreeCameraScript>(m_Camera);
 	m_Camera->Assign<Movement>();
 	m_Camera->Assign<Debug>();
 

@@ -556,7 +556,7 @@ void Renderer::RenderScene()
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
 	//그림자 렌더
-	ShadowRender();
+	//ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	//Clear();

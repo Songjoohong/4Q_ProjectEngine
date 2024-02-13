@@ -75,10 +75,6 @@ inline void SceneHierarchyPanel::DisplayAddComponentEntry<StaticMesh>(const std:
 			m_IsDialogOpen = true;
 
 			// fbx 파일을 선택하지 않았다면 컴포넌트 추가하지 않음.
-
-			// 현재 선택된 오브젝트에 컴포넌트 추가
-			//m_SelectionContext->Assign<StaticMesh>("FBXLoad_Test/fbx/" + fileName);
-
 			ImGui::CloseCurrentPopup();
 		}
 	}

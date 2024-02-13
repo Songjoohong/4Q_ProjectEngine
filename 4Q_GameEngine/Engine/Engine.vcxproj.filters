@@ -1,81 +1,284 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Collider.cpp" />
-    <ClCompile Include="CameraSystem.cpp" />
-    <ClCompile Include="CollisionSystem.cpp" />
-    <ClCompile Include="DynamicCollider.cpp" />
-    <ClCompile Include="DebugSystem.cpp" />
-    <ClCompile Include="Engine.cpp" />
-    <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="MovementSystem.cpp" />
-    <ClCompile Include="MyPOINT.cpp" />
-    <ClCompile Include="pch.cpp" />
-    <ClCompile Include="PhysicsManager.cpp" />
-    <ClCompile Include="RenderManager.cpp" />
-    <ClCompile Include="RenderSystem.cpp" />
-    <ClCompile Include="ScriptSystem.cpp" />
-    <ClCompile Include="StaticCollider.cpp" />
-    <ClCompile Include="SoundManager.cpp" />
-    <ClCompile Include="SoundSystem.cpp" />
-    <ClCompile Include="SpriteSystem.cpp" />
-    <ClCompile Include="TimeManager.cpp" />
-    <ClCompile Include="TransformSystem.cpp" />
-    <ClCompile Include="UISystem.cpp" />
-    <ClCompile Include="Vector3D.h" />
-    <ClCompile Include="WorldManager.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="POVCameraScript.h" />
-    <ClInclude Include="FreeCameraScript.h" />
-    <ClInclude Include="CameraSystem.h" />
-    <ClInclude Include="jsonSerializer.h" />
-    <ClInclude Include="PlayerScript.h" />
-    <ClInclude Include="CameraScript.h" />
-    <ClInclude Include="Matrix4x4.h" />
-    <ClInclude Include="Sprite2D.h" />
-    <ClInclude Include="BoxCollider.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="Collider.h" />
-    <ClInclude Include="CollisionSystem.h" />
-    <ClInclude Include="DynamicCollider.h" />
-    <ClInclude Include="Debug.h" />
-    <ClInclude Include="DebugSystem.h" />
-    <ClInclude Include="ECS.h" />
-    <ClInclude Include="Engine.h" />
-    <ClInclude Include="EntityIdentifier.h" />
-    <ClInclude Include="framework.h" />
-    <ClInclude Include="InputManager.h" />
-    <ClInclude Include="ISingleton.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="Movement.h" />
-    <ClInclude Include="MovementSystem.h" />
-    <ClInclude Include="nlohmann\json.hpp" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="PhysicsManager.h" />
-    <ClInclude Include="RenderManager.h" />
-    <ClInclude Include="RenderSystem.h" />
-    <ClInclude Include="RigidBody.h" />
-    <ClInclude Include="SampleScript.h" />
-    <ClInclude Include="Script.h" />
-    <ClInclude Include="ScriptSystem.h" />
-    <ClInclude Include="Sound.h" />
-    <ClInclude Include="SoundManager.h" />
-    <ClInclude Include="SoundSystem.h" />
-    <ClInclude Include="SpriteSystem.h" />
-    <ClInclude Include="StaticCollider.h" />
-    <ClInclude Include="StaticMesh.h" />
-    <ClInclude Include="TestUIScript.h" />
-    <ClInclude Include="TimeManager.h" />
-    <ClInclude Include="Transform.h" />
-    <ClInclude Include="TransformSystem.h" />
-    <ClInclude Include="UI.h" />
-    <ClInclude Include="UISystem.h" />
-    <ClInclude Include="WorldManager.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="0.Helper">
-      <UniqueIdentifier>{f1e1b9fb-bce0-4a65-961f-bb2107bafb04}</UniqueIdentifier>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{29995b00-d775-4676-a950-2fe216f6f920}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interface">
+      <UniqueIdentifier>{62fe4c82-83ca-46b6-8a91-b2d9cf7a8042}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component">
+      <UniqueIdentifier>{7d6c694d-e54f-4ec7-945c-e68e12bdf4f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Movement">
+      <UniqueIdentifier>{6d314a24-c87e-4376-b3ca-aeb76cf73a7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{a9a9f40c-90dd-4982-ac8c-4b0c06ee1c3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Script">
+      <UniqueIdentifier>{6522a474-3bdd-4b4d-9346-42295a7f232d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Collision">
+      <UniqueIdentifier>{c8bb73c1-1871-4f4b-a1c1-adbfc1e52928}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{a7ba5dbe-ad40-4c61-af3f-40ab55401725}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\Input">
+      <UniqueIdentifier>{5796e7a7-2830-48ea-8733-a9f8ddf80870}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\Time">
+      <UniqueIdentifier>{b2cba285-1fd0-4d46-8110-3fc30b09724c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\World">
+      <UniqueIdentifier>{a09fdccc-3753-49c1-8bac-082b09597ab9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\Render">
+      <UniqueIdentifier>{5c804c77-1a81-4ac6-b6b2-b5722c1a96ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Render">
+      <UniqueIdentifier>{888dee73-ae54-48ec-8baa-86dde0443b97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\PhysX">
+      <UniqueIdentifier>{a47efb48-6871-42ce-8ad3-71c25ad602d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instance">
+      <UniqueIdentifier>{90bc4681-c72e-488d-b165-2ed7780ac434}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager\Sound">
+      <UniqueIdentifier>{8a82d2a4-65ed-4fbd-88b8-05a009c8984f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Sound">
+      <UniqueIdentifier>{b8066904-18ec-4f48-ac15-3d1b920a6ad0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Debug">
+      <UniqueIdentifier>{e92f1956-2673-4e65-815e-35cf5af77dd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Sprite">
+      <UniqueIdentifier>{b1765cf5-84dc-4dbb-b8c2-bb8076bddba8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Camera">
+      <UniqueIdentifier>{ddd6fb2f-c022-4703-b59d-aead4534fa9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Transform">
+      <UniqueIdentifier>{523eb242-1b9e-4a6a-abd5-824ebcd77236}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="headers">
+      <UniqueIdentifier>{de3e12bc-a24a-4646-a500-c30d3226d24b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\UI">
+      <UniqueIdentifier>{25721fc5-5a9d-4c1c-945d-f58fc90c9f12}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ISingleton.h">
+      <Filter>Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Movement.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticMesh.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="MovementSystem.h">
+      <Filter>System\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxCollider.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="RigidBody.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="ScriptSystem.h">
+      <Filter>System\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SampleScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Manager\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeManager.h">
+      <Filter>Manager\Time</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldManager.h">
+      <Filter>Manager\World</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderManager.h">
+      <Filter>Manager\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderSystem.h">
+      <Filter>System\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Manager\PhysX</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticCollider.h">
+      <Filter>Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicCollider.h">
+      <Filter>Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundManager.h">
+      <Filter>Manager\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundSystem.h">
+      <Filter>System\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugSystem.h">
+      <Filter>System\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Sprite2D.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteSystem.h">
+      <Filter>System\Sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeCameraScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraSystem.h">
+      <Filter>System\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformSystem.h">
+      <Filter>System\Transform</Filter>
+    </ClInclude>
+    <ClInclude Include="EntityIdentifier.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ECS.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="nlohmann\json.hpp">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix4x4.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="jsonSerializer.h" />
+    <ClInclude Include="jsonSerializer.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>headers</Filter>
+    </ClInclude>
+    <ClInclude Include="UISystem.h">
+      <Filter>System\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="TestUIScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>System\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="POVCameraScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MovementSystem.cpp">
+      <Filter>System\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptSystem.cpp">
+      <Filter>System\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionSystem.cpp">
+      <Filter>System\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Manager\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeManager.cpp">
+      <Filter>Manager\Time</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldManager.cpp">
+      <Filter>Manager\World</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>Manager\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderSystem.cpp">
+      <Filter>System\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Manager\PhysX</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticCollider.cpp">
+      <Filter>Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicCollider.cpp">
+      <Filter>Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundManager.cpp">
+      <Filter>Manager\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundSystem.cpp">
+      <Filter>System\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="DebugSystem.cpp">
+      <Filter>System\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteSystem.cpp">
+      <Filter>System\Sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraSystem.cpp">
+      <Filter>System\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformSystem.cpp">
+      <Filter>System\Transform</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3D.h">
+      <Filter>headers</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>headers</Filter>
+    </ClCompile>
+    <ClCompile Include="UISystem.cpp">
+      <Filter>System\UI</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
