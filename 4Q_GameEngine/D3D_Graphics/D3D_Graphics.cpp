@@ -3,11 +3,11 @@
 #include "StaticMeshResource.h"
 #include "ResourceManager.h"
 #include "StaticModel.h"
+#include "Environment.h"
 
 #include "DebugDraw.h"
 
 #include "../Engine/Debug.h"
-
 
 #include "../Engine/TimeManager.h"
 
@@ -16,16 +16,12 @@
 #include <imgui.h>
 #include <imgui_impl_win32.h>
 #include <imgui_impl_dx11.h>
-#include "ImGuizmo.h"
-#define SHADOWMAP_SIZE 16384
+
+#include "../Engine/InputManager.h"
+
+#define SHADOWMAP_SIZE 4096
 
 Renderer* Renderer::Instance = nullptr;
-
-static const float identityMatrix[16] =
-{ 1.f, 0.f, 0.f, 0.f,
-	0.f, 1.f, 0.f, 0.f,
-	0.f, 0.f, 1.f, 0.f,
-	0.f, 0.f, 0.f, 1.f };
 
 Renderer::Renderer()
 {
@@ -61,11 +57,16 @@ void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
 		if (nullptr == model->GetSceneResource())
 		{
 			model->m_worldTransform = worldTM;
+			
 			model->Load(filename);
 			break;
 		}
-		AddMeshInstance(model);
 	}
+}
+
+void Renderer::AddColliderBox(Vector3 center, Vector3 extents,bool isCollision)
+{
+	m_colliderBox.push_back(ColliderBox(center + Vector3{0.f,extents.y, 0.f}, extents, isCollision));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
@@ -245,6 +246,18 @@ void Renderer::CreateSamplerState()
 	sd.MinLOD = 0;
 	sd.MaxLOD = D3D11_FLOAT32_MAX;
 	HR_T(m_pDevice->CreateSamplerState(&sd, m_pSampler.GetAddressOf()));
+
+	sd = {};
+	sd.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sd.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sd.MaxAnisotropy = (sd.Filter == D3D11_FILTER_ANISOTROPIC) ? D3D11_REQ_MAXANISOTROPY : 1;
+	sd.MinLOD = 0;
+	sd.MaxLOD = D3D11_FLOAT32_MAX;
+	HR_T(m_pDevice->CreateSamplerState(&sd, m_pSamplerClamp.GetAddressOf()));
+
+	m_pDeviceContext->PSSetSamplers(1, 1, Renderer::Instance->m_pSamplerClamp.GetAddressOf());
 }
 
 void Renderer::FrustumCulling(StaticModel* model)
@@ -254,10 +267,6 @@ void Renderer::FrustumCulling(StaticModel* model)
 		AddMeshInstance(model);
 	}
 }
-
-
-
-
 
 void Renderer::ApplyMaterial(Material* pMaterial)
 {
@@ -281,13 +290,16 @@ void Renderer::ApplyMaterial(Material* pMaterial)
 
 	if (pMaterial->m_pRoughnessRV)
 		m_pDeviceContext->PSSetShaderResources(6, 1, pMaterial->m_pRoughnessRV->m_pTextureRV.GetAddressOf());
+	if (pMaterial->m_pAmbientOcclusionRV)
+		m_pDeviceContext->PSSetShaderResources(12, 1, pMaterial->m_pAmbientOcclusionRV->m_pTextureRV.GetAddressOf());
 }
 
 void Renderer::MeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
-
+	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 	Material* pPrevMaterial = nullptr;
+
 	for (auto it : m_pMeshInstance)
 	{
 		if (pPrevMaterial != it->m_pMaterial)
@@ -359,9 +371,39 @@ void Renderer::RenderDebugDraw()
     {
         DebugDraw::Draw(DebugDraw::g_Batch.get(), model->m_boundingBox,
             model->m_bIsCulled ? Colors::Red : Colors::Blue);
+		
     }
-
+	for (auto& box : m_colliderBox)
+	{
+		DebugDraw::Draw(DebugDraw::g_Batch.get(), box.colliderBox,
+			box.isCollision ? Colors::Red : Colors::Green);
+	}
+	m_colliderBox.clear();
     DebugDraw::g_Batch->End();
+}
+
+void Renderer::RenderQueueSort()
+{
+	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
+		return lhs->m_pNodeWorldTransform < rhs->m_pNodeWorldTransform;
+		});
+	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
+		return lhs->m_pMaterial < rhs->m_pMaterial;
+		});
+}
+
+void Renderer::SetEnvironment(string filename)
+{
+	auto it = ResourceManager::Instance->m_pOriginalEnvironments.find(filename);
+	if (it != ResourceManager::Instance->m_pOriginalEnvironments.end())
+	{
+		auto pEnvironment = it->second;
+		m_pDeviceContext->PSSetShaderResources(8, 1, pEnvironment->m_pEnvironmentTextureResource->m_pTextureRV.GetAddressOf());
+		m_pDeviceContext->PSSetShaderResources(9, 1, pEnvironment->m_pIBLDiffuseTextureResource->m_pTextureRV.GetAddressOf());
+		m_pDeviceContext->PSSetShaderResources(10, 1, pEnvironment->m_pIBLSpecularTextureResource->m_pTextureRV.GetAddressOf());
+		m_pDeviceContext->PSSetShaderResources(11, 1, pEnvironment->m_pIBLBRDFTextureResource->m_pTextureRV.GetAddressOf());
+		
+	}
 
 }
 
@@ -391,6 +433,17 @@ void Renderer::Update()
 
 	m_viewMatrixCB.mShadowView = shadowView.Transpose();
 	m_projectionMatrixCB.mShadowProjection = shadowProjection.Transpose();
+
+	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
+	m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
+	for (auto& model : m_pStaticModels)
+	{
+		if (model->GetSceneResource() == nullptr)
+			break;
+		FrustumCulling(model);
+	}
+
+	RenderQueueSort();
 }
 
 void Renderer::RenderBegin()
@@ -404,25 +457,21 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    //SetCamera();
-    DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
-    m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
-    for (auto& model : m_pStaticModels)
-    {
-        if (model->GetSceneResource() == nullptr)
-            break;
-        FrustumCulling(model);
-    }
+	
+
+    
+
     m_pointLightCB.mPos = m_pointLight.GetPosition();
     m_pointLightCB.mRadius = m_pointLight.GetRadius();
     m_pointLightCB.mLightColor = m_pointLight.GetColor();
-    m_pointLightCB.mCameraPos = m_cameraPos;
+	m_pointLightCB.mIntensity = m_pointLight.GetIntensity();
+	m_pointLightCB.mCameraPos = m_cameraPos;
 
     m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
     m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-    Clear();
+    Clear(0,1,0);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
@@ -431,7 +480,6 @@ void Renderer::RenderBegin()
 
 void Renderer::RenderText() const
 {
-	m_spriteBatch->Begin();
 	for (int i = 0; i < m_debugs.size(); i++)
 	{
 		const wchar_t* text = ConvertToWchar(m_debugs[i].mText);
@@ -455,8 +503,10 @@ void Renderer::RenderText() const
 	const wchar_t* wFPS = ConvertToWchar(strFPS);
 	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
 	delete[] wFPS;
-	
 
+	string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
+	const wchar_t* wMousePos = ConvertToWchar(mousePos);
+	m_spriteFont->DrawString(m_spriteBatch.get(), wMousePos, XMFLOAT2(0.f, 60.f), Colors::White, 0.f, XMFLOAT2(0.f, 0.f), 0.7f);
 }
 
 void Renderer::RenderSprite() const
@@ -465,12 +515,14 @@ void Renderer::RenderSprite() const
         {
             return lhs.mLayer < rhs.mLayer;
         });*/
-
+	
     for(const auto& it : m_sprites)
     {
         m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0,0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
     }
-    m_spriteBatch->End();
+
+	m_spriteBatch->End();
+	
 }
 
 void Renderer::Render()
@@ -506,26 +558,48 @@ void Renderer::RenderScene()
 	//그림자 렌더
 	ShadowRender();
 
-	//ImGuizmo::DrawGrid(m_viewMatrix.m[0], m_projectionMatrix.m[0], identityMatrix, 10);
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
-	Clear();
+	//Clear();
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 이거하면 에디터의 뷰포트에 렌더가 안됨.
 
 	//메쉬 렌더
-
+	RenderEnvironment();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	MeshRender();
 
-	//DrawGrid(1960, 1);
 
-	//RenderDebugDraw();
-	//RenderText();
-	//RenderSprite();
+	RenderDebugDraw();	
+
+
+	m_spriteBatch->Begin();
+	RenderText();
+	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+
 
 	//임구이 렌더
 	//RenderImgui();
+}
+
+
+void Renderer::RenderEnvironment()
+{
+	m_pDeviceContext->PSSetShader(m_pEnvironmentPS.Get(), nullptr, 0);
+
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+	m_pDeviceContext->RSSetState(m_pRasterizerStateCCW.Get());
+	m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDSS.Get(),0);
+	m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+
+	auto test = ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"];
+	m_worldMatrixCB.mWorld = ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_worldTransform.Transpose();
+	m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Initialize();
+	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Render(m_pDeviceContext.Get());
+	
 }
 
 void Renderer::RenderToTexture()
@@ -561,7 +635,6 @@ bool Renderer::InitImgui(HWND hWnd)
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
 
-
 	// 플랫폼, 렌더러 설정
 	ImGui_ImplWin32_Init(hWnd);
 	ImGui_ImplDX11_Init(m_pDevice.Get(), m_pDeviceContext.Get());
@@ -592,101 +665,9 @@ void Renderer::CreateShadowPS()
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, m_pShadowPS.GetAddressOf()));
 }
 
-void Renderer::DrawGrid(int gridSize, int gridSpacing)
-{
-	// 그리드 라인의 간격
-	int numLines = gridSize / gridSpacing;
-
-	// 그리드를 그리기 위한 버텍스 버퍼 생성
-	struct Vertex {
-		XMFLOAT3 position;
-		XMFLOAT4 color;
-	};
-
-	Vertex* vertices = new Vertex[numLines * 4];
-
-	// 그리드 라인 생성
-	for (int i = 0; i < numLines; ++i) {
-		float offset = static_cast<float>(i * gridSpacing) - static_cast<float>(gridSize) / 2.0f;
-
-		// 색상 변경
-		XMFLOAT4 lineColor = (i % 2 == 0) ? XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f) : XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f);
-
-		// 수평 라인
-		vertices[i * 4] = { XMFLOAT3(-static_cast<float>(gridSize) / 2.0f, 0.0f, offset), lineColor };
-		vertices[i * 4 + 1] = { XMFLOAT3(static_cast<float>(gridSize) / 2.0f, 0.0f, offset), lineColor };
-
-		// 수직 라인
-		vertices[i * 4 + 2] = { XMFLOAT3(offset, 0.0f, -static_cast<float>(gridSize) / 2.0f), lineColor };
-		vertices[i * 4 + 3] = { XMFLOAT3(offset, 0.0f, static_cast<float>(gridSize) / 2.0f), lineColor };
-	}
-
-	// 정점 버퍼 생성
-	D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(Vertex) * numLines * 4;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA initData;
-	ZeroMemory(&initData, sizeof(initData));
-	initData.pSysMem = vertices;
-
-	ID3D11Buffer* vertexBuffer;
-	m_pDevice->CreateBuffer(&bd, &initData, &vertexBuffer);
-
-	// 정점 버퍼 바인딩
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
-	m_pDeviceContext->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-
-	// 월드 뷰 프로젝션 매트릭스 설정
-	XMMATRIX worldViewProjTransposed = XMMatrixTranspose(m_projectionMatrix);
-
-	// 셰이더 상수 버퍼 설정
-	struct ConstantBuffer {
-		XMMATRIX wvp;
-	};
-
-	ConstantBuffer cb;
-	cb.wvp = worldViewProjTransposed;
-
-	// 셰이더 상수 버퍼 생성
-	D3D11_BUFFER_DESC cbd;
-	ZeroMemory(&cbd, sizeof(cbd));
-	cbd.Usage = D3D11_USAGE_DEFAULT;
-	cbd.ByteWidth = sizeof(ConstantBuffer);
-	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbd.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA cbInitData;
-	ZeroMemory(&cbInitData, sizeof(cbInitData));
-	cbInitData.pSysMem = &cb;
-
-	ID3D11Buffer* constantBuffer;
-	m_pDevice->CreateBuffer(&cbd, &cbInitData, &constantBuffer);
-
-	// 셰이더 상수 버퍼 바인딩
-	m_pDeviceContext->VSSetConstantBuffers(0, 1, &constantBuffer);
-
-	// 정점 셰이더 및 픽셀 셰이더 설정 (간단한 선을 그리기 위한 셰이더)
-	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	// 셰이더 로드 및 실행
-// 여기에서 셰이더를 컴파일하고 로드하여 사용하는 코드를 작성
-
-
-
-// 정점 그리기
-	m_pDeviceContext->Draw(numLines * 4, 0);
-
-	// 정점 버퍼 해제
-	vertexBuffer->Release();
-}
-
 void Renderer::RenderImgui()
 {
+	// minjeong : Debug Shader Window
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
@@ -695,7 +676,7 @@ void Renderer::RenderImgui()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	//Camera Property
+	// Camera Property
 	{
 		ImGui::Begin("Camera Properties");
 		float x = DirectX::XMVectorGetX(m_cameraPos);
@@ -715,11 +696,11 @@ void Renderer::RenderImgui()
 		ImGui::End();
 	}
 
-	//Light Property
+	// Light Property
 	{
 		// Directional Light
 		ImGui::Begin("Light Properties");
-		ImGui::Text("Direction");
+		ImGui::Text("Direction Light Dir");
 		ImGui::Text("Direction Light Dir");
 		ImGui::Text("X");
 		ImGui::SameLine();
@@ -770,7 +751,23 @@ void Renderer::RenderImgui()
 		ImGui::Text("ShadowDirection : %s", str.c_str());
 		ImGui::End();
 	}
-
+	Math::Vector3 pointlightPos = m_pointLight.GetPosition();
+	//Point Light
+	{
+		ImGui::Begin("Point Light Properties");
+		ImGui::Text("position");
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpx", &pointlightPos.x, -1000.f, 1000.f);
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpy", &pointlightPos.y, -1000.f, 1000.f);
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpz", &pointlightPos.z, -1000.f, 1000.f);
+		ImGui::End();
+	}
+	m_pointLight.SetPosition(pointlightPos);
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
@@ -859,7 +856,6 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	worldbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	worldbd.CPUAccessFlags = 0;
 	worldbd.MiscFlags = 0;
-
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&worldbd, nullptr, &m_pWorldBuffer));
 
 	//뷰 상수버퍼
@@ -869,7 +865,6 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	viewbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	viewbd.CPUAccessFlags = 0;
 	viewbd.MiscFlags = 0;
-
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&viewbd, nullptr, &m_pViewBuffer));
 
 	//프로젝션 상수버퍼
@@ -879,7 +874,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pProjectionBuffer));
-	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, width / (FLOAT)height, 0.1f, 100000.0f);
+	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, width / (FLOAT)height, 0.1f, 100000.0f);
 	m_projectionMatrixCB.mProjection = m_projectionMatrix.Transpose();
 
 	//라이트 상수버퍼
@@ -889,7 +884,6 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	lightbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	lightbd.CPUAccessFlags = 0;
 	lightbd.MiscFlags = 0;
-
 	HR_T(Renderer::Instance->m_pDevice->CreateBuffer(&lightbd, nullptr, &m_pLightBuffer));
 
 	// minjeong : Create VS & PS
@@ -912,21 +906,12 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     dsd.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
     dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
     dsd.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
     HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
 
 	dsd = CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} };
 	dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-
-	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pGizmoDSS.GetAddressOf()));
-
-
-    
-
-    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-
-    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
+	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pSkyboxDSS.GetAddressOf()));
 
     //래스터라이저 스테이트 초기화
     D3D11_RASTERIZER_DESC rasterizerDesc = {};
@@ -937,11 +922,14 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     rasterizerDesc.FrontCounterClockwise = false;
     rasterizerDesc.DepthClipEnable = true;
     HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
+	
+	rasterizerDesc.FrontCounterClockwise = true;
+	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerStateCCW.GetAddressOf()));
+
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
     m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
 
-   
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 
     DebugDraw::Initialize(m_pDevice, m_pDeviceContext);
@@ -955,9 +943,17 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
     //포인트 라이트 테스트용
     m_pointLight.SetPosition(Vector3(0, 0, 0));
-	m_pointLight.SetRadius(600.f);
-	m_pointLight.SetColor();
-	m_pointLight.SetIntensity(1.f);
+	  m_pointLight.SetRadius(600.f);
+	  m_pointLight.SetColor();
+	  m_pointLight.SetIntensity(1.f);
+
+	  ResourceManager::Instance->CreateEnvironment("BakerSample");
+	  SetEnvironment("BakerSample");
+	  ComPtr < ID3DBlob> buffer;
+	
+	  buffer.Reset();
+	  HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	  HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pEnvironmentPS.GetAddressOf()));
 
 
 	// 렌더링 텍스처 객체를 생성한다.

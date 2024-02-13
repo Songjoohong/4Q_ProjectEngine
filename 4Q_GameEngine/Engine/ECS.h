@@ -30,7 +30,7 @@ SOFTWARE.
 #include <type_traits>
 #include <filesystem>
 #include <fstream>
-#include "../ReflectionLib/jsonSerializer.h"
+#include "jsonSerializer.h"
 
 using json = nlohmann::json;
 //////////////////////////////////////////////////////////////////////////
@@ -289,7 +289,6 @@ namespace ECS
 			return component != nullptr;
 		}
 
-	private:
 		T* component;
 	};
 
@@ -622,6 +621,7 @@ namespace ECS
 		
 		size_t id;
 		bool bPendingDestroy = false;
+		Entity* parentEntity = nullptr;
 	};
 
 	/**

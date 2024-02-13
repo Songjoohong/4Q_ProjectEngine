@@ -4,6 +4,7 @@
 #include "Material.h"
 #include "Model.h"
 #include "StaticModel.h"
+#include "Environment.h"
 
 ResourceManager* ResourceManager::Instance = nullptr;
 
@@ -37,6 +38,28 @@ void ResourceManager::CreateModel(string fileName)
 
 }
 
+void ResourceManager::CreateEnvironment(string filename)
+{
+    auto it = m_pOriginalEnvironments.find(filename);
+    if (it != m_pOriginalEnvironments.end())
+    {
+        if (nullptr != it->second)
+            return;
+        else
+        {
+            m_pOriginalEnvironments.erase(it);
+        }
+    }
+    shared_ptr<Environment> pEnvironment = make_shared<Environment>();
+    pEnvironment->ReadEnvironmentMeshFromFBX(Renderer::Instance->GetPath() + "cubeMap.fbx");
+    pEnvironment->ReadEnvironmentTextureFromDDS(ToWString(Renderer::Instance->GetPath() + filename));
+    pEnvironment->ReadIBLDiffuseTextureFromDDS(ToWString(Renderer::Instance->GetPath() + filename));
+    pEnvironment->ReadIBLSpecularTextureFromDDS(ToWString(Renderer::Instance->GetPath() + filename));
+    pEnvironment->ReadIBLBRDFTextureFromDDS(ToWString(Renderer::Instance->GetPath() + filename));
+
+    m_pOriginalEnvironments[filename] = pEnvironment;
+}
+
 std::shared_ptr<StaticSceneResource> ResourceManager::CreateStaticMeshResource(std::string filePath)
 {
     std::string key = filePath;
@@ -63,6 +86,37 @@ std::shared_ptr<StaticSceneResource> ResourceManager::CreateStaticMeshResource(s
 
     std::shared_ptr<StaticSceneResource> resourcePtr = std::make_shared<StaticSceneResource>();
     resourcePtr->Create(filePath.c_str());
+    m_staticMeshMap[filePath] = resourcePtr;
+    LOG_MESSAGEA("Complete file : %s", filePath.c_str());
+    return resourcePtr;
+}
+
+std::shared_ptr<StaticSceneResource> ResourceManager::CreateEnvironmentMeshResource(std::string filePath)
+{
+    std::string key = filePath;
+    auto it = m_staticMeshMap.find(key);
+    if (it != m_staticMeshMap.end())
+    {
+        std::shared_ptr<StaticSceneResource> resourcePtr = it->second.lock();
+        if (resourcePtr)
+        {
+            return resourcePtr;
+        }
+        else
+        {
+            m_staticMeshMap.erase(it);
+        }
+    }
+
+    std::filesystem::path path = ToWString(filePath);
+    if (!std::filesystem::exists(path))
+    {
+        LOG_MESSAGEA("Error file not Found : %s", filePath.c_str());
+        return nullptr;
+    }
+
+    std::shared_ptr<StaticSceneResource> resourcePtr = std::make_shared<StaticSceneResource>();
+    resourcePtr->CreateEnvironment(filePath.c_str());
     m_staticMeshMap[filePath] = resourcePtr;
     LOG_MESSAGEA("Complete file : %s", filePath.c_str());
     return resourcePtr;

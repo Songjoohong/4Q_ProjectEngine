@@ -3,16 +3,18 @@
 #include "Vector3D.h"
 struct Sprite2D
 {
+	ECS_DECLARE_TYPE
 	Sprite2D() = default;
-	explicit Sprite2D(const ECS::Entity* ent, std::string fileName, const float layer, const MyPoint pos = {0,0 })
+	explicit Sprite2D(const ECS::Entity* ent, std::string fileName, const float layer,long x, long y)
 		: m_FileName(fileName)
 		, m_Layer(layer)
-		, m_Position(pos)
+		, m_Position{ x, y }
 	{}
 
 	std::string m_FileName;
+	// Layer는 0 과 1 사이
 	float m_Layer;
-	MyPoint m_Position;
+	long m_Position[2];
 	bool m_IsRendered = true;
 	std::string m_ComponentName = "Sprite2D";
 

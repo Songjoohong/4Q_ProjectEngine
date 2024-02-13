@@ -9,6 +9,7 @@
 #include "../Engine/Transform.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/Camera.h"
+#include "../Engine/FreeCameraScript.h"
 #include "../Engine/Light.h"
 #include "../Engine/EntityIdentifier.h"
 #include "../Engine/Movement.h"
@@ -273,7 +274,7 @@ void GameEditor::RenderImGui()
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		ID3D11ShaderResourceView* myViewportTexture = RenderManager::GetInstance()->GetRender()->m_RenderTexture->GetShaderResourceView();
 		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
-		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+		//Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
 		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
 		{
@@ -298,7 +299,9 @@ void GameEditor::RenderImGui()
 
 		DirectX::XMMATRIX projectionMatrix = RenderManager::GetInstance()->GetRender()->GetProjectionMatrix();
 		auto floatProjectionMatrix = reinterpret_cast<const float*>(&projectionMatrix);
-			
+
+		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+
 		// Gizmos
 		if (selectedEntity)
 		{

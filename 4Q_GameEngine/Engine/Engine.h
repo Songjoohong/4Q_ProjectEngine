@@ -12,7 +12,6 @@ public:
 	Engine(HINSTANCE hInstance);
 	virtual ~Engine();
 
-	float m_ClientRatio;
 protected:
 	HWND m_hWnd;
 	UINT m_ClientWidth;
@@ -24,12 +23,7 @@ private:
 	WCHAR m_szWindowClass[MAX_LOADSTRING];
 	WNDCLASSEXW m_Wcex;
 
-
-	//std::unique_ptr<TimeManager> m_Time = nullptr;
-	InputManager* m_Input = nullptr;
-	RenderManager* m_Render = nullptr;
-
-private:
+	bool m_IsPaused = false;
 	bool m_bIsRunning = false;
 public:
 	virtual bool Initialize(UINT width, UINT height);

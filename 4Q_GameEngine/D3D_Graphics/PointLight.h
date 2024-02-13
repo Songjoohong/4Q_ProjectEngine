@@ -19,5 +19,6 @@ private:
 	Math::Vector3 m_color;
 	float m_radius;
 	float m_intensity;
+
 };
 

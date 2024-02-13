@@ -1,13 +1,13 @@
 {
     "Prefabs": [
         {
-            "Zelda": [
+            "Zelda2": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 2,
-                            "m_EntityName": "Zelda",
+                            "m_EntityId": 5,
+                            "m_EntityName": "Zelda2",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -17,9 +17,12 @@
                     "Transform": [
                         {
                             "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
                             "m_Position": {
                                 "m_X": 100.0,
-                                "m_Y": 0.0,
+                                "m_Y": 100.0,
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {

@@ -8,12 +8,24 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	VK_RBUTTON,
 	VK_UP,
 	VK_DOWN,
+	VK_LEFT,
+	VK_RIGHT,
+	VK_SPACE,
 	'W',
 	'A',
 	'S',
 	'D',
+	'Q',
+	'E',
 	VK_CONTROL
 };
+
+void InputManager::Initialize(UINT width, UINT height)
+{
+	m_Height = height;
+	m_Width = width;
+}
+
 void InputManager::Update(float deltaTime)
 {
 	HWND hWnd = GetFocus();
@@ -21,32 +33,45 @@ void InputManager::Update(float deltaTime)
 	{
 		for (int i = 0; i < Key::KEY_END; i++)
 		{
-			isPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
-		}
-		m_PreviousCursorPos = m_CurrentCursorPos;
-		GetCursorPos(&m_CurrentCursorPos);
-		if (m_CurrentCursorPos.x == 0 || m_CurrentCursorPos.x >= 2560)
-		{
-			SetCursorPos(1280, m_CurrentCursorPos.y);
-			m_PreviousCursorPos = { 1280, m_CurrentCursorPos.y };
+			m_IsPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
 		}
 
-		if(m_CurrentCursorPos.y == 0 || m_CurrentCursorPos.y >= 1439)
+		m_PreviousCursorPos = m_CurrentCursorPos;
+		GetCursorPos(&m_CurrentCursorPos);
+		ScreenToClient(hWnd, &m_CurrentCursorPos);
+
+		if(m_IsCursorCameraMode)
 		{
-			SetCursorPos(m_CurrentCursorPos.x, 720);
-			m_PreviousCursorPos = { m_CurrentCursorPos.x, 720 };
-		}
+			if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width - 100)
+			{
+				POINT clientPoint = { static_cast<long>(m_Width) / 2, m_CurrentCursorPos.y };
+				m_CurrentCursorPos = clientPoint;
+				m_PreviousCursorPos = m_CurrentCursorPos;
+				ClientToScreen(hWnd, &clientPoint);
+				SetCursorPos(clientPoint.x, clientPoint.y);
+			}
+
+			if (m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 100)
+			{
+				POINT clientPoint = { m_CurrentCursorPos.x, static_cast<long>(m_Height) / 2 };
+				m_CurrentCursorPos = clientPoint;
+				m_PreviousCursorPos = m_CurrentCursorPos;
+				ClientToScreen(hWnd, &clientPoint);
+				SetCursorPos(clientPoint.x, clientPoint.y);
+			}
+
 			
+		}
 	}
 	
 
 	for (int i = 0; i < Key::KEY_END; i++)
 	{
-		if(isPressed[i])
+		m_PreviousKeyState[i] = m_CurrentKeyState[i].KeyState;
+		if(m_IsPressed[i])
 		{
 			if(m_PreviousKeyState[i] == KeyState::ENTER)
 			{
-				m_PreviousKeyState[i] = m_CurrentKeyState[i].KeyState;
 				m_CurrentKeyState[i].KeyState = KeyState::STAY;
 				m_CurrentKeyState[i].Duration += deltaTime;
 			}
@@ -56,8 +81,7 @@ void InputManager::Update(float deltaTime)
 				m_CurrentKeyState[i].Duration += deltaTime;
 			}
 			else
-			{
-				m_PreviousKeyState[i] = m_CurrentKeyState[i].KeyState;
+			{				
 				m_CurrentKeyState[i].KeyState = KeyState::ENTER;
 			}
 		}
@@ -65,31 +89,22 @@ void InputManager::Update(float deltaTime)
 		{
 			if(m_PreviousKeyState[i] == KeyState::EXIT)
 			{
-				m_PreviousKeyState[i] = m_CurrentKeyState[i].KeyState;
 				m_CurrentKeyState[i].KeyState = KeyState::NONE;
 			}
 			else if(m_PreviousKeyState[i] == KeyState::ENTER)
 			{
-				m_PreviousKeyState[i] = m_CurrentKeyState[i].KeyState;
 				m_CurrentKeyState[i].KeyState = KeyState::EXIT;
 			}
 			else if(m_PreviousKeyState[i] == KeyState::STAY)
 			{
-				m_PreviousKeyState[i] = m_CurrentKeyState[i].KeyState;
 				m_CurrentKeyState[i] = { KeyState::EXIT, 0 };
 			}
 		}
 	}
 
-	for (int i = 0; i < Key::KEY_END; i++)
+	for (bool& pressed : m_IsPressed)
 	{
-		isPressed[i] = false;
-	}
-
-	for (int i = 0; i < Key::KEY_END; i++)
-	{
-		/*if (m_CurrentKeyState[i].KeyState == KeyState::STAY)
-			std::cout << "KeyDown " << i << std::endl;*/
+		pressed = false;
 	}
 }
 

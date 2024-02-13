@@ -1,5 +1,4 @@
 #pragma once
-#include "Test.h"
 
 namespace ECS { class Entity; }
 namespace ECS { class World; }
