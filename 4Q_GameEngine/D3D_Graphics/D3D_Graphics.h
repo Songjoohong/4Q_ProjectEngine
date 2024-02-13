@@ -7,7 +7,18 @@ class StaticMeshResource;
 class StaticModel;
 class Material;
 class StaticMeshInstance;
+class Environment;
 
+struct ColliderBox
+{
+	ColliderBox(Vector3 center, Vector3 extents, bool collision) {
+		colliderBox.Center = center;
+		colliderBox.Extents = extents;
+		isCollision = collision;
+	}
+	DirectX::BoundingBox colliderBox;
+	bool isCollision = false;
+};
 
 const size_t BUFFER_SIZE = 2;
 
@@ -78,13 +89,20 @@ public:
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
 	ComPtr<ID3D11DepthStencilState>m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
-	ComPtr<ID3D11DepthStencilState>m_pGizmoDSS = nullptr;	//뎁스 스텐실 스테이트
-	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러
+
+	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
+	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;				//샘플러(clamp)
+
+
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
+	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;
+
+	ComPtr<ID3D11DepthStencilState> m_pSkyboxDSS = nullptr;
 
 	// minjeong : shadow Interface
 	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
+	ComPtr<ID3D11PixelShader> m_pEnvironmentPS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
 	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
@@ -101,6 +119,7 @@ public:
 	ComPtr<ID3D11Buffer> m_pPointLightBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pLightBuffer = nullptr;
 
+	vector<ColliderBox> m_colliderBox;
 	
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
@@ -155,6 +174,9 @@ public:
 	//빈 모델에 정보 입력
 	void AddStaticModel(string filename, const Math::Matrix& worldTM);
 
+	//디버그용 콜라이더 박스
+	void AddColliderBox(Vector3 center, Vector3 extents, bool isCollision);
+
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
 
@@ -201,6 +223,8 @@ public:
 	void MeshRender();
 	void ShadowRender();
 
+	//환경맵 세팅
+	void SetEnvironment(string filename);
 
 	void Update();
 
@@ -210,11 +234,19 @@ public:
 
 	void RenderDebugDraw();
 
+	//머테리얼 별로 소팅
+	void RenderQueueSort();
+
 
 	void RenderBegin();
 	void Render();
+
+
+	void RenderEnvironment();
+
 	void RenderScene();	// 수민
 	void RenderToTexture();	// 수민
+
 	void RenderEnd();
 	bool InitImgui(HWND hWnd);
 	void RenderImgui();
@@ -227,8 +259,4 @@ public:
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
 	vector<DebugInformation> m_debugs;
 	vector<SpriteInformation> m_sprites;
-
-
-	// 수민
-	void DrawGrid(int gridSize, int gridSpacing);
 };

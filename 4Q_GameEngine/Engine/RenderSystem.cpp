@@ -3,6 +3,7 @@
 #include "RenderSystem.h"
 #include "StaticMesh.h"
 #include "Transform.h"
+#include "BoxCollider.h"
 
 #include "RenderManager.h"
 
@@ -20,7 +21,7 @@ void RenderSystem::Deconfigure(ECS::World* world)
 
 void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 {
-	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> collider, ComponentHandle<Transform> transform)->void
+	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> staticMesh, ComponentHandle<Transform> transform)->void
 		{
 			if (collider->m_FileName != "")
 			{
@@ -32,6 +33,12 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 					collider->m_IsModelCreated = true;
 				}
 			}
+		});
+
+	world->each<StaticMesh, Transform, BoxCollider>([&](Entity* entity, const ComponentHandle<StaticMesh> staticMesh, ComponentHandle<Transform> transform,ComponentHandle<BoxCollider> boxCollider)->void
+		{
+			RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+			RenderManager::GetInstance()->AddColliderBox(boxCollider->m_Center, boxCollider->m_Size, boxCollider->m_IsTrigger);
 		});
 }
 

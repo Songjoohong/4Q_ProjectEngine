@@ -289,7 +289,6 @@ namespace ECS
 			return component != nullptr;
 		}
 
-	private:
 		T* component;
 	};
 
@@ -622,6 +621,7 @@ namespace ECS
 		
 		size_t id;
 		bool bPendingDestroy = false;
+		Entity* parentEntity = nullptr;
 	};
 
 	/**

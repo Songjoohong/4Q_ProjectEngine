@@ -54,9 +54,13 @@
     <Filter Include="Model\Mesh\StaticMesh">
       <UniqueIdentifier>{66ee21f0-3ba0-4c90-b8eb-fe54f50facfc}</UniqueIdentifier>
     </Filter>
+	<Filter Include="Environment">
+	  <UniqueIdentifier>{4e09823e-d6ea-4bf9-92a5-4167a639b298}</UniqueIdentifier>
+	 </Filter>
     <Filter Include="소스 파일\리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -114,6 +118,9 @@
     <ClInclude Include="PointLight.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Environment.h">
+      <Filter>Environment</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="D3D_Graphics.cpp">
@@ -167,6 +174,9 @@
     <ClCompile Include="PointLight.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Environment.cpp">
+      <Filter>Environment</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resource\Header.hlsli">
@@ -184,6 +194,12 @@
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\ShadowVertexShader.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\VS_Environment.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\PS_Environment.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
   </ItemGroup>

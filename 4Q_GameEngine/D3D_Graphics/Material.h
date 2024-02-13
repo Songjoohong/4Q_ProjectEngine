@@ -35,8 +35,9 @@ public:
     shared_ptr<MaterialTexture> m_pSpecularRV = nullptr;       // ÅØ½ºÃ³ ½ºÆåÅ§·¯¸Ê ¸®¼Ò½º ºä                     
     shared_ptr<MaterialTexture> m_pEmissiveRV = nullptr;       // ÅØ½ºÃ³ ÀÌ¹Ì½Ãºê¸Ê ¸®¼Ò½º ºä                     
     shared_ptr<MaterialTexture> m_pOpacityRV = nullptr;        // ÅØ½ºÃ³ ¿ÀÆÄ½ÃÆ¼¸Ê ¸®¼Ò½º ºä                     
-    shared_ptr<MaterialTexture> m_pMetalicRV = nullptr;        // ÅØ½ºÃ³ ¿ÀÆÄ½ÃÆ¼¸Ê ¸®¼Ò½º ºä                     
-    shared_ptr<MaterialTexture> m_pRoughnessRV = nullptr;      // ÅØ½ºÃ³ ¿ÀÆÄ½ÃÆ¼¸Ê ¸®¼Ò½º ºä
+    shared_ptr<MaterialTexture> m_pMetalicRV = nullptr;        // ÅØ½ºÃ³ ¸ÞÅ»¸¯¸Ê ¸®¼Ò½º ºä                     
+    shared_ptr<MaterialTexture> m_pRoughnessRV = nullptr;      // ÅØ½ºÃ³ ·¯ÇÁ´Ï½º¸Ê ¸®¼Ò½º ºä
+    shared_ptr<MaterialTexture> m_pAmbientOcclusionRV = nullptr;      // ÅØ½ºÃ³ ¾Úºñ¾ðÆ® ¿ÀÅ¬·çÁ¯¸Ê ¸®¼Ò½º ºä
 
 public:
     void Create(aiMaterial* material);

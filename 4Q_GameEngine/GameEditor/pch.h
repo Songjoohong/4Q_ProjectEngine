@@ -24,5 +24,6 @@
 #include <imgui_internal.h>
 #include "ImGuiFileDialog.h"
 //#include "ImGuiFileDialogConfig.h"
+#include "../Engine/SoundManager.h"
 
 #endif //PCH_H

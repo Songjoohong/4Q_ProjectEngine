@@ -8,7 +8,10 @@
 void MaterialTexture::Create(const std::wstring& filePath)
 {
 	HRESULT hr = S_OK;
-
+    m_filePath = filePath;
+    
+    DirectX::TexMetadata metadata1;
+    DirectX::ScratchImage scratchImage;
 	// Load the Texture
 	hr = DirectX::CreateDDSTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath.c_str(), nullptr, &m_pTextureRV);
 	if (FAILED(hr))
@@ -16,7 +19,12 @@ void MaterialTexture::Create(const std::wstring& filePath)
 		hr = DirectX::CreateWICTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath.c_str(), nullptr, &m_pTextureRV);
 		if (FAILED(hr))
 		{
-			MessageBoxW(NULL, GetComErrorString(hr), filePath.c_str(), MB_OK);
+            hr = DirectX::LoadFromTGAFile(filePath.c_str(), &metadata1, scratchImage);
+            hr = DirectX::CreateShaderResourceView(Renderer::Instance->m_pDevice.Get(), scratchImage.GetImages(), scratchImage.GetImageCount(), metadata1, m_pTextureRV.GetAddressOf());
+            if (FAILED(hr))
+            {
+                MessageBoxW(NULL, GetComErrorString(hr), filePath.c_str(), MB_OK);
+            }
 		}
 	}
 }
@@ -101,6 +109,14 @@ void Material::Create(aiMaterial* material)
         path = ToWString(std::string(texturePath.C_Str()));
         std::wstring finalPath = folderPath + L"/" + path.filename().wstring();
         m_pRoughnessRV = ResourceManager::Instance->CreateMaterial(finalPath);
+
+    }
+
+    if (AI_SUCCESS == material->GetTexture(aiTextureType_AMBIENT_OCCLUSION, 0, &texturePath))
+    {
+        path = ToWString(std::string(texturePath.C_Str()));
+        std::wstring finalPath = folderPath + L"/" + path.filename().wstring();
+        m_pAmbientOcclusionRV = ResourceManager::Instance->CreateMaterial(finalPath);
     }
     m_pixelShader.SetShader(L"PixelShader");
     //m_shadowPixelShader.SetShader(L"ShadowPixelShader");

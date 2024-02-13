@@ -26,7 +26,11 @@ struct Transform
 	Matrix4x4 m_RelativeMatrix;
 	Matrix4x4 m_WorldMatrix;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale)
+	bool m_FreezeRotationX = false;
+	bool m_FreezeRotationY = false;
+	bool m_FreezeRotationZ = false;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale, m_FreezeRotationX, m_FreezeRotationY, m_FreezeRotationZ)
 };
 
 ECS_DEFINE_TYPE(Transform)
