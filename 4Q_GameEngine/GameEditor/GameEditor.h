@@ -38,8 +38,9 @@ public:
 	void SaveWorld(const std::string& _strRelativePath);
 	template<typename ComponentType>
 	void SaveComponents(ECS::Entity* entity, json& worldData);
-
 	void LoadWorld(const std::string& _strRelativePath);
+	void ShowSceneDialog();
+	void ShowSaveSceneAsPopup();
 
 	template<typename ComponentType>
 	void AssignComponents(ECS::Entity* entity, json& componentData);
@@ -58,7 +59,7 @@ public:
 private:
 	Renderer* m_Renderer = nullptr;
 
-	std::string basePath = "../Test/";
+	std::string basePath = "../Resource/";
 
 	// Panels
 	SceneHierarchyPanel m_SceneHierarchyPanel;
@@ -69,6 +70,11 @@ private:
 	ECS::World* m_EditorWorld;
 	/// 씬이 두개인 이유
 	///	게임 플레이와 씬 편집 화면을 나누기 위해. -> 게임 play 와 stop 그리고 pause 를 위해서인데 이를 위해선 엔진에서 먼저 기능이 구현되어야 한다. 고로 보류
+	std::string m_SceneName = "EmptyScene";	// 씬 이름
+	bool m_isScenePopup = false;
+
+	// dialog
+	bool m_IsDialogOpen = false;
 
 	// gizmo
 	int m_GizmoType = 0;

@@ -496,7 +496,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	});
 }
 
-void SceneHierarchyPanel::ShowStaticModelDialog()	// TODO: 이걸 World 파일 불러오는 거에도 쓸 수 있을듯
+void SceneHierarchyPanel::ShowStaticModelDialog()
 {
 	std::string fileName;
 	std::string filePathName;
