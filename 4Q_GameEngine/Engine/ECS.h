@@ -543,23 +543,82 @@ namespace ECS
 
 		Entity* getParent() const { return m_parent; }
 
+		//void addChild(Entity* child)
+		//{
+		//	child->SetParent(this);
+		//	m_children.push_back(child);
+		//}
+
+		//void SetParent(Entity* parent)
+		//{
+		//	this->m_parent = parent;
+		//}
+
+		// 수민 --------------------------------------------------------------------------------------------------------
+
+		bool isDescendant(const Entity* target)
+		{
+			for (Entity* child : m_children)
+			{
+				if (target == child || child->isDescendant(target))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		void RemoveChild(Entity* child)
+		{
+			// 자식 목록에서 제거한다.
+			auto it2 = std::find(m_children.begin(), m_children.end(), child);
+			if (it2 != m_children.end())
+			{
+				m_children.erase(it2);
+				child->SetParent(nullptr);				// 자식쪽 부모도 연결을 해제
+			}
+		}
+
 		void addChild(Entity* child)
 		{
-			child->SetParent(this);
+			if (child == this)
+				return;
+
+			for (Entity* it : m_children)
+			{
+				if (child->id == it->id)
+					return;
+			}
+
+			if (child->m_parent != nullptr)
+				child->m_parent->RemoveChild(child);
+
 			m_children.push_back(child);
+
+			child->SetParent(this);
 		}
 
 		void SetParent(Entity* parent)
 		{
+			if (parent == m_parent || parent == this)
+				return;
+
 			this->m_parent = parent;
+
+			if (m_parent != nullptr)
+			{
+				m_parent->addChild(this);
+			}
 		}
 
+		// 수민 End --------------------------------------------------------------------------------------------------------
 		Entity* m_parent = nullptr;
 		std::vector<Entity*> m_children;
 	private:
 		std::unordered_map<TypeIndex, Internal::BaseComponentContainer*> components;
 		World* world;
-
+		
 		size_t id;
 		bool bPendingDestroy = false;
 		Entity* parentEntity = nullptr;
@@ -584,7 +643,7 @@ namespace ECS
 		/**
 		* Use this function to construct the world with a custom allocator.
 		*/
-		static World* CreateWorld(Allocator alloc, std::wstring fileName)
+		static World* CreateWorld(Allocator alloc, std::string fileName)
 		{
 			WorldAllocator worldAlloc(alloc);
 			World* world = std::allocator_traits<WorldAllocator>::allocate(worldAlloc, 1);
@@ -598,7 +657,7 @@ namespace ECS
 		/**
 		* Use this function to construct the world with the default allocator.
 		*/
-		static World* CreateWorld(std::wstring fileName)
+		static World* CreateWorld(std::string fileName)
 		{
 			return CreateWorld(Allocator(), fileName);
 		}
@@ -870,7 +929,7 @@ namespace ECS
 			return ent;
 		}*/
 
-		std::vector<Entity*> GetEntities()
+		std::vector<Entity*>& GetEntities()
 		{
 			return entities;
 		}
@@ -1150,6 +1209,7 @@ namespace ECS
 
 			auto handle = ComponentHandle<T>(&container->data);
 			world->emit<Events::OnComponentAssigned<T>>({ this, handle });
+
 			return handle;
 		}
 		else

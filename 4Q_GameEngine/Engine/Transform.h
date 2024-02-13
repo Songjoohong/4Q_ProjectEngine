@@ -19,9 +19,9 @@ struct Transform
 
 	std::string m_ComponentName = "Transform";
 
-	Vector3D m_Rotation;
-	Vector3D m_Position;
-	Vector3D m_Scale;
+	Vector3D m_Rotation = { 0.f, 0.f, 0.f };
+	Vector3D m_Position = { 0.f, 0.f, 0.f };
+	Vector3D m_Scale = { 1.f, 1.f, 1.f };
 
 	Matrix4x4 m_RelativeMatrix;
 	Matrix4x4 m_WorldMatrix;

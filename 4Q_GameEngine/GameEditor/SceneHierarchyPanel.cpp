@@ -8,18 +8,21 @@
 
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
-
-
+#include "Prefab.h"
+#include "NameManager.h"
 
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
-	SetContext(context);
+	SetContext(context, m_PrefabManager, m_NameManager);
 }
 
-void SceneHierarchyPanel::SetContext(ECS::World* context)
+void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab, std::shared_ptr<NameManager> nameManager)
 {
 	m_Context = context;
 	m_SelectionContext = nullptr;	// 현재 World에서 Entity 를 초기화.
+
+	m_PrefabManager = prefab;
+	m_NameManager = nameManager;
 }
 
 void SceneHierarchyPanel::RenderImGui()
@@ -32,12 +35,14 @@ void SceneHierarchyPanel::RenderImGui()
 		for (auto entity : m_Context->GetEntities())
 		{
 			// 최상위 부모로 등록된 애들만 먼저 그림
-			if (entity->get<EntityIdentifier>().get().m_HasParent == false)
+			/*if (entity->get<EntityIdentifier>().get().m_HasParent == false)
 			{
 				DrawEntityNode(entity);
-			}
+			}*/
 
-			//ImGui::Text(std::to_string(entity->getEntityId()).c_str());		// 토글 없이 그냥 출력
+			if (entity->m_parent == nullptr)
+				DrawEntityNode(entity);
+
 		}
 
 		// Unselect object when left-clicking on blank space.
@@ -50,7 +55,9 @@ void SceneHierarchyPanel::RenderImGui()
 			if (ImGui::MenuItem("Create Empty Entity"))
 			{
 				ECS::Entity* entity = m_Context->create();
+
 				entity->Assign<EntityIdentifier>();	// 기본적으로 생성한다. (이름정보 때문)
+				m_NameManager->AddEntityName(entity);
 				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Transform은 기본적으로 생성해준다.
 			}
 
@@ -64,20 +71,129 @@ void SceneHierarchyPanel::RenderImGui()
 	if (m_SelectionContext)
 	{
 		DrawComponents(m_SelectionContext);
+		SetPrefabFileName(m_SelectionContext);
+
 	}
 	ImGui::End();	/* Properties End */
 }
 
-void SceneHierarchyPanel::DragDropEntity(ECS::Entity* entity)
+void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 {
+	if (m_OpenTextPopup)
+	{
+		ImGui::SetNextWindowSize(ImVec2(320, 120));
+		ImGui::OpenPopup("Prefab Name");
+		if (ImGui::BeginPopupModal("Prefab Name"))
+		{
+			static char prefabName[256] = ""; // Fixed-size buffer for input
 
+			ImGui::InputText("Prefab Name", prefabName, sizeof(prefabName));
+			//ImGui::EndGroup();
+			ImGui::Spacing();
+			//ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::GetStyle().ItemSpacing.x - ImGui::CalcTextSize("Submit").x - 250.f);
+			if (ImGui::Button("Submit"))
+			{
+				std::string prefabFile = prefabName;
+				prefabFile += ".prefab";
+				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
+				ImGui::CloseCurrentPopup();
+				m_SelectionContext = nullptr;
+				m_OpenTextPopup = false;
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_Enter))
+			{
+				std::string prefabFile = prefabName;
+				prefabFile += ".prefab";
+				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
+				ImGui::CloseCurrentPopup();
+				m_SelectionContext = nullptr;
+				m_OpenTextPopup = false;
+			}
+
+			ImGui::Spacing();
+
+			if (ImGui::Button("Close"))
+			{
+				ImGui::CloseCurrentPopup(); 
+				m_SelectionContext = nullptr;
+				m_OpenTextPopup = false;
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+			{
+				ImGui::CloseCurrentPopup();
+				m_SelectionContext = nullptr;
+				m_OpenTextPopup = false;
+			}
+
+
+
+			ImGui::EndPopup();
+		}
+	}
+}
+
+void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
+{
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+	{
+		//const auto& selectedEntityID = m_SelectionContext->getEntityId();
+		size_t entityID = entity->getEntityId();
+
+		//if (m_SelectionContext != entity)
+		//{
+			ImGui::Text(entity->get<EntityIdentifier>()->m_EntityName.c_str());
+			ImGui::SetDragDropPayload("EntityID", &entityID, 1 * sizeof(size_t));
+		//}
+		//else
+		//{
+		//	ECS::Entity* entt = m_Context->getByIndex(selectedEntityID);
+		//	const char* name = entt->get<EntityIdentifier>()->m_EntityName.c_str();
+		//	ImGui::Text(name);
+
+		//	ImGui::SetDragDropPayload("EntityID", &selectedEntityID, 1 * sizeof(size_t));
+		//}
+
+		ImGui::EndDragDropSource();
+	}
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("EntityID", ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
+
+		if (payLoad)
+		{
+			size_t pickedID = *(static_cast<size_t*>(payLoad->Data));
+
+			ECS::Entity* picked = m_Context->getByIndex(pickedID - 1);
+			ECS::Entity* target = entity;
+
+			// 자기 자식의 자식으로 등록하려는 경우 아무런 처리를 하지 않는다. (이거 허용하면 엔티티가 삭제됨.)
+			if (picked->isDescendant(target))
+			{
+				return;
+			}
+
+			picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
+			picked->get<EntityIdentifier>().get().m_HasParent = true;
+			target->addChild(picked);
+			m_SelectionContext = nullptr;
+			
+		}
+
+		ImGui::EndDragDropTarget();
+	}
 }
 
 void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지 않으면 함수 종료시 객체의 소멸자가 호출되어서 오류가 뜰 수 있음.
 {
+	bool temp = entity->has<EntityIdentifier>();
+	if (!temp)
+	{
+		return;
+	}
 	std::string entID = std::to_string(entity->getEntityId());
 	auto entityName = entity->get<EntityIdentifier>()->m_EntityName;
-	std::string imguiID = "entt" + entID + " " + entityName;
+	std::string imguiID = entityName;
 
 	ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;		// 클릭하여 선택한 아이템 하이라이트 + 화살표 클릭시 노드 펼쳐지게
 	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -92,29 +208,36 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	if (ImGui::BeginPopupContextItem())
 	{
 		if (ImGui::MenuItem("Delete Entity"))
+		{
 			entityDeleted = true;
+		}
+
+		if (ImGui::MenuItem("Make Prefab"))
+		{
+			m_OpenTextPopup = true;
+			m_SelectionContext = entity;
+		}
+
+		if (ImGui::MenuItem("Set Top Level Parent"))
+		{
+			if (entity->m_parent != nullptr)
+			{
+				entity->m_parent->RemoveChild(entity);
+			}
+		}
 
 		ImGui::EndPopup();
 	}
+
+	DragDropEntityHierarchy(entity);
 
 
 	// 노드가 펼쳐졌다면 자식도 출력.
 	if (opened)
 	{
-		// TODO: 자식이 있다면 토글시 자식 오브젝트들도 나타내기
-
-		// 예시 코드 1    -> TODO: 이런 식으로 구현하기.. Entity 의 id 값을 보고 자식 있는 지 확인 후 자식 노드도 다 나타내야 한다.
-		//for (Transform* child : entity->get<Transform>().get().GetChildren())		
-		//	DrawEntityNode(child->GetEntity());										// GetChildren 과 GetEntity 는 아직 없는 함수.
-
-		// 예시 코드 2
-		//ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-		//bool opened = ImGui::TreeNodeEx((void*)9817239, flags, imguiID.c_str());
-		//if (opened)
-		//	ImGui::TreePop();
-		for (const auto& children : entity->m_children)
+		for (const auto& child : entity->m_children)
 		{
-			DrawEntityNode(children);
+			DrawEntityNode(child);
 		}
 
 		ImGui::TreePop();
@@ -265,6 +388,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	ImGui::PushItemWidth(-1);
 	ImGui::SameLine();
 
+
+
 	if (ImGui::Button("Add Component"))
 		ImGui::OpenPopup("AddComponent");
 
@@ -279,6 +404,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		ImGui::EndPopup();
 	}
+
+	ShowStaticModelDialog();	// TODO: 수정..?
+
 	ImGui::PopItemWidth();
 
 	DrawComponent<Transform>("Transform", entity, [](auto component)
@@ -288,10 +416,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DrawVec3Control("Scale", component->m_Scale, 1.0f);
 	});
 
-	DrawComponent<StaticMesh>("StaticMesh", entity, [&](auto component)		// & 는 임시.
+	DrawComponent<StaticMesh>("StaticMesh", entity, [](auto component)
 	{
-		// 이 컴포너트는 어떻게 사용해야할지 모르겠다.
-		// TODO: 사용법 물어보기.
+		std::string temp = component->m_FileName;
+
+		ImGui::Text(temp.c_str());
 	});
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
@@ -333,5 +462,34 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		/// -> 라이트 타입별 나타내야 하는 정보가 다르다.     다른가? 흐음..
 	});
+}
+
+void SceneHierarchyPanel::ShowStaticModelDialog()	// TODO: 이걸 World 파일 불러오는 거에도 쓸 수 있을듯
+{
+	std::string fileName;
+	std::string filePathName;
+	std::string filePath;
+
+	if (m_IsDialogOpen)
+	{
+		IGFD::FileDialogConfig config; config.path = ".";
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".fbx", config);
+	}
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+			fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
+			filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+			// action
+
+			m_SelectionContext->Assign<StaticMesh>("FBXLoad_Test/fbx/" + fileName);
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+		m_IsDialogOpen = false;
+	}
 }
 

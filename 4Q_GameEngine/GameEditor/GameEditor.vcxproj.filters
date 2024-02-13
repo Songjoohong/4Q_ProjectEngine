@@ -12,8 +12,11 @@
     <Filter Include="Panels">
       <UniqueIdentifier>{b5103d3b-87ae-4af1-a322-d5280842eb18}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\ImGui">
-      <UniqueIdentifier>{0ec93f5f-c359-4e10-a5c0-00eb1830428a}</UniqueIdentifier>
+    <Filter Include="Prefab">
+      <UniqueIdentifier>{4d8414dd-cbcd-4587-88ff-5168056ec7fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ImGui">
+      <UniqueIdentifier>{1b5f4260-767d-48f4-85a7-f2a71dc7074c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -22,12 +25,6 @@
     </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiLayer.h">
-      <Filter>소스 파일\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Colors.h">
-      <Filter>소스 파일\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="GameEditor.h">
       <Filter>헤더 파일</Filter>
@@ -38,8 +35,17 @@
     <ClInclude Include="ContentsBrowserPanel.h">
       <Filter>Panels</Filter>
     </ClInclude>
-    <ClInclude Include="jsonSerializer.h">
+    <ClInclude Include="Prefab.h">
+      <Filter>Prefab</Filter>
+    </ClInclude>
+    <ClInclude Include="NameManager.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiFileDialog.h">
+      <Filter>ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiFileDialogConfig.h">
+      <Filter>ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -49,12 +55,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ImGuiLayer.cpp">
-      <Filter>소스 파일\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Colors.cpp">
-      <Filter>소스 파일\ImGui</Filter>
-    </ClCompile>
     <ClCompile Include="EditorMain.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -63,6 +63,15 @@
     </ClCompile>
     <ClCompile Include="ContentsBrowserPanel.cpp">
       <Filter>Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="Prefab.cpp">
+      <Filter>Prefab</Filter>
+    </ClCompile>
+    <ClCompile Include="NameManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiFileDialog.cpp">
+      <Filter>ImGui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
