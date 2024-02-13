@@ -54,13 +54,12 @@
     <Filter Include="Model\Mesh\StaticMesh">
       <UniqueIdentifier>{66ee21f0-3ba0-4c90-b8eb-fe54f50facfc}</UniqueIdentifier>
     </Filter>
-	<Filter Include="Environment">
-	  <UniqueIdentifier>{4e09823e-d6ea-4bf9-92a5-4167a639b298}</UniqueIdentifier>
-	 </Filter>
+    <Filter Include="Environment">
+      <UniqueIdentifier>{4e09823e-d6ea-4bf9-92a5-4167a639b298}</UniqueIdentifier>
+    </Filter>
     <Filter Include="소스 파일\리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -200,6 +199,12 @@
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\PS_Environment.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\OpaquePBR.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\BallPBR.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
   </ItemGroup>

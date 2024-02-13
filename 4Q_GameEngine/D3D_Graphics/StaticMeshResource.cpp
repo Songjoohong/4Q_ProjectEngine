@@ -28,13 +28,17 @@ void StaticSceneResource::Create(const std::string& path)
 	importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
 	const aiScene* scene = importer.ReadFile(path, importFlags);
-	//Math::Matrix* localTM = scene->mRootNode->mTransformation.a1;
+	Math::Matrix localTM = Math::Matrix(&scene->mRootNode->mTransformation.a1).Transpose();
+
+	aiNode* a=*scene->mRootNode->mChildren;
 	// Mesh, Material Á¤º¸ Create
 	m_meshes.resize(scene->mNumMeshes);
-	for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+	CreateFromNode(scene->mRootNode,scene);
+	scene->mRootNode->mTransformation;
+	/*for (unsigned int i = 0; i < scene->mNumMeshes; i++)
 	{
 		m_meshes[i].Create(Renderer::Instance->m_pDevice.Get(), scene->mMeshes[i]);
-	}
+	}*/
 
 	m_materials.resize(scene->mNumMaterials);
 	for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
@@ -60,6 +64,21 @@ void StaticSceneResource::Create(const std::string& path)
 	m_BoundingBoxMax = Math::Vector3(absMax, absMax, absMax);
 
 	importer.FreeScene();
+	
+}
+
+void StaticSceneResource::CreateFromNode(aiNode* node, const aiScene* scene)
+{
+	for (int i = 0; i < node->mNumMeshes; i++)
+	{
+		m_meshes[node->mMeshes[i]].Create(Renderer::Instance->m_pDevice.Get(), scene->mMeshes[node->mMeshes[i]]);
+		m_meshes[node->mMeshes[i]].m_localMatrix = Math::Matrix(&node->mTransformation.a1).Transpose();
+		m_meshes[node->mMeshes[i]].m_meshName = node->mName.C_Str();
+	}
+	for (int j = 0; j < node->mNumChildren; j++)
+	{
+		CreateFromNode(node->mChildren[j], scene);
+	}
 	
 }
 

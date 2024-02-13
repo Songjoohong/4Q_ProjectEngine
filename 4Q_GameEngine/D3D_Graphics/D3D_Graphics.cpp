@@ -294,14 +294,51 @@ void Renderer::ApplyMaterial(Material* pMaterial)
 		m_pDeviceContext->PSSetShaderResources(12, 1, pMaterial->m_pAmbientOcclusionRV->m_pTextureRV.GetAddressOf());
 }
 
+void Renderer::SphereInit(string filename)
+{
+	m_pSphere = new StaticModel();
+	m_pSphere->Load(filename);
+	m_pSphere->m_worldTransform = Math::Matrix::Identity;
+}
+
+void Renderer::SphereRender()
+{
+	m_pDeviceContext->UpdateSubresource(m_pSphereBuffer.Get(), 0, nullptr, &m_sphereCB, 0, 0);
+	m_pDeviceContext->PSSetConstantBuffers(5, 1, m_pSphereBuffer.GetAddressOf());
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	Material* pPrevMaterial = nullptr;
+
+	for (auto it : m_pSphere->m_meshInstance)
+	{
+		string name = it.m_pMeshResource->m_meshName;
+		if (pPrevMaterial != it.m_pMaterial)
+		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(it.m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pSpherePS.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+
+			Renderer::Instance->ApplyMaterial(it.m_pMaterial);	// 머터리얼 적용
+			pPrevMaterial = it.m_pMaterial;
+		}
+		m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
+		m_worldMatrixCB.mWorld = it.m_pNodeWorldTransform.Transpose();
+		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+		it.Render(Renderer::Instance->m_pDeviceContext.Get());
+	}
+}
+
 void Renderer::MeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
 	Material* pPrevMaterial = nullptr;
 
 	for (auto it : m_pMeshInstance)
 	{
+		string name = it->m_pMeshResource->m_meshName;
 		if (pPrevMaterial != it->m_pMaterial)
 		{
 			Renderer::Instance->m_pDeviceContext->VSSetShader(it->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
@@ -312,7 +349,7 @@ void Renderer::MeshRender()
 			pPrevMaterial = it->m_pMaterial;
 		}
 		m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
-		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
+		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(Renderer::Instance->m_pDeviceContext.Get());
 	}
@@ -334,7 +371,7 @@ void Renderer::ShadowRender()
 			Renderer::Instance->ApplyMaterial(it->m_pMaterial);	// 머터리얼 적용
 			pPrevMaterial = it->m_pMaterial;
 		}
-		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
+		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(Renderer::Instance->m_pDeviceContext.Get());
 	}
@@ -384,9 +421,7 @@ void Renderer::RenderDebugDraw()
 
 void Renderer::RenderQueueSort()
 {
-	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
-		return lhs->m_pNodeWorldTransform < rhs->m_pNodeWorldTransform;
-		});
+	
 	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
 		return lhs->m_pMaterial < rhs->m_pMaterial;
 		});
@@ -564,9 +599,11 @@ void Renderer::RenderScene()
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 이거하면 에디터의 뷰포트에 렌더가 안됨.
 
+
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	SphereRender();
 	MeshRender();
 
 
@@ -767,6 +804,24 @@ void Renderer::RenderImgui()
 		ImGui::SliderFloat("##lpz", &pointlightPos.z, -1000.f, 1000.f);
 		ImGui::End();
 	}
+
+	{
+		bool useIBL = m_sphereCB.mUseIBL;
+		ImGui::Begin("IBL");
+		ImGui::Text("IBL");
+		ImGui::Text("Metalic");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpx", &m_sphereCB.mMetalic, 0.f, 1.f);
+		ImGui::Text("Roughness");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpy", &m_sphereCB.mRoughness, 0.f, 1.f);
+		ImGui::Text("Ambient");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpz", &m_sphereCB.mAmbient, 0.f, 1.f);
+		ImGui::Checkbox("UseIBL", &useIBL);
+		m_sphereCB.mUseIBL = useIBL;
+		ImGui::End();
+	}
 	m_pointLight.SetPosition(pointlightPos);
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -941,19 +996,35 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     pbd.CPUAccessFlags = 0;
     HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
 
+	pbd = {};
+    pbd.Usage = D3D11_USAGE_DEFAULT;
+    pbd.ByteWidth = sizeof(cbBall);
+    pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    pbd.CPUAccessFlags = 0;
+    HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
+
     //포인트 라이트 테스트용
     m_pointLight.SetPosition(Vector3(0, 0, 0));
-	  m_pointLight.SetRadius(600.f);
-	  m_pointLight.SetColor();
-	  m_pointLight.SetIntensity(1.f);
+	m_pointLight.SetRadius(600.f);
+	m_pointLight.SetColor();
+	m_pointLight.SetIntensity(1.f);
 
-	  ResourceManager::Instance->CreateEnvironment("BakerSample");
-	  SetEnvironment("BakerSample");
-	  ComPtr < ID3DBlob> buffer;
+	SetAlphaBlendState();
 	
-	  buffer.Reset();
-	  HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
-	  HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pEnvironmentPS.GetAddressOf()));
+
+	ResourceManager::Instance->CreateEnvironment("BakerSample");
+	SetEnvironment("BakerSample");
+	ComPtr < ID3DBlob> buffer;
+	
+	buffer.Reset();
+	HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pEnvironmentPS.GetAddressOf()));
+
+	buffer.Reset();
+	HR_T(CompileShaderFromFile(L"../Resource/BallPBR.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pSpherePS.GetAddressOf()));
+	
+	SphereInit("FBXLoad_Test/fbx/8Ball.fbx");
 
 
 	// 렌더링 텍스처 객체를 생성한다.
@@ -981,4 +1052,24 @@ void Renderer::UnInitialize()
     }
     m_pStaticModels.clear();
     m_pStaticModels.shrink_to_fit();
+}
+
+void Renderer::SetAlphaBlendState()
+{
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.AlphaToCoverageEnable = true;
+	blendDesc.IndependentBlendEnable = false;
+
+	D3D11_RENDER_TARGET_BLEND_DESC rtBlendDesc = {};
+	rtBlendDesc.BlendEnable = true;
+	rtBlendDesc.BlendOp = D3D11_BLEND_OP_ADD;
+	rtBlendDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	rtBlendDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+
+	rtBlendDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtBlendDesc.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rtBlendDesc.DestBlendAlpha = D3D11_BLEND_ONE;
+	rtBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0] = rtBlendDesc;
+	HR_T(m_pDevice->CreateBlendState(&blendDesc, m_pAlphaBlendState.GetAddressOf()));
 }

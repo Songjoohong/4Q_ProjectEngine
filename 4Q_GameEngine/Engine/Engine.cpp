@@ -138,6 +138,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent1->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND,Vector3D{10000.f,1.f,10000.f});
 
 
+
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
 	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
@@ -147,9 +148,11 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent2->Assign<RigidBody>();
 	ent2->Assign<Movement>();
 
+
 	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+
 	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
 	ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND, Vector3D{ 10000.f,1.f,10000.f });
 
@@ -157,6 +160,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent4->Assign<EntityIdentifier>(ent4->getEntityId(), "Zelda2");
 	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+
 
 	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
