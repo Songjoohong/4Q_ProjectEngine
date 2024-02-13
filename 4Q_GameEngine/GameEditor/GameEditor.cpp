@@ -228,32 +228,33 @@ void GameEditor::RenderImGui()
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))
-					LoadWorld("TestScene1");	// Test
-
-				ImGui::Separator();
+				if (ImGui::MenuItem("Open Scene...", "Ctrl+O"))		// 단축키 설정은 아직 안함.
+				{
+					m_IsDialogOpen = true;
+				}
 
 				if (ImGui::MenuItem("New Scene", "Ctrl+N"))
+				{
 					NewScene();
-
-				if (ImGui::MenuItem("Save World"))
-				{
-					SaveWorld("TestScene1.json");
 				}
 
-				if (ImGui::MenuItem("Load World"))
+				if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
 				{
-					LoadWorld("TestScene1.json");
+					SaveWorld(m_SceneName);	// 현재 월드의 정보를 세이브
 				}
+
+				if (ImGui::MenuItem("Save Scene As..."))	// 다른 이름으로 월드를 저장
+				{
+					/// 씬 이름 입력하고
+					/// SaveWorld() 함수 불러와서 저장.
+					m_isScenePopup = true;
+				}
+
+				ImGui::Separator();
 
 				if (ImGui::MenuItem("Exit"))
 				{
 					Close();
-				}
-
-				if (ImGui::MenuItem("ClearPrefabFile"))
-				{
-					m_PrefabManager->DeleteAllDataInJsonFile("Prefab.json");
 				}
 
 				ImGui::EndMenu();
@@ -265,7 +266,11 @@ void GameEditor::RenderImGui()
 
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
-		static bool show = true;
+		ImGui::Text(m_SceneName.c_str());		// TODO: 에디터에 현재 화면에 표시중인 씬 정보 표기하기
+
+		ShowSceneDialog();
+		ShowSaveSceneAsPopup();
+
 		ImGui::ShowDemoWindow();
 		ImGui::End();
 
@@ -453,7 +458,7 @@ void GameEditor::SetDarkThemeColors()
 // jsonFile 이름 넘기기
 void GameEditor::SaveWorld(const std::string& _filename)
 {
-	std::string fullPath = basePath + _filename;
+	std::string fullPath = basePath + "/scene/" + _filename + ".scene";
 
 	std::ofstream outputFile(fullPath);
 
@@ -481,10 +486,10 @@ void GameEditor::SaveWorld(const std::string& _filename)
 
 }
 
-void GameEditor::LoadWorld(const std::string& _filename)
+void GameEditor::LoadWorld(const std::string& fileName)
 {
 	// 월드 생성
-	m_EditorWorld = ECS::World::CreateWorld(_filename);
+	m_EditorWorld = ECS::World::CreateWorld(fileName);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 	m_NameManager->ClearContainer();
 	m_EditorWorld->registerSystem(new ScriptSystem);
@@ -493,7 +498,7 @@ void GameEditor::LoadWorld(const std::string& _filename)
 	m_EditorWorld->registerSystem(new MovementSystem);
 	m_EditorWorld->registerSystem(new CameraSystem);
 
-	std::string fullPath = basePath + _filename;
+	std::string fullPath = basePath + fileName;
 
 	// Deserialize
 	std::ifstream inputFile(fullPath);
@@ -605,9 +610,76 @@ void GameEditor::LoadWorld(const std::string& _filename)
 
 }
 
+void GameEditor::ShowSceneDialog()
+{
+	std::string fileName;
+
+	if (m_IsDialogOpen)
+	{
+		IGFD::FileDialogConfig config; config.path = "../Resource/scene";
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".scene", config);
+	}
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+			fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
+			// action
+
+			// TODO: scene, fbx, prefab 셋 다 이 함수 이용하도록
+
+			// 현재 에디터가 화면에 띄우고 있는 월드의 이름을 변경
+			m_SceneName = fileName;
+			LoadWorld("scene/" + fileName);
+
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+		m_IsDialogOpen = false;
+	}
+}
+
+void GameEditor::ShowSaveSceneAsPopup()
+{
+	if (m_isScenePopup)
+	{
+		ImGui::SetNextWindowSize(ImVec2(320, 120));
+		ImGui::OpenPopup("Scene Name");
+		if (ImGui::BeginPopupModal("Scene Name"))
+		{
+			static char sceneName[256] = ""; // Fixed-size buffer for input
+
+			ImGui::InputText("Scene Name", sceneName, sizeof(sceneName));
+			ImGui::Spacing();
+
+			if (ImGui::Button("Submit") || ImGui::IsKeyPressed(ImGuiKey_Enter))
+			{
+				// 씬 저장.
+				SaveWorld(sceneName);
+
+				m_isScenePopup = false;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::Spacing();
+
+			if (ImGui::Button("Close") || ImGui::IsKeyPressed(ImGuiKey_Escape))
+			{
+				m_isScenePopup = false;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+}
+
 void GameEditor::NewScene()
 {
-	m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
+	m_SceneName = "NewScene";	// 씬 이름 기본 설정
+
+	m_EditorWorld = ECS::World::CreateWorld(m_SceneName);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 	m_NameManager->ClearContainer();
 
@@ -629,7 +701,8 @@ void GameEditor::NewScene()
 	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
 
-	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Camera");
+	// Free Camera
+	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Main Camera");
 	m_Camera->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
 	m_Camera->Assign<Camera>();
 	m_Camera->Assign<FreeCameraScript>(m_Camera);
