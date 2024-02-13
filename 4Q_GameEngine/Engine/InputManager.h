@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include "ISingleton.h"
 
 #define Input InputManager::GetInstance()
@@ -10,6 +10,8 @@ enum Key
 	RBUTTON,
 	UP,
 	DOWN,
+	LEFT,
+	RIGHT,
 	SPACE,
 	W,
 	A,

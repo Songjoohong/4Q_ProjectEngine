@@ -44,6 +44,12 @@
     <Filter Include="System\Render">
       <UniqueIdentifier>{888dee73-ae54-48ec-8baa-86dde0443b97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Manager\PhysX">
+      <UniqueIdentifier>{a47efb48-6871-42ce-8ad3-71c25ad602d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Instance">
+      <UniqueIdentifier>{90bc4681-c72e-488d-b165-2ed7780ac434}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Manager\Sound">
       <UniqueIdentifier>{8a82d2a4-65ed-4fbd-88b8-05a009c8984f}</UniqueIdentifier>
     </Filter>
@@ -109,9 +115,6 @@
     <ClInclude Include="SampleScript.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="CollisionSystem.h">
-      <Filter>System\Collision</Filter>
-    </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>Manager\Input</Filter>
     </ClInclude>
@@ -126,6 +129,18 @@
     </ClInclude>
     <ClInclude Include="RenderSystem.h">
       <Filter>System\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Manager\PhysX</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticCollider.h">
+      <Filter>Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicCollider.h">
+      <Filter>Instance</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>Instance</Filter>
     </ClInclude>
     <ClInclude Include="SoundManager.h">
       <Filter>Manager\Sound</Filter>
@@ -172,6 +187,7 @@
     <ClInclude Include="Matrix4x4.h">
       <Filter>headers</Filter>
     </ClInclude>
+    <ClInclude Include="jsonSerializer.h" />
     <ClInclude Include="jsonSerializer.h">
       <Filter>headers</Filter>
     </ClInclude>
@@ -185,6 +201,15 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="TestUIScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionSystem.h">
+      <Filter>System\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="POVCameraScript.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
@@ -215,6 +240,18 @@
     </ClCompile>
     <ClCompile Include="RenderSystem.cpp">
       <Filter>System\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Manager\PhysX</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticCollider.cpp">
+      <Filter>Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicCollider.cpp">
+      <Filter>Instance</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>Instance</Filter>
     </ClCompile>
     <ClCompile Include="SoundManager.cpp">
       <Filter>Manager\Sound</Filter>

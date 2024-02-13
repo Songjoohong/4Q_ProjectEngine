@@ -8,6 +8,8 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	VK_RBUTTON,
 	VK_UP,
 	VK_DOWN,
+	VK_LEFT,
+	VK_RIGHT,
 	VK_SPACE,
 	'W',
 	'A',
@@ -39,21 +41,25 @@ void InputManager::Update(float deltaTime)
 
 		if(m_IsCursorCameraMode)
 		{
-			if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width)
+			if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width - 100)
 			{
 				POINT clientPoint = { static_cast<long>(m_Width) / 2, m_CurrentCursorPos.y };
-				m_PreviousCursorPos = clientPoint;
+				m_CurrentCursorPos = clientPoint;
+				m_PreviousCursorPos = m_CurrentCursorPos;
 				ClientToScreen(hWnd, &clientPoint);
 				SetCursorPos(clientPoint.x, clientPoint.y);
 			}
 
-			if (m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 1)
+			if (m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 100)
 			{
 				POINT clientPoint = { m_CurrentCursorPos.x, static_cast<long>(m_Height) / 2 };
-				m_PreviousCursorPos = clientPoint;
+				m_CurrentCursorPos = clientPoint;
+				m_PreviousCursorPos = m_CurrentCursorPos;
 				ClientToScreen(hWnd, &clientPoint);
 				SetCursorPos(clientPoint.x, clientPoint.y);
 			}
+
+			
 		}
 	}
 	
