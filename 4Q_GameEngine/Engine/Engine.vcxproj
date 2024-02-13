@@ -166,7 +166,6 @@
     <ClInclude Include="FreeCameraScript.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="jsonSerializer.h" />
-    <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="PlayerScript.h" />
     <ClInclude Include="CameraScript.h" />
     <ClInclude Include="Matrix4x4.h" />

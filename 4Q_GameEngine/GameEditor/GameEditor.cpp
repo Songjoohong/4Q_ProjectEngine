@@ -298,7 +298,9 @@ void GameEditor::RenderImGui()
 
 		DirectX::XMMATRIX projectionMatrix = RenderManager::GetInstance()->GetRender()->GetProjectionMatrix();
 		auto floatProjectionMatrix = reinterpret_cast<const float*>(&projectionMatrix);
-			
+
+		Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
+
 		// Gizmos
 		if (selectedEntity)
 		{

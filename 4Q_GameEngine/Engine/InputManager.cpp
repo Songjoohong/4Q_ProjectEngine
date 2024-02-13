@@ -16,7 +16,7 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	'S',
 	'D',
 	'Q',
-	'E'
+	'E',
 	VK_CONTROL
 };
 

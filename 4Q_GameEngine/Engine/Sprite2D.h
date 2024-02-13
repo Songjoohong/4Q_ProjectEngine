@@ -3,11 +3,12 @@
 #include "Vector3D.h"
 struct Sprite2D
 {
+	ECS_DECLARE_TYPE
 	Sprite2D() = default;
-	explicit Sprite2D(const ECS::Entity* ent, std::string fileName, const float layer, const MyPoint pos = {0,0 })
+	explicit Sprite2D(const ECS::Entity* ent, std::string fileName, const float layer,long x, long y)
 		: m_FileName(fileName)
 		, m_Layer(layer)
-		, m_Position{ pos.x, pos.y }
+		, m_Position{ x, y }
 	{}
 
 	std::string m_FileName;

@@ -28,18 +28,18 @@ public:
 	virtual void Update(float deltaTime) override
 	{
 		// KeyInput
-		if (Input->GetKey(Key::W))
+		if (InputM->GetKey(Key::W))
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::FRONT;
-		if (Input->GetKey(Key::A))
-			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::LEFT;
-		if (Input->GetKey(Key::S))
+		if (InputM->GetKey(Key::A))
+			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::LEFTWARD;
+		if (InputM->GetKey(Key::S))
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
-		if (Input->GetKey(Key::D))
-			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::RIGHT;
+		if (InputM->GetKey(Key::D))
+			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::RIGHTWARD;
 
 		
-		m_pOwner->get<Movement>()->m_CurrentRotation[0] = Input->GetMouseMove().x;
-		m_pOwner->get<Movement>()->m_CurrentRotation[1] = Input->GetMouseMove().y;
+		m_pOwner->get<Movement>()->m_CurrentRotation[0] = InputM->GetMouseMove().x;
+		m_pOwner->get<Movement>()->m_CurrentRotation[1] = InputM->GetMouseMove().y;
 	}
 
 	std::string m_ComponentName = "CameraScript";

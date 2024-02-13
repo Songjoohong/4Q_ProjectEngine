@@ -1,7 +1,7 @@
  #pragma once
 #include "ISingleton.h"
 
-#define Input InputManager::GetInstance()
+#define InputM InputManager::GetInstance()
 
 enum Key
 {
