@@ -83,36 +83,7 @@ private:
 template<typename ComponentType>
 inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 {
-	if (std::is_base_of_v <Script, ComponentType>)
-	{
-		std::vector<ComponentType> container;
-		container.push_back(entity->get<ComponentType>().get());
-		auto ScriptData = SerializeContainer(container);
-
-		json componentData;
-		componentData[(entity->get<ComponentType>().get()).m_ComponentName] = json::parse(ScriptData);
-
-		std::string entityName = entity->get<EntityIdentifier>().get().m_EntityName;
-
-		// Check if the entity already exists in the JSON structure
-		bool entityExists = false;
-		for (auto& entityEntry : worldData["WorldEntities"]) {
-			if (entityEntry.find(entityName) != entityEntry.end()) {
-				// Add the component data to the existing entity entry
-				entityEntry[entityName].push_back(componentData);
-				entityExists = true;
-				break;
-			}
-		}
-
-		// If the entity does not exist, create a new entry for it
-		if (!entityExists) {
-			json entityEntry;
-			entityEntry[entityName].push_back(componentData);
-			worldData["WorldEntities"].push_back(entityEntry);
-		}
-	}
-	else if (entity->has<ComponentType>())
+	if (entity->has<ComponentType>())
 	{
 		std::vector<ComponentType> container;
 		container.push_back(entity->get<ComponentType>().get());
@@ -149,18 +120,13 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, json& componentDat
 {
 	if constexpr (std::is_base_of_v<Script, ComponentType>)
 	{
-		entity->Assign<ComponentType>();
-	}
-	else if (std::is_same_v<StaticMesh, ComponentType>)
-	{
-		entity->Assign<ComponentType>();
+		entity->Assign<ComponentType>(entity);
 	}
 	else
 	{
 		entity->Assign<ComponentType>();
+		auto& component = entity->get<ComponentType>().get();
+
+		component = componentData;
 	}
-
-	auto& component = entity->get<ComponentType>().get();
-
-	component = componentData;
 }

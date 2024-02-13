@@ -77,16 +77,10 @@ public:
 		m_Z = vec.z;
 		return *this;
 	}
-	Vector3D& operator=(const DirectX::XMVECTOR& q) {
-		// Convert XMVECTOR to Quaternion
-		DirectX::XMFLOAT4 quat;
-		DirectX::XMStoreFloat4(&quat, q);
-
-		// Assign quaternion components to Vector3D components
-		m_X = quat.x;
-		m_Y = quat.y;
-		m_Z = quat.z;
-
+	Vector3D& operator=(const DirectX::XMFLOAT4& quaternion) {
+		m_X = quaternion.x;
+		m_Y = quaternion.y;
+		m_Z = quaternion.z;
 		return *this;
 	}
 
