@@ -142,7 +142,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
 	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
-	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, Collision_Mask::PLAYER,Vector3D{100.f,100.f,100.f});
+	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, Collision_Mask::PLAYER, Vector3D{100.f,100.f,100.f});
 	ent2->Assign<Debug>();
 	ent2->Assign<PlayerScript>(ent2);
 	ent2->Assign<RigidBody>();

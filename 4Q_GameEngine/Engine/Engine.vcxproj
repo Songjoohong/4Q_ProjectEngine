@@ -169,6 +169,8 @@
     <ClInclude Include="PlayerScript.h" />
     <ClInclude Include="CameraScript.h" />
     <ClInclude Include="Matrix4x4.h" />
+    <ClInclude Include="Space.h" />
+    <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="Sprite2D.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
@@ -218,7 +220,6 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
-    <ClCompile Include="MyPOINT.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -229,6 +230,7 @@
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ScriptSystem.cpp" />
+    <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="StaticCollider.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="SoundSystem.cpp" />

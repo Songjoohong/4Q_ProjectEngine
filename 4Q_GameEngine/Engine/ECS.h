@@ -368,7 +368,7 @@ namespace ECS
 		{
 			ECS_DECLARE_TYPE
 
-				Entity* entity;
+			Entity* entity;
 		};
 
 
@@ -376,7 +376,7 @@ namespace ECS
 		{
 			ECS_DECLARE_TYPE
 
-				Entity* entity;
+			Entity* entity;
 		};
 		// Called when a component is assigned (not necessarily created).
 		template<typename T>
@@ -396,6 +396,14 @@ namespace ECS
 
 			Entity* entity;
 			ComponentHandle<T> component;
+		};
+
+		struct SpaceAssemble
+		{
+			ECS_DECLARE_TYPE
+
+			Entity* objectEntity;
+			Entity* subjectEntity;
 		};
 
 #ifdef ECS_NO_RTTI
@@ -669,7 +677,9 @@ namespace ECS
 			//auto deserializedTransform = DeserializeContainerFromFile<std::array<Transform, 3>>(fullPath);
 		}
 		// Use this to destroy the world instead of calling delete.
-		// This will emit OnEntityDestroyed events and call EntitySystem::unconfigure as appropriate.
+		// This will 
+		//
+		//  OnEntityDestroyed events and call EntitySystem::unconfigure as appropriate.
 		void DestroyWorld()
 		{
 			WorldAllocator alloc(entAlloc);

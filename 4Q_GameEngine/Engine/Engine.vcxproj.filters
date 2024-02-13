@@ -74,6 +74,9 @@
     <Filter Include="System\UI">
       <UniqueIdentifier>{25721fc5-5a9d-4c1c-945d-f58fc90c9f12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Space">
+      <UniqueIdentifier>{fea170e2-8e5a-45bd-84fe-6a472e018578}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ISingleton.h">
@@ -212,6 +215,15 @@
     <ClInclude Include="POVCameraScript.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="SpaceSystem.h">
+      <Filter>System\Space</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraScript.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Space.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
@@ -279,6 +291,9 @@
     </ClCompile>
     <ClCompile Include="UISystem.cpp">
       <Filter>System\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SpaceSystem.cpp">
+      <Filter>System\Space</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
