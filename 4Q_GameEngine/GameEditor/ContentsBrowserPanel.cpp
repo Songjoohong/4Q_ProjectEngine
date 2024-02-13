@@ -1,11 +1,20 @@
 #include "pch.h"
 #include "ContentsBrowserPanel.h"
-
-static const std::filesystem::path s_AssetsPath = "Assets";
+#include "Prefab.h"
+#include "d3d11.h"
+#include "../D3D_Graphics/D3D_Graphics.h"
+static const std::filesystem::path s_AssetsPath = "../Test";
 
 ContentsBrowserPanel::ContentsBrowserPanel()
 	:m_CurrentDirectory(s_AssetsPath)
 {
+}
+
+void ContentsBrowserPanel::Initialize()
+{
+	std::string pngPath = "../Test/Png/box.png";
+	auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
+	CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &texture);
 }
 
 void ContentsBrowserPanel::RenderImGui()
@@ -38,12 +47,18 @@ void ContentsBrowserPanel::RenderImGui()
 		auto relativePath = std::filesystem::relative(path, s_AssetsPath);
 		std::string filenameString = relativePath.string();
 
-		// 나중에 ImageButton으로 수정
-		ImGui::Button(filenameString.c_str(), { thumbnailSize, thumbnailSize });
+		
+		//나중에 ImageButton으로 수정
+		//ImGui::Button(filenameString.c_str(), { thumbnailSize, thumbnailSize });
+
+		ImGui::ImageButton((void*)texture, { 128,128 });
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
-			if (directoryEntry.is_directory())
-				m_CurrentDirectory /= path.filename();
+			/*if (directoryEntry.is_directory())
+				m_CurrentDirectory /= path.filename();*/
+			m_PrefabManager->LoadPrefab(filenameString);
+			//m_PrefabManager->SavePrefab(m_PrefabManager->LoadPrefab(filenameString), filenameString);
+			m_PrefabManager->m_prefabContainer.clear();
 		}
 		ImGui::Text(filenameString.c_str());
 
@@ -56,4 +71,37 @@ void ContentsBrowserPanel::RenderImGui()
 	ImGui::SliderFloat("Padding", &padding, 0, 32);
 
 	ImGui::End();
+}
+
+void ContentsBrowserPanel::SetContext(ECS::World* world, std::shared_ptr<PrefabManager> prefabManager)
+{
+	m_World = world;
+	m_PrefabManager = prefabManager;
+	m_PrefabManager->SetContext(world);
+}
+
+void ContentsBrowserPanel::DragDropContentsBrowser(ECS::Entity* entity, std::filesystem::path file)
+{
+	size_t entityID = entity->getEntityId();
+
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+	{
+		ID3D11ShaderResourceView* texture;
+		std::string pngPath = "../Test/Png/box.png";
+		auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
+		CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &texture);
+		ImGui::Image((void*)texture, { 128,128 });
+		ImGui::SetDragDropPayload("PrefabName", &file, 1 * sizeof(size_t));
+		ImGui::EndDragDropSource();
+	}
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("PrefabName");
+
+		if (payLoad)
+		{
+			
+		}
+	}
 }

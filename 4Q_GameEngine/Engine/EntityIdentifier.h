@@ -10,7 +10,7 @@ struct EntityIdentifier
 	{
 	}
 
-	std::string m_EntityName = " ";
+	std::string m_EntityName = "Empty Entity";
 	int			m_EntityId = 0;
 	std::string m_ComponentName = "EntityIdentifier";
 	bool		m_HasParent = false;

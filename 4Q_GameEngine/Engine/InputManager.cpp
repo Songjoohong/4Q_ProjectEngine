@@ -16,7 +16,8 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	'S',
 	'D',
 	'Q',
-	'E'
+	'E',
+	VK_CONTROL
 };
 
 void InputManager::Initialize(UINT width, UINT height)
@@ -76,6 +77,7 @@ void InputManager::Update(float deltaTime)
 			}
 			else if(m_PreviousKeyState[i] == KeyState::STAY)
 			{ 
+				m_PreviousKeyState[i] = m_CurrentKeyState[i].KeyState;
 				m_CurrentKeyState[i].Duration += deltaTime;
 			}
 			else

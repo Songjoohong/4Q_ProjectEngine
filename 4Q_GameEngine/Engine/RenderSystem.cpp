@@ -23,7 +23,16 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 {
 	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> staticMesh, ComponentHandle<Transform> transform)->void
 		{
-			RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+			if (staticMesh->m_FileName != "")
+			{
+				if(staticMesh->m_IsModelCreated)
+					RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+				else
+				{
+					RenderManager::GetInstance()->CreateModel(staticMesh->m_FileName);
+					staticMesh->m_IsModelCreated = true;
+				}
+			}
 		});
 
 	world->each<StaticMesh, Transform, BoxCollider>([&](Entity* entity, const ComponentHandle<StaticMesh> staticMesh, ComponentHandle<Transform> transform,ComponentHandle<BoxCollider> boxCollider)->void
@@ -36,5 +45,9 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssigned<StaticMesh>& event)
 {
 	// minjeong : fbx load test
-	RenderManager::GetInstance()->CreateModel(event.component->m_FileName);
+	if (event.component->m_FileName != "")
+	{
+		RenderManager::GetInstance()->CreateModel(event.component->m_FileName);
+		event.component->m_IsModelCreated = true;
+	}
 }

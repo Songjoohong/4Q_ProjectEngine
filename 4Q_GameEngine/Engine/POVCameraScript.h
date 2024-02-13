@@ -21,16 +21,16 @@ public:
 		if(direction.GetY() > 0.8f)
 		{
 			direction.SetX(0.8f);
-			m_pOwner->get<Movement>()->m_CurrentRotation[1] = min(Input->GetMouseMove().y, 0.f);
+			m_pOwner->get<Movement>()->m_CurrentRotation[1] = min(InputM->GetMouseMove().y, 0.f);
 		}
 		else if(direction.GetY() < -0.8f)
 		{
 			direction.SetX(-0.8f);
-			m_pOwner->get<Movement>()->m_CurrentRotation[1] = max(Input->GetMouseMove().y, 0.f);
+			m_pOwner->get<Movement>()->m_CurrentRotation[1] = max(InputM->GetMouseMove().y, 0.f);
 		}
 		else
 		{
-			m_pOwner->get<Movement>()->m_CurrentRotation[1] = Input->GetMouseMove().y;
+			m_pOwner->get<Movement>()->m_CurrentRotation[1] = InputM->GetMouseMove().y;
 		}
 	}
 };

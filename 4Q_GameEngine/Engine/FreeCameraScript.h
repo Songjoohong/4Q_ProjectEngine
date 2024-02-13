@@ -19,36 +19,38 @@ public:
 
 	virtual void Update(float deltaTime) override
 	{
+
 		m_IsPrevCameraWork = m_IsCurCameraWork;
-		if(Input->GetMouseButton(Key::RBUTTON))
+		if(InputM->GetMouseButton(Key::RBUTTON))
 			m_IsCurCameraWork = true;
 		else
 			m_IsCurCameraWork = false;
 
 		if(m_IsCurCameraWork != m_IsPrevCameraWork)
 		{
-			Input->SetCameraMode(m_IsCurCameraWork);
+			InputM->SetCameraMode(m_IsCurCameraWork);
 			ShowCursor(m_IsCurCameraWork);
+
 		}
 
 		if(m_IsCurCameraWork)
 		{
 			// KeyInput
-			if (Input->GetKey(Key::W))
+			if (InputM->GetKey(Key::W))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::FRONT;
-			if (Input->GetKey(Key::A))
+			if (InputM->GetKey(Key::A))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::LEFTWARD;
-			if (Input->GetKey(Key::S))
+			if (InputM->GetKey(Key::S))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
-			if (Input->GetKey(Key::D))
+			if (InputM->GetKey(Key::D))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::RIGHTWARD;
-			if (Input->GetKey(Key::Q))
+			if (InputM->GetKey(Key::Q))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::UPWARD;
-			if (Input->GetKey(Key::E))
+			if (InputM->GetKey(Key::E))
 				m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::DOWNWARD;
 
-			m_pOwner->get<Movement>()->m_CurrentRotation[0] = Input->GetMouseMove().x;
-			m_pOwner->get<Movement>()->m_CurrentRotation[1] = Input->GetMouseMove().y;
+			m_pOwner->get<Movement>()->m_CurrentRotation[0] = InputM->GetMouseMove().x;
+			m_pOwner->get<Movement>()->m_CurrentRotation[1] = InputM->GetMouseMove().y;
 		}
 
 	}

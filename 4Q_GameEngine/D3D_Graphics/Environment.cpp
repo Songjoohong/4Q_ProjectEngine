@@ -10,7 +10,7 @@ bool Environment::ReadEnvironmentMeshFromFBX(std::string filePath)
     if(nullptr == m_pSceneResource)
         return false;
     m_worldTransform = Math::Matrix::CreateScale(1, 1, 1);
-    m_meshInstance.Create(&m_pSceneResource->m_meshes[0], &m_worldTransform, nullptr);
+    m_meshInstance.Create(&m_pSceneResource->m_meshes[0], m_worldTransform, nullptr);
     return true;
 }
 
@@ -19,7 +19,7 @@ bool Environment::ReadEnvironmentTextureFromDDS(std::wstring filename)
     wstring filepath = filename + L"EnvHDR.dds";
     m_pEnvironmentTextureResource = ResourceManager::Instance->CreateMaterial(filepath);
     if (m_pEnvironmentTextureResource == nullptr)
-        return false;
+        return false; 
 
     return true;
 }

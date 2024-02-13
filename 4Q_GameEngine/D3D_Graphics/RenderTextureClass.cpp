@@ -61,7 +61,7 @@ bool RenderTextureClass::Initialize(ID3D11Device* device, int textureWidth, int 
 	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-
+	
 	// ¼ÎÀÌ´õ ¸®¼Ò½º ºä¸¦ ¸¸µì´Ï´Ù.
 	result = device->CreateShaderResourceView(m_renderTargetTexture, &shaderResourceViewDesc, &m_shaderResourceView);
 	if (FAILED(result))

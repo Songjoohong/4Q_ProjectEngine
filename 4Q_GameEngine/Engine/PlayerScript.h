@@ -19,28 +19,28 @@ public:
 
 		PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotation(true,true,true);
 
-		Input->SetCameraMode(true);
+		InputM->SetCameraMode(true);
 	}
 
 	virtual void Update(float deltaTime) override
 	{
-		if(Input->GetKey(Key::UP))
+		if(InputM->GetKey(Key::UP))
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::FRONT;
 		}
-		if (Input->GetKey(Key::LEFT))
+		if (InputM->GetKey(Key::LEFT))
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::LEFTWARD;
 		}
-		if (Input->GetKey(Key::RIGHT))
+		if (InputM->GetKey(Key::RIGHT))
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::RIGHTWARD;
 		}
-		if (Input->GetKey(Key::DOWN))
+		if (InputM->GetKey(Key::DOWN))
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
 		}
 
-		m_pOwner->get<Movement>()->m_CurrentRotation[0] = Input->GetMouseMove().x;
+		m_pOwner->get<Movement>()->m_CurrentRotation[0] = InputM->GetMouseMove().x;
 	}
 };
