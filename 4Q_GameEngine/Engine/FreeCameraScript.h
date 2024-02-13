@@ -8,8 +8,10 @@
 class FreeCameraScript : public Script
 {
 public:
-	bool m_IsCameraWork = false;
-	FreeCameraScript(Entity* ent)
+	bool m_IsCurCameraWork = false;
+	bool m_IsPrevCameraWork = false;
+
+	explicit FreeCameraScript(Entity* ent)
 		:Script(ent)
 	{
 	}
@@ -17,14 +19,19 @@ public:
 
 	virtual void Update(float deltaTime) override
 	{
-		if(Input->GetMouseButtonDown(Key::SPACE))
+		m_IsPrevCameraWork = m_IsCurCameraWork;
+		if(Input->GetMouseButton(Key::RBUTTON))
+			m_IsCurCameraWork = true;
+		else
+			m_IsCurCameraWork = false;
+
+		if(m_IsCurCameraWork != m_IsPrevCameraWork)
 		{
-			m_IsCameraWork = !m_IsCameraWork;
-			ShowCursor(!m_IsCameraWork);
-			Input->SetCameraMode(m_IsCameraWork);
+			Input->SetCameraMode(m_IsCurCameraWork);
+			ShowCursor(m_IsCurCameraWork);
 		}
 
-		if(m_IsCameraWork)
+		if(m_IsCurCameraWork)
 		{
 			// KeyInput
 			if (Input->GetKey(Key::W))
