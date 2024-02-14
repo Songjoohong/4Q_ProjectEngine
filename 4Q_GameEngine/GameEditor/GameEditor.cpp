@@ -32,6 +32,7 @@
 #include "../Engine/CameraSystem.h"
 #include "../Engine/RenderSystem.h"
 #include "../Engine/ScriptSystem.h"
+#include "../Engine/TimeManager.h"
 
 #include "Prefab.h"
 #include "NameManager.h"
@@ -266,13 +267,6 @@ void GameEditor::RenderImGui()
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
 
-		// 테스트용 ~~
-		ImGui::Text(m_SceneName.c_str());		// TODO: 에디터에 현재 화면에 표시중인 씬 정보 표기하기
-
-		ImGui::Text("Entity Count : ");
-		ImGui::SameLine();
-		ImGui::Text( + std::to_string(m_EditorWorld->GetEntities().size()).c_str());	// TODO: 현재 씬에 있는 오브젝트 갯수
-		// 테스트끝 !!
 
 
 		ShowSceneDialog();
@@ -404,6 +398,30 @@ void GameEditor::RenderImGui()
 		m_ScaleSnapValue.m_X = static_cast<float>(intScaleSnapValue);
 		m_ScaleSnapValue.m_Y = static_cast<float>(intScaleSnapValue);
 		m_ScaleSnapValue.m_Z = static_cast<float>(intScaleSnapValue);
+
+		ImGui::Text("Current Scene :");
+		ImGui::SameLine();
+		ImGui::Text(m_SceneName.c_str());		// 에디터에 현재 화면에 표시중인 씬 정보 표기하기
+
+		ImGui::Text("Entity Count : ");
+		ImGui::SameLine();
+		ImGui::Text(+std::to_string(m_EditorWorld->GetEntities().size()).c_str());	// 현재 씬에 있는 오브젝트 갯수
+
+		std::string videoMemoryInfo;
+		RenderManager::GetInstance()->GetRender()->GetVideoMemoryInfo(videoMemoryInfo);
+		ImGui::Text(videoMemoryInfo.c_str());
+
+		std::string systemMemoryInfo;
+		RenderManager::GetInstance()->GetRender()->GetSystemMemoryInfo(systemMemoryInfo);
+		ImGui::Text(systemMemoryInfo.c_str());
+
+		float FPS = TimeManager::GetInstance()->GetFPS();
+		std::string framePerSecond = "Frame per Second : " + std::to_string(FPS);
+		ImGui::Text(framePerSecond.c_str());
+
+		std::string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
+		ImGui::Text(mousePos.c_str());
+
 		ImGui::End();
 
 	}
