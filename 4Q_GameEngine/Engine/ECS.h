@@ -406,6 +406,12 @@ namespace ECS
 			Entity* subjectEntity;
 		};
 
+		struct BroadCastPlayer
+		{
+			ECS_DECLARE_TYPE
+
+			Entity* playerEntity;
+		};
 #ifdef ECS_NO_RTTI
 		template<typename T>
 		ECS_DEFINE_TYPE(ECS::Events::OnComponentAssigned<T>);

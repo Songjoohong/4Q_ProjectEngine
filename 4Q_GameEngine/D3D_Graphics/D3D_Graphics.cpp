@@ -77,36 +77,37 @@ void Renderer::AddMeshInstance(StaticModel* model)
 	}
 }
 
-void Renderer::AddDebugInformation(const int id, const std::string& text, const Vector3D& position)
+void Renderer::AddTextInformation(const int id, const std::string& text, const Vector3D& position)
 {
 
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
 
-	const DebugInformation newDebug = { id, text, pos, depth };
-	m_debugs.push_back(newDebug);
+	const TextInformation newText = { id, text, pos, depth };
+	m_texts.push_back(newText);
 }
 
 void Renderer::AddSpriteInformation(int id, const std::string& filePath, const XMFLOAT2 position, float layer)
 {
     ComPtr<ID3D11ShaderResourceView> texture;
     const wchar_t* filePathT = ConvertToWchar(filePath);
-    CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture);
+    HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
     m_sprites.push_back(SpriteInformation{ id, layer, true, position, texture });
 }
 
-void Renderer::EditDebugInformation(int id, const std::string& text, const Vector3D& position)
+void Renderer::EditTextInformation(int id, const std::string& text, const Vector3D& position)
 {
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
 
-	auto it = std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+	const auto it = std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& debug)
 		{
 			return id == debug.entityID;
 		});
-	it->mPosition = pos;
+	it->mPosition[0] = pos.x;
+	it->mPosition[1] = pos.y;
 	it->depth = depth;
 	it->mText = text;
 }
@@ -120,11 +121,11 @@ void Renderer::EditSpriteInformation(int id, bool isRendered)
     it->IsRendered = isRendered;
 }
 
-void Renderer::DeleteDebugInformation(int id)
+void Renderer::DeleteTextInformation(int id)
 {
-    m_debugs.erase(std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+    m_texts.erase(std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& text)
         {
-            return id == debug.entityID;
+            return id == text.entityID;
         }));
 }
 
@@ -218,9 +219,9 @@ DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
 	Math::Matrix matrix;
 	matrix.Translation(Vector3(pos.GetX(), pos.GetY(), pos.GetZ()));
 	matrix = matrix * m_viewMatrix * m_projectionMatrix;
-
-	return {  matrix._41 + 960.f, 
-        (540.f - matrix._42), matrix._43 };
+	Vector3 translation = matrix.Translation();
+	translation = translation / matrix._44;
+	return { (translation.x + 1) * 960.f,540.f * (1 - translation.y), translation.z};
 }
 
 const wchar_t* Renderer::ConvertToWchar(const string& str) const
@@ -515,10 +516,10 @@ void Renderer::RenderBegin()
 
 void Renderer::RenderText() const
 {
-	for (int i = 0; i < m_debugs.size(); i++)
+	for (int i = 0; i < m_texts.size(); i++)
 	{
-		const wchar_t* text = ConvertToWchar(m_debugs[i].mText);
-		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_debugs[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f);
+		const wchar_t* text = ConvertToWchar(m_texts[i].mText);
+		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_texts[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f, SpriteEffects_None,m_texts[i].depth);
 
 		delete[] text;
 	}
@@ -571,7 +572,7 @@ void Renderer::Render()
 	// 24.02.05 수민. 원래 여기있던 코드는 Render::RenderScene() 함수로 이동하였슴.
 
 	// 전체 장면을 먼저 텍스처로 렌더링합니다.
-	RenderToTexture();
+	//RenderToTexture();
 
 	// 씬을 그리기 위해 버퍼를 지웁니다
 	Clear();
@@ -597,7 +598,7 @@ void Renderer::RenderScene()
 	//Clear();
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
-	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 이거하면 에디터의 뷰포트에 렌더가 안됨.
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 이거하면 에디터의 뷰포트에 렌더가 안됨.
 
 
 	//메쉬 렌더

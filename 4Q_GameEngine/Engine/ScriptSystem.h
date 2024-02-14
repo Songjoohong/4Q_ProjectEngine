@@ -5,14 +5,14 @@
 using namespace ECS;
 
 class ScriptSystem : public EntitySystem,
-	public EventSubscriber<Events::OnEntityCreated>,
-	public EventSubscriber<Events::OnEntityDestroyed>
+	public EventSubscriber<Events::OnEntityDestroyed>,
+	public EventSubscriber<Events::OnComponentAssigned<Script>>
 {
 	virtual ~ScriptSystem() override = default;
 
 	virtual void Configure(World* world) override
 	{
-		world->Subscribe<Events::OnEntityCreated>(this);
+		world->Subscribe<Events::OnComponentAssigned<Script>>(this);
 		world->Subscribe<Events::OnEntityDestroyed>(this);
 
 	}
@@ -22,7 +22,7 @@ class ScriptSystem : public EntitySystem,
 		world->UnsubscribeAll(this);
 	}
 
-	virtual void Receive(class World* world, const Events::OnEntityCreated& event) override
+	virtual void Receive(class World* world, const Events::OnComponentAssigned<Script>& event) override
 	{
 		std::cout << "An entity was created!" << std::endl;
 		world->each<Script>([&](Entity* entity, ComponentHandle<Script> script)->void

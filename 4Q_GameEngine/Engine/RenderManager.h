@@ -33,14 +33,14 @@ public:
 
 	void SetCamera(const DirectX::SimpleMath::Matrix matrix);
 	
-	void AddDebug(int entID, const std::string& text, const Vector3D& pos);
-	void AddSprite(int entID, const std::string& filePath, MyPoint pos, float layer);
+	void AddText(int entID, const std::string& text, const Vector3D& pos);
+	void AddSprite(int entID, const std::string& filePath, POINT pos, float layer);
 
-	void EditDebug(int entID, const std::string& text, const Vector3D& pos);
+	void EditText(int entID, const std::string& text, const Vector3D& pos);
 	void EditSprite(int entID, bool isRendered);
 
 	Renderer* GetRender() { return m_Renderer; }
-	void DeleteDebug(int entID);
+	void DeleteText(int entID);
 	void DeleteSprite(int entID);
 
 private:
