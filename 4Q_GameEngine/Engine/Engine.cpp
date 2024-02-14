@@ -112,36 +112,36 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	/*Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<FreeCameraScript>(ent);
-	ent->Assign<Movement>();
+	ent->Assign<Movement>();*/
 
 	//bool b = ent->has<Script>();
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
 	ent1->Assign<Transform>(Vector3D(0.f, -100.f, 0.f), Vector3D(0.f, 90.f, 0.f), Vector3D{ 100.f,100.f,100.f });
-	ent1->Assign<BoxCollider>(CollisionType::STATIC, Vector3D{100.f,1.f,100.f});
+	ent1->Assign<BoxCollider>(ColliderType::STATIC, Collision_Mask::GROUND, Vector3D{100.f,1.f,100.f});
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
-	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, Vector3D{100.f,100.f,100.f});
+	ent2->Assign<BoxCollider>(ColliderType::DYNAMIC, Collision_Mask::PLAYER, Vector3D{100.f,100.f,100.f});
 	ent2->Assign<Debug>();
 	ent2->Assign<PlayerScript>(ent2);
 	ent2->Assign<RigidBody>();
 	ent2->Assign<Movement>();
 
-	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
+	//Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	//ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
 
-	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	//Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	//ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
 
 	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent5->Assign<UI>(100, 100);

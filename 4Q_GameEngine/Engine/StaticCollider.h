@@ -11,6 +11,8 @@ public:
 public:
 	virtual void Initialize() override;
 
+	void SetFiltercData();
+
 public:
 	PxRigidStatic* m_Rigid;
 };

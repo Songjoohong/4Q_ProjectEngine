@@ -19,6 +19,7 @@ void DynamicCollider::Initialize()
 	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_pRigidActor);
 
 	SetDensity(75.f); // 석영 : 기본값으로 넣어주기.
+	SetFilterData();
 	FreezeRotationX(true);
 	FreezeRotationY(true);
 	FreezeRotationZ(true);
@@ -31,6 +32,7 @@ void DynamicCollider::UpdatePhysics()
 	*/
 
 	PxTransform pxTrans = m_Rigid->getGlobalPose();
+	pxTrans = m_Transform;
 	m_pOwner->m_Center.SetX(pxTrans.p.x);
 	m_pOwner->m_Center.SetY(pxTrans.p.y);
 	m_pOwner->m_Center.SetZ(pxTrans.p.z);
@@ -40,6 +42,14 @@ void DynamicCollider::UpdatePhysics()
 	m_pOwner->m_Rotation.SetY(pxTrans.q.y * angle);
 	m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
 
+}
+
+void DynamicCollider::SetFilterData()
+{
+	PxFilterData* filter = PhysicsManager::GetInstance()->GetFilterData(m_pOwner->m_CollisionType);
+	assert(filter != nullptr);
+	m_pShape->setSimulationFilterData(*filter);
+	PxU32 filterdata = filter->word0;
 }
 
 void DynamicCollider::SetDensity(float mass)
