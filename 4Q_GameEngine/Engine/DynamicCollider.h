@@ -17,7 +17,6 @@ public:
 	virtual void SetFilterData() override;
 
 	void UpdatePhysics();
-	void SetFilterData();
 
 	/*
 	* 석영: 물체 질량 설정->기본 60.f 로 설정.
