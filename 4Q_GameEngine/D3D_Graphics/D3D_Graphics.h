@@ -66,12 +66,19 @@ struct cbBall
 
 struct TextInformation
 {
-	int entityID;
+	int mEntityID;
 	string mText;
-	float mPosition[2];
-	float depth;
+	XMFLOAT2 mPosition;
+	float mDepth;
 };
 
+struct DynamicTextInformation
+{
+	int mEntityID;
+	int mIndex;
+	bool mEnable = true;
+	vector<string> mText;
+};
 struct SpriteInformation
 {
 	int mEntityID;
@@ -202,14 +209,16 @@ public:
 	//디버그 정보 추가
 	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
+	void AddDynamicTextInformation(int entId, const vector<std::string>& vector);
 
 	// 디버그 정보 수정
 	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
-	
 	void EditSpriteInformation(int id, bool isRendered);
+	void EditDynamicTextInformation(int id, int index, bool enable);
 
 	void DeleteTextInformation(int id);
 	void DeleteSpriteInformation(int id);
+	void DeleteDynamicTextInformation(int entId);
 
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
@@ -285,4 +294,5 @@ public:
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
 	vector<TextInformation> m_texts;
 	vector<SpriteInformation> m_sprites;
+	vector<DynamicTextInformation> m_dynamicTexts;
 };

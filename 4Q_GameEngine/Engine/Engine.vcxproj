@@ -218,6 +218,7 @@
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="DynamicCollider.cpp" />
     <ClCompile Include="DebugSystem.cpp" />
+    <ClCompile Include="DynamicTextScript.h" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MovementSystem.cpp" />

@@ -11,13 +11,11 @@ struct DynamicText
 	explicit DynamicText(const std::vector<std::string>& text, const float correction = 0.f, const float distance = 100.f)
 		: m_Text(text)
 		, m_TriggerDistance(distance)
-		, m_YAxisCorrection(correction)
 	{}
 	~DynamicText() = default;
 	
 	std::vector<std::string> m_Text;
 	float m_TriggerDistance = 100.f;
-	float m_YAxisCorrection = 0.f;
 	int m_CurrentTextIndex = 0;
 	bool m_IsTextShow = false;
 

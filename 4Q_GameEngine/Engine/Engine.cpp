@@ -15,6 +15,7 @@
 #include "Debug.h"
 #include "DebugSystem.h"
 #include "DynamicText.h"
+#include "DynamicTextScript.h"
 #include "EntityIdentifier.h"
 #include "TimeManager.h"
 #include "InputManager.h"
@@ -147,9 +148,10 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
+	ent3->Assign<DynamicText>(vector<std::string>{ "hello", "world" });
+	ent3->Assign<DynamicTextScript>(ent3);
 	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f));
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent3->Assign<DynamicText>(vector<std::string>{ "hello" });
 	
 
 	/*Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();

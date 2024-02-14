@@ -406,11 +406,11 @@ namespace ECS
 			Entity* subjectEntity;
 		};
 
-		struct BroadCastPlayer
+		struct DynamicTextChange
 		{
 			ECS_DECLARE_TYPE
 
-			Entity* playerEntity;
+			Entity* entity;
 		};
 #ifdef ECS_NO_RTTI
 		template<typename T>

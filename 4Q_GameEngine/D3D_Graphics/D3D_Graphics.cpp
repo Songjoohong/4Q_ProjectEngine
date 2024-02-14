@@ -96,6 +96,11 @@ void Renderer::AddSpriteInformation(int id, const std::string& filePath, const X
     m_sprites.push_back(SpriteInformation{ id, layer, true, position, texture });
 }
 
+void Renderer::AddDynamicTextInformation(int entId, const vector<std::string>& vector)
+{
+	m_dynamicTexts.push_back({ entId, 0, true, vector });
+}
+
 void Renderer::EditTextInformation(int id, const std::string& text, const Vector3D& position)
 {
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
@@ -104,11 +109,10 @@ void Renderer::EditTextInformation(int id, const std::string& text, const Vector
 
 	const auto it = std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& debug)
 		{
-			return id == debug.entityID;
+			return id == debug.mEntityID;
 		});
-	it->mPosition[0] = pos.x;
-	it->mPosition[1] = pos.y;
-	it->depth = depth;
+	it->mPosition= pos;
+	it->mDepth = depth;
 	it->mText = text;
 }
 
@@ -121,11 +125,21 @@ void Renderer::EditSpriteInformation(int id, bool isRendered)
     it->IsRendered = isRendered;
 }
 
+void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
+{
+	const auto it = std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
+		{
+			return id == dynamicText.mEntityID;
+		});
+	it->mIndex = index;
+	it->mEnable = enable;
+}
+
 void Renderer::DeleteTextInformation(int id)
 {
     m_texts.erase(std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& text)
         {
-            return id == text.entityID;
+            return id == text.mEntityID;
         }));
 }
 
@@ -135,6 +149,14 @@ void Renderer::DeleteSpriteInformation(int id)
         {
             return id == sprite.mEntityID;
         }));
+}
+
+void Renderer::DeleteDynamicTextInformation(int id)
+{
+	m_dynamicTexts.erase(std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
+		{
+			return id == dynamicText.mEntityID;
+		}));
 }
 
 void Renderer::CreateModel(string filename)
@@ -493,10 +515,6 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-	
-
-    
-
     m_pointLightCB.mPos = m_pointLight.GetPosition();
     m_pointLightCB.mRadius = m_pointLight.GetRadius();
     m_pointLightCB.mLightColor = m_pointLight.GetColor();
@@ -519,9 +537,20 @@ void Renderer::RenderText() const
 	for (int i = 0; i < m_texts.size(); i++)
 	{
 		const wchar_t* text = ConvertToWchar(m_texts[i].mText);
-		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_texts[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f, SpriteEffects_None,m_texts[i].depth);
+		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_texts[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f);
 
 		delete[] text;
+	}
+
+	for (int i = 0; i < m_dynamicTexts.size(); i++)
+	{
+		if(m_dynamicTexts[i].mEnable)
+		{
+			const wchar_t* text = ConvertToWchar(m_dynamicTexts[i].mText[m_dynamicTexts[i].mIndex]);
+			m_spriteFont->DrawString(m_spriteBatch.get(), text, { 960.f, 540.f }, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
+
+			delete[] text;
+		}
 	}
 	string Memory;
 	GetVideoMemoryInfo(Memory);

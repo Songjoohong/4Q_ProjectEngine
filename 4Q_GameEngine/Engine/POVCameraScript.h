@@ -20,8 +20,6 @@ public:
 	{
 		if(m_pOwner->has<Transform>())
 			m_InitialY = m_pOwner->get<Transform>()->m_Position.GetY();
-
-		m_pOwner->getWorld()->emit<Events::BroadCastPlayer>({ m_pOwner });
 	}
 
 	virtual void Update(float deltaTime) override
@@ -42,6 +40,7 @@ public:
 			m_pOwner->get<Movement>()->m_CurrentRotation[1] = InputM->GetMouseMove().y;
 		}
 
+		// 카메라 흔들림 효과
 		if(InputM->GetKey(Key::UP) || InputM->GetKey(Key::LEFT) || InputM->GetKey(Key::RIGHT) || InputM->GetKey(Key::DOWN))
 		{
 			m_ElapsedTime += deltaTime;

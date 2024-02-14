@@ -76,6 +76,11 @@ void RenderManager::AddSprite(int entID, const std::string& filePath, POINT pos,
 	Renderer::Instance->AddSpriteInformation(entID, filePath, DirectX::XMFLOAT2{static_cast<float>(pos.x), static_cast<float>(pos.y)}, layer);
 }
 
+void RenderManager::AddDynamicText(int entID, const vector<std::string>& textVector)
+{
+	Renderer::Instance->AddDynamicTextInformation(entID, textVector);
+}
+
 void RenderManager::EditText(int entID, const std::string& text, const Vector3D& pos)
 {
 	Vector3D p = { pos.m_X, pos.m_Y + 50.f,pos.m_Y };
@@ -87,6 +92,11 @@ void RenderManager::EditSprite(int entID, bool isRendered)
 	Renderer::Instance->EditSpriteInformation(entID, isRendered);
 }
 
+void RenderManager::EditDynamicText(int size, int index, bool enable)
+{
+	Renderer::Instance->EditDynamicTextInformation(size, index, enable);
+}
+
 void RenderManager::DeleteText(int entID)
 {
 	Renderer::Instance->DeleteTextInformation(entID);
@@ -95,6 +105,11 @@ void RenderManager::DeleteText(int entID)
 void RenderManager::DeleteSprite(int entID)
 {
 	Renderer::Instance->DeleteSpriteInformation(entID);
+}
+
+void RenderManager::DeleteDynamicText(int entID)
+{
+	Renderer::Instance->DeleteDynamicTextInformation(entID);
 }
 
 

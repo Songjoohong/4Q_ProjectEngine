@@ -8,9 +8,9 @@ using namespace ECS;
 
 class DebugSystem : public EntitySystem,
 	public EventSubscriber<Events::OnComponentAssigned<Debug>>,
-	public EventSubscriber<Events::OnEntityDestroyed>,
 	public EventSubscriber<Events::OnComponentAssigned<DynamicText>>,
-	public EventSubscriber<Events::BroadCastPlayer>
+	public EventSubscriber<Events::OnEntityDestroyed>,
+	public EventSubscriber<Events::DynamicTextChange>
 {
 	virtual void Configure(World* world) override;
 
@@ -19,7 +19,7 @@ class DebugSystem : public EntitySystem,
 	virtual void Receive(World* world, const Events::OnComponentAssigned<Debug>& event) override;
 	virtual void Receive(World* world, const Events::OnEntityDestroyed& event) override;
 	virtual void Receive(World* world, const Events::OnComponentAssigned<DynamicText>& event) override;
-	virtual void Receive(World* world, const Events::BroadCastPlayer& event) override;
+	virtual void Receive(World* world, const Events::DynamicTextChange& event) override;
 
 	virtual void Tick(World* world, ECS::DefaultTickData data) override;
 

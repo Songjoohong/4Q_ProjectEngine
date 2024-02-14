@@ -1,6 +1,7 @@
 #pragma once
 #include <directxtk/SimpleMath.h>
 
+#include "DynamicText.h"
 #include "ISingleton.h"
 #include "Vector3D.h"
 
@@ -35,13 +36,16 @@ public:
 	
 	void AddText(int entID, const std::string& text, const Vector3D& pos);
 	void AddSprite(int entID, const std::string& filePath, POINT pos, float layer);
+	void AddDynamicText(int entID, const std::vector<std::string>& textVector);
 
 	void EditText(int entID, const std::string& text, const Vector3D& pos);
 	void EditSprite(int entID, bool isRendered);
+	void EditDynamicText(int size, int index, bool enable);
 
 	Renderer* GetRender() { return m_Renderer; }
 	void DeleteText(int entID);
 	void DeleteSprite(int entID);
+	void DeleteDynamicText(int entID);
 
 private:
 	Renderer* m_Renderer;
