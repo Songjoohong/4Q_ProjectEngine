@@ -19,6 +19,7 @@ public:
 
 	ECS::Entity* GetSelectedEntity() const { return m_SelectionContext; }
 	void SetSelectedEntity(ECS::Entity* entity) { m_SelectionContext = entity; }
+	void DeleteSelectedEntity() { m_Context->destroy(m_SelectionContext); m_SelectionContext = nullptr; }
 	void SetPrefabFileName(ECS::Entity* entity);
 	void DragDropEntityHierarchy(ECS::Entity* entity);
 
