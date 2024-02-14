@@ -16,6 +16,8 @@ void RenderManager::UnInitialize()
 {
 	m_Renderer->Instance->UnInitialize();
 }
+
+
 void RenderManager::Update()
 {
 	Renderer::Instance->Update();
@@ -27,10 +29,16 @@ void RenderManager::RenderBegin()
 	Renderer::Instance->RenderBegin();
 }
 
-void RenderManager::Render()
+void RenderManager::GameAppRender()
 {
-	Renderer::Instance->Render();
+	Renderer::Instance->GameAppRender();
 }
+
+void RenderManager::EditorRender()
+{
+	Renderer::Instance->EditorRender();
+}
+
 
 void RenderManager::RenderEnd()
 {
