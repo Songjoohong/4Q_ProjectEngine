@@ -666,8 +666,17 @@ void GameEditor::ShowSceneDialog()
 			// action
 
 			// 현재 에디터가 화면에 띄우고 있는 월드의 이름을 변경
-			m_SceneName = fileName;
 			LoadWorld("scene/" + fileName);
+
+			// ".scene" 문자열을 찾습니다.
+			size_t found = fileName.find(".scene");
+
+			// 만약 ".scene" 문자열이 발견되었다면 해당 부분을 제거합니다.
+			if (found != std::string::npos) {
+				fileName.erase(found, 6); // ".scene" 문자열은 6개의 문자로 이루어져 있습니다.
+			}
+
+			m_SceneName = fileName;
 		}
 
 		// close
