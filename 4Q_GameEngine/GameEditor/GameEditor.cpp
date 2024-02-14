@@ -18,10 +18,12 @@
 #include "../Engine/Sound.h"
 #include "../Engine/RenderManager.h"
 #include "../Engine/Sprite2D.h"
-#include "../Engine/FreeCameraScript.h"
-#include "../Engine/SampleScript.h"
 #include "../Engine/RigidBody.h"
 #include "../Engine/UI.h"
+
+// Script Headers
+#include "../Engine/SampleScript.h"
+#include "../Engine/FreeCameraScript.h"
 #include "../Engine/PlayerScript.h"
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
@@ -594,6 +596,14 @@ void GameEditor::LoadWorld(const std::string& fileName)
 				else if (componentName == "TestUIScript")
 				{
 					AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
+				}
+				else if (componentName == "RigidBody")
+				{
+					AssignComponents<RigidBody>(myEntity, component["RigidBody"][0]);
+				}
+				else if (componentName == "UI")
+				{
+					AssignComponents<UI>(myEntity, component["UI"][0]);
 				}
 			}
 		}

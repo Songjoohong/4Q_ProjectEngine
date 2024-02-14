@@ -15,6 +15,13 @@
 #include "../Engine/Sound.h"
 #include "../Engine/Sprite2D.h"
 #include "../Engine/CameraScript.h"
+#include "../Engine/PlayerScript.h"
+#include "../Engine/POVCameraScript.h"
+#include "../Engine/TestUIScript.h"
+#include "../Engine/FreeCameraScript.h"
+#include "../Engine/RigidBody.h"
+#include "../Engine/UI.h"
+
 #include "NameManager.h"
 #include "ImGuizmo.h"
 #include <set>
@@ -124,9 +131,34 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<Sound>(prefabEntity, component["Sound"][0]);
 				}
-				else if (componentName == "CameraScript")
+				else if (componentName == "FreeCameraScript")
 				{
-					AssignComponents<CameraScript>(prefabEntity, component["CameraScript"][0]);
+					AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
+				}
+				else if (componentName == "SampleScript")
+				{
+					AssignComponents<SampleScript>(prefabEntity, component["SampleScript"][0]);
+				}
+				else if (componentName == "PlayerScript")
+				{
+					AssignComponents<PlayerScript>(prefabEntity, component["PlayerScript"][0]);
+				}
+				else if (componentName == "POVCameraScript")
+				{
+					AssignComponents<POVCameraScript>(prefabEntity, component["POVCameraScript"][0]);
+				}
+				else if (componentName == "TestUIScript")
+				{
+					AssignComponents<TestUIScript>(prefabEntity, component["TestUIScript"][0]);
+				}
+				else if (componentName == "RigidBody")
+				{
+					AssignComponents<RigidBody>(prefabEntity, component["RigidBody"][0]);
+				}
+				else if (componentName == "UI")
+				{
+					AssignComponents<UI>(prefabEntity, component["UI"][0]);
 				}
 			}
 			m_prefabContainer.push_back({ prefabEntity, oldID });

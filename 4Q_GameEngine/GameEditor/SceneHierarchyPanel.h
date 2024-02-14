@@ -22,6 +22,11 @@ public:
 	void SetPrefabFileName(ECS::Entity* entity);
 	void DragDropEntityHierarchy(ECS::Entity* entity);
 
+	void DuplicateEntity(ECS::Entity* selectedEntity);
+
+	template<typename Component>
+	void AssignComponents(ECS::Entity* duplicatedEntity, ECS::Entity* selectedEntity);
+
 private:
 	template <typename T>
 	void DisplayAddComponentEntry(const std::string& entryName);
@@ -45,6 +50,23 @@ private:
 	std::shared_ptr<NameManager> m_NameManager;
 	bool m_OpenTextPopup = false;
 };
+
+template<typename Component>
+inline void SceneHierarchyPanel::AssignComponents(ECS::Entity* duplicatedEntity, ECS::Entity* selectedEntity)
+{
+	if (selectedEntity->has<Component>() && std::is_base_of_v<Script, Component>)
+	{
+		duplicatedEntity->Assign<Component>(duplicatedEntity);
+	}
+	else if (selectedEntity->has<Component>())
+	{
+		duplicatedEntity->Assign<Component>();
+
+		auto component = selectedEntity->get<Component>().get();
+
+		duplicatedEntity->get<Component>().get() = component;
+	}
+}
 
 template <typename T>
 void SceneHierarchyPanel::DisplayAddComponentEntry(const std::string& entryName)
