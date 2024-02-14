@@ -15,16 +15,23 @@
 #include "../Engine/Movement.h"
 #include "../Engine/StaticMesh.h"
 #include "../Engine/Debug.h"
-#include "../Engine/TransformSystem.h"
-#include "../Engine/CameraSystem.h"
-#include "../Engine/MovementSystem.h"
 #include "../Engine/Sound.h"
 #include "../Engine/RenderManager.h"
-#include "../Engine/ScriptSystem.h"
 #include "../Engine/Sprite2D.h"
-#include "../Engine/CameraScript.h"
-#include "../Engine/RenderSystem.h"
+#include "../Engine/FreeCameraScript.h"
 #include "../Engine/SampleScript.h"
+#include "../Engine/RigidBody.h"
+#include "../Engine/UI.h"
+#include "../Engine/PlayerScript.h"
+#include "../Engine/POVCameraScript.h"
+#include "../Engine/TestUIScript.h"
+
+// system Headers
+#include "../Engine/MovementSystem.h"
+#include "../Engine/TransformSystem.h"
+#include "../Engine/CameraSystem.h"
+#include "../Engine/RenderSystem.h"
+#include "../Engine/ScriptSystem.h"
 
 #include "Prefab.h"
 #include "NameManager.h"
@@ -241,11 +248,6 @@ void GameEditor::RenderImGui()
 					m_isScenePopup = true;
 				}
 
-				if (ImGui::MenuItem("ClearPrefabFile"))
-				{
-					m_PrefabManager->DeleteAllDataInJsonFile("Prefab.json");
-				}
-
 				ImGui::Separator();
 
 				if (ImGui::MenuItem("Exit"))
@@ -264,7 +266,6 @@ void GameEditor::RenderImGui()
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
 
-
 		// 테스트용 ~~
 		ImGui::Text(m_SceneName.c_str());		// TODO: 에디터에 현재 화면에 표시중인 씬 정보 표기하기
 
@@ -278,7 +279,6 @@ void GameEditor::RenderImGui()
 		ShowSaveSceneAsPopup();
 
 		ImGui::ShowDemoWindow();
-
 		ImGui::End();
 
 		/* Viewport ------------------------ */
@@ -293,6 +293,7 @@ void GameEditor::RenderImGui()
 		{
 			m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
 			m_CurrentSnapMode = &m_TranslationSnapValue;
+			TranslationSnapValue = 10.0f;
 		}
 		else if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_X))
 		{
@@ -333,18 +334,10 @@ void GameEditor::RenderImGui()
 			float Fscale[3] = { tc.m_Scale.m_X, tc.m_Scale.m_Y, tc.m_Scale.m_Z };
 			ImGuizmo::RecomposeMatrixFromComponents(Ftranslation, Frotation, Fscale, *transform.m);
 
-			bool snap = ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_LeftShift);
+			bool snap = InputManager::GetInstance()->GetKey(Key::CTRL);
+			std::cout << snap << std::endl;
 
-			float snapValue = 100.0f;
-
-			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
-			{
-				snapValue = 45.0f;
-			}
-
-			float snapValues[3] = { snapValue, snapValue, snapValue };
-
-			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, *transform.m, 0 , snap ? snapValues : nullptr);
+			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, *transform.m, nullptr , snap ? &m_CurrentSnapMode->m_X : nullptr);
 
 			if (ImGuizmo::IsUsing())
 			{
@@ -389,7 +382,29 @@ void GameEditor::RenderImGui()
 		}
 
 		ImGui::End();
+
 		ImGui::PopStyleVar();
+
+		ImGui::Begin("Settings");
+
+		intTransSnapValue = static_cast<int>(m_TranslationSnapValue.m_X);
+		ImGui::SliderInt("Translation SnapVale", &intTransSnapValue, 0.0f, 100.f);
+		m_TranslationSnapValue.m_X = static_cast<float>(intTransSnapValue);
+		m_TranslationSnapValue.m_Y = static_cast<float>(intTransSnapValue);
+		m_TranslationSnapValue.m_Z = static_cast<float>(intTransSnapValue);
+
+		intRotSnapValue = static_cast<int>(m_RotationSnapValue.m_X);
+		ImGui::SliderInt("Rotation SnapVale", &intRotSnapValue, 0.0f, 100.f);
+		m_RotationSnapValue.m_X = static_cast<float>(intRotSnapValue);
+		m_RotationSnapValue.m_Y = static_cast<float>(intRotSnapValue);
+		m_RotationSnapValue.m_Z = static_cast<float>(intRotSnapValue);
+
+		intScaleSnapValue = static_cast<int>(m_ScaleSnapValue.m_X);
+		ImGui::SliderInt("Scale SnapVale", &intScaleSnapValue, 0.0f, 100.f);
+		m_ScaleSnapValue.m_X = static_cast<float>(intScaleSnapValue);
+		m_ScaleSnapValue.m_Y = static_cast<float>(intScaleSnapValue);
+		m_ScaleSnapValue.m_Z = static_cast<float>(intScaleSnapValue);
+		ImGui::End();
 
 	}
 	else
@@ -480,6 +495,8 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<Sound>(entity, worldData);
 		SaveComponents<Sprite2D>(entity, worldData);
 		SaveComponents<Script>(entity, worldData);
+		SaveComponents<RigidBody>(entity, worldData);
+		SaveComponents<UI>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -492,6 +509,13 @@ void GameEditor::LoadWorld(const std::string& fileName)
 {
 	// 월드 생성
 	m_EditorWorld = ECS::World::CreateWorld(fileName);
+	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+	m_NameManager->ClearContainer();
+	m_EditorWorld->registerSystem(new ScriptSystem);
+	m_EditorWorld->registerSystem(new RenderSystem);
+	m_EditorWorld->registerSystem(new TransformSystem);
+	m_EditorWorld->registerSystem(new MovementSystem);
+	m_EditorWorld->registerSystem(new CameraSystem);
 
 	m_NameManager->ClearContainer();
 
@@ -560,13 +584,26 @@ void GameEditor::LoadWorld(const std::string& fileName)
 				{
 					AssignComponents<Sound>(myEntity, component["Sound"][0]);
 				}
-				else if (componentName == "CameraScript")
+				else if (componentName == "FreeCameraScript")
 				{
-					AssignComponents<CameraScript>(myEntity, component["CameraScript"][0]);
+					AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
+					myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
 				}
 				else if (componentName == "SampleScript")
 				{
 					AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
+				}
+				else if (componentName == "PlayerScript")
+				{
+					AssignComponents<PlayerScript>(myEntity, component["PlayerScript"][0]);
+				}
+				else if (componentName == "POVCameraScript")
+				{
+					AssignComponents<POVCameraScript>(myEntity, component["POVCameraScript"][0]);
+				}
+				else if (componentName == "TestUIScript")
+				{
+					AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
 				}
 			}
 		}
@@ -591,7 +628,7 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	// HierarchyPanel에 등록
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
-	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+
 }
 
 void GameEditor::ShowSceneDialog()
@@ -714,17 +751,17 @@ void GameEditor::NewScene()
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
 
+	m_Box->Assign<Transform>(pos1);
+	m_Pot->Assign<Transform>(pos2);
+	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
 	SetParent(m_Pot, m_Box);
 
 	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
 
 	SetParent(m_Wall, m_Pot);
 
-	m_Box->Assign<Transform>(pos1);
-	m_Pot->Assign<Transform>(pos2);
 
 	m_Box->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
-	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
 	m_Wall->Assign<Debug>();
 
 	m_Camera->Assign<Light>();
@@ -740,6 +777,19 @@ void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
 {
 	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
 	child->get<EntityIdentifier>().get().m_HasParent = true;
+
+
+	auto matrix = child->get<Transform>().get().m_RelativeMatrix.ConvertToMatrix() * DirectX::XMMatrixInverse(nullptr, parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix());
+
+	float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
+	float fRotation[3] = { 0.0f, 0.0f, 0.0f };
+	float fScale[3] = { 0.0f, 0.0f, 0.0f };
+
+	ImGuizmo::DecomposeMatrixToComponents(*matrix.m, fTranslation, fRotation, fScale);
+
+	child->get<Transform>()->m_Position = { fTranslation[0],fTranslation[1],fTranslation[2] };
+	child->get<Transform>()->m_Rotation = { fRotation[0],fRotation[1],fRotation[2] };
+	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
 
 	parent->addChild(child);
 }

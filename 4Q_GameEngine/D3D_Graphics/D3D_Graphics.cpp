@@ -50,7 +50,7 @@ void Renderer::Clear(Math::Vector3 color)
 	//m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
-void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
+void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 {
 	for (auto& model : m_pStaticModels)
 	{
@@ -136,7 +136,7 @@ void Renderer::DeleteSpriteInformation(int id)
         }));
 }
 
-void Renderer::CreateModel(string filename)
+void Renderer::CreateModel(std::string filename)
 {
 	ResourceManager::Instance->CreateModel(filename);
 	StaticModel* pModel = new StaticModel();
@@ -223,7 +223,7 @@ DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
         (540.f - matrix._42), matrix._43 };
 }
 
-const wchar_t* Renderer::ConvertToWchar(const string& str) const
+const wchar_t* Renderer::ConvertToWchar(const std::string& str) const
 {
 	const int bufferSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
 	const auto finalText = new wchar_t[bufferSize];
@@ -392,7 +392,7 @@ void Renderer::RenderQueueSort()
 		});
 }
 
-void Renderer::SetEnvironment(string filename)
+void Renderer::SetEnvironment(std::string filename)
 {
 	auto it = ResourceManager::Instance->m_pOriginalEnvironments.find(filename);
 	if (it != ResourceManager::Instance->m_pOriginalEnvironments.end())
@@ -487,7 +487,7 @@ void Renderer::RenderText() const
 
 		delete[] text;
 	}
-	string Memory;
+	std::string Memory;
 	GetVideoMemoryInfo(Memory);
 	const wchar_t* videoMemory = ConvertToWchar(Memory);
 	m_spriteFont->DrawString(m_spriteBatch.get(), videoMemory, DirectX::XMFLOAT2(0.f,0.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
@@ -499,12 +499,12 @@ void Renderer::RenderText() const
 	delete[] systemMemory;
 
 	float FPS = TimeManager::GetInstance()->GetFPS();
-	string strFPS = "Frame per Second : " + std::to_string(FPS);
+	std::string strFPS = "Frame per Second : " + std::to_string(FPS);
 	const wchar_t* wFPS = ConvertToWchar(strFPS);
 	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
 	delete[] wFPS;
 
-	string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
+	std::string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
 	const wchar_t* wMousePos = ConvertToWchar(mousePos);
 	m_spriteFont->DrawString(m_spriteBatch.get(), wMousePos, XMFLOAT2(0.f, 60.f), Colors::White, 0.f, XMFLOAT2(0.f, 0.f), 0.7f);
 }
@@ -747,7 +747,7 @@ void Renderer::RenderImgui()
 		// Shadow
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
-		string str = to_string(m_shadowDirection.x) + ", " + to_string(m_shadowDirection.y) + ", " + to_string(m_shadowDirection.z);
+		std::string str = std::to_string(m_shadowDirection.x) + ", " + std::to_string(m_shadowDirection.y) + ", " + std::to_string(m_shadowDirection.z);
 		ImGui::Text("ShadowDirection : %s", str.c_str());
 		ImGui::End();
 	}

@@ -34,6 +34,8 @@ private:
 
 	void ShowStaticModelDialog();
 
+	void SetParent(ECS::Entity* child, ECS::Entity* parent);
+
 	bool m_IsDialogOpen = false;
 
 private:

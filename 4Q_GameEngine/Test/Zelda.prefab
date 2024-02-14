@@ -1,13 +1,13 @@
 {
     "Prefabs": [
         {
-            "Zelda2": [
+            "Empty Entity": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
                             "m_EntityId": 5,
-                            "m_EntityName": "Zelda2",
+                            "m_EntityName": "Empty Entity",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -21,8 +21,8 @@
                             "m_FreezeRotationY": false,
                             "m_FreezeRotationZ": false,
                             "m_Position": {
-                                "m_X": 100.0,
-                                "m_Y": 100.0,
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
                                 "m_Z": 0.0
                             },
                             "m_Rotation": {
@@ -44,6 +44,142 @@
                             "m_ComponentName": "StaticMesh",
                             "m_FileName": "FBXLoad_Test/fbx/zeldaPosed001.fbx",
                             "m_IsModelCreated": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Box": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 2,
+                            "m_EntityName": "Box",
+                            "m_HasParent": true,
+                            "m_ParentEntityId": 5
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
+                            "m_Position": {
+                                "m_X": 1.0,
+                                "m_Y": 3.0,
+                                "m_Z": 5.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": -0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "StaticMesh": [
+                        {
+                            "m_ComponentName": "StaticMesh",
+                            "m_FileName": "FBXLoad_Test/fbx/box.fbx",
+                            "m_IsModelCreated": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Pot": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 3,
+                            "m_EntityName": "Pot",
+                            "m_HasParent": true,
+                            "m_ParentEntityId": 2
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
+                            "m_Position": {
+                                "m_X": 9.0,
+                                "m_Y": 27.0,
+                                "m_Z": 45.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": -0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Wall": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 4,
+                            "m_EntityName": "Wall",
+                            "m_HasParent": true,
+                            "m_ParentEntityId": 3
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
+                            "m_Position": {
+                                "m_X": -10.0,
+                                "m_Y": -30.0,
+                                "m_Z": -100.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": -0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 100.0,
+                                "m_Y": 100.0,
+                                "m_Z": 100.0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Debug": [
+                        {
+                            "m_ComponentName": "Debug"
                         }
                     ]
                 }

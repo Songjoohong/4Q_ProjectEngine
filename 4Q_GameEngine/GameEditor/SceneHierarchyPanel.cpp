@@ -8,9 +8,16 @@
 #include "../Engine/Script.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
+#include "../Engine/Debug.h"
+#include "../Engine/Movement.h"
+#include "../Engine/RigidBody.h"
+#include "../Engine/Sound.h"
+#include "../Engine/Sprite2D.h"
+#include "../Engine/UI.h"
+
 #include "Prefab.h"
 #include "NameManager.h"
-
+#include "ImGuizmo.h"
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
 	SetContext(context, m_PrefabManager, m_NameManager);
@@ -56,7 +63,7 @@ void SceneHierarchyPanel::RenderImGui()
 			{
 				ECS::Entity* entity = m_Context->create();
 
-				entity->Assign<EntityIdentifier>();	// 기본적으로 생성한다. (이름정보 때문)
+				entity->Assign<EntityIdentifier>(entity->getEntityId());	// 기본적으로 생성한다. (이름정보 때문)
 				m_NameManager->AddEntityName(entity);
 				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Transform은 기본적으로 생성해준다.
 			}
@@ -173,9 +180,12 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 				return;
 			}
 
-			picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
-			picked->get<EntityIdentifier>().get().m_HasParent = true;
-			target->addChild(picked);
+			//picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
+			//picked->get<EntityIdentifier>().get().m_HasParent = true;
+			//target->addChild(picked);
+
+			SetParent(picked, target);
+
 			m_SelectionContext = nullptr;
 			
 		}
@@ -388,8 +398,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	ImGui::PushItemWidth(-1);
 	ImGui::SameLine();
 
-
-
 	if (ImGui::Button("Add Component"))
 		ImGui::OpenPopup("AddComponent");
 
@@ -438,11 +446,54 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
 	{
-		// 이것도 사용법을..
+		switch (component->m_CollisionType)
+		{
+		case(0):
+			ImGui::Text("CollisionType : Dynamic");
+			break;
+		case(1):
+			ImGui::Text("CollisionType : Static");
+			break;
+		case(2):
+			ImGui::Text("CollisionType : Plane");
+			break;
+		}
+
+		switch (component->m_CollisionMask)
+		{
+		case(0):
+			ImGui::Text("CollisionMask : Player");
+			break;
+		case(1):
+			ImGui::Text("CollisionMask : Wall");
+			break;
+		case(2):
+			ImGui::Text("CollisionMask : Ground");
+			break;
+		case(3):
+			ImGui::Text("CollisionMask : Slope");
+			break;
+		case(4):
+			ImGui::Text("CollisionMask : Object");
+			break;
+		case(5):
+			ImGui::Text("CollisionMask : Block");
+			break;
+		}
+
+		DrawVec3Control("Center", component->m_Center);
+		DrawVec3Control("Size", component->m_Size);
+		DrawVec3Control("Rotation", component->m_Rotation);
+
+		std::string trueOrFalse = component->m_IsTrigger ? "true" : "false";
+		std::string Trigger = "IsTrigger : " + trueOrFalse;
+		ImGui::Text(Trigger.c_str());
+
 	});
 
 	DrawComponent<Camera>("Camera", entity, [](auto component)
 	{
+
 	});
 
 	DrawComponent<Light>("Light", entity, [](auto component)
@@ -478,7 +529,12 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Script>("Script", entity, [](auto component)
 	{
-		const char* scripts[] = { "CameraScript", "SampleScript" };
+		const char* scripts[] = { 
+			"FreeCameraScript"
+			, "SampleScript"
+			, "PlayerScript"
+			, "POVCameraScript"
+			, "TestUIScript" };
 
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
@@ -494,6 +550,16 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		ImGui::Text(s.c_str());
 	});
+
+	DrawComponent<Debug>("Debug", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Debug>("MoveMent", entity, [](auto component)
+	{
+
+	});
 }
 
 void SceneHierarchyPanel::ShowStaticModelDialog()
@@ -504,7 +570,7 @@ void SceneHierarchyPanel::ShowStaticModelDialog()
 
 	if (m_IsDialogOpen)
 	{
-		IGFD::FileDialogConfig config; config.path = ".";
+		IGFD::FileDialogConfig config; config.path = "../Resource/FBXLoad_Test/fbx";
 		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".fbx", config);
 	}
 
@@ -523,5 +589,26 @@ void SceneHierarchyPanel::ShowStaticModelDialog()
 		ImGuiFileDialog::Instance()->Close();
 		m_IsDialogOpen = false;
 	}
+}
+
+void SceneHierarchyPanel::SetParent(ECS::Entity* child, ECS::Entity* parent)
+{
+	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
+	child->get<EntityIdentifier>().get().m_HasParent = true;
+
+
+	auto matrix = child->get<Transform>().get().m_RelativeMatrix.ConvertToMatrix() * DirectX::XMMatrixInverse(nullptr, parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix());
+
+	float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
+	float fRotation[3] = { 0.0f, 0.0f, 0.0f };
+	float fScale[3] = { 0.0f, 0.0f, 0.0f };
+
+	ImGuizmo::DecomposeMatrixToComponents(*matrix.m, fTranslation, fRotation, fScale);
+
+	child->get<Transform>()->m_Position = { fTranslation[0],fTranslation[1],fTranslation[2] };
+	child->get<Transform>()->m_Rotation = { fRotation[0],fRotation[1],fRotation[2] };
+	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
+
+	parent->addChild(child);
 }
 

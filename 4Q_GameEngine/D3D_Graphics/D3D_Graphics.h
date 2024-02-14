@@ -168,11 +168,11 @@ public:
 	void Clear(Math::Vector3 color);
 
 	//리소스 경로 설정 및 리턴
-	void SetPath(string filePath) { BasePath = filePath; }
-	string GetPath() { return BasePath; }
+	void SetPath(std::string filePath) { BasePath = filePath; }
+	std::string GetPath() { return BasePath; }
 
 	//빈 모델에 정보 입력
-	void AddStaticModel(string filename, const Math::Matrix& worldTM);
+	void AddStaticModel(std::string filename, const Math::Matrix& worldTM);
 
 	//디버그용 콜라이더 박스
 	void AddColliderBox(Vector3 center, Vector3 extents, bool isCollision);
@@ -192,7 +192,7 @@ public:
 	void DeleteSpriteInformation(int id);
 
 	//모델 만들어서 모델 리스트에 추가
-	void CreateModel(string filename);
+	void CreateModel(std::string filename);
 
 
 	void CreateViewport(UINT width, UINT height);
@@ -205,7 +205,7 @@ public:
 	//월드 좌표 ndc로 변환
 	DirectX::XMFLOAT3 ConvertToNDC(const Vector3D& pos) const;
 
-	const wchar_t* ConvertToWchar(const string& str) const;
+	const wchar_t* ConvertToWchar(const std::string& str) const;
 
 
 	void FrustumCulling(StaticModel* model);
@@ -224,7 +224,7 @@ public:
 	void ShadowRender();
 
 	//환경맵 세팅
-	void SetEnvironment(string filename);
+	void SetEnvironment(std::string filename);
 
 	void Update();
 
@@ -255,8 +255,8 @@ public:
 	// minjeong : Create Shadow VS & PS
 	void CreateShadowVS();
 	void CreateShadowPS();private:
-	string BasePath = "../Resource/";
+		std::string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
-	vector<DebugInformation> m_debugs;
-	vector<SpriteInformation> m_sprites;
+	std::vector<DebugInformation> m_debugs;
+	std::vector<SpriteInformation> m_sprites;
 };
