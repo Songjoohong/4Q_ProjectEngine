@@ -24,11 +24,7 @@ public:
 
 	// Player 관련 --> 시간 된다면 따로 빼기
 	void CheckObject(Vector3D dir);
-	bool CheckGround(PxVec3 dir);
-	bool CheckStairs(PxVec3 dir);
-	void SetState(bool is) { TestStairs = is; }
-	bool GetState() { return TestStairs; }
-	bool TestStairs = false; //Test
+	PxVec3 CheckSlope(PxVec3 dir);
 
 	void InitFilterDatas();
 	void CreateCollider(BoxCollider* boxcollider, int entId);

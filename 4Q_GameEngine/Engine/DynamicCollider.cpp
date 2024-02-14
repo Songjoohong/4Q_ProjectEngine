@@ -48,7 +48,6 @@ void DynamicCollider::UpdatePhysics()
 	m_pOwner->m_Rotation.SetY(pxTrans.q.y * angle);
 	m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
 
-
 }
 
 void DynamicCollider::SetDensity(float mass)
@@ -68,69 +67,51 @@ void DynamicCollider::AddForce(Vector3D dir)
 	m_CurrentDir.y = dir.GetY();
 	m_CurrentDir.z = dir.GetZ();
 
-	CheckTerrain();
+	m_CurrentPosition = m_Transform.p;
+
+	m_IsSlope = CheckSlope();
 
 	if (m_CurrentDir != checkmove)
 	{
-		if (m_MoveStairs)
+		if (m_PrevPosition.y < m_CurrentPosition.y)
 		{
-			PxVec3 curPos = m_Rigid->getGlobalPose().p;
-			m_Rigid->setGlobalPose(PxTransform(curPos.x, curPos.y + m_CurrentDir.y/60.f, curPos.z + m_CurrentDir.z));
+			if (m_IsSlope)
+			{
+				m_CurrentDir.y = 1.f;
+				m_CurrentDir.normalize();
+				m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 20000.f, PxForceMode::eIMPULSE, true);
+			}
+			else
+				m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 2.f, PxForceMode::eIMPULSE, true);
+		}
+		else if (m_PrevPosition.y > m_CurrentPosition.y)
+		{
+			if (m_IsSlope)
+			{
+				m_CurrentDir.y = -1.f;
+				m_CurrentDir.normalize();
+				m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 2.f, PxForceMode::eIMPULSE, true);
+			}
+			else
+				m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 2.f, PxForceMode::eIMPULSE, true);
 		}
 		else
+		{
 			m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 2.f, PxForceMode::eIMPULSE, true);
+		}
 
 		m_bKeyUp = false;
 	}
 	else if (m_CurrentDir == checkmove && m_bKeyUp == false)
 	{
 		m_bKeyUp = true;
-		m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass() * 10.f, PxForceMode::eIMPULSE, true);
+		m_PrevPosition = { 0,0,0 };
+		m_CurrentPosition = { 0,0,0 };
+
+		m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass() * 20.f, PxForceMode::eIMPULSE, true);
 	}
 
-	m_PrevDir = m_CurrentDir;
-}
-
-void DynamicCollider::CheckTerrain()
-{
-	PxVec3 raycastPos = m_Transform.p;
-	//raycastPos.y -= 50.f;
-	raycastPos.z -= m_Scale.GetZ() / 2.f;
-	m_IsGround = PhysicsManager::GetInstance()->CheckGround(raycastPos);
-	//m_IsStairs = PhysicsManager::GetInstance()->CheckStairs(raycastPos);
-	m_IsStairs = PhysicsManager::GetInstance()->GetState();
-
-	if (m_IsGround && !m_IsStairs)
-	{
-		m_Rigid->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, true);
-	}
-	else if (!m_IsGround && m_IsStairs)
-		m_Rigid->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, false);
-	else if (!m_IsGround)
-	{
-		m_Rigid->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, false);
-	}
-
-	if (m_IsStairs)
-	{
-		if (m_CurrentDir.z < 0)
-		{
-			m_MoveStairs = true;
-			m_CurrentDir.y = 1.f;
-		}
-		else if (m_CurrentDir.z > 0)
-		{
-			m_MoveStairs = true;
-			m_CurrentDir.y = -1.f;
-		}
-		else
-		{
-			m_MoveStairs = false;
-		}
-	}
-	else
-		m_MoveStairs = false;
-
+	m_PrevPosition = m_CurrentPosition;
 }
 
 void DynamicCollider::FreezeRotation(bool x_active, bool y_active, bool z_active)
@@ -145,5 +126,24 @@ void DynamicCollider::FreezeLinear(bool x_active, bool y_active, bool z_active)
 	m_Rigid->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_X, x_active);
 	m_Rigid->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, y_active);
 	m_Rigid->setRigidDynamicLockFlag(PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, z_active);
+}
+
+bool DynamicCollider::CheckSlope()
+{
+	PxScene* scene = PhysicsManager::GetInstance()->GetPxScene();
+	PxRaycastBuffer hit;
+	PxVec3 rayPoint = { m_Transform.p.x + m_CurrentDir.x * m_Scale.GetX(),m_Transform.p.y + m_CurrentDir.y * m_Scale.GetY(),m_Transform.p.z + m_CurrentDir.z * m_Scale.GetZ() };
+	bool bHit = scene->raycast(rayPoint, m_CurrentDir, 5.f, hit, PxHitFlag::eDEFAULT);
+
+	if (bHit)
+	{
+		void* data = hit.block.actor->userData;
+		void* objType = (void*)Collision_Mask::SLOPE;
+
+		if (data = objType)
+			return true;
+	}
+
+	return false;
 }
 

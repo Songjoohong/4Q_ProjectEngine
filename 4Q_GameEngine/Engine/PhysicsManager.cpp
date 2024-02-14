@@ -4,22 +4,17 @@
 #include "DynamicCollider.h"
 #include "StaticCollider.h"
 
-PxU32 g_Collision_Mask_Player=1;
-PxU32 g_Collision_Mask_Ground=2;
-PxU32 g_Collision_Mask_Slope=3;
-PxU32 g_Collision_Mask_Object=4;
-PxU32 g_Collision_Mask_Block=5;
+PxU32 g_Collision_Mask_Player = 1;
+PxU32 g_Collision_Mask_Ground = 2;
+PxU32 g_Collision_Mask_Slope = 3;
+PxU32 g_Collision_Mask_Object = 4;
+PxU32 g_Collision_Mask_Block = 5;
 
 PxFilterFlags CustomFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
 {
 	// 플레이어와 다른 물체들은 충돌 처리 / 나머지는 물리X 
 	if (filterData0.word0 == g_Collision_Mask_Player || filterData1.word0 == g_Collision_Mask_Player)
 	{
-		if (filterData0.word0 == g_Collision_Mask_Slope || filterData1.word0 == g_Collision_Mask_Slope)
-			PhysicsManager::GetInstance()->SetState(true);
-		else
-			PhysicsManager::GetInstance()->SetState(false);
-
 		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
 		return PxFilterFlag::eDEFAULT;
 	}
@@ -97,33 +92,9 @@ void PhysicsManager::CheckObject(Vector3D dir)
 	}
 }
 
-bool PhysicsManager::CheckGround(PxVec3 dir)
+PxVec3 PhysicsManager::CheckSlope(PxVec3 dir)
 {
-	PxRaycastBuffer groundhit;
-	bool bHit = m_pPxScene->raycast(dir, PxVec3(0.f, -1.f, 0.f), 5.f, groundhit, PxHitFlag::eDEFAULT);
-
-	if (bHit)
-	{
-		void* data = groundhit.block.actor->userData;
-		if (data != (void*)0&& data != (void*)1)
-		{
-			PxVec3 normal = groundhit.block.normal;
-			{
-				if (normal.y > 0.f)
-				{
-					return true;
-				}
-			}
-
-		}
-	}
-
-	return false;
-}
-
-bool PhysicsManager::CheckStairs(PxVec3 dir)
-{
-	PxRaycastBuffer hit;
+	/*PxRaycastBuffer hit;
 	bool bhit2 = m_pPxScene->raycast(dir, PxVec3(0.0f, 0.0f, -1.0f), 300.f, hit, PxHitFlag::eDEFAULT);
 	if (bhit2)
 	{
@@ -132,13 +103,17 @@ bool PhysicsManager::CheckStairs(PxVec3 dir)
 
 		if (data == SlopeData)
 		{
-			return true;
-		}
-		else
-		{
-			return false;
+			m_pPxScene->setGravity(PxVec3(0, 0, 0));
+			PxVec3 slopeNormal = hit.block.normal;
+			return slopeNormal;
 		}
 	}
+
+	m_pPxScene->setGravity(PxVec3(0, -981.f, 0));
+	PxVec3 slopeNormal = { 0, 0, 0 };
+	return slopeNormal;*/
+	PxVec3 slopeNormal = { 0, 0, 0 };
+	return slopeNormal;
 }
 
 void PhysicsManager::InitFilterDatas()
