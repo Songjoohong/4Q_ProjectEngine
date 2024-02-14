@@ -50,6 +50,7 @@ public:
 	void NewScene();
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
+	void SetParentTransform(ECS::Entity* child, ECS::Entity* parent);
 
 	std::shared_ptr<PrefabManager> m_PrefabManager;
 	std::shared_ptr< NameManager> m_NameManager;
@@ -60,7 +61,6 @@ public:
 
 	Vector3D* m_CurrentSnapMode = &m_TranslationSnapValue;
 private:
-	Renderer* m_Renderer = nullptr;
 
 	std::string basePath = "../Resource/";
 
@@ -85,11 +85,7 @@ private:
 	int	intTransSnapValue = 0;
 	int	intRotSnapValue = 0;
 	int	intScaleSnapValue = 0;
-	// TextEntities
-	ECS::Entity* m_Camera;
-	ECS::Entity* m_Box;
-	ECS::Entity* m_Pot;
-	ECS::Entity* m_Wall;
+
 };
 
 template<typename ComponentType>

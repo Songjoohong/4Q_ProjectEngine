@@ -124,11 +124,13 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	//Free Camera
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
+	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<FreeCameraScript>(ent);
+	ent->get<Script>()->m_ComponentName = "FreeCameraScript";
+	ent->get<Script>()->m_IsFreeCamera = true;
 	ent->Assign<Movement>();
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();

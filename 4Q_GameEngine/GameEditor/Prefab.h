@@ -32,7 +32,7 @@ public:
 
     ECS::Entity* FindEntityByName(std::string entityName);
 public:
-	std::string basePath = "../Test/";
+	std::string basePath = "/prefab/";
     json prefabData;
 
     ECS::World* m_CurrentWorld;

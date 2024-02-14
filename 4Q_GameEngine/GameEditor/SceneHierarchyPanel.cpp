@@ -26,9 +26,16 @@
 #include "Prefab.h"
 #include "NameManager.h"
 #include "ImGuizmo.h"
+
+#include <cassert>
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
 	SetContext(context, m_PrefabManager, m_NameManager);
+}
+
+SceneHierarchyPanel::~SceneHierarchyPanel()
+{
+	std::remove("../Test/CopiedEntity.json");
 }
 
 void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab, std::shared_ptr<NameManager> nameManager)
@@ -79,6 +86,20 @@ void SceneHierarchyPanel::RenderImGui()
 			ImGui::EndPopup();
 		}
 	}
+
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_C))
+	{
+		m_PrefabManager->SavePrefab(m_SelectionContext, "CopiedEntity.json");
+	}
+
+	bool isFileExists = FileExists("../Test/CopiedEntity.json");
+	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_V) && isFileExists)
+	{
+		m_PrefabManager->LoadPrefab("CopiedEntity.json");
+		m_PrefabManager->m_prefabContainer.clear();
+	}
+
 	ImGui::End();	/* Hierarchy End */
 
 	ImGui::Begin("Properties");		
@@ -202,35 +223,10 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 	}
 }
 
-void SceneHierarchyPanel::DuplicateEntity(ECS::Entity* selectedEntity)
+bool SceneHierarchyPanel::FileExists(const std::string& filename)
 {
-	Entity* copiedEntity = m_Context->create();
-
-	copiedEntity->Assign<EntityIdentifier>(copiedEntity->getEntityId(), selectedEntity->get<EntityIdentifier>()->m_EntityName);
-
-	copiedEntity->get<EntityIdentifier>()->m_ComponentName = selectedEntity->get<EntityIdentifier>()->m_ComponentName;
-	copiedEntity->get<EntityIdentifier>()->m_HasParent = selectedEntity->get<EntityIdentifier>()->m_HasParent;
-
-	AssignComponents<Transform>(copiedEntity, selectedEntity);
-	AssignComponents<StaticMesh>(copiedEntity, selectedEntity);
-	AssignComponents<BoxCollider>(copiedEntity, selectedEntity);
-	AssignComponents<Camera>(copiedEntity, selectedEntity);
-	AssignComponents<Light>(copiedEntity, selectedEntity);
-	AssignComponents<Movement>(copiedEntity, selectedEntity);
-	AssignComponents<Debug>(copiedEntity, selectedEntity);
-	AssignComponents<Sound>(copiedEntity, selectedEntity);
-	AssignComponents<Sprite2D>(copiedEntity, selectedEntity);
-	AssignComponents<RigidBody>(copiedEntity, selectedEntity);
-	AssignComponents<UI>(copiedEntity, selectedEntity);
-
-	// Script Assign
-	AssignComponents<SampleScript>(copiedEntity, selectedEntity);
-	AssignComponents<FreeCameraScript>(copiedEntity, selectedEntity);
-	AssignComponents<PlayerScript>(copiedEntity, selectedEntity);
-	AssignComponents<POVCameraScript>(copiedEntity, selectedEntity);
-	AssignComponents<TestUIScript>(copiedEntity, selectedEntity);
-
-
+	std::ifstream file(filename);
+	return file.good();
 }
 
 void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지 않으면 함수 종료시 객체의 소멸자가 호출되어서 오류가 뜰 수 있음.
@@ -280,7 +276,6 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 
 	DragDropEntityHierarchy(entity);
 
-	//if()
 
 	// 노드가 펼쳐졌다면 자식도 출력.
 	if (opened)

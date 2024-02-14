@@ -48,7 +48,6 @@ GameEditor::GameEditor(HINSTANCE hInstance)
 GameEditor::~GameEditor()
 {
 	m_EditorWorld->DestroyWorld();
-	delete m_Renderer;
 	ShutDownImGui();
 }
 
@@ -78,31 +77,8 @@ bool GameEditor::Initialize(UINT width, UINT height)
 {
 	__super::Initialize(width, height);
 
-	m_Renderer = Renderer::Instance;
-	
-	//m_EditorWorld = ECS::World::CreateWorld("TestScene1.json");
+	NewScene();
 
-	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();		// test
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);			// test
-
-	//m_EditorWorld->registerSystem(new RenderSystem);
-	//m_EditorWorld->registerSystem(new TransformSystem);
-
-	//WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
-
-
-
-	m_NameManager = std::make_shared<NameManager>();
-	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld, m_NameManager);
-
-	for (const auto& entity : m_EditorWorld->GetEntities())
-	{
-		m_NameManager->AddEntityName(entity);
-	}
-
-	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
-	m_ContentsBrowserPanel.Initialize();
 	if (!InitImGui())
 	{
 		return false;
@@ -154,7 +130,7 @@ bool GameEditor::InitImGui()
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplWin32_Init(m_hWnd);
-	ImGui_ImplDX11_Init(m_Renderer->m_pDevice.Get(), m_Renderer->m_pDeviceContext.Get());
+	ImGui_ImplDX11_Init(RenderManager::GetInstance()->GetRender()->m_pDevice.Get(), RenderManager::GetInstance()->GetRender()->m_pDeviceContext.Get());
 
 	return true;
 }
@@ -329,17 +305,11 @@ void GameEditor::RenderImGui()
 
 			// Entity Transform
 			auto& tc = selectedEntity->get<Transform>().get();
-			DirectX::XMFLOAT4X4 transform;
-
-			float Ftranslation[3] = { tc.m_Position.m_X, tc.m_Position.m_Y, tc.m_Position.m_Z };
-			float Frotation[3] = { tc.m_Rotation.m_X, tc.m_Rotation.m_Y, tc.m_Rotation.m_Z };
-			float Fscale[3] = { tc.m_Scale.m_X, tc.m_Scale.m_Y, tc.m_Scale.m_Z };
-			ImGuizmo::RecomposeMatrixFromComponents(Ftranslation, Frotation, Fscale, *transform.m);
-
+			
 			bool snap = InputManager::GetInstance()->GetKey(Key::CTRL);
 			std::cout << snap << std::endl;
 
-			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, *transform.m, nullptr , snap ? &m_CurrentSnapMode->m_X : nullptr);
+			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, &tc.m_RelativeMatrix.m_11, nullptr , snap ? &m_CurrentSnapMode->m_X : nullptr);
 
 			if (ImGuizmo::IsUsing())
 			{
@@ -347,7 +317,7 @@ void GameEditor::RenderImGui()
 				float fRotation[3] = { 0.0f, 0.0f, 0.0f };
 				float fScale[3] = { 0.0f, 0.0f, 0.0f };
 
-				ImGuizmo::DecomposeMatrixToComponents(*transform.m, fTranslation, fRotation, fScale);
+				ImGuizmo::DecomposeMatrixToComponents(&tc.m_RelativeMatrix.m_11, fTranslation, fRotation, fScale);
 
 				if (m_GizmoType == ImGuizmo::OPERATION::TRANSLATE)
 				{
@@ -486,6 +456,10 @@ void GameEditor::SaveWorld(const std::string& _filename)
 	json worldData;
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
+		if (entity->has<Script>() && entity->get<Script>()->m_IsFreeCamera == true)
+		{
+			continue;
+		}
 		SaveComponents<EntityIdentifier>(entity, worldData);
 		SaveComponents<Transform>(entity, worldData);
 		SaveComponents<StaticMesh>(entity, worldData);
@@ -518,7 +492,16 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new TransformSystem);
 	m_EditorWorld->registerSystem(new MovementSystem);
 	m_EditorWorld->registerSystem(new CameraSystem);
-
+	//Free Camera
+	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
+	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	ent->Assign<Debug>();
+	ent->Assign<Camera>();
+	ent->Assign<FreeCameraScript>(ent);
+	ent->get<Script>()->m_ComponentName = "FreeCameraScript";
+	ent->get<Script>()->m_IsFreeCamera = true;
+	ent->Assign<Movement>();
 	m_NameManager->ClearContainer();
 
 	std::string fullPath = basePath + fileName;
@@ -730,33 +713,43 @@ void GameEditor::NewScene()
 
 	m_EditorWorld = ECS::World::CreateWorld(m_SceneName);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+
+	m_NameManager = std::make_shared<NameManager>();
+	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld, m_NameManager);
+
+	// Scene 새로 불러올 때 원래 이름값들 초기화
 	m_NameManager->ClearContainer();
 
+	// 시스템 등록
 	m_EditorWorld->registerSystem(new RenderSystem);
 	m_EditorWorld->registerSystem(new TransformSystem);
 	m_EditorWorld->registerSystem(new MovementSystem);
 	m_EditorWorld->registerSystem(new CameraSystem);
 	m_EditorWorld->registerSystem(new ScriptSystem);
 
+	// Panel들 등록
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
+	m_ContentsBrowserPanel.Initialize();
 
-	m_Camera = m_EditorWorld->create();
-	m_Box = m_EditorWorld->create();
-	m_Pot = m_EditorWorld->create();
-	m_Wall = m_EditorWorld->create();
+	//Free Camera
+	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
+	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	ent->Assign<Debug>();
+	ent->Assign<Camera>();
+	ent->Assign<FreeCameraScript>(ent);
+	ent->get<Script>()->m_ComponentName = "FreeCameraScript";
+	ent->get<Script>()->m_IsFreeCamera = true;
+	ent->Assign<Movement>();
+
+	Entity* m_Box = m_EditorWorld->create();
+	Entity* m_Pot = m_EditorWorld->create();
+	Entity* m_Wall = m_EditorWorld->create();
 
 	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
 	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
-
-	// Free Camera
-	m_Camera->Assign<EntityIdentifier>(m_Camera->getEntityId(), "Main Camera");
-	m_Camera->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 10.f,10.f,10.f });
-	m_Camera->Assign<Camera>();
-	m_Camera->Assign<FreeCameraScript>(m_Camera);
-	m_Camera->Assign<Movement>();
-	m_Camera->Assign<Debug>();
 
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
@@ -765,22 +758,20 @@ void GameEditor::NewScene()
 	m_Pot->Assign<Transform>(pos2);
 	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
 	SetParent(m_Pot, m_Box);
-
+	SetParentTransform(m_Pot, m_Box);
 	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
 
 	SetParent(m_Wall, m_Pot);
+	SetParentTransform(m_Wall, m_Pot);
 
 
 	m_Box->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
 	m_Wall->Assign<Debug>();
 
-	m_Camera->Assign<Light>();
-
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
 		m_NameManager->AddEntityName(entity);
 	}
-
 }
 
 void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
@@ -788,7 +779,11 @@ void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
 	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
 	child->get<EntityIdentifier>().get().m_HasParent = true;
 
+	parent->addChild(child);
+}
 
+void GameEditor::SetParentTransform(ECS::Entity* child, ECS::Entity* parent)
+{
 	auto matrix = child->get<Transform>().get().m_RelativeMatrix.ConvertToMatrix() * DirectX::XMMatrixInverse(nullptr, parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix());
 
 	float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
@@ -800,6 +795,4 @@ void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
 	child->get<Transform>()->m_Position = { fTranslation[0],fTranslation[1],fTranslation[2] };
 	child->get<Transform>()->m_Rotation = { fRotation[0],fRotation[1],fRotation[2] };
 	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
-
-	parent->addChild(child);
 }
