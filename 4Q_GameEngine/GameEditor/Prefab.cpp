@@ -41,13 +41,11 @@ PrefabManager::~PrefabManager()
 
 void PrefabManager::SavePrefab(ECS::Entity* _selectedEntity, const std::string& _filename)
 {
-	std::string fullPath = basePath + _filename;
-
 	json prefabData;
 
 	RecursiveSaveComponents(_selectedEntity, prefabData);
 
-	std::ofstream outputFile(fullPath);
+	std::ofstream outputFile(_filename);
 	outputFile << std::setw(4) << prefabData << std::endl;
 
 	outputFile.close();

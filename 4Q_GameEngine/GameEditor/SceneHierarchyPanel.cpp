@@ -35,7 +35,7 @@ SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 
 SceneHierarchyPanel::~SceneHierarchyPanel()
 {
-	std::remove("../Test/CopiedEntity.json");
+	std::remove("../Resource/CopiedEntity/CopiedEntity.json");
 }
 
 void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab, std::shared_ptr<NameManager> nameManager)
@@ -90,13 +90,13 @@ void SceneHierarchyPanel::RenderImGui()
 	ImGuiIO& io = ImGui::GetIO();
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_C))
 	{
-		m_PrefabManager->SavePrefab(m_SelectionContext, "CopiedEntity.json");
+		m_PrefabManager->SavePrefab(m_SelectionContext, "../Resource/CopiedEntity/CopiedEntity.json");
 	}
 
-	bool isFileExists = FileExists("../Test/CopiedEntity.json");
+	bool isFileExists = FileExists("../Resource/CopiedEntity/CopiedEntity.json");
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_V) && isFileExists)
 	{
-		m_PrefabManager->LoadPrefab("CopiedEntity.json");
+		m_PrefabManager->LoadPrefab("../Resource/CopiedEntity/CopiedEntity.json");
 		m_PrefabManager->m_prefabContainer.clear();
 	}
 
@@ -131,7 +131,7 @@ void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 			{
 				std::string prefabFile = prefabName;
 				prefabFile += ".prefab";
-				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
+				m_PrefabManager.get()->SavePrefab(entity, "../Resource/prefab/" + prefabFile);
 				ImGui::CloseCurrentPopup();
 				m_SelectionContext = nullptr;
 				m_OpenTextPopup = false;
@@ -605,7 +605,7 @@ void SceneHierarchyPanel::ShowStaticModelDialog()
 
 	if (m_IsDialogOpen)
 	{
-		IGFD::FileDialogConfig config; config.path = "../Resource/FBXLoad_Test/fbx";
+		IGFD::FileDialogConfig config; config.path = "../Resource/fbx";
 		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".fbx", config);
 	}
 
@@ -617,7 +617,7 @@ void SceneHierarchyPanel::ShowStaticModelDialog()
 			filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 			// action
 
-			m_SelectionContext->Assign<StaticMesh>("FBXLoad_Test/fbx/" + fileName);
+			m_SelectionContext->Assign<StaticMesh>("fbx/" + fileName);
 		}
 
 		// close

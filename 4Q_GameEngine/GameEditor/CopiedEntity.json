@@ -1,0 +1,44 @@
+{
+    "Prefabs": [
+        {
+            "Empty Entity (1)": [
+                {
+                    "EntityIdentifier": [
+                        {
+                            "m_ComponentName": "EntityIdentifier",
+                            "m_EntityId": 6,
+                            "m_EntityName": "Empty Entity (1)",
+                            "m_HasParent": false,
+                            "m_ParentEntityId": 0
+                        }
+                    ]
+                },
+                {
+                    "Transform": [
+                        {
+                            "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
+                            "m_Position": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Rotation": {
+                                "m_X": 0.0,
+                                "m_Y": 0.0,
+                                "m_Z": 0.0
+                            },
+                            "m_Scale": {
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

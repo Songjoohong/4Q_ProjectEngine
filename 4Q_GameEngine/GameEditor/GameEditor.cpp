@@ -114,7 +114,7 @@ bool GameEditor::InitImGui()
 
 	ImFontConfig imguiFontConfig;
 	imguiFontConfig.MergeMode = false;
-	io.FontDefault = io.Fonts->AddFontFromFileTTF("Resources/font/Roboto-SemiMedium.ttf", 15.0f, &imguiFontConfig, io.Fonts->GetGlyphRangesDefault());
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("../Resource/font/Roboto-SemiMedium.ttf", 15.0f, &imguiFontConfig, io.Fonts->GetGlyphRangesDefault());
 	
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -299,51 +299,62 @@ void GameEditor::RenderImGui()
 
 			// Entity Transform
 			auto& tc = selectedEntity->get<Transform>().get();
-			
+			auto myMatrix = tc.m_WorldMatrix;
+
+
+
 			bool snap = InputManager::GetInstance()->GetKey(Key::CTRL);
 			std::cout << snap << std::endl;
 
-			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, &tc.m_RelativeMatrix.m_11, nullptr , snap ? &m_CurrentSnapMode->m_X : nullptr);
-
-			if (ImGuizmo::IsUsing())
+			if (ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, &myMatrix.m_11, nullptr, snap ? &m_CurrentSnapMode->m_X : nullptr))
 			{
-				float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
-				float fRotation[3] = { 0.0f, 0.0f, 0.0f };
-				float fScale[3] = { 0.0f, 0.0f, 0.0f };
-
-				ImGuizmo::DecomposeMatrixToComponents(&tc.m_RelativeMatrix.m_11, fTranslation, fRotation, fScale);
-
-				if (m_GizmoType == ImGuizmo::OPERATION::TRANSLATE)
+				if (ImGuizmo::IsUsing())
 				{
-					tc.m_Position = DirectX::XMFLOAT3(fTranslation);
-				}
-				else if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
-				{
-					// Convert degrees to radians for quaternion creation
-					float yawRadians = DirectX::XMConvertToRadians(fRotation[1]);  // Yaw
-					float pitchRadians = DirectX::XMConvertToRadians(fRotation[0]); // Pitch
-					float rollRadians = DirectX::XMConvertToRadians(fRotation[2]);  // Roll
-					
-					// Create a quaternion from Euler angles (in radians)
-					DirectX::SimpleMath::Quaternion quaternion = DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(yawRadians, pitchRadians, rollRadians);
+					if (selectedEntity->get<EntityIdentifier>()->m_HasParent == true)
+					{
+						myMatrix = myMatrix.ConvertToMatrix() * DirectX::XMMatrixInverse(nullptr, selectedEntity->getParent()->get<Transform>()->m_WorldMatrix.ConvertToMatrix());
+					}
 
-					// Convert radians back to degrees for storing in tc.m_Rotation
-					float yawDegrees = DirectX::XMConvertToDegrees(yawRadians);
-					float pitchDegrees = DirectX::XMConvertToDegrees(pitchRadians);
-					float rollDegrees = DirectX::XMConvertToDegrees(rollRadians);
+					float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
+					float fRotation[3] = { 0.0f, 0.0f, 0.0f };
+					float fScale[3] = { 0.0f, 0.0f, 0.0f };
 
-					/*tc.m_Rotation.SetX(fRotation[0]);
-					tc.m_Rotation.SetY(fRotation[1]);
-					tc.m_Rotation.SetZ(fRotation[2]);*/
-					tc.m_Rotation.SetX(pitchDegrees);
-					tc.m_Rotation.SetY(yawDegrees);
-					tc.m_Rotation.SetZ(rollDegrees);
-					
-				}
-				else if (m_GizmoType == ImGuizmo::OPERATION::SCALE)
-				{
-					tc.m_Scale = DirectX::XMFLOAT3(fScale);
-				}
+					ImGuizmo::DecomposeMatrixToComponents(&myMatrix.m_11, fTranslation, fRotation, fScale);
+
+					if (m_GizmoType == ImGuizmo::OPERATION::TRANSLATE)
+					{
+						tc.m_Position = DirectX::XMFLOAT3(fTranslation);
+					}
+					else if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
+					{
+						// Convert degrees to radians for quaternion creation
+						float yawRadians = DirectX::XMConvertToRadians(fRotation[1]);  // Yaw
+						float pitchRadians = DirectX::XMConvertToRadians(fRotation[0]); // Pitch
+						float rollRadians = DirectX::XMConvertToRadians(fRotation[2]);  // Roll
+
+						// Create a quaternion from Euler angles (in radians)
+						DirectX::SimpleMath::Quaternion quaternion = DirectX::SimpleMath::Quaternion::CreateFromYawPitchRoll(yawRadians, pitchRadians, rollRadians);
+
+						// Convert radians back to degrees for storing in tc.m_Rotation
+						float yawDegrees = DirectX::XMConvertToDegrees(yawRadians);
+						float pitchDegrees = DirectX::XMConvertToDegrees(pitchRadians);
+						float rollDegrees = DirectX::XMConvertToDegrees(rollRadians);
+
+						/*tc.m_Rotation.SetX(fRotation[0]);
+						tc.m_Rotation.SetY(fRotation[1]);
+						tc.m_Rotation.SetZ(fRotation[2]);*/
+						tc.m_Rotation.SetX(pitchDegrees);
+						tc.m_Rotation.SetY(yawDegrees);
+						tc.m_Rotation.SetZ(rollDegrees);
+
+					}
+					else if (m_GizmoType == ImGuizmo::OPERATION::SCALE)
+					{
+						tc.m_Scale = DirectX::XMFLOAT3(fScale);
+					}
+			}
+
+			
 			}
 		}
 
@@ -792,7 +803,7 @@ void GameEditor::NewScene()
 	SetParentTransform(m_Wall, m_Pot);
 
 
-	m_Box->Assign<StaticMesh>("FBXLoad_Test/fbx/box.fbx");
+	m_Box->Assign<StaticMesh>("fbx/box.fbx");
 	m_Wall->Assign<Debug>();
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
