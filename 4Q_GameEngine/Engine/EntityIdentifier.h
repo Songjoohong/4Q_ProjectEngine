@@ -9,7 +9,10 @@ struct EntityIdentifier
 		:m_EntityId(entityId), m_ParentEntityId(parentEntityId), m_EntityName(entityName)
 	{
 	}
-
+	explicit EntityIdentifier(int entityId, int parentEntityId = 0)
+		:m_EntityId(entityId), m_ParentEntityId(parentEntityId)
+	{
+	}
 	std::string m_EntityName = "Empty Entity";
 	int			m_EntityId = 0;
 	std::string m_ComponentName = "EntityIdentifier";

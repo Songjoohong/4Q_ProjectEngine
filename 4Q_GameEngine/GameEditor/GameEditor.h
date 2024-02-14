@@ -78,7 +78,10 @@ private:
 
 	// gizmo
 	int m_GizmoType = 0;
-
+	float TranslationSnapValue = 10.0f;
+	int	intTransSnapValue = 0;
+	int	intRotSnapValue = 0;
+	int	intScaleSnapValue = 0;
 	// TextEntities
 	ECS::Entity* m_Camera;
 	ECS::Entity* m_Box;

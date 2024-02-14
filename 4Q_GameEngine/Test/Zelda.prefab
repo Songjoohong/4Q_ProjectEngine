@@ -6,7 +6,7 @@
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 0,
+                            "m_EntityId": 5,
                             "m_EntityName": "Empty Entity",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
@@ -21,7 +21,7 @@
                             "m_FreezeRotationY": false,
                             "m_FreezeRotationZ": false,
                             "m_Position": {
-                                "m_X": 114.51206970214844,
+                                "m_X": 0.0,
                                 "m_Y": 0.0,
                                 "m_Z": 0.0
                             },
@@ -70,19 +70,19 @@
                             "m_FreezeRotationY": false,
                             "m_FreezeRotationZ": false,
                             "m_Position": {
-                                "m_X": -93.58480072021484,
+                                "m_X": 1.0,
                                 "m_Y": 3.0,
                                 "m_Z": 5.0
                             },
                             "m_Rotation": {
                                 "m_X": 0.0,
-                                "m_Y": 0.0,
+                                "m_Y": -0.0,
                                 "m_Z": 0.0
                             },
                             "m_Scale": {
-                                "m_X": 100.0,
-                                "m_Y": 100.0,
-                                "m_Z": 100.0
+                                "m_X": 1.0,
+                                "m_Y": 1.0,
+                                "m_Z": 1.0
                             }
                         }
                     ]

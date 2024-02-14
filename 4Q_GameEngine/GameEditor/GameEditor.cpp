@@ -263,7 +263,6 @@ void GameEditor::RenderImGui()
 			ImGui::EndMenuBar();
 		}
 
-
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
 		ImGui::Text(m_SceneName.c_str());		// TODO: 에디터에 현재 화면에 표시중인 씬 정보 표기하기
@@ -286,6 +285,7 @@ void GameEditor::RenderImGui()
 		{
 			m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
 			m_CurrentSnapMode = &m_TranslationSnapValue;
+			TranslationSnapValue = 10.0f;
 		}
 		else if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_X))
 		{
@@ -329,18 +329,7 @@ void GameEditor::RenderImGui()
 			bool snap = InputManager::GetInstance()->GetKey(Key::CTRL);
 			std::cout << snap << std::endl;
 
-			float snapValue = 10.0f;
-
-			if (m_GizmoType == ImGuizmo::OPERATION::ROTATE)
-			{
-				snapValue = 45.0f;
-			}
-
-			float snapValues[3] = { snapValue, snapValue, snapValue };
-
-			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, *transform.m, nullptr , snap ? snapValues : nullptr);
-
-
+			ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, *transform.m, nullptr , snap ? &m_CurrentSnapMode->m_X : nullptr);
 
 			if (ImGuizmo::IsUsing())
 			{
@@ -385,7 +374,29 @@ void GameEditor::RenderImGui()
 		}
 
 		ImGui::End();
+
 		ImGui::PopStyleVar();
+
+		ImGui::Begin("Settings");
+
+		intTransSnapValue = static_cast<int>(m_TranslationSnapValue.m_X);
+		ImGui::SliderInt("Translation SnapVale", &intTransSnapValue, 0.0f, 100.f);
+		m_TranslationSnapValue.m_X = static_cast<float>(intTransSnapValue);
+		m_TranslationSnapValue.m_Y = static_cast<float>(intTransSnapValue);
+		m_TranslationSnapValue.m_Z = static_cast<float>(intTransSnapValue);
+
+		intRotSnapValue = static_cast<int>(m_RotationSnapValue.m_X);
+		ImGui::SliderInt("Rotation SnapVale", &intRotSnapValue, 0.0f, 100.f);
+		m_RotationSnapValue.m_X = static_cast<float>(intRotSnapValue);
+		m_RotationSnapValue.m_Y = static_cast<float>(intRotSnapValue);
+		m_RotationSnapValue.m_Z = static_cast<float>(intRotSnapValue);
+
+		intScaleSnapValue = static_cast<int>(m_ScaleSnapValue.m_X);
+		ImGui::SliderInt("Scale SnapVale", &intScaleSnapValue, 0.0f, 100.f);
+		m_ScaleSnapValue.m_X = static_cast<float>(intScaleSnapValue);
+		m_ScaleSnapValue.m_Y = static_cast<float>(intScaleSnapValue);
+		m_ScaleSnapValue.m_Z = static_cast<float>(intScaleSnapValue);
+		ImGui::End();
 
 	}
 	else

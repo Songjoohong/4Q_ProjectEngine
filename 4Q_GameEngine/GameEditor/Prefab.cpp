@@ -16,6 +16,7 @@
 #include "../Engine/Sprite2D.h"
 #include "../Engine/CameraScript.h"
 #include "NameManager.h"
+#include "ImGuizmo.h"
 #include <set>
 using json = nlohmann::json;
 
