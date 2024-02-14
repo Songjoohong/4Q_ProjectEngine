@@ -42,6 +42,9 @@ public:
 	void ShowSceneDialog();
 	void ShowSaveSceneAsPopup();
 
+	// 단축키 설정
+	void HandleShortcuts();
+
 	template<typename ComponentType>
 	void AssignComponents(ECS::Entity* entity, json& componentData);
 	void NewScene();

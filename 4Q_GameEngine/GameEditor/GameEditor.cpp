@@ -247,8 +247,6 @@ void GameEditor::RenderImGui()
 
 				if (ImGui::MenuItem("Save Scene As..."))	// 다른 이름으로 월드를 저장
 				{
-					/// 씬 이름 입력하고
-					/// SaveWorld() 함수 불러와서 저장.
 					m_isScenePopup = true;
 				}
 
@@ -265,9 +263,19 @@ void GameEditor::RenderImGui()
 			ImGui::EndMenuBar();
 		}
 
+		HandleShortcuts();
+
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
+
+		// 테스트용 ~~
 		ImGui::Text(m_SceneName.c_str());		// TODO: 에디터에 현재 화면에 표시중인 씬 정보 표기하기
+
+		ImGui::Text("Entity Count : ");
+		ImGui::SameLine();
+		ImGui::Text( + std::to_string(m_EditorWorld->GetEntities().size()).c_str());	// TODO: 현재 씬에 있는 오브젝트 갯수
+		// 테스트끝 !!
+
 
 		ShowSceneDialog();
 		ShowSaveSceneAsPopup();
@@ -511,6 +519,8 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new MovementSystem);
 	m_EditorWorld->registerSystem(new CameraSystem);
 
+	m_NameManager->ClearContainer();
+
 	std::string fullPath = basePath + fileName;
 
 	// Deserialize
@@ -647,12 +657,9 @@ void GameEditor::ShowSceneDialog()
 			fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
 			// action
 
-			// TODO: scene, fbx, prefab 셋 다 이 함수 이용하도록
-
 			// 현재 에디터가 화면에 띄우고 있는 월드의 이름을 변경
 			m_SceneName = fileName;
 			LoadWorld("scene/" + fileName);
-
 		}
 
 		// close
@@ -694,6 +701,27 @@ void GameEditor::ShowSaveSceneAsPopup()
 			ImGui::EndPopup();
 		}
 	}
+}
+
+void GameEditor::HandleShortcuts()
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	// Save Scene, Ctrl + S
+	if (io.KeyCtrl && ImGui::IsKeyDown(ImGuiKey_S))		
+		SaveWorld(m_SceneName);
+
+	// New Scene, Ctrl + N
+	if (io.KeyCtrl && ImGui::IsKeyDown(ImGuiKey_N))
+		NewScene();
+
+	// Open Scene, Ctrl + O
+	if (io.KeyCtrl && ImGui::IsKeyDown(ImGuiKey_O))
+		m_IsDialogOpen = true;
+
+	// Delete Entity, Delete
+	if (ImGui::IsKeyDown(ImGuiKey_Delete) && m_SceneHierarchyPanel.GetSelectedEntity() != nullptr)
+		m_SceneHierarchyPanel.DeleteSelectedEntity();
 }
 
 void GameEditor::NewScene()

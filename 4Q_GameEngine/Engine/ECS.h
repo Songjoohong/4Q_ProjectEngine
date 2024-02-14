@@ -548,9 +548,6 @@ namespace ECS
 
 		bool isDescendant(const Entity* target)
 		{
-			if (target->m_children.size() == 0)
-				return false;
-
 			for (Entity* child : m_children)
 			{
 				if (target == child || child->isDescendant(target))
@@ -614,7 +611,6 @@ namespace ECS
 		
 		size_t id;
 		bool bPendingDestroy = false;
-		Entity* parentEntity = nullptr;
 	};
 
 	/**
