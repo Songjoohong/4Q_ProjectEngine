@@ -13,13 +13,17 @@ void DynamicCollider::Initialize()
 
 	m_Rigid = PhysicsManager::GetInstance()->GetPhysics()->createRigidDynamic(PxTransform(m_Transform.p));
 	m_Rigid->setMaxLinearVelocity(100.f);
-	// ¼®¿µ : Box¸¸ »ç¿ëÁß.
+	// ì„ì˜ : Boxë§Œ ì‚¬ìš©ì¤‘.
 	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
 	m_pRigidActor = m_Rigid;
 	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_pRigidActor);
 
-	SetDensity(75.f); // ¼®¿µ : ±âº»°ªÀ¸·Î ³Ö¾îÁÖ±â.
+	SetDensity(75.f); // ì„ì˜ : ê¸°ë³¸ê°’ìœ¼ë¡œ ë„£ì–´ì£¼ê¸°.
 	SetFilterData();
+  FreezeRotationX(true);
+	FreezeRotationY(true);
+	FreezeRotationZ(true);
+
 }
 
 void DynamicCollider::SetFilterData()
@@ -29,15 +33,18 @@ void DynamicCollider::SetFilterData()
 	m_pShape->setSimulationFilterData(*filter);
 	PxU32 filterdata = filter->word0;
 	m_Rigid->userData = (void*)filter;
+
+	
 }
 
 void DynamicCollider::UpdatePhysics()
 {
 	/*
-		¼®¿µ : Owner À§Ä¡,È¸Àü°ª º¯°æÇØÁÖ±â.
+		ì„ì˜ : Owner ìœ„ì¹˜,íšŒì „ê°’ ë³€ê²½í•´ì£¼ê¸°.
 	*/
 
 	PxTransform pxTrans = m_Rigid->getGlobalPose();
+	pxTrans = m_Transform;
 	m_pOwner->m_Center.SetX(pxTrans.p.x);
 	m_pOwner->m_Center.SetY(pxTrans.p.y);
 	m_pOwner->m_Center.SetZ(pxTrans.p.z);
@@ -49,6 +56,14 @@ void DynamicCollider::UpdatePhysics()
 
 }
 
+void DynamicCollider::SetFilterData()
+{
+	PxFilterData* filter = PhysicsManager::GetInstance()->GetFilterData(m_pOwner->m_CollisionType);
+	assert(filter != nullptr);
+	m_pShape->setSimulationFilterData(*filter);
+	PxU32 filterdata = filter->word0;
+}
+
 void DynamicCollider::SetDensity(float mass)
 {
 	float density = mass / (m_Scale.GetX() * m_Scale.GetY() * m_Scale.GetZ());
@@ -58,7 +73,7 @@ void DynamicCollider::SetDensity(float mass)
 void DynamicCollider::AddForce(Vector3D dir)
 {
 	/*
-		¼®¿µ : ¶³¾îÁö´Â µ¿¾È ¿òÁ÷ÀÏ ¼ö ¾ø°Ô ÇÒ ¿¹Á¤.
+		ì„ì˜ : ë–¨ì–´ì§€ëŠ” ë™ì•ˆ ì›€ì§ì¼ ìˆ˜ ì—†ê²Œ í•  ì˜ˆì •.
 	*/
   	PxVec3 direction(dir.GetX(), dir.GetY(), dir.GetZ());
 	PxVec3 checkmove(0.f, 0.f, 0.f);

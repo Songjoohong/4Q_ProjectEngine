@@ -29,3 +29,14 @@ void StaticCollider::SetFilterData()
 	PxU32 filterdata = filter->word0;
 	m_Rigid->userData = (void*)filter;
 }
+
+void StaticCollider::SetFiltercData()
+{
+	PxFilterData* filter = PhysicsManager::GetInstance()->GetFilterData(m_pOwner->m_CollisionType);
+	assert(filter != nullptr);
+	m_pShape->setSimulationFilterData(*filter);
+	PxU32 filterdata = filter->word0;
+
+	UserData* data = new UserData;
+	data->m_CollisionType = m_pOwner->m_CollisionType;
+}
