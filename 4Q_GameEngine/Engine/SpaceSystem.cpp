@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SpaceSystem.h"
 
+#include "InputManager.h"
 #include "Space.h"
 #include "Transform.h"
 
@@ -46,5 +47,18 @@ void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 	}
 	const Vector3D vec = objectDistance - subjectDistance;
 	event.subjectEntity->get<Transform>()->m_Position = event.objectEntity->get<Transform>()->m_Position + vec;
+}
+
+void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
+{
+	//return all
+	if(InputM->GetKeyDown(Key::F12))
+	{
+		world->each<Space, Transform>([&](Entity* ent, ComponentHandle<Space> space, ComponentHandle<Transform> transform)->void
+			{
+				if(!space->m_IsPlayerExist)
+					transform->m_Position.SetY(10000.f * space->m_SpaceIndex);
+			});
+	}
 }
 
