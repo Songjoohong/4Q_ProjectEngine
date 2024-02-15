@@ -251,15 +251,20 @@ void GameEditor::RenderImGui()
 		ShowSceneDialog();
 		ShowSaveSceneAsPopup();
 
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 		ImGui::End();
 
 
-		ImGui::Begin("Play");
-		ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
-		PlayButton();
+		//// Game Play Buttons Test
+		//{
+		//	ImGui::Begin("Play");
+		//	ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 
-		ImGui::End();
+		//	PlayButton();
+
+		//	ImGui::End();
+		//}
+		
 
 		/* Viewport ------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
@@ -961,28 +966,31 @@ void GameEditor::NewScene()
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
 	Vector3D posPlayer = { 1.0f, 1.0f, 1.0f };
 
-	//Player
-	Entity* m_Player = m_EditorWorld->create();
-	m_Player->Assign<EntityIdentifier>(m_Player->getEntityId(), "Player1");
-	m_Player->Assign<Transform>(posPlayer);
-	m_Player->Assign<StaticMesh>("fbx/Character.fbx");
-	m_Player->Assign<Debug>();
-	m_Player->Assign<BoxCollider>(CollisionType::DYNAMIC, Collision_Mask::PLAYER, Vector3D{ 100.f,100.f,100.f });
-	m_Player->Assign<RigidBody>();
-	m_Player->Assign<Movement>();
+	//// Player Camera for TEST TEST TEST!
+	//{
+	//	//Player
+	//	Entity* m_Player = m_EditorWorld->create();
+	//	m_Player->Assign<EntityIdentifier>(m_Player->getEntityId(), "Player1");
+	//	m_Player->Assign<Transform>(posPlayer);
+	//	m_Player->Assign<StaticMesh>("fbx/Character.fbx");
+	//	m_Player->Assign<Debug>();
+	//	m_Player->Assign<BoxCollider>(CollisionType::DYNAMIC, Collision_Mask::PLAYER, Vector3D{ 100.f,100.f,100.f });
+	//	m_Player->Assign<RigidBody>();
+	//	m_Player->Assign<Movement>();
 
-	// PlayerCamera
-	Entity* m_PlayerCamera = m_EditorWorld->create();
-	m_PlayerCamera->Assign<EntityIdentifier>(m_PlayerCamera->getEntityId(), "PlayerCamera");
-	m_PlayerCamera->Assign<Transform>();
-	m_PlayerCamera->Assign<Camera>();
-	m_PlayerCamera->Assign<Movement>();
-	m_PlayerCamera->Assign<POVCameraScript>(m_Player);
-	//m_PlayerCamera->get<Script>()->m_ComponentName = "POVCameraScript";
-	//m_PlayerCamera->get<Script>()->m_IsFreeCamera = false;
+	//	// PlayerCamera
+	//	Entity* m_PlayerCamera = m_EditorWorld->create();
+	//	m_PlayerCamera->Assign<EntityIdentifier>(m_PlayerCamera->getEntityId(), "PlayerCamera");
+	//	m_PlayerCamera->Assign<Transform>();
+	//	m_PlayerCamera->Assign<Camera>();
+	//	m_PlayerCamera->Assign<Movement>();
+	//	m_PlayerCamera->Assign<POVCameraScript>(m_Player);
+	//	//m_PlayerCamera->get<Script>()->m_ComponentName = "POVCameraScript";
+	//	//m_PlayerCamera->get<Script>()->m_IsFreeCamera = false;
 
-	SetParent(m_PlayerCamera, m_Player);
-	SetParentTransform(m_PlayerCamera, m_Player);
+	//	SetParent(m_PlayerCamera, m_Player);
+	//	SetParentTransform(m_PlayerCamera, m_Player);
+	//}
 
 	//Free Camera
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
@@ -995,34 +1003,27 @@ void GameEditor::NewScene()
 	ent->get<Script>()->m_IsFreeCamera = true;
 	ent->Assign<Movement>();
 
+	//// Test Entities
+	//{
+	//	//Box
+	//	Entity* m_Box = m_EditorWorld->create();
+	//	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
+	//	m_Box->Assign<Transform>(pos1, rot, scale);
 
-	//Box
-	Entity* m_Box = m_EditorWorld->create();
-	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
-	m_Box->Assign<Transform>(pos1, rot, scale);
+	//	// Pot
+	//	Entity* m_Pot = m_EditorWorld->create();
+	//	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
+	//	m_Pot->Assign<Transform>(pos2);
+	//	m_Pot->Assign<StaticMesh>("fbx/zeldaPosed001.fbx");
 
-	// Pot
-	Entity* m_Pot = m_EditorWorld->create();
-	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
-	m_Pot->Assign<Transform>(pos2);
-	m_Pot->Assign<StaticMesh>("fbx/zeldaPosed001.fbx");
-
-	// Wall
-	Entity* m_Wall = m_EditorWorld->create();
-	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
-	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
-	m_Wall->Assign<StaticMesh>("fbx/Tree.fbx");
-	m_Wall->Assign<Debug>();
-
-
-
-
-	//SetParent(m_Pot, m_Box);
-	//SetParentTransform(m_Pot, m_Box);
-
-	//SetParent(m_Wall, m_Pot);
-	//SetParentTransform(m_Wall, m_Pot);
-
+	//	// Wall
+	//	Entity* m_Wall = m_EditorWorld->create();
+	//	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
+	//	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+	//	m_Wall->Assign<StaticMesh>("fbx/Tree.fbx");
+	//	m_Wall->Assign<Debug>();
+	//}
+	
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
 		m_NameManager->AddEntityName(entity);

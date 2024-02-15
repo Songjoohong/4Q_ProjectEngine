@@ -1098,7 +1098,8 @@ namespace ECS
 		}
 		if (ent->m_parent != nullptr)
 		{
-			ent->m_parent->m_children.clear();
+			ent->m_parent->RemoveChild(ent);
+			//ent->m_parent->m_children.clear();
 		}
 		ent->bPendingDestroy = true;
 		emit<Events::OnEntityDestroyed>({ ent });

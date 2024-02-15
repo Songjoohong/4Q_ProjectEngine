@@ -81,7 +81,7 @@ void SceneHierarchyPanel::RenderImGui()
 				entity->Assign<EntityIdentifier>(entity->getEntityId());	// 기본적으로 생성한다. (이름정보 때문)
 				m_NameManager->AddEntityName(entity);
 				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Transform은 기본적으로 생성해준다.
-				entity->Assign<StaticMesh>();	// 아무 파일 경로도 가지지 않은 빈 StaticMesh 기본적으로 생성
+				//entity->Assign<StaticMesh>();	// 아무 파일 경로도 가지지 않은 빈 StaticMesh 기본적으로 생성
 			}
 
 			ImGui::EndPopup();
@@ -417,7 +417,7 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 
 		if (removeComponent)
 		{
-			if(typeid(T) != typeid(Transform) && typeid(T) != typeid(StaticMesh) && typeid(T) != typeid(EntityIdentifier))
+			if(typeid(T) != typeid(Transform) && typeid(T) != typeid(EntityIdentifier))
 				entity->remove<T>();
 		}
 	}
