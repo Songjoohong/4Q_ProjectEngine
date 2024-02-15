@@ -42,6 +42,7 @@ public:
 	void ShowSceneDialog();
 	void ShowSaveSceneAsPopup();
 
+	void PlayDeserialize(ECS::World* currentWorld, const std::string& _filename);
 	void Deserialize(ECS::World* currentWorld, const std::string& fileName);
 
 	void PlayButton();

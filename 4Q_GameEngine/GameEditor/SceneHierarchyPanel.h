@@ -8,10 +8,6 @@ struct StaticMesh;
 class PrefabManager;
 class NameManager;
 
-class Camera;
-
-static bool m_bDrawCameraComponent;
-
 class SceneHierarchyPanel
 {
 public:
@@ -62,21 +58,12 @@ void SceneHierarchyPanel::DisplayAddComponentEntry(const std::string& entryName)
 {
 	// 선택된 Entity 가 T타입의 component 를 가지고 있지 않다면
 
-	if (!m_SelectionContext->has<T>() && typeid(T) != typeid(Camera))
+	if (!m_SelectionContext->has<T>())
 	{
 		if (ImGui::MenuItem(entryName.c_str()))
 		{
 			// 현재 선택된 오브젝트에 컴포넌트 추가
 			m_SelectionContext->Assign<T>();
-			ImGui::CloseCurrentPopup();
-		}
-	}
-	else if (typeid(T) == typeid(Camera))
-	{
-		if (ImGui::MenuItem(entryName.c_str()))
-		{
-			// 현재 선택된 오브젝트에 컴포넌트 추가
-			m_bDrawCameraComponent = true;
 			ImGui::CloseCurrentPopup();
 		}
 	}

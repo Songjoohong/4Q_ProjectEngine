@@ -256,7 +256,7 @@ void GameEditor::RenderImGui()
 
 
 		ImGui::Begin("Play");
-
+		ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 		PlayButton();
 
 		ImGui::End();
@@ -625,6 +625,134 @@ void GameEditor::ShowSaveSceneAsPopup()
 	}
 }
 
+void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _filename)
+{
+	std::string fullPath = basePath + _filename;
+
+	// Deserialize
+	std::ifstream inputFile(fullPath);
+	json jsonObject;
+	inputFile >> jsonObject;
+	inputFile.close();
+
+	for (const auto& entity : jsonObject["WorldEntities"])
+	{
+		for (auto it = entity.begin(); it != entity.end(); ++it)
+		{
+			Entity* prefabEntity = currentWorld->create();
+			int oldID = 0;
+			for (const auto& component : it.value())
+			{
+				std::string componentName = component.begin().key();
+				if (componentName == "EntityIdentifier")
+				{
+					prefabEntity->Assign<EntityIdentifier>();
+					oldID = component["EntityIdentifier"][0]["m_EntityId"];
+					prefabEntity->get<EntityIdentifier>()->m_ComponentName = component["EntityIdentifier"][0]["m_ComponentName"];
+					prefabEntity->get<EntityIdentifier>()->m_EntityName = component["EntityIdentifier"][0]["m_EntityName"];
+					prefabEntity->get<EntityIdentifier>()->m_HasParent = component["EntityIdentifier"][0]["m_HasParent"];
+					prefabEntity->get<EntityIdentifier>()->m_ParentEntityId = component["EntityIdentifier"][0]["m_ParentEntityId"];
+					prefabEntity->get<EntityIdentifier>()->m_EntityId = prefabEntity->getEntityId();
+				}
+				else if (componentName == "Transform")
+				{
+					m_PrefabManager->AssignComponents<Transform>(prefabEntity, component["Transform"][0]);
+				}
+				else if (componentName == "BoxCollider")
+				{
+					m_PrefabManager->AssignComponents<BoxCollider>(prefabEntity, component["BoxCollider"][0]);
+				}
+
+				else if (componentName == "Camera")
+				{
+					m_PrefabManager->AssignComponents<Camera>(prefabEntity, component["Camera"][0]);
+				}
+
+				else if (componentName == "Light")
+				{
+					m_PrefabManager->AssignComponents<Light>(prefabEntity, component["Light"][0]);
+				}
+
+				else if (componentName == "Movement")
+				{
+					m_PrefabManager->AssignComponents<Movement>(prefabEntity, component["Movement"][0]);
+				}
+
+				else if (componentName == "StaticMesh")
+				{
+					std::string fileName = component["StaticMesh"][0]["m_FileName"];
+					prefabEntity->Assign<StaticMesh>(fileName);
+					prefabEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
+					prefabEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
+					prefabEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
+				}
+				else if (componentName == "Debug")
+				{
+					m_PrefabManager->AssignComponents<Debug>(prefabEntity, component["Debug"][0]);
+				}
+				else if (componentName == "Sound")
+				{
+					m_PrefabManager->AssignComponents<Sound>(prefabEntity, component["Sound"][0]);
+				}
+				else if (componentName == "RigidBody")
+				{
+					m_PrefabManager->AssignComponents<RigidBody>(prefabEntity, component["RigidBody"][0]);
+				}
+				else if (componentName == "UI")
+				{
+					m_PrefabManager->AssignComponents<UI>(prefabEntity, component["UI"][0]);
+				}
+				else if (componentName == "FreeCameraScript")
+				{
+					m_PrefabManager->AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
+				}
+				else if (componentName == "SampleScript")
+				{
+					m_PrefabManager->AssignComponents<SampleScript>(prefabEntity, component["SampleScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "SampleScript";
+				}
+				else if (componentName == "PlayerScript")
+				{
+					m_PrefabManager->AssignComponents<PlayerScript>(prefabEntity, component["PlayerScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "PlayerScript";
+				}
+				else if (componentName == "POVCameraScript")
+				{
+					m_PrefabManager->AssignComponents<POVCameraScript>(prefabEntity, component["POVCameraScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
+				}
+				else if (componentName == "TestUIScript")
+				{
+					m_PrefabManager->AssignComponents<TestUIScript>(prefabEntity, component["TestUIScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "TestUIScript";
+				}
+			}
+			m_PrefabManager->m_prefabContainer.push_back({ prefabEntity, oldID });
+		}
+	}
+
+
+	for (const auto& prefabChild : m_PrefabManager->m_prefabContainer)
+	{
+		for (const auto& prefabParent : m_PrefabManager->m_prefabContainer)
+		{
+			if (prefabChild.first->get<EntityIdentifier>().get().m_HasParent == true)
+			{
+				if (prefabChild.first->get<EntityIdentifier>().get().m_ParentEntityId == prefabParent.second)
+				{
+					SetParent(prefabChild.first, prefabParent.first);
+				}
+			}
+		}
+	}
+
+	for (const auto& prefab : m_PrefabManager->m_prefabContainer)
+	{
+		m_NameManager->AddEntityName(prefab.first);
+	}
+}
+
 void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileName)
 {
 	std::string fullPath = basePath + fileName;
@@ -750,23 +878,31 @@ void GameEditor::PlayButton()
 {
 	if (m_IsPlaying)
 	{
-		ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 		if (ImGui::Button("||", ImVec2(40.0f, 40.0f)))
 		{
-			PlayScene();
-			m_IsPlaying = false;
 
+			m_IsPlaying = false;
+			m_ActiveWorld->GetEntities().clear();
+			m_NameManager->ClearContainer();
+			PlayDeserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
+			//Free Camera
+			Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+			ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
+			ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+			ent->Assign<Debug>();
+			ent->Assign<Camera>();
+			ent->Assign<FreeCameraScript>(ent);
+			ent->get<Script>()->m_ComponentName = "FreeCameraScript";
+			ent->get<Script>()->m_IsFreeCamera = true;
+			ent->Assign<Movement>();
 		}
 	}
 	else
 	{
-		ImGui::SetCursorPos(ImVec2(1250.0f, 35.0f));
 		if (ImGui::Button(">", ImVec2(40.0f, 40.0f)))
 		{
 			m_IsPlaying = true;
-
-			m_ActiveWorld = m_EditorWorld;
-			//Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
+			PlayScene();
 		}
 	}
 }
@@ -842,6 +978,8 @@ void GameEditor::NewScene()
 	m_PlayerCamera->Assign<Camera>();
 	m_PlayerCamera->Assign<Movement>();
 	m_PlayerCamera->Assign<POVCameraScript>(m_Player);
+	//m_PlayerCamera->get<Script>()->m_ComponentName = "POVCameraScript";
+	//m_PlayerCamera->get<Script>()->m_IsFreeCamera = false;
 
 	SetParent(m_PlayerCamera, m_Player);
 	SetParentTransform(m_PlayerCamera, m_Player);
@@ -902,16 +1040,16 @@ void GameEditor::PlayScene()
 
 	m_ActiveWorld = m_EditorWorld;
 
-	m_NameManager->ClearContainer();
 	//m_ActiveWorld->registerSystem(new ScriptSystem);
 	//m_ActiveWorld->registerSystem(new RenderSystem);
 	//m_ActiveWorld->registerSystem(new TransformSystem);
 	//m_ActiveWorld->registerSystem(new MovementSystem);
 	//m_ActiveWorld->registerSystem(new CameraSystem);
 
+	m_NameManager->ClearContainer();
 	if (m_IsPlaying)
 	{
-		Deserialize(m_ActiveWorld, "scene/" + m_SceneName + ".scene");
+		PlayDeserialize(m_ActiveWorld, "scene/" + m_SceneName + ".scene");
 	}
 }
 

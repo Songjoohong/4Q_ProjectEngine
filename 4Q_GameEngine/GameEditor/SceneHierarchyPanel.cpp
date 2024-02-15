@@ -419,33 +419,7 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 				entity->remove<T>();
 		}
 	}
-	else if (m_bDrawCameraComponent)
-	{
-		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
-
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
-		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-		ImGui::Separator();
-		bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
-		ImGui::PopStyleVar(
-		);
-		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
-		if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
-		{
-			ImGui::OpenPopup("ComponentSettings");
-		}
-
-		bool removeComponent = false;
-		if (ImGui::BeginPopup("ComponentSettings"))
-		{
-			if (ImGui::MenuItem("Remove component"))
-				removeComponent = true;
-
-			ImGui::EndPopup();
-		}
-
-		ImGui::TreePop();
-	}
+	
 }
 
 void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
@@ -484,16 +458,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	ImGui::PopItemWidth();
 
-	/*if (m_bDrawCameraComponent)
-	{
-		DrawComponent<Camera>("Camera", entity, [](auto component)
-			{
-
-			});
-
-		m_bDrawCameraComponent = false;
-	}*/
-
 	DrawComponent<EntityIdentifier>("EntityIdentifier", entity, [](auto component)
 	{
 			std::string entityName = "EntityName : " + component->m_EntityName;
@@ -521,8 +485,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		ImGui::Text(temp.c_str());
 	});
 
-	DrawComponent
-		<BoxCollider>("BoxCollider", entity, [](auto component)
+	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
 	{
 		switch (component->m_CollisionType)
 		{
@@ -569,7 +532,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	});
 
-	
+	DrawComponent<Camera>("Camera", entity, [](auto component)
+	{
+
+	});
+
 	DrawComponent<Light>("Light", entity, [](auto component)
 	{
 		const char* lightTypeStrings[] = { "Point Light", "Directional Light" };
