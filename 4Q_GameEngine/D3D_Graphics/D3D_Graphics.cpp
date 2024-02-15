@@ -77,37 +77,42 @@ void Renderer::AddMeshInstance(StaticModel* model)
 	}
 }
 
-void Renderer::AddDebugInformation(const int id, const std::string& text, const Vector3D& position)
+void Renderer::AddTextInformation(const int id, const std::string& text, const Vector3D& position)
 {
 
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
 
-	const DebugInformation newDebug = { id, text, pos, depth };
-	m_debugs.push_back(newDebug);
+	const TextInformation newText = { id, text, pos, depth };
+	m_texts.push_back(newText);
 }
 
 void Renderer::AddSpriteInformation(int id, const std::string& filePath, const XMFLOAT2 position, float layer)
 {
     ComPtr<ID3D11ShaderResourceView> texture;
     const wchar_t* filePathT = ConvertToWchar(filePath);
-    CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture);
+    HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
     m_sprites.push_back(SpriteInformation{ id, layer, true, position, texture });
 }
 
-void Renderer::EditDebugInformation(int id, const std::string& text, const Vector3D& position)
+void Renderer::AddDynamicTextInformation(int entId, const vector<std::wstring>& vector)
+{
+	m_dynamicTexts.push_back({ entId, 0, false, vector });
+}
+
+void Renderer::EditTextInformation(int id, const std::string& text, const Vector3D& position)
 {
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
 
-	auto it = std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+	const auto it = std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& debug)
 		{
-			return id == debug.entityID;
+			return id == debug.mEntityID;
 		});
-	it->mPosition = pos;
-	it->depth = depth;
+	it->mPosition= pos;
+	it->mDepth = depth;
 	it->mText = text;
 }
 
@@ -120,11 +125,21 @@ void Renderer::EditSpriteInformation(int id, bool isRendered)
     it->IsRendered = isRendered;
 }
 
-void Renderer::DeleteDebugInformation(int id)
+void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
 {
-    m_debugs.erase(std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+	const auto it = std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
+		{
+			return id == dynamicText.mEntityID;
+		});
+	it->mIndex = index;
+	it->mEnable = enable;
+}
+
+void Renderer::DeleteTextInformation(int id)
+{
+    m_texts.erase(std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& text)
         {
-            return id == debug.entityID;
+            return id == text.mEntityID;
         }));
 }
 
@@ -134,6 +149,14 @@ void Renderer::DeleteSpriteInformation(int id)
         {
             return id == sprite.mEntityID;
         }));
+}
+
+void Renderer::DeleteDynamicTextInformation(int id)
+{
+	m_dynamicTexts.erase(std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
+		{
+			return id == dynamicText.mEntityID;
+		}));
 }
 
 void Renderer::CreateModel(string filename)
@@ -218,9 +241,9 @@ DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
 	Math::Matrix matrix;
 	matrix.Translation(Vector3(pos.GetX(), pos.GetY(), pos.GetZ()));
 	matrix = matrix * m_viewMatrix * m_projectionMatrix;
-
-	return {  matrix._41 + 960.f, 
-        (540.f - matrix._42), matrix._43 };
+	Vector3 translation = matrix.Translation();
+	translation = translation / matrix._44;
+	return { (translation.x + 1) * 960.f,540.f * (1 - translation.y), translation.z};
 }
 
 const wchar_t* Renderer::ConvertToWchar(const string& str) const
@@ -232,6 +255,7 @@ const wchar_t* Renderer::ConvertToWchar(const string& str) const
 	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, finalText, bufferSize);
 
 	return finalText;
+	return nullptr;
 }
 
 void Renderer::CreateSamplerState()
@@ -492,10 +516,6 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-	
-
-    
-
     m_pointLightCB.mPos = m_pointLight.GetPosition();
     m_pointLightCB.mRadius = m_pointLight.GetRadius();
     m_pointLightCB.mLightColor = m_pointLight.GetColor();
@@ -515,12 +535,21 @@ void Renderer::RenderBegin()
 
 void Renderer::RenderText() const
 {
-	for (int i = 0; i < m_debugs.size(); i++)
+	for (int i = 0; i < m_texts.size(); i++)
 	{
-		const wchar_t* text = ConvertToWchar(m_debugs[i].mText);
-		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_debugs[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f);
+		const wchar_t* text = ConvertToWchar(m_texts[i].mText);
+		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_texts[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f);
 
 		delete[] text;
+	}
+
+	for (int i = 0; i < m_dynamicTexts.size(); i++)
+	{
+		if(m_dynamicTexts[i].mEnable)
+		{
+			const wchar_t* text = m_dynamicTexts[i].mText[m_dynamicTexts[i].mIndex].c_str();
+			m_spriteFont->DrawString(m_spriteBatch.get(), text, { 960.f, 540.f }, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 1.5f);
+		}
 	}
 	string Memory;
 	GetVideoMemoryInfo(Memory);
@@ -582,6 +611,7 @@ void Renderer::GameAppRender()
 	//그림자 렌더
 	ShadowRender();
 
+
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
@@ -639,6 +669,7 @@ void Renderer::EditorRender()
 	Clear();
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
+
 
 	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());							// 에디터용 렌더타겟에 렌더
 

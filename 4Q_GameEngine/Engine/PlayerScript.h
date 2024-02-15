@@ -1,8 +1,10 @@
 #pragma once
 #include "DynamicCollider.h"
 #include "InputManager.h"
+#include "PhysicsManager.h"
 #include "Movement.h"
 #include "Script.h"
+#include "Transform.h"
 
 class PlayerScript : public Script
 {
@@ -20,6 +22,8 @@ public:
 		PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotation(true,true,true);
 
 		InputM->SetCameraMode(true);
+
+		//m_pOwner->getWorld()->emit<Events::BroadCastPlayer>({ m_pOwner });
 	}
 
 	virtual void Update(float deltaTime) override

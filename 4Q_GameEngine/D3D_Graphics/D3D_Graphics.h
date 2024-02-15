@@ -64,14 +64,21 @@ struct cbBall
 	int mUseIBL;
 };
 
-struct DebugInformation
+struct TextInformation
 {
-	int entityID;
+	int mEntityID;
 	string mText;
-	DirectX::XMFLOAT2 mPosition;
-	float depth;
+	XMFLOAT2 mPosition;
+	float mDepth;
 };
 
+struct DynamicTextInformation
+{
+	int mEntityID;
+	int mIndex;
+	bool mEnable = false;
+	vector<wstring> mText;
+};
 struct SpriteInformation
 {
 	int mEntityID;
@@ -200,15 +207,18 @@ public:
 	void AddMeshInstance(StaticModel* model);
 
 	//디버그 정보 추가
-	void AddDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
+	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
 
 	// 디버그 정보 수정
-	void EditDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
 	void EditSpriteInformation(int id, bool isRendered);
+	void EditDynamicTextInformation(int id, int index, bool enable);
 
-	void DeleteDebugInformation(int id);
+	void DeleteTextInformation(int id);
 	void DeleteSpriteInformation(int id);
+	void DeleteDynamicTextInformation(int entId);
 
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
@@ -283,7 +293,8 @@ public:
 	void CreateShadowVS();
 	void CreateShadowPS();private:
 	string BasePath = "../Resource/";
-	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
-	vector<DebugInformation> m_debugs;
+	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
+	vector<TextInformation> m_texts;
 	vector<SpriteInformation> m_sprites;
+	vector<DynamicTextInformation> m_dynamicTexts;
 };

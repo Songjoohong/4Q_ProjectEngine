@@ -43,7 +43,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -162,12 +162,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+
+    <ClInclude Include="DynamicText.h" />
+    <ClInclude Include="POVCameraScript.h" />
     <ClInclude Include="FreeCameraScript.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="jsonSerializer.h" />
     <ClInclude Include="Matrix4x4.h" />
+    <ClInclude Include="Space.h" />
+    <ClInclude Include="SpaceSystem.h" />
     <ClInclude Include="PlayerScript.h" />
-    <ClInclude Include="POVCameraScript.h" />
     <ClInclude Include="Sprite2D.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />
@@ -214,6 +218,7 @@
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="DynamicCollider.cpp" />
     <ClCompile Include="DebugSystem.cpp" />
+    <ClCompile Include="DynamicTextScript.h" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
@@ -227,6 +232,7 @@
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ScriptSystem.cpp" />
+    <ClCompile Include="SpaceSystem.cpp" />
     <ClCompile Include="StaticCollider.cpp" />
     <ClCompile Include="SoundManager.cpp" />
     <ClCompile Include="SoundSystem.cpp" />
