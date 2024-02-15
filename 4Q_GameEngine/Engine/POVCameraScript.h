@@ -5,6 +5,9 @@
 #include "Script.h"
 #include "Transform.h"
 
+//Test
+#include "PhysicsManager.h"
+
 class POVCameraScript : public Script
 {
 public:
@@ -18,6 +21,7 @@ public:
 
 	virtual void Awake() override
 	{
+
 		if(m_pOwner->has<Transform>())
 			m_InitialY = m_pOwner->get<Transform>()->m_Position.GetY();
 	}
@@ -40,7 +44,6 @@ public:
 			m_pOwner->get<Movement>()->m_CurrentRotation[1] = InputM->GetMouseMove().y;
 		}
 
-		// 카메라 흔들림 효과
 		if(InputM->GetKey(Key::UP) || InputM->GetKey(Key::LEFT) || InputM->GetKey(Key::RIGHT) || InputM->GetKey(Key::DOWN))
 		{
 			m_ElapsedTime += deltaTime;
@@ -51,5 +54,16 @@ public:
 			m_pOwner->get<Transform>()->m_Position.SetY(m_InitialY * 0.01f + m_pOwner->get<Transform>()->m_Position.GetY() * 0.99f);
 			m_ElapsedTime = 0;
 		}
+		Vector3D size = m_pOwner->m_parent->get<BoxCollider>()->m_Size;
+		Vector3D pos=m_pOwner->m_parent->get<Transform>()->m_Position;
+		Vector3D dir = m_pOwner->get<Movement>()->m_DirectionVector;
+		
+		PxVec3 pxPos = { pos.GetX(),pos.GetY(),pos.GetZ()};
+		PxVec3 pxDir = { dir.GetX(),dir.GetY(),dir.GetZ() };
+		float r = sqrt(pow(size.GetX(), 2.f) + pow(size.GetY(), 2.f));
+		pxDir.normalize();
+		
+		pxPos = pxPos + (pxDir * r) + (pxDir);
+		PhysicsManager::GetInstance()->RayCast(pxPos, pxDir);
 	}
 };

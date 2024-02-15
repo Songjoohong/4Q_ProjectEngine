@@ -589,7 +589,9 @@ void Renderer::RenderSprite() const
 	
 }
 
-void Renderer::Render()
+
+
+void Renderer::GameAppRender()
 {
 	//그림자 맵 생성
 	m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
@@ -597,19 +599,60 @@ void Renderer::Render()
 	m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->PSSetShader(NULL, NULL, 0);
 
-	// 24.02.05 수민. 원래 여기있던 코드는 Render::RenderScene() 함수로 이동하였슴.
+	//그림자의 View, Projection 포함하여 버퍼에 업데이트
+	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
+	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
+	m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
 
-	// 전체 장면을 먼저 텍스처로 렌더링합니다.
-	//RenderToTexture();
+	m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
+	m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
-	// 씬을 그리기 위해 버퍼를 지웁니다
+	//그림자 렌더
+	ShadowRender();
+
+
+	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
-	// 백 버퍼의 장면을 정상적으로 렌더링합니다.
-	RenderScene();
+	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
+	m_pDeviceContext->RSSetViewports(1, &m_viewport);
+
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 실제 게임 렌더타겟에 렌더
+
+	//메쉬 렌더
+	RenderEnvironment();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	SphereRender();
+	MeshRender();
+
+
+	RenderDebugDraw();
+
+
+	m_spriteBatch->Begin();
+	RenderText();
+	RenderSprite();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+
+
+	//임구이 렌더
+	//RenderImgui();
 }
 
-void Renderer::RenderScene()
+void Renderer::EditorRender()
 {
+	// 렌더링 대상을 렌더링에 맞게 설정합니다.
+	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
+
+	// 렌더링을 텍스처에 지웁니다.
+	m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
+
+	//그림자 맵 생성
+	m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
+	m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pShadowMapDSV.Get());
+	m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->PSSetShader(NULL, NULL, 0);
+
 	//그림자의 View, Projection 포함하여 버퍼에 업데이트
 	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
@@ -623,11 +666,12 @@ void Renderer::RenderScene()
 	ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
-	//Clear();
+	Clear();
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 이거하면 에디터의 뷰포트에 렌더가 안됨.
 
+
+	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());							// 에디터용 렌더타겟에 렌더
 
 	//메쉬 렌더
 	RenderEnvironment();
@@ -636,7 +680,7 @@ void Renderer::RenderScene()
 	MeshRender();
 
 
-	RenderDebugDraw();	
+	RenderDebugDraw();
 
 
 	m_spriteBatch->Begin();
@@ -647,7 +691,12 @@ void Renderer::RenderScene()
 
 	//임구이 렌더
 	//RenderImgui();
+
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 }
+
+
 
 
 void Renderer::RenderEnvironment()
@@ -668,21 +717,7 @@ void Renderer::RenderEnvironment()
 	
 }
 
-void Renderer::RenderToTexture()
-{
-	// 렌더링 대상을 렌더링에 맞게 설정합니다.
-	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
 
-	// 렌더링을 텍스처에 지웁니다.
-	m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
-
-	// 이제 장면을 렌더링하면 백 버퍼 대신 텍스처로 렌더링됩니다.
-	RenderScene();
-
-	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-
-}
 
 void Renderer::RenderEnd()
 {
@@ -927,6 +962,9 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
     HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
     HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
+
+
+	
   
 	//뷰포트, 뎁스 스텐실 뷰, 샘플러 상태 설정
 	CreateViewport(width, height);
@@ -1060,14 +1098,13 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	m_RenderTexture = new RenderTextureClass;
 	// 렌더링 텍스처 객체를 초기화한다.
 	m_RenderTexture->Initialize(m_pDevice.Get(), width, height);
-  
-  	//Imgui
 
-	/*if (!InitImgui(*hWnd))
-		return false;*/
 
 	Matrix cameraInitPos = Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(180.f), DirectX::XMConvertToRadians(0.f), DirectX::XMConvertToRadians(0.f)) * Matrix::CreateTranslation(0, 150, -250);
 	SetCamera(cameraInitPos);
+
+	/*if (!InitImgui(*hWnd))
+		return false;*/
 
 
     return true;

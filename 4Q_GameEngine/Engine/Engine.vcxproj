@@ -162,16 +162,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+
     <ClInclude Include="DynamicText.h" />
     <ClInclude Include="POVCameraScript.h" />
     <ClInclude Include="FreeCameraScript.h" />
     <ClInclude Include="CameraSystem.h" />
     <ClInclude Include="jsonSerializer.h" />
-    <ClInclude Include="PlayerScript.h" />
-    <ClInclude Include="CameraScript.h" />
     <ClInclude Include="Matrix4x4.h" />
     <ClInclude Include="Space.h" />
     <ClInclude Include="SpaceSystem.h" />
+    <ClInclude Include="PlayerScript.h" />
     <ClInclude Include="Sprite2D.h" />
     <ClInclude Include="BoxCollider.h" />
     <ClInclude Include="Camera.h" />

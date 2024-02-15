@@ -25,7 +25,9 @@ void StaticModel::SetSceneResource(shared_ptr<StaticSceneResource> sceneResource
 	Math::Vector4 aabbMin = Math::Vector4(sceneResource->m_AABBmin.x, sceneResource->m_AABBmin.y, sceneResource->m_AABBmin.z, 1.0f);
 	Math::Vector4 aabbMax = Math::Vector4(sceneResource->m_AABBmax.x, sceneResource->m_AABBmax.y, sceneResource->m_AABBmax.z, 1.0f);
 	
-	
+	aabbMin = DirectX::XMVector4Transform(aabbMin, m_worldTransform);
+	aabbMax = DirectX::XMVector4Transform(aabbMax, m_worldTransform);
+
 	Vector4 aabb = (aabbMax - aabbMin) / 2;
 	m_boundingBox.Extents = Vector3(aabb.x, aabb.y, aabb.z);
 	m_boundingBox.Center = m_worldTransform.Translation()+Vector3(0, sceneResource->m_AABBmax.y - sceneResource->m_AABBmin.y, 0) * 0.5;
