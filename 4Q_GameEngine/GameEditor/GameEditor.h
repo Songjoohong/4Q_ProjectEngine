@@ -42,13 +42,16 @@ public:
 	void ShowSceneDialog();
 	void ShowSaveSceneAsPopup();
 
+	void Deserialize(ECS::World* currentWorld, const std::string& fileName);
+
+	void PlayButton();
 	// 단축키 설정
 	void HandleShortcuts();
 
 	template<typename ComponentType>
 	void AssignComponents(ECS::Entity* entity, json& componentData);
 	void NewScene();
-
+	void PlayScene();
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
 	void SetParentTransform(ECS::Entity* child, ECS::Entity* parent);
 
@@ -86,6 +89,8 @@ private:
 	int	intRotSnapValue = 0;
 	int	intScaleSnapValue = 0;
 
+	// play
+	bool m_IsPlaying = false;
 };
 
 template<typename ComponentType>

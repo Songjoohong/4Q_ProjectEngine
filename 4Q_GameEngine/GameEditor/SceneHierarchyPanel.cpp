@@ -81,6 +81,7 @@ void SceneHierarchyPanel::RenderImGui()
 				entity->Assign<EntityIdentifier>(entity->getEntityId());	// 기본적으로 생성한다. (이름정보 때문)
 				m_NameManager->AddEntityName(entity);
 				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Transform은 기본적으로 생성해준다.
+				entity->Assign<StaticMesh>();	// 아무 파일 경로도 가지지 않은 빈 StaticMesh 기본적으로 생성
 			}
 
 			ImGui::EndPopup();
@@ -90,6 +91,8 @@ void SceneHierarchyPanel::RenderImGui()
 	ImGuiIO& io = ImGui::GetIO();
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_C))
 	{
+		m_SelectionContext->get<EntityIdentifier>()->m_HasParent = false;
+		m_SelectionContext->get<EntityIdentifier>()->m_ParentEntityId = 0;
 		m_PrefabManager->SavePrefab(m_SelectionContext, "../Resource/CopiedEntity/CopiedEntity.json");
 	}
 
@@ -103,7 +106,7 @@ void SceneHierarchyPanel::RenderImGui()
 	ImGui::End();	/* Hierarchy End */
 
 	ImGui::Begin("Properties");		
-	// 선택된 오브젝트가 가진 모든 컴포넌트 정보를 출력한다. 
+	// 선택된 오브젝트가 가진 모든 컴포넌트 정보를 출력한다. 6
 	if (m_SelectionContext)
 	{
 		DrawComponents(m_SelectionContext);
@@ -411,7 +414,37 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 		}
 
 		if (removeComponent)
-			entity->remove<T>();
+		{
+			if(typeid(T) != typeid(Transform) && typeid(T) != typeid(StaticMesh) && typeid(T) != typeid(EntityIdentifier))
+				entity->remove<T>();
+		}
+	}
+	else if (m_bDrawCameraComponent)
+	{
+		ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
+
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
+		float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+		ImGui::Separator();
+		bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+		ImGui::PopStyleVar(
+		);
+		ImGui::SameLine(contentRegionAvailable.x - lineHeight * 0.5f);
+		if (ImGui::Button("+", ImVec2{ lineHeight, lineHeight }))
+		{
+			ImGui::OpenPopup("ComponentSettings");
+		}
+
+		bool removeComponent = false;
+		if (ImGui::BeginPopup("ComponentSettings"))
+		{
+			if (ImGui::MenuItem("Remove component"))
+				removeComponent = true;
+
+			ImGui::EndPopup();
+		}
+
+		ImGui::TreePop();
 	}
 }
 
@@ -447,10 +480,19 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<Script>("Script");
 		ImGui::EndPopup();
 	}
-
 	ShowStaticModelDialog();	// TODO: 수정..?
 
 	ImGui::PopItemWidth();
+
+	/*if (m_bDrawCameraComponent)
+	{
+		DrawComponent<Camera>("Camera", entity, [](auto component)
+			{
+
+			});
+
+		m_bDrawCameraComponent = false;
+	}*/
 
 	DrawComponent<EntityIdentifier>("EntityIdentifier", entity, [](auto component)
 	{
@@ -479,7 +521,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		ImGui::Text(temp.c_str());
 	});
 
-	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
+	DrawComponent
+		<BoxCollider>("BoxCollider", entity, [](auto component)
 	{
 		switch (component->m_CollisionType)
 		{
@@ -526,11 +569,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	});
 
-	DrawComponent<Camera>("Camera", entity, [](auto component)
-	{
-
-	});
-
+	
 	DrawComponent<Light>("Light", entity, [](auto component)
 	{
 		const char* lightTypeStrings[] = { "Point Light", "Directional Light" };

@@ -25,10 +25,8 @@ class ScriptSystem : public EntitySystem,
 	virtual void Receive(class World* world, const Events::OnEntityCreated& event) override
 	{
 		std::cout << "An entity was created!" << std::endl;
-		world->each<Script>([&](Entity* entity, ComponentHandle<Script> script)->void
-			{
-				script->Awake();
-			});
+		if(event.entity->has<Script>())
+			event.entity->get<Script>()->Awake();
 	}
 
 	virtual void Receive(class World* world, const Events::OnEntityDestroyed& event) override

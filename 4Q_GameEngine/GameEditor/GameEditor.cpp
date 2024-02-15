@@ -35,6 +35,7 @@
 #include "../Engine/RenderSystem.h"
 #include "../Engine/ScriptSystem.h"
 #include "../Engine/TimeManager.h"
+#include "../Engine/CollisionSystem.h"
 
 #include "Prefab.h"
 #include "NameManager.h"
@@ -253,6 +254,13 @@ void GameEditor::RenderImGui()
 		ImGui::ShowDemoWindow();
 		ImGui::End();
 
+
+		ImGui::Begin("Play");
+
+		PlayButton();
+
+		ImGui::End();
+
 		/* Viewport ------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
 		ImGui::Begin("Viewport");
@@ -388,7 +396,15 @@ void GameEditor::RenderImGui()
 
 		ImGui::Text("Entity Count : ");
 		ImGui::SameLine();
-		ImGui::Text(+std::to_string(m_EditorWorld->GetEntities().size()).c_str());	// 현재 씬에 있는 오브젝트 갯수
+
+		if (m_IsPlaying)
+		{
+			ImGui::Text(+std::to_string(m_ActiveWorld->GetEntities().size()).c_str());	// 현재 씬에 있는 오브젝트 갯수
+		}
+		else
+		{
+			ImGui::Text(+std::to_string(m_EditorWorld->GetEntities().size()).c_str());	// 현재 씬에 있는 오브젝트 갯수
+		}
 
 		std::string videoMemoryInfo;
 		RenderManager::GetInstance()->GetRender()->GetVideoMemoryInfo(videoMemoryInfo);
@@ -406,6 +422,7 @@ void GameEditor::RenderImGui()
 		ImGui::Text(mousePos.c_str());
 
 		ImGui::End();
+		
 
 	}
 	else
@@ -533,6 +550,83 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	ent->Assign<Movement>();
 	m_NameManager->ClearContainer();
 
+	Deserialize(m_EditorWorld, fileName);
+
+}
+
+void GameEditor::ShowSceneDialog()
+{
+	std::string fileName;
+
+	if (m_IsDialogOpen)
+	{
+		IGFD::FileDialogConfig config; config.path = "../Resource/scene";
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".scene", config);
+	}
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+			fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
+			// action
+
+			// 현재 에디터가 화면에 띄우고 있는 월드의 이름을 변경
+			LoadWorld("scene/" + fileName);
+
+			// ".scene" 문자열을 찾습니다.
+			size_t found = fileName.find(".scene");
+
+			// 만약 ".scene" 문자열이 발견되었다면 해당 부분을 제거합니다.
+			if (found != std::string::npos) {
+				fileName.erase(found, 6); // ".scene" 문자열은 6개의 문자로 이루어져 있습니다.
+			}
+
+			m_SceneName = fileName;
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+		m_IsDialogOpen = false;
+	}
+}
+
+void GameEditor::ShowSaveSceneAsPopup()
+{
+	if (m_isScenePopup)
+	{
+		ImGui::SetNextWindowSize(ImVec2(320, 120));
+		ImGui::OpenPopup("Scene Name");
+		if (ImGui::BeginPopupModal("Scene Name"))
+		{
+			static char sceneName[256] = ""; // Fixed-size buffer for input
+
+			ImGui::InputText("Scene Name", sceneName, sizeof(sceneName));
+			ImGui::Spacing();
+
+			if (ImGui::Button("Submit") || ImGui::IsKeyPressed(ImGuiKey_Enter))
+			{
+				// 씬 저장.
+				SaveWorld(sceneName);
+
+				m_isScenePopup = false;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::Spacing();
+
+			if (ImGui::Button("Close") || ImGui::IsKeyPressed(ImGuiKey_Escape))
+			{
+				m_isScenePopup = false;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+}
+
+void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileName)
+{
 	std::string fullPath = basePath + fileName;
 
 	// Deserialize
@@ -546,7 +640,7 @@ void GameEditor::LoadWorld(const std::string& fileName)
 		for (auto it = entity.begin(); it != entity.end(); ++it)
 		{
 			// Entity 생성 후 정보 push
-			Entity* myEntity = m_EditorWorld->create();
+			Entity* myEntity = currentWorld->create();
 
 			for (auto component : it.value())
 			{
@@ -633,9 +727,9 @@ void GameEditor::LoadWorld(const std::string& fileName)
 
 
 	//부모자식 관계 설정
-	for (const auto& childEntity : m_EditorWorld->GetEntities())
-	{	
-		for (const auto& parentEntity : m_EditorWorld->GetEntities())
+	for (const auto& childEntity : currentWorld->GetEntities())
+	{
+		for (const auto& parentEntity : currentWorld->GetEntities())
 		{
 			if (childEntity->get<EntityIdentifier>().get().m_HasParent == true)
 			{
@@ -648,78 +742,31 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	}
 
 	// HierarchyPanel에 등록
-	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
-	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
-
+	m_SceneHierarchyPanel.SetContext(currentWorld, m_PrefabManager, m_NameManager);
+	m_ContentsBrowserPanel.SetContext(currentWorld, m_PrefabManager);
 }
 
-void GameEditor::ShowSceneDialog()
+void GameEditor::PlayButton()
 {
-	std::string fileName;
-
-	if (m_IsDialogOpen)
+	if (m_IsPlaying)
 	{
-		IGFD::FileDialogConfig config; config.path = "../Resource/scene";
-		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".scene", config);
-	}
-
-	// display
-	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
-		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
-			fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
-			// action
-
-			// 현재 에디터가 화면에 띄우고 있는 월드의 이름을 변경
-			LoadWorld("scene/" + fileName);
-
-			// ".scene" 문자열을 찾습니다.
-			size_t found = fileName.find(".scene");
-
-			// 만약 ".scene" 문자열이 발견되었다면 해당 부분을 제거합니다.
-			if (found != std::string::npos) {
-				fileName.erase(found, 6); // ".scene" 문자열은 6개의 문자로 이루어져 있습니다.
-			}
-
-			m_SceneName = fileName;
-		}
-
-		// close
-		ImGuiFileDialog::Instance()->Close();
-		m_IsDialogOpen = false;
-	}
-}
-
-void GameEditor::ShowSaveSceneAsPopup()
-{
-	if (m_isScenePopup)
-	{
-		ImGui::SetNextWindowSize(ImVec2(320, 120));
-		ImGui::OpenPopup("Scene Name");
-		if (ImGui::BeginPopupModal("Scene Name"))
+		ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
+		if (ImGui::Button("||", ImVec2(40.0f, 40.0f)))
 		{
-			static char sceneName[256] = ""; // Fixed-size buffer for input
+			PlayScene();
+			m_IsPlaying = false;
 
-			ImGui::InputText("Scene Name", sceneName, sizeof(sceneName));
-			ImGui::Spacing();
+		}
+	}
+	else
+	{
+		ImGui::SetCursorPos(ImVec2(1250.0f, 35.0f));
+		if (ImGui::Button(">", ImVec2(40.0f, 40.0f)))
+		{
+			m_IsPlaying = true;
 
-			if (ImGui::Button("Submit") || ImGui::IsKeyPressed(ImGuiKey_Enter))
-			{
-				// 씬 저장.
-				SaveWorld(sceneName);
-
-				m_isScenePopup = false;
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::Spacing();
-
-			if (ImGui::Button("Close") || ImGui::IsKeyPressed(ImGuiKey_Escape))
-			{
-				m_isScenePopup = false;
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
+			m_ActiveWorld = m_EditorWorld;
+			//Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
 		}
 	}
 }
@@ -764,11 +811,40 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new MovementSystem);
 	m_EditorWorld->registerSystem(new CameraSystem);
 	m_EditorWorld->registerSystem(new ScriptSystem);
+	m_EditorWorld->registerSystem(new CollisionSystem);
 
 	// Panel들 등록
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
 	m_ContentsBrowserPanel.Initialize();
+
+	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
+	Vector3D rot = { 0.0f, 0.0f, 0.0f };
+	Vector3D scale = { 1000.0f, 1000.0f, 1000.0f };
+	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
+	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
+	Vector3D posPlayer = { 1.0f, 1.0f, 1.0f };
+
+	//Player
+	Entity* m_Player = m_EditorWorld->create();
+	m_Player->Assign<EntityIdentifier>(m_Player->getEntityId(), "Player1");
+	m_Player->Assign<Transform>(posPlayer);
+	m_Player->Assign<StaticMesh>("fbx/Character.fbx");
+	m_Player->Assign<Debug>();
+	m_Player->Assign<BoxCollider>(CollisionType::DYNAMIC, Collision_Mask::PLAYER, Vector3D{ 100.f,100.f,100.f });
+	m_Player->Assign<RigidBody>();
+	m_Player->Assign<Movement>();
+
+	// PlayerCamera
+	Entity* m_PlayerCamera = m_EditorWorld->create();
+	m_PlayerCamera->Assign<EntityIdentifier>(m_PlayerCamera->getEntityId(), "PlayerCamera");
+	m_PlayerCamera->Assign<Transform>();
+	m_PlayerCamera->Assign<Camera>();
+	m_PlayerCamera->Assign<Movement>();
+	m_PlayerCamera->Assign<POVCameraScript>(m_Player);
+
+	SetParent(m_PlayerCamera, m_Player);
+	SetParentTransform(m_PlayerCamera, m_Player);
 
 	//Free Camera
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
@@ -781,34 +857,61 @@ void GameEditor::NewScene()
 	ent->get<Script>()->m_IsFreeCamera = true;
 	ent->Assign<Movement>();
 
+
+	//Box
 	Entity* m_Box = m_EditorWorld->create();
-	Entity* m_Pot = m_EditorWorld->create();
-	Entity* m_Wall = m_EditorWorld->create();
-
-	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
-	Vector3D pos2 = { 10.0f, 30.0f, 50.0f };
-	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
-
 	m_Box->Assign<EntityIdentifier>(m_Box->getEntityId(), "Box");
+	m_Box->Assign<Transform>(pos1, rot, scale);
+
+	// Pot
+	Entity* m_Pot = m_EditorWorld->create();
 	m_Pot->Assign<EntityIdentifier>(m_Pot->getEntityId(), "Pot");
-
-	m_Box->Assign<Transform>(pos1);
 	m_Pot->Assign<Transform>(pos2);
-	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
-	SetParent(m_Pot, m_Box);
-	SetParentTransform(m_Pot, m_Box);
+	m_Pot->Assign<StaticMesh>("fbx/zeldaPosed001.fbx");
+
+	// Wall
+	Entity* m_Wall = m_EditorWorld->create();
 	m_Wall->Assign<EntityIdentifier>(m_Wall->getEntityId(), "Wall");
-
-	SetParent(m_Wall, m_Pot);
-	SetParentTransform(m_Wall, m_Pot);
-
-
-	m_Box->Assign<StaticMesh>("fbx/box.fbx");
+	m_Wall->Assign<Transform>(Vector3D(0.f, 0.f, -50.f), Vector3D(0.f, 0.f, 0.f), Vector3D(100.f, 100.f, 100.f));
+	m_Wall->Assign<StaticMesh>("fbx/Tree.fbx");
 	m_Wall->Assign<Debug>();
+
+
+
+
+	//SetParent(m_Pot, m_Box);
+	//SetParentTransform(m_Pot, m_Box);
+
+	//SetParent(m_Wall, m_Pot);
+	//SetParentTransform(m_Wall, m_Pot);
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
 		m_NameManager->AddEntityName(entity);
+	}
+}
+
+void GameEditor::PlayScene()
+{
+	if (m_IsPlaying)
+	{
+		SaveWorld(m_SceneName);
+	}
+
+	m_EditorWorld->GetEntities().clear();
+
+	m_ActiveWorld = m_EditorWorld;
+
+	m_NameManager->ClearContainer();
+	//m_ActiveWorld->registerSystem(new ScriptSystem);
+	//m_ActiveWorld->registerSystem(new RenderSystem);
+	//m_ActiveWorld->registerSystem(new TransformSystem);
+	//m_ActiveWorld->registerSystem(new MovementSystem);
+	//m_ActiveWorld->registerSystem(new CameraSystem);
+
+	if (m_IsPlaying)
+	{
+		Deserialize(m_ActiveWorld, "scene/" + m_SceneName + ".scene");
 	}
 }
 
