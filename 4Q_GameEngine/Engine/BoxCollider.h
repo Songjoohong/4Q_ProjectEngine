@@ -2,6 +2,13 @@
 #include "ECS.h"
 #include "Vector3D.h"
 
+enum  CollisionState
+{
+	ENTER,
+	STAY,
+	EXIT,
+	NONE
+};
 
 enum ColliderType
 {
@@ -10,7 +17,7 @@ enum ColliderType
 	PLANE,
 };
 
-enum Collision_Mask
+enum CollisionMask
 {
 	PLAYER =(1<<0),
 	WALL = (2 << 0),
@@ -25,7 +32,7 @@ struct BoxCollider
 
 	BoxCollider() = default;
 
-	BoxCollider(ColliderType type,Collision_Mask collisionmask, Vector3D scale)
+	BoxCollider(ColliderType type,CollisionMask collisionmask, Vector3D scale)
 		: m_ColliderType(type)
 		, m_CollisionType(collisionmask)
 		, m_Size(scale)
@@ -33,12 +40,13 @@ struct BoxCollider
 
 	std::string m_ComponentName = "BoxCollider";
 	ColliderType m_ColliderType;
-	Collision_Mask m_CollisionType;
+	CollisionMask m_CollisionType;
+	CollisionState m_State=CollisionState::NONE;
 	Vector3D m_Center = { 0.f,0.f,0.f };
 	Vector3D m_Size = { 1.f,1.f,1.f };
 	Vector3D m_Rotation = { 0.f,0.f,0.f };
 	bool m_IsTrigger = false;
-
+	bool m_IsRaycastHit = false;
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(BoxCollider, m_ComponentName, m_ColliderType,m_CollisionType, m_Center, m_Size, m_IsTrigger)
 
 };

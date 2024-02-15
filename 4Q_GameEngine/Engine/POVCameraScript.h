@@ -34,10 +34,16 @@ public:
 			m_pOwner->get<Movement>()->m_CurrentRotation[1] = InputM->GetMouseMove().y;
 		}
 
-		Vector3D pos=m_pOwner->get<Transform>()->m_Position;
-		PxVec3 pxPos = { pos.GetX(),pos.GetY(),pos.GetZ() };
-		PxVec3 dir = { direction.GetX(),direction.GetY(),direction.GetZ() };
-		dir.normalize();
-		PhysicsManager::GetInstance()->RayCast(pxPos, dir);
+		Vector3D size = m_pOwner->m_parent->get<BoxCollider>()->m_Size;
+		Vector3D pos=m_pOwner->m_parent->get<Transform>()->m_Position;
+		Vector3D dir = m_pOwner->get<Movement>()->m_DirectionVector;
+		
+		PxVec3 pxPos = { pos.GetX(),pos.GetY(),pos.GetZ()};
+		PxVec3 pxDir = { dir.GetX(),dir.GetY(),dir.GetZ() };
+		float r = sqrt(pow(size.GetX(), 2.f) + pow(size.GetY(), 2.f));
+		pxDir.normalize();
+		
+		pxPos = pxPos + (pxDir * r) + (pxDir);
+		PhysicsManager::GetInstance()->RayCast(pxPos, pxDir);
 	}
 };

@@ -34,10 +34,10 @@ void DynamicCollider::UpdatePhysics()
 	m_pOwner->m_Center.SetY(pxTrans.p.y);
 	m_pOwner->m_Center.SetZ(pxTrans.p.z);
 
-	PxReal angle = 180.f / PxPi;
-	m_pOwner->m_Rotation.SetX(pxTrans.q.x * angle);
-	m_pOwner->m_Rotation.SetY(pxTrans.q.y * angle);
-	m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
+	//PxReal angle = 180.f / PxPi;
+	//m_pOwner->m_Rotation.SetX(pxTrans.q.x * angle);
+	//m_pOwner->m_Rotation.SetY(pxTrans.q.y * angle);
+	//m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
 
 }
 
