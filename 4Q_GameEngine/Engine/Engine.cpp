@@ -40,6 +40,8 @@
 #include "UI.h"
 
 #include "EntityIdentifier.h"
+#include "Space.h"
+#include "SpaceSystem.h"
 #define ENGINE_DEBUG
 
 #ifdef ENGINE_DEBUG
@@ -116,7 +118,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
 	EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
-	
+	EntitySystem* spaceSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpaceSystem());
 
 
 	//Free Camera
@@ -135,11 +137,13 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::GROUND,Vector3D{ 1000.f,1.f,1000.f });
 
 
-
+	vector<ExitInfo> exit;
+	exit.push_back({ 1, Vector3D{ 100.f,100.f,100.f } });
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
 	ent2->Assign<Transform>(Vector3D(0.f, 100.f, 0.f));
 	ent2->Assign<BoxCollider>(ColliderType::DYNAMIC, CollisionMask::PLAYER, Vector3D{100.f,100.f,100.f});
+	ent2->Assign<Space>(1, exit);
 	ent2->Assign<Debug>();
 	ent2->Assign<PlayerScript>(ent2);
 	ent2->Assign<RigidBody>();
@@ -179,6 +183,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent6->Assign<Camera>();
 	ent6->Assign<POVCameraScript>(ent6);
 	ent6->Assign<Movement>();
+	ent6->Assign<Space>(1, exit);
 	ent6->SetParent(ent2);
 
 	/*SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	

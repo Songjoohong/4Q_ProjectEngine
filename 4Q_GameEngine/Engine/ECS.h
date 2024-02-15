@@ -404,6 +404,8 @@ namespace ECS
 
 			Entity* objectEntity;
 			Entity* subjectEntity;
+			int objectExit;
+			int subjectExit;
 		};
 
 		struct DynamicTextChange
@@ -1216,7 +1218,7 @@ namespace ECS
 	ComponentHandle<T> Entity::Assign(Args&&... args)
 	{
 		using ComponentAllocator = std::allocator_traits<World::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
-
+		auto i = this;
 		auto found = components.find(getTypeIndex<T>());
 		if (found != components.end())
 		{
