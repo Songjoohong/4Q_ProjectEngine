@@ -16,7 +16,7 @@ void StaticCollider::Initialize()
 
 	// 석영 : shape 현재 Box만 사용.
 	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
-	if (m_pOwner->m_CollisionType == Collision_Mask::TRIGGER)
+	if (m_pOwner->m_CollisionType == CollisionMask::TRIGGER)
 	{
 		m_pShape->setFlags(PxShapeFlag::eTRIGGER_SHAPE);
 	}

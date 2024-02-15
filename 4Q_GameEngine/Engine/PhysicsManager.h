@@ -29,13 +29,12 @@ public:
 	void DebugSetUp();
 	void InitFilterData();
 	void AddToCollisionQueue(int entId);
+	void SendDataToObjects();
 
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
-	PxFilterData* GetFilterData(Collision_Mask type) { return m_pFilterDatas[type]; }
+	PxFilterData* GetFilterData(CollisionMask type) { return m_pFilterDatas[type]; }
 	DynamicCollider* GetDynamicCollider(int entId);
-	//queue<pair<int, StaticCollider*>> GetCollisionQue() { return m_CollisionQue; }
-
 
 public:
 	PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> 시각화 하여 디버깅 할 수 있는 프로그램
@@ -54,7 +53,7 @@ private:
 	queue<pair<int, StaticCollider*>> m_CollisionQue;
 
 	// Filter 관련 ---석영 : 일단 이렇게 해놓고..깔끔하게 바꿀 수 있으면 바꿀게요..
-	map<Collision_Mask, PxFilterData*> m_pFilterDatas;
+	map<CollisionMask, PxFilterData*> m_pFilterDatas;
 };
 
 class FilterCallback

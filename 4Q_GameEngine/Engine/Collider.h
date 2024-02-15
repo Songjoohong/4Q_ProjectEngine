@@ -7,18 +7,10 @@ using namespace physx;
 	석영 : modifypair 만들어야함
 */
 
-enum  CollisionState
-{
-	ENTER,
-	STAY,
-	EXIT,
-	NONE 
-};
-
 struct UserData
 {
 	int m_EntityId;
-	Collision_Mask m_CollisionType;
+	CollisionMask m_CollisionType;
 	CollisionState m_State;
 };
 
