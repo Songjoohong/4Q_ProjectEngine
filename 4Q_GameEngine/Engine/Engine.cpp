@@ -122,14 +122,16 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 	
 
-	//Free Camera
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
-	ent->Assign<Camera>();
-	ent->Assign<FreeCameraScript>(ent);
-	ent->Assign<Movement>();
+
+  
+	////Free Camera
+	//Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
+ //   ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//ent->Assign<Debug>();
+	//ent->Assign<Camera>();
+	//ent->Assign<FreeCameraScript>(ent);
+	//ent->Assign<Movement>();
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
@@ -138,11 +140,10 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent1->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND,Vector3D{ 10.f,1.f,10.f });
 
 
-
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
-	ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
-	ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, Collision_Mask::PLAYER,Vector3D{100.f,100.f,100.f});
+	ent2->Assign<Transform>(Vector3D(0.f, 100.f, 0.f));
+	ent2->Assign<BoxCollider>(ColliderType::DYNAMIC, Collision_Mask::PLAYER, Vector3D{100.f,100.f,100.f});
 	ent2->Assign<Debug>();
 	ent2->Assign<PlayerScript>(ent2);
 	ent2->Assign<RigidBody>();
@@ -150,17 +151,14 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 
 	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-
-	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
-	ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND, Vector3D{ 10000.f,1.f,10000.f });
+	ent3->Assign<Transform>(Vector3D(-300.f, 10.f, 100.f));
+	ent3->Assign<BoxCollider>(ColliderType::STATIC, Collision_Mask::OBJECT, Vector3D{ 100.f,100.f,100.f });
 
 	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent4->Assign<EntityIdentifier>(ent4->getEntityId(), "Zelda2");
 	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
-
+	ent4->Assign<Transform>(Vector3D(200.f, 10.f, 0.f));
+	ent4->Assign<BoxCollider>(ColliderType::STATIC, Collision_Mask::TRIGGER, Vector3D{ 100.f,100.f,100.f });
 
 	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
@@ -169,12 +167,12 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 100,100 );
 	ent5->Assign<TestUIScript>(ent5);
 
-	/*Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent6->Assign<Transform>(Vector3D{ -20.f,100.f,0.f });
 	ent6->Assign<Camera>();
 	ent6->Assign<POVCameraScript>(ent6);
 	ent6->Assign<Movement>();
-	ent6->SetParent(ent2);*/
+	ent6->SetParent(ent2);
 
 	/*SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");*/	 

@@ -16,16 +16,18 @@ void StaticCollider::Initialize()
 
 	// 석영 : shape 현재 Box만 사용.
 	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
-	m_pRigidActor = m_Rigid;
-	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_pRigidActor);
+	if (m_pOwner->m_CollisionType == Collision_Mask::TRIGGER)
+	{
+		m_pShape->setFlags(PxShapeFlag::eTRIGGER_SHAPE);
+	}
+	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_Rigid);
 	SetFilterData();
 }
 
 void StaticCollider::SetFilterData()
 {
-	PxFilterData* filter = PhysicsManager::GetInstance()->GetFilterData(m_pOwner->m_CollisionMask);
+	PxFilterData* filter = PhysicsManager::GetInstance()->GetFilterData(m_pOwner->m_CollisionType);
 	assert(filter != nullptr);
 	m_pShape->setSimulationFilterData(*filter);
-	PxU32 filterdata = filter->word0;
-	m_Rigid->userData = (void*)filter;
+
 }
