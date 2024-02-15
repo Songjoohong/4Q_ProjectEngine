@@ -47,6 +47,9 @@
     <ClInclude Include="ImGuiFileDialogConfig.h">
       <Filter>ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="jsonSerializer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameEditor.cpp">

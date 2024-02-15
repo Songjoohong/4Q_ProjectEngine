@@ -215,9 +215,6 @@
     <ClInclude Include="FreeCameraScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
-    <ClInclude Include="CameraScript.h">
-      <Filter>Component\Script</Filter>
-    </ClInclude>
     <ClInclude Include="PlayerScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>

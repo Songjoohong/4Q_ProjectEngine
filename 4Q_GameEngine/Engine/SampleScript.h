@@ -5,9 +5,13 @@
 
 class SampleScript : public Script
 {
+	ECS_DECLARE_TYPE
 public:
 	SampleScript() = default;
-
+	SampleScript(Entity* ent)
+		:Script(ent)
+	{
+	}
 	virtual void Update(float deltaTime) override
 	{
 		//Entity* owner = GetOwner(); // 이 스크립트의 엔티티를 가리킴
@@ -17,3 +21,5 @@ public:
 	std::string m_ComponentName = "SampleScript";
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(SampleScript, m_ComponentName)
 };
+
+ECS_DEFINE_TYPE(SampleScript)

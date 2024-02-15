@@ -557,16 +557,6 @@ namespace ECS
 
 		Entity* getParent() const { return m_parent; }
 
-		//void addChild(Entity* child)
-		//{
-		//	child->SetParent(this);
-		//	m_children.push_back(child);
-		//}
-
-		//void SetParent(Entity* parent)
-		//{
-		//	this->m_parent = parent;
-		//}
 
 		// ¼ö¹Î --------------------------------------------------------------------------------------------------------
 
@@ -635,7 +625,6 @@ namespace ECS
 		
 		size_t id;
 		bool bPendingDestroy = false;
-		Entity* parentEntity = nullptr;
 	};
 
 	/**
@@ -1125,7 +1114,8 @@ namespace ECS
 		}
 		if (ent->m_parent != nullptr)
 		{
-			ent->m_parent->m_children.clear();
+			ent->m_parent->RemoveChild(ent);
+			//ent->m_parent->m_children.clear();
 		}
 		ent->bPendingDestroy = true;
 		emit<Events::OnEntityDestroyed>({ ent });
@@ -1135,6 +1125,12 @@ namespace ECS
 			entities.erase(std::remove(entities.begin(), entities.end(), ent), entities.end());
 			std::allocator_traits<EntityAllocator>::destroy(entAlloc, ent);
 			std::allocator_traits<EntityAllocator>::deallocate(entAlloc, ent, 1);
+		}
+
+		for (Entity* child : ent->m_children)
+		{
+			destroy(child);
+			ent->RemoveChild(child);
 		}
 	}
 

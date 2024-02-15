@@ -3,7 +3,7 @@
 #include "Prefab.h"
 #include "d3d11.h"
 #include "../D3D_Graphics/D3D_Graphics.h"
-static const std::filesystem::path s_AssetsPath = "../Test";
+static const std::filesystem::path s_AssetsPath = "../Resource/";
 
 ContentsBrowserPanel::ContentsBrowserPanel()
 	:m_CurrentDirectory(s_AssetsPath)
@@ -12,7 +12,7 @@ ContentsBrowserPanel::ContentsBrowserPanel()
 
 void ContentsBrowserPanel::Initialize()
 {
-	std::string pngPath = "../Test/Png/box.png";
+	std::string pngPath = "../Resource/UI/box.png";
 	auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
 	CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &texture);
 }
@@ -51,13 +51,16 @@ void ContentsBrowserPanel::RenderImGui()
 		//나중에 ImageButton으로 수정
 		//ImGui::Button(filenameString.c_str(), { thumbnailSize, thumbnailSize });
 
-		ImGui::ImageButton((void*)texture, { 128,128 });
+		ImGui::ImageButton((void*)texture, { thumbnailSize, thumbnailSize });
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
-			/*if (directoryEntry.is_directory())
-				m_CurrentDirectory /= path.filename();*/
-			m_PrefabManager->LoadPrefab(filenameString);
-			//m_PrefabManager->SavePrefab(m_PrefabManager->LoadPrefab(filenameString), filenameString);
+			if (directoryEntry.is_directory())
+			{
+				m_CurrentDirectory /= path.filename();
+				continue;
+			}
+			
+			m_PrefabManager->LoadPrefab("../Resource/" + filenameString);
 			m_PrefabManager->m_prefabContainer.clear();
 		}
 		ImGui::Text(filenameString.c_str());
@@ -80,28 +83,3 @@ void ContentsBrowserPanel::SetContext(ECS::World* world, std::shared_ptr<PrefabM
 	m_PrefabManager->SetContext(world);
 }
 
-void ContentsBrowserPanel::DragDropContentsBrowser(ECS::Entity* entity, std::filesystem::path file)
-{
-	size_t entityID = entity->getEntityId();
-
-	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-	{
-		ID3D11ShaderResourceView* texture;
-		std::string pngPath = "../Test/Png/box.png";
-		auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
-		CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &texture);
-		ImGui::Image((void*)texture, { 128,128 });
-		ImGui::SetDragDropPayload("PrefabName", &file, 1 * sizeof(size_t));
-		ImGui::EndDragDropSource();
-	}
-
-	if (ImGui::BeginDragDropTarget())
-	{
-		const ImGuiPayload* payLoad = ImGui::AcceptDragDropPayload("PrefabName");
-
-		if (payLoad)
-		{
-			
-		}
-	}
-}
