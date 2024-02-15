@@ -502,27 +502,27 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			break;
 		}
 
-		switch (component->m_CollisionMask)
-		{
-		case(0):
-			ImGui::Text("CollisionMask : Player");
-			break;
-		case(1):
-			ImGui::Text("CollisionMask : Wall");
-			break;
-		case(2):
-			ImGui::Text("CollisionMask : Ground");
-			break;
-		case(3):
-			ImGui::Text("CollisionMask : Slope");
-			break;
-		case(4):
-			ImGui::Text("CollisionMask : Object");
-			break;
-		case(5):
-			ImGui::Text("CollisionMask : Block");
-			break;
-		}
+		//switch (component->m_CollisionMask)
+		//{
+		//case(0):
+		//	ImGui::Text("CollisionMask : Player");
+		//	break;
+		//case(1):
+		//	ImGui::Text("CollisionMask : Wall");
+		//	break;
+		//case(2):
+		//	ImGui::Text("CollisionMask : Ground");
+		//	break;
+		//case(3):
+		//	ImGui::Text("CollisionMask : Slope");
+		//	break;
+		//case(4):
+		//	ImGui::Text("CollisionMask : Object");
+		//	break;
+		//case(5):
+		//	ImGui::Text("CollisionMask : Block");
+		//	break;
+		//}
 
 		DrawVec3Control("Center", component->m_Center);
 		DrawVec3Control("Size", component->m_Size);

@@ -36,9 +36,9 @@ void PhysicsManager::Initialize()
 
 	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
 
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
 #endif // _DEBUG
-	// 석영 : PxScene 생성 
+	// 석영 : PxScene 생성
+	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
 	PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -98.1f, 0.0f);
 	m_pDispatcher = PxDefaultCpuDispatcherCreate(2);

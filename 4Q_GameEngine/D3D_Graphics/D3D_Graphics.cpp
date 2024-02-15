@@ -680,13 +680,13 @@ void Renderer::EditorRender()
 	MeshRender();
 
 
-	RenderDebugDraw();
+	//RenderDebugDraw();
 
 
-	m_spriteBatch->Begin();
-	RenderText();
-	RenderSprite();
-	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	//m_spriteBatch->Begin();
+	//RenderText();
+	//RenderSprite();
+	//m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 
 	//임구이 렌더
