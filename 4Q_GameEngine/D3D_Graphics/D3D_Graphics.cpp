@@ -96,9 +96,9 @@ void Renderer::AddSpriteInformation(int id, const std::string& filePath, const X
     m_sprites.push_back(SpriteInformation{ id, layer, true, position, texture });
 }
 
-void Renderer::AddDynamicTextInformation(int entId, const vector<std::string>& vector)
+void Renderer::AddDynamicTextInformation(int entId, const vector<std::wstring>& vector)
 {
-	m_dynamicTexts.push_back({ entId, 0, true, vector });
+	m_dynamicTexts.push_back({ entId, 0, false, vector });
 }
 
 void Renderer::EditTextInformation(int id, const std::string& text, const Vector3D& position)
@@ -255,6 +255,7 @@ const wchar_t* Renderer::ConvertToWchar(const string& str) const
 	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, finalText, bufferSize);
 
 	return finalText;
+	return nullptr;
 }
 
 void Renderer::CreateSamplerState()
@@ -546,10 +547,8 @@ void Renderer::RenderText() const
 	{
 		if(m_dynamicTexts[i].mEnable)
 		{
-			const wchar_t* text = ConvertToWchar(m_dynamicTexts[i].mText[m_dynamicTexts[i].mIndex]);
-			m_spriteFont->DrawString(m_spriteBatch.get(), text, { 960.f, 540.f }, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
-
-			delete[] text;
+			const wchar_t* text = m_dynamicTexts[i].mText[m_dynamicTexts[i].mIndex].c_str();
+			m_spriteFont->DrawString(m_spriteBatch.get(), text, { 960.f, 540.f }, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 1.5f);
 		}
 	}
 	string Memory;

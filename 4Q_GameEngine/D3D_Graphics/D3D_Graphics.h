@@ -76,8 +76,8 @@ struct DynamicTextInformation
 {
 	int mEntityID;
 	int mIndex;
-	bool mEnable = true;
-	vector<string> mText;
+	bool mEnable = false;
+	vector<wstring> mText;
 };
 struct SpriteInformation
 {
@@ -209,7 +209,7 @@ public:
 	//디버그 정보 추가
 	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
-	void AddDynamicTextInformation(int entId, const vector<std::string>& vector);
+	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
 
 	// 디버그 정보 수정
 	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
@@ -291,7 +291,7 @@ public:
 	void CreateShadowVS();
 	void CreateShadowPS();private:
 	string BasePath = "../Resource/";
-	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
+	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
 	vector<TextInformation> m_texts;
 	vector<SpriteInformation> m_sprites;
 	vector<DynamicTextInformation> m_dynamicTexts;

@@ -8,13 +8,13 @@ struct DynamicText
 	ECS_DECLARE_TYPE
 
 	DynamicText() = default;
-	explicit DynamicText(const std::vector<std::string>& text, const float correction = 0.f, const float distance = 100.f)
+	explicit DynamicText(const std::vector<std::wstring>& text, const float correction = 0.f, const float distance = 100.f)
 		: m_Text(text)
 		, m_TriggerDistance(distance)
 	{}
 	~DynamicText() = default;
 	
-	std::vector<std::string> m_Text;
+	std::vector<std::wstring> m_Text;
 	float m_TriggerDistance = 100.f;
 	int m_CurrentTextIndex = 0;
 	bool m_IsTextShow = false;

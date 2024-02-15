@@ -76,7 +76,7 @@ void RenderManager::AddSprite(int entID, const std::string& filePath, POINT pos,
 	Renderer::Instance->AddSpriteInformation(entID, filePath, DirectX::XMFLOAT2{static_cast<float>(pos.x), static_cast<float>(pos.y)}, layer);
 }
 
-void RenderManager::AddDynamicText(int entID, const vector<std::string>& textVector)
+void RenderManager::AddDynamicText(int entID, const vector<std::wstring>& textVector)
 {
 	Renderer::Instance->AddDynamicTextInformation(entID, textVector);
 }

@@ -1,9 +1,10 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Engine.h"
 
 
+#include <codecvt>
 #include <imgui.h>
-
+#include <string.h>
 #include <directxtk/SimpleMath.h>
 
 
@@ -32,7 +33,6 @@
 #include "StaticMesh.h"
 #include "TransformSystem.h"
 #include "UISystem.h"
-#include "imgui.h"
 #include "PhysicsManager.h"
 #include "PlayerScript.h"
 #include "RigidBody.h"
@@ -145,10 +145,17 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent2->Assign<RigidBody>();
 	ent2->Assign<Movement>();
 
+	setlocale(LC_ALL, "Korean");
+	std::vector<std::wstring> wideStrings;
+	std::wstring text = L"안녕하세요";
+	std::wstring text1 = L"안녕히\n가세요";
+
+	wideStrings.push_back(text);
+	wideStrings.push_back(text1);
 
 	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
-	ent3->Assign<DynamicText>(vector<std::string>{ "hello", "world" });
+	ent3->Assign<DynamicText>(wideStrings);
 	ent3->Assign<DynamicTextScript>(ent3);
 	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f));
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
