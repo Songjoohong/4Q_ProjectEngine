@@ -135,9 +135,10 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
-	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D{ 1000.f,1000.f,1000.f });
-	ent1->Assign<BoxCollider>(ColliderType::STATIC, Collision_Mask::GROUND,Vector3D{10000.f,1.f,10000.f});
+	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 10.f,1.f,10.f });
+	ent1->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND,Vector3D{ 10.f,1.f,10.f });
+
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
@@ -220,7 +221,7 @@ void Engine::Update()
 void Engine::Render()
 {
 	RenderManager::GetInstance()->RenderBegin();
-	RenderManager::GetInstance()->Render();
+	RenderManager::GetInstance()->GameAppRender();
 	RenderManager::GetInstance()->RenderEnd();
 }
 

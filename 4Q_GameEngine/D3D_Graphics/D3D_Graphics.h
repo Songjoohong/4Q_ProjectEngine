@@ -53,7 +53,7 @@ struct cbProjection
 
 struct cbLight
 {
-	Vector4 mDirection = {0.f, 0.f, 1.f, 1.f};
+	Vector4 mDirection = {0.f, -1.f, 1.f, 1.f};
 };
 
 struct cbBall
@@ -264,13 +264,15 @@ public:
 
 
 	void RenderBegin();
-	void Render();
+
+	void GameAppRender();
+	void EditorRender();
 
 
 	void RenderEnvironment();
 
-	void RenderScene();	// 수민
-	void RenderToTexture();	// 수민
+
+
 
 	void RenderEnd();
 	bool InitImgui(HWND hWnd);

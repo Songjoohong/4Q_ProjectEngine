@@ -20,7 +20,8 @@ public:
 	void Update();
 
 	void RenderBegin();
-	void Render();
+	void GameAppRender();
+	void EditorRender();
 	void RenderEnd();
 
 	void CreateModel(std::string filename);
