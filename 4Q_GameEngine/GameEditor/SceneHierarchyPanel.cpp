@@ -271,6 +271,8 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 			if (entity->m_parent != nullptr)
 			{
 				entity->m_parent->RemoveChild(entity);
+				entity->get<EntityIdentifier>()->m_HasParent = false;
+				entity->get<EntityIdentifier>()->m_ParentEntityId = 0;
 			}
 		}
 

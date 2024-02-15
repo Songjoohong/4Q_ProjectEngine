@@ -212,6 +212,7 @@
     <ClInclude Include="POVCameraScript.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="CameraScript.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
@@ -280,5 +281,6 @@
     <ClCompile Include="UISystem.cpp">
       <Filter>System\UI</Filter>
     </ClCompile>
+    <ClCompile Include="MyPOINT.cpp" />
   </ItemGroup>
 </Project>
