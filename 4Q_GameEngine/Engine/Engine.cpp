@@ -1,9 +1,10 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Engine.h"
 
 
+#include <codecvt>
 #include <imgui.h>
-
+#include <string.h>
 #include <directxtk/SimpleMath.h>
 
 
@@ -14,6 +15,8 @@
 #include "CollisionSystem.h"
 #include "Debug.h"
 #include "DebugSystem.h"
+#include "DynamicText.h"
+#include "DynamicTextScript.h"
 #include "EntityIdentifier.h"
 #include "TimeManager.h"
 #include "InputManager.h"
@@ -30,7 +33,6 @@
 #include "StaticMesh.h"
 #include "TransformSystem.h"
 #include "UISystem.h"
-#include "imgui.h"
 #include "PhysicsManager.h"
 #include "PlayerScript.h"
 #include "RigidBody.h"
@@ -96,12 +98,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ShowWindow(m_hWnd, SW_SHOW);
 	UpdateWindow(m_hWnd);
 
-
-	int speed = 10;
-	SystemParametersInfo(SPI_SETMOUSESPEED, 0, (void*)speed, SPIF_SENDCHANGE);
-	ShowCursor(TRUE);
-
-
 	// 매니저 초기화
 	RenderManager::GetInstance()->Initialize(&m_hWnd, width, height);
 	TimeManager::GetInstance()->Initialize();
@@ -122,57 +118,68 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 	
 
-	////Free Camera
-	/*Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
-	ent->Assign<Camera>();
-	ent->Assign<FreeCameraScript>(ent);
-	ent->get<Script>()->m_ComponentName = "FreeCameraScript";
-	ent->get<Script>()->m_IsFreeCamera = true;
-	ent->Assign<Movement>();*/
 
-	//Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
-	//ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/plane.fbx");
-	//ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(90.f, 0.f, 0.f), Vector3D{ 1000.f,1000.f,1000.f });
-	//ent1->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND,Vector3D{10000.f,1.f,10000.f});
+	//Free Camera
+	//Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
+	//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//ent->Assign<Debug>();
+	//ent->Assign<Camera>();
+	//ent->Assign<FreeCameraScript>(ent);
+	//ent->Assign<Movement>();
+
+	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
+	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 10.f,1.f,10.f });
+	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::GROUND,Vector3D{ 1000.f,1.f,1000.f });
 
 
-	//Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
-	//ent2->Assign<Transform>(Vector3D(100.f, 1000.f, 0.f));
-	//ent2->Assign<BoxCollider>(CollisionType::DYNAMIC, Collision_Mask::PLAYER,Vector3D{100.f,100.f,100.f});
-	//ent2->Assign<Debug>();
-	//ent2->Assign<PlayerScript>(ent2);
-	//ent2->Assign<RigidBody>();
-	//ent2->Assign<Movement>();
 
-	//Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
-	//ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	//ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
-	//ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::OBJECT, Vector3D{ 100.f,1.f,100.f });
+	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
+	ent2->Assign<Transform>(Vector3D(0.f, 100.f, 0.f));
+	ent2->Assign<BoxCollider>(ColliderType::DYNAMIC, CollisionMask::PLAYER, Vector3D{100.f,100.f,100.f});
+	ent2->Assign<Debug>();
+	ent2->Assign<PlayerScript>(ent2);
+	ent2->Assign<RigidBody>();
+	ent2->Assign<Movement>();
 
-	//Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent4->Assign<EntityIdentifier>(ent4->getEntityId(), "Zelda2");
-	//ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	//ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	setlocale(LC_ALL, "Korean");
+	std::vector<std::wstring> wideStrings;
+	std::wstring text = L"안녕하세요";
+	std::wstring text1 = L"안녕히\n가세요";
 
-	//Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
-	//ent5->Assign<EntityIdentifier>(ent5->getEntityId(), "ui");
-	//ent5->Assign<UI>(100, 100);
-	//ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 100,100 );
-	//ent5->Assign<TestUIScript>(ent5);
+	wideStrings.push_back(text);
+	wideStrings.push_back(text1);
 
-	/*Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+
+	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
+	ent3->Assign<DynamicText>(wideStrings);
+	ent3->Assign<DynamicTextScript>(ent3);
+	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f));
+	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	
+	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent4->Assign<Transform>(Vector3D(200.f, 10.f, 0.f));
+	ent4->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::TRIGGER, Vector3D{ 100.f,100.f,100.f });
+
+
+	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	ent5->Assign<EntityIdentifier>(ent5->getEntityId(), "ui");
+	ent5->Assign<UI>(100, 100);
+	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 100,100 );
+	ent5->Assign<TestUIScript>(ent5);
+
+	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent6->Assign<Transform>(Vector3D{ -20.f,100.f,0.f });
 	ent6->Assign<Camera>();
 	ent6->Assign<POVCameraScript>(ent6);
 	ent6->Assign<Movement>();
-	ent6->SetParent(ent2);*/
+	ent6->SetParent(ent2);
 
 	/*SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");*/	 
@@ -221,7 +228,7 @@ void Engine::Update()
 void Engine::Render()
 {
 	RenderManager::GetInstance()->RenderBegin();
-	RenderManager::GetInstance()->Render();
+	RenderManager::GetInstance()->GameAppRender();
 	RenderManager::GetInstance()->RenderEnd();
 }
 

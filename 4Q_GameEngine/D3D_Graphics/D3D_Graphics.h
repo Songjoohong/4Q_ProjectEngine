@@ -53,17 +53,32 @@ struct cbProjection
 
 struct cbLight
 {
-	Vector4 mDirection = {0.f, 0.f, 1.f, 1.f};
+	Vector4 mDirection = {0.f, -1.f, 1.f, 1.f};
 };
 
-struct DebugInformation
+struct cbBall
 {
-	int entityID;
-	string mText;
-	DirectX::XMFLOAT2 mPosition;
-	float depth;
+	float mMetalic;
+	float mRoughness;
+	float mAmbient;
+	int mUseIBL;
 };
 
+struct TextInformation
+{
+	int mEntityID;
+	string mText;
+	XMFLOAT2 mPosition;
+	float mDepth;
+};
+
+struct DynamicTextInformation
+{
+	int mEntityID;
+	int mIndex;
+	bool mEnable = false;
+	vector<wstring> mText;
+};
 struct SpriteInformation
 {
 	int mEntityID;
@@ -88,10 +103,11 @@ public:
 	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;					//스왑체인
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
-	ComPtr<ID3D11DepthStencilState>m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
+	ComPtr<ID3D11DepthStencilState> m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
+	ComPtr<ID3D11BlendState> m_pAlphaBlendState = nullptr;			//알파 블렌드 스테이트
 
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
-	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;				//샘플러(clamp)
+	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;			//샘플러(clamp)
 
 
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
@@ -103,12 +119,16 @@ public:
 	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
 	ComPtr<ID3D11PixelShader> m_pEnvironmentPS;
+	ComPtr<ID3D11PixelShader> m_pSpherePS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
 	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
 	ComPtr<ID3D11SamplerState> m_pShadowSampler;
 	D3D11_VIEWPORT m_viewport;
 	D3D11_VIEWPORT m_shadowViewport;
+
+
+
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	RenderTextureClass* m_RenderTexture = nullptr;	// 수민 추가.
@@ -118,6 +138,7 @@ public:
 
 	ComPtr<ID3D11Buffer> m_pPointLightBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pLightBuffer = nullptr;
+	ComPtr<ID3D11Buffer> m_pSphereBuffer = nullptr;
 
 	vector<ColliderBox> m_colliderBox;
 	
@@ -153,6 +174,10 @@ public:
 	// minejong : shadow dir
 	Vector3 m_shadowDirection;
 
+	//스피어 테스트
+	cbBall m_sphereCB;
+	StaticModel* m_pSphere;
+
 	DirectX::BoundingFrustum m_frustumCmaera;
 
 public:
@@ -161,6 +186,7 @@ public:
 
 	void UnInitialize();
 
+	void SetAlphaBlendState();
 
 	//화면 클리어
 	void Clear(float r=0.3,float g=1,float b=0.3);
@@ -181,15 +207,18 @@ public:
 	void AddMeshInstance(StaticModel* model);
 
 	//디버그 정보 추가
-	void AddDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
+	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
 
 	// 디버그 정보 수정
-	void EditDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
 	void EditSpriteInformation(int id, bool isRendered);
+	void EditDynamicTextInformation(int id, int index, bool enable);
 
-	void DeleteDebugInformation(int id);
+	void DeleteTextInformation(int id);
 	void DeleteSpriteInformation(int id);
+	void DeleteDynamicTextInformation(int entId);
 
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(std::string filename);
@@ -214,9 +243,15 @@ public:
 
 	void ApplyMaterial(Material* pMaterial);
 
+
+	//스피어 렌더
+	void SphereInit(string filename);
+	void SphereRender();
+
 	Math::Matrix GetViewMatrix() { return m_viewMatrix; }
 
 	Math::Matrix GetProjectionMatrix() { return m_projectionMatrix; }
+
 	
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
@@ -239,13 +274,15 @@ public:
 
 
 	void RenderBegin();
-	void Render();
+
+	void GameAppRender();
+	void EditorRender();
 
 
 	void RenderEnvironment();
 
-	void RenderScene();	// 수민
-	void RenderToTexture();	// 수민
+
+
 
 	void RenderEnd();
 	bool InitImgui(HWND hWnd);
@@ -256,7 +293,8 @@ public:
 	void CreateShadowVS();
 	void CreateShadowPS();private:
 		std::string BasePath = "../Resource/";
-	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
-	std::vector<DebugInformation> m_debugs;
-	std::vector<SpriteInformation> m_sprites;
+	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
+	vector<TextInformation> m_texts;
+	vector<SpriteInformation> m_sprites;
+	vector<DynamicTextInformation> m_dynamicTexts;
 };

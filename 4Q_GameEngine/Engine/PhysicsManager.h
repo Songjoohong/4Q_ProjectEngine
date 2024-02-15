@@ -4,12 +4,14 @@
 
 #include <map>
 #include <vector>
+#include <queue>
 
 #include "BoxCollider.h"
 
 using namespace physx;
 using namespace std;
 
+struct  UserData;
 class StaticCollider;
 class DynamicCollider;
 class PhysicsManager : public ISingleton<PhysicsManager>
@@ -21,19 +23,21 @@ public:
 public:
 	void Initialize();
 	void Update(float deltatime);
-	void RayCast(Vector3D dir);
+	void RayCast(PxVec3 raycastPoint,PxVec3 raycastDir);
 
-	void InitFilterDatas();
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
-	
+	void InitFilterData();
+	void AddToCollisionQueue(int entId);
+	void SendDataToObjects();
+
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
-	PxFilterData* GetFilterData(Collision_Mask type) { return m_pFilterDatas[type]; }
+	PxFilterData* GetFilterData(CollisionMask type) { return m_pFilterDatas[type]; }
 	DynamicCollider* GetDynamicCollider(int entId);
 
 public:
-	PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> ½Ã°¢È­ ÇÏ¿© µğ¹ö±ë ÇÒ ¼ö ÀÖ´Â ÇÁ·Î±×·¥
+	PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> ì‹œê°í™” í•˜ì—¬ ë””ë²„ê¹… í•  ìˆ˜ ìˆëŠ” í”„ë¡œê·¸ë¨
 	PxFoundation* m_pFoundation = nullptr;
 	PxDefaultAllocator		m_Allocator;
 	PxDefaultErrorCallback	m_ErrorCallback;
@@ -45,10 +49,22 @@ private:
 
 	// Colliders
 	vector<pair<int, DynamicCollider*>> m_pDynamicColliders;
-	vector<StaticCollider*> m_pStaticColliders;
+	vector<pair<int, StaticCollider*>> m_pStaticColliders;
+	queue<pair<int, StaticCollider*>> m_CollisionQue;
 
-	// Filter °ü·Ã ---¼®¿µ : ÀÏ´Ü ÀÌ·¸°Ô ÇØ³õ°í..±ò²ûÇÏ°Ô ¹Ù²Ü ¼ö ÀÖÀ¸¸é ¹Ù²Ü°Ô¿ä..
-	map<Collision_Mask, PxFilterData*> m_pFilterDatas;
-	
+	// Filter ê´€ë ¨ ---ì„ì˜ : ì¼ë‹¨ ì´ë ‡ê²Œ í•´ë†“ê³ ..ê¹”ë”í•˜ê²Œ ë°”ê¿€ ìˆ˜ ìˆìœ¼ë©´ ë°”ê¿€ê²Œìš”..
+	map<CollisionMask, PxFilterData*> m_pFilterDatas;
 };
 
+class FilterCallback
+	:public PxSimulationEventCallback
+{
+	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override;
+	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override;
+
+	//  ì•ˆì“¸ì˜ˆì •
+	virtual void onConstraintBreak(physx::PxConstraintInfo* constraints, physx::PxU32 count) override {}
+	virtual void onWake(physx::PxActor** actors, physx::PxU32 count) override {}
+	virtual void onSleep(physx::PxActor** actors, physx::PxU32 count) override {}
+	virtual void onAdvance(const physx::PxRigidBody* const*, const physx::PxTransform*, const physx::PxU32) override {}
+};

@@ -35,6 +35,9 @@ public:
 	std::vector<Vertex> m_vertices;
 	std::vector<UINT> m_indices;
 
+	string m_meshName;
+
+	Math::Matrix m_localMatrix;
 	
 private:
 	void CreateVertexBuffer(ID3D11Device* device, const std::vector<Vertex>& vertices, UINT vertexCount);
@@ -67,6 +70,7 @@ public:
 
 public:
 	void Create(const std::string& path);
+	void CreateFromNode(aiNode* node, const aiScene* scene);
 	void CreateEnvironment(const std::string& path);
 	Material* GetMeshMaterial(UINT index);
 

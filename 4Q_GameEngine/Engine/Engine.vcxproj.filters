@@ -74,6 +74,12 @@
     <Filter Include="System\UI">
       <UniqueIdentifier>{25721fc5-5a9d-4c1c-945d-f58fc90c9f12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Space">
+      <UniqueIdentifier>{fea170e2-8e5a-45bd-84fe-6a472e018578}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Component\Script">
+      <UniqueIdentifier>{9c16fac9-2ef2-4a69-ac12-5f4a443cce73}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ISingleton.h">
@@ -108,12 +114,6 @@
     </ClInclude>
     <ClInclude Include="ScriptSystem.h">
       <Filter>System\Script</Filter>
-    </ClInclude>
-    <ClInclude Include="Script.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="SampleScript.h">
-      <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="InputManager.h">
       <Filter>Manager\Input</Filter>
@@ -163,9 +163,6 @@
     <ClInclude Include="SpriteSystem.h">
       <Filter>System\Sprite</Filter>
     </ClInclude>
-    <ClInclude Include="FreeCameraScript.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="CameraSystem.h">
       <Filter>System\Camera</Filter>
     </ClInclude>
@@ -200,19 +197,39 @@
     <ClInclude Include="UI.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="TestUIScript.h">
-      <Filter>Component</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerScript.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="CollisionSystem.h">
       <Filter>System\Collision</Filter>
     </ClInclude>
-    <ClInclude Include="POVCameraScript.h">
+    <ClInclude Include="SpaceSystem.h">
+      <Filter>System\Space</Filter>
+    </ClInclude>
+    <ClInclude Include="Space.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="CameraScript.h" />
+    <ClInclude Include="DynamicText.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="POVCameraScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeCameraScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="SampleScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="TestUIScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Script.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
@@ -281,6 +298,11 @@
     <ClCompile Include="UISystem.cpp">
       <Filter>System\UI</Filter>
     </ClCompile>
-    <ClCompile Include="MyPOINT.cpp" />
+    <ClCompile Include="SpaceSystem.cpp">
+      <Filter>System\Space</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicTextScript.h">
+      <Filter>Component\Script</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

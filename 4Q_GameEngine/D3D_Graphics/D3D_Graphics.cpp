@@ -77,37 +77,42 @@ void Renderer::AddMeshInstance(StaticModel* model)
 	}
 }
 
-void Renderer::AddDebugInformation(const int id, const std::string& text, const Vector3D& position)
+void Renderer::AddTextInformation(const int id, const std::string& text, const Vector3D& position)
 {
 
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
 
-	const DebugInformation newDebug = { id, text, pos, depth };
-	m_debugs.push_back(newDebug);
+	const TextInformation newText = { id, text, pos, depth };
+	m_texts.push_back(newText);
 }
 
 void Renderer::AddSpriteInformation(int id, const std::string& filePath, const XMFLOAT2 position, float layer)
 {
     ComPtr<ID3D11ShaderResourceView> texture;
     const wchar_t* filePathT = ConvertToWchar(filePath);
-    CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture);
+    HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
     m_sprites.push_back(SpriteInformation{ id, layer, true, position, texture });
 }
 
-void Renderer::EditDebugInformation(int id, const std::string& text, const Vector3D& position)
+void Renderer::AddDynamicTextInformation(int entId, const vector<std::wstring>& vector)
+{
+	m_dynamicTexts.push_back({ entId, 0, false, vector });
+}
+
+void Renderer::EditTextInformation(int id, const std::string& text, const Vector3D& position)
 {
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
 
-	auto it = std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+	const auto it = std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& debug)
 		{
-			return id == debug.entityID;
+			return id == debug.mEntityID;
 		});
-	it->mPosition = pos;
-	it->depth = depth;
+	it->mPosition= pos;
+	it->mDepth = depth;
 	it->mText = text;
 }
 
@@ -120,11 +125,21 @@ void Renderer::EditSpriteInformation(int id, bool isRendered)
     it->IsRendered = isRendered;
 }
 
-void Renderer::DeleteDebugInformation(int id)
+void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
 {
-    m_debugs.erase(std::find_if(m_debugs.begin(), m_debugs.end(), [id](const DebugInformation& debug)
+	const auto it = std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
+		{
+			return id == dynamicText.mEntityID;
+		});
+	it->mIndex = index;
+	it->mEnable = enable;
+}
+
+void Renderer::DeleteTextInformation(int id)
+{
+    m_texts.erase(std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& text)
         {
-            return id == debug.entityID;
+            return id == text.mEntityID;
         }));
 }
 
@@ -136,7 +151,15 @@ void Renderer::DeleteSpriteInformation(int id)
         }));
 }
 
-void Renderer::CreateModel(std::string filename)
+void Renderer::DeleteDynamicTextInformation(int id)
+{
+	m_dynamicTexts.erase(std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
+		{
+			return id == dynamicText.mEntityID;
+		}));
+}
+
+void Renderer::CreateModel(string filename)
 {
 	ResourceManager::Instance->CreateModel(filename);
 	StaticModel* pModel = new StaticModel();
@@ -218,9 +241,9 @@ DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
 	Math::Matrix matrix;
 	matrix.Translation(Vector3(pos.GetX(), pos.GetY(), pos.GetZ()));
 	matrix = matrix * m_viewMatrix * m_projectionMatrix;
-
-	return {  matrix._41 + 960.f, 
-        (540.f - matrix._42), matrix._43 };
+	Vector3 translation = matrix.Translation();
+	translation = translation / matrix._44;
+	return { (translation.x + 1) * 960.f,540.f * (1 - translation.y), translation.z};
 }
 
 const wchar_t* Renderer::ConvertToWchar(const std::string& str) const
@@ -232,6 +255,7 @@ const wchar_t* Renderer::ConvertToWchar(const std::string& str) const
 	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, finalText, bufferSize);
 
 	return finalText;
+	return nullptr;
 }
 
 void Renderer::CreateSamplerState()
@@ -294,14 +318,51 @@ void Renderer::ApplyMaterial(Material* pMaterial)
 		m_pDeviceContext->PSSetShaderResources(12, 1, pMaterial->m_pAmbientOcclusionRV->m_pTextureRV.GetAddressOf());
 }
 
+void Renderer::SphereInit(string filename)
+{
+	m_pSphere = new StaticModel();
+	m_pSphere->Load(filename);
+	m_pSphere->m_worldTransform = Math::Matrix::Identity;
+}
+
+void Renderer::SphereRender()
+{
+	m_pDeviceContext->UpdateSubresource(m_pSphereBuffer.Get(), 0, nullptr, &m_sphereCB, 0, 0);
+	m_pDeviceContext->PSSetConstantBuffers(5, 1, m_pSphereBuffer.GetAddressOf());
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	Material* pPrevMaterial = nullptr;
+
+	for (auto it : m_pSphere->m_meshInstance)
+	{
+		string name = it.m_pMeshResource->m_meshName;
+		if (pPrevMaterial != it.m_pMaterial)
+		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(it.m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pSpherePS.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+
+			Renderer::Instance->ApplyMaterial(it.m_pMaterial);	// 머터리얼 적용
+			pPrevMaterial = it.m_pMaterial;
+		}
+		m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
+		m_worldMatrixCB.mWorld = it.m_pNodeWorldTransform.Transpose();
+		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+		it.Render(Renderer::Instance->m_pDeviceContext.Get());
+	}
+}
+
 void Renderer::MeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
 	Material* pPrevMaterial = nullptr;
 
 	for (auto it : m_pMeshInstance)
 	{
+		string name = it->m_pMeshResource->m_meshName;
 		if (pPrevMaterial != it->m_pMaterial)
 		{
 			Renderer::Instance->m_pDeviceContext->VSSetShader(it->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
@@ -312,7 +373,7 @@ void Renderer::MeshRender()
 			pPrevMaterial = it->m_pMaterial;
 		}
 		m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
-		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
+		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(Renderer::Instance->m_pDeviceContext.Get());
 	}
@@ -334,7 +395,7 @@ void Renderer::ShadowRender()
 			Renderer::Instance->ApplyMaterial(it->m_pMaterial);	// 머터리얼 적용
 			pPrevMaterial = it->m_pMaterial;
 		}
-		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform->Transpose();
+		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(Renderer::Instance->m_pDeviceContext.Get());
 	}
@@ -384,9 +445,7 @@ void Renderer::RenderDebugDraw()
 
 void Renderer::RenderQueueSort()
 {
-	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
-		return lhs->m_pNodeWorldTransform < rhs->m_pNodeWorldTransform;
-		});
+	
 	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
 		return lhs->m_pMaterial < rhs->m_pMaterial;
 		});
@@ -457,10 +516,6 @@ void Renderer::RenderBegin()
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-	
-
-    
-
     m_pointLightCB.mPos = m_pointLight.GetPosition();
     m_pointLightCB.mRadius = m_pointLight.GetRadius();
     m_pointLightCB.mLightColor = m_pointLight.GetColor();
@@ -480,14 +535,23 @@ void Renderer::RenderBegin()
 
 void Renderer::RenderText() const
 {
-	for (int i = 0; i < m_debugs.size(); i++)
+	for (int i = 0; i < m_texts.size(); i++)
 	{
-		const wchar_t* text = ConvertToWchar(m_debugs[i].mText);
-		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_debugs[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f);
+		const wchar_t* text = ConvertToWchar(m_texts[i].mText);
+		m_spriteFont->DrawString(m_spriteBatch.get(), text, m_texts[i].mPosition, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.5f);
 
 		delete[] text;
 	}
-	std::string Memory;
+
+	for (int i = 0; i < m_dynamicTexts.size(); i++)
+	{
+		if(m_dynamicTexts[i].mEnable)
+		{
+			const wchar_t* text = m_dynamicTexts[i].mText[m_dynamicTexts[i].mIndex].c_str();
+			m_spriteFont->DrawString(m_spriteBatch.get(), text, { 960.f, 540.f }, DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 1.5f);
+		}
+	}
+	string Memory;
 	GetVideoMemoryInfo(Memory);
 	const wchar_t* videoMemory = ConvertToWchar(Memory);
 	m_spriteFont->DrawString(m_spriteBatch.get(), videoMemory, DirectX::XMFLOAT2(0.f,0.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
@@ -525,7 +589,9 @@ void Renderer::RenderSprite() const
 	
 }
 
-void Renderer::Render()
+
+
+void Renderer::GameAppRender()
 {
 	//그림자 맵 생성
 	m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
@@ -533,19 +599,60 @@ void Renderer::Render()
 	m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	m_pDeviceContext->PSSetShader(NULL, NULL, 0);
 
-	// 24.02.05 수민. 원래 여기있던 코드는 Render::RenderScene() 함수로 이동하였슴.
+	//그림자의 View, Projection 포함하여 버퍼에 업데이트
+	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
+	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
+	m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
 
-	// 전체 장면을 먼저 텍스처로 렌더링합니다.
-	RenderToTexture();
+	m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
+	m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
+	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
-	// 씬을 그리기 위해 버퍼를 지웁니다
+	//그림자 렌더
+	ShadowRender();
+
+
+	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
-	// 백 버퍼의 장면을 정상적으로 렌더링합니다.
-	RenderScene();
+	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
+	m_pDeviceContext->RSSetViewports(1, &m_viewport);
+
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 실제 게임 렌더타겟에 렌더
+
+	//메쉬 렌더
+	RenderEnvironment();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	SphereRender();
+	MeshRender();
+
+
+	RenderDebugDraw();
+
+
+	m_spriteBatch->Begin();
+	RenderText();
+	RenderSprite();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+
+
+	//임구이 렌더
+	//RenderImgui();
 }
 
-void Renderer::RenderScene()
+void Renderer::EditorRender()
 {
+	// 렌더링 대상을 렌더링에 맞게 설정합니다.
+	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
+
+	// 렌더링을 텍스처에 지웁니다.
+	m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
+
+	//그림자 맵 생성
+	m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
+	m_pDeviceContext->OMSetRenderTargets(0, NULL, m_pShadowMapDSV.Get());
+	m_pDeviceContext->ClearDepthStencilView(m_pShadowMapDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->PSSetShader(NULL, NULL, 0);
+
 	//그림자의 View, Projection 포함하여 버퍼에 업데이트
 	m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
 	m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
@@ -559,18 +666,21 @@ void Renderer::RenderScene()
 	//ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
-	//Clear();
+	Clear();
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
-	//m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 이거하면 에디터의 뷰포트에 렌더가 안됨.
+
+
+	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());							// 에디터용 렌더타겟에 렌더
 
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	SphereRender();
 	MeshRender();
 
 
-	RenderDebugDraw();	
+	RenderDebugDraw();
 
 
 	m_spriteBatch->Begin();
@@ -581,7 +691,12 @@ void Renderer::RenderScene()
 
 	//임구이 렌더
 	//RenderImgui();
+
+	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 }
+
+
 
 
 void Renderer::RenderEnvironment()
@@ -602,21 +717,7 @@ void Renderer::RenderEnvironment()
 	
 }
 
-void Renderer::RenderToTexture()
-{
-	// 렌더링 대상을 렌더링에 맞게 설정합니다.
-	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
 
-	// 렌더링을 텍스처에 지웁니다.
-	m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
-
-	// 이제 장면을 렌더링하면 백 버퍼 대신 텍스처로 렌더링됩니다.
-	RenderScene();
-
-	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-
-}
 
 void Renderer::RenderEnd()
 {
@@ -767,6 +868,24 @@ void Renderer::RenderImgui()
 		ImGui::SliderFloat("##lpz", &pointlightPos.z, -1000.f, 1000.f);
 		ImGui::End();
 	}
+
+	{
+		bool useIBL = m_sphereCB.mUseIBL;
+		ImGui::Begin("IBL");
+		ImGui::Text("IBL");
+		ImGui::Text("Metalic");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpx", &m_sphereCB.mMetalic, 0.f, 1.f);
+		ImGui::Text("Roughness");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpy", &m_sphereCB.mRoughness, 0.f, 1.f);
+		ImGui::Text("Ambient");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##lpz", &m_sphereCB.mAmbient, 0.f, 1.f);
+		ImGui::Checkbox("UseIBL", &useIBL);
+		m_sphereCB.mUseIBL = useIBL;
+		ImGui::End();
+	}
 	m_pointLight.SetPosition(pointlightPos);
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -843,6 +962,9 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     ComPtr<ID3D11Texture2D> pBackBufferMaterial = nullptr;
     HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
     HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
+
+
+	
   
 	//뷰포트, 뎁스 스텐실 뷰, 샘플러 상태 설정
 	CreateViewport(width, height);
@@ -941,33 +1063,48 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     pbd.CPUAccessFlags = 0;
     HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
 
+	pbd = {};
+    pbd.Usage = D3D11_USAGE_DEFAULT;
+    pbd.ByteWidth = sizeof(cbBall);
+    pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    pbd.CPUAccessFlags = 0;
+    HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
+
     //포인트 라이트 테스트용
     m_pointLight.SetPosition(Vector3(0, 0, 0));
-	  m_pointLight.SetRadius(600.f);
-	  m_pointLight.SetColor();
-	  m_pointLight.SetIntensity(1.f);
+	m_pointLight.SetRadius(600.f);
+	m_pointLight.SetColor();
+	m_pointLight.SetIntensity(1.f);
 
-	  ResourceManager::Instance->CreateEnvironment("BakerSample");
-	  SetEnvironment("BakerSample");
-	  ComPtr < ID3DBlob> buffer;
+	SetAlphaBlendState();
 	
-	  buffer.Reset();
-	  HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
-	  HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pEnvironmentPS.GetAddressOf()));
+
+	ResourceManager::Instance->CreateEnvironment("BakerSample");
+	SetEnvironment("BakerSample");
+	ComPtr < ID3DBlob> buffer;
+	
+	buffer.Reset();
+	HR_T(CompileShaderFromFile(L"../Resource/PS_Environment.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pEnvironmentPS.GetAddressOf()));
+
+	buffer.Reset();
+	HR_T(CompileShaderFromFile(L"../Resource/BallPBR.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pSpherePS.GetAddressOf()));
+	
+	SphereInit("FBXLoad_Test/fbx/8Ball.fbx");
 
 
 	// 렌더링 텍스처 객체를 생성한다.
 	m_RenderTexture = new RenderTextureClass;
 	// 렌더링 텍스처 객체를 초기화한다.
 	m_RenderTexture->Initialize(m_pDevice.Get(), width, height);
-  
-  	//Imgui
 
-	/*if (!InitImgui(*hWnd))
-		return false;*/
 
 	Matrix cameraInitPos = Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(180.f), DirectX::XMConvertToRadians(0.f), DirectX::XMConvertToRadians(0.f)) * Matrix::CreateTranslation(0, 150, -250);
 	SetCamera(cameraInitPos);
+
+	/*if (!InitImgui(*hWnd))
+		return false;*/
 
 
     return true;
@@ -981,4 +1118,24 @@ void Renderer::UnInitialize()
     }
     m_pStaticModels.clear();
     m_pStaticModels.shrink_to_fit();
+}
+
+void Renderer::SetAlphaBlendState()
+{
+	D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.AlphaToCoverageEnable = true;
+	blendDesc.IndependentBlendEnable = false;
+
+	D3D11_RENDER_TARGET_BLEND_DESC rtBlendDesc = {};
+	rtBlendDesc.BlendEnable = true;
+	rtBlendDesc.BlendOp = D3D11_BLEND_OP_ADD;
+	rtBlendDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	rtBlendDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+
+	rtBlendDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtBlendDesc.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rtBlendDesc.DestBlendAlpha = D3D11_BLEND_ONE;
+	rtBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0] = rtBlendDesc;
+	HR_T(m_pDevice->CreateBlendState(&blendDesc, m_pAlphaBlendState.GetAddressOf()));
 }

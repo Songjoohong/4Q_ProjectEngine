@@ -96,7 +96,7 @@ void GameEditor::Update()
 void GameEditor::Render()
 {
 	RenderManager::GetInstance()->RenderBegin();
-	RenderManager::GetInstance()->Render();
+	RenderManager::GetInstance()->EditorRender();
 	RenderImGui();
 	RenderManager::GetInstance()->RenderEnd();
 }
