@@ -46,6 +46,7 @@ struct BoxCollider
 	Vector3D m_Size = { 1.f,1.f,1.f };
 	Vector3D m_Rotation = { 0.f,0.f,0.f };
 	bool m_IsTrigger = false;
+	bool m_WasRaycastHit = false;
 	bool m_IsRaycastHit = false;
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(BoxCollider, m_ComponentName, m_ColliderType,m_CollisionType, m_Center, m_Size, m_IsTrigger)
 

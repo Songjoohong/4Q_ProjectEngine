@@ -131,10 +131,8 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 10.f,1.f,10.f });
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
 	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::GROUND,Vector3D{ 1000.f,1.f,1000.f });
-
-
 
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
@@ -154,12 +152,13 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	wideStrings.push_back(text1);
 
 	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
 	ent3->Assign<DynamicText>(wideStrings);
 	ent3->Assign<DynamicTextScript>(ent3);
 	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f));
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent3->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::OBJECT, Vector3D{ 100.f,100.f,100.f });
+
 	
 	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
@@ -180,6 +179,18 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent6->Assign<POVCameraScript>(ent6);
 	ent6->Assign<Movement>();
 	ent6->SetParent(ent2);
+
+	/*Entity* ent7 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent7->Assign<EntityIdentifier>(ent7->getEntityId(), "Ground");
+	ent7->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
+	ent7->Assign<Transform>(Vector3D(-1000.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 10.f,1.f,10.f });
+	ent7->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::GROUND, Vector3D{ 1000.f,1.f,1000.f });
+
+	Entity* ent8 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent8->Assign<EntityIdentifier>(ent8->getEntityId(), "Ground");
+	ent8->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
+	ent8->Assign<Transform>(Vector3D(-1000.f, 0.f, 1000.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 10.f,1.f,10.f });
+	ent8->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::GROUND, Vector3D{ 1000.f,1.f,1000.f });*/
 
 	/*SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");*/	 
