@@ -10,7 +10,7 @@ using namespace physx;
 struct UserData
 {
 	int m_EntityId;
-	CollisionMask m_CollisionType;
+	CollisionType m_CollisionType;
 	CollisionState m_State;
 };
 
@@ -29,7 +29,7 @@ public:
 	*/
 	virtual void Initialize();
 	virtual void SetMaterial(float staticFriction, float DynamicFriction, float restitution) {}
-	virtual void SetFilterData() = 0;
+	virtual void SetFilterData();
 	void UpdateTransform();
 public:
 	BoxCollider* m_pOwner;

@@ -64,9 +64,9 @@ void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 	}
 }
 
-void Renderer::AddColliderBox(Vector3 center, Vector3 extents,bool isCollision)
+void Renderer::AddColliderBox(Vector3 center, Vector3 extents)
 {
-	m_colliderBox.push_back(ColliderBox(center + Vector3{0.f,extents.y, 0.f}, extents, isCollision));
+	m_colliderBox.push_back(ColliderBox(center + Vector3{0.f,extents.y, 0.f}, extents));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
@@ -436,8 +436,7 @@ void Renderer::RenderDebugDraw()
     }
 	for (auto& box : m_colliderBox)
 	{
-		DebugDraw::Draw(DebugDraw::g_Batch.get(), box.colliderBox,
-			box.isCollision ? Colors::Red : Colors::Green);
+		DebugDraw::Draw(DebugDraw::g_Batch.get(), box.colliderBox,Colors::Green);
 	}
 	m_colliderBox.clear();
     DebugDraw::g_Batch->End();

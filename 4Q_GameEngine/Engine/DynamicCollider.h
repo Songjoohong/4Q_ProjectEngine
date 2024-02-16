@@ -10,11 +10,10 @@ class DynamicCollider
 {
 public:
 	DynamicCollider(BoxCollider* owner);
-	virtual ~DynamicCollider() override = default;
+	virtual ~DynamicCollider() override;
 
 public:
 	virtual void Initialize() override;
-	virtual void SetFilterData() override;
 
 	void UpdatePhysics();
 

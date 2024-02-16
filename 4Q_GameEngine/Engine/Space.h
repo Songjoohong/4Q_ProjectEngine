@@ -23,3 +23,9 @@ struct Space
 	bool m_IsPlayerExist = false;
 };
 ECS_DEFINE_TYPE(Space)
+
+/*
+* 석영 해야할 것 
+* 1. 플레이어 들어왔는지 판정
+* 2. 몇 번방에 들어왔는지 판정 -> PlayerScript 큐
+*/

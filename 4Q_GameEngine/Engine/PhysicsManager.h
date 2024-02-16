@@ -25,6 +25,8 @@ public:
 	void Update(float deltatime);
 	void RayCast(PxVec3 raycastPoint,PxVec3 raycastDir);
 
+	void ChangeCollider(BoxCollider* boxcollider, int entId);
+	void ChangeFilter(int entId);
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
 	void InitFilterData();
@@ -33,7 +35,7 @@ public:
 
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
-	PxFilterData* GetFilterData(CollisionMask type) { return m_pFilterDatas[type]; }
+	PxFilterData* GetFilterData(CollisionType type) { return m_pFilterDatas[type]; }
 	DynamicCollider* GetDynamicCollider(int entId);
 
 public:
@@ -53,7 +55,7 @@ private:
 	queue<pair<int, StaticCollider*>> m_CollisionQue;
 
 	// Filter 관련 ---석영 : 일단 이렇게 해놓고..깔끔하게 바꿀 수 있으면 바꿀게요..
-	map<CollisionMask, PxFilterData*> m_pFilterDatas;
+	map<CollisionType, PxFilterData*> m_pFilterDatas;
 };
 
 class FilterCallback

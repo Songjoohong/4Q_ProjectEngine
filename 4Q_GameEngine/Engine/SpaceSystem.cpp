@@ -4,6 +4,7 @@
 #include "InputManager.h"
 #include "Space.h"
 #include "Transform.h"
+#include "BoxCollider.h"
 
 void SpaceSystem::Configure(World* world)
 {
@@ -51,6 +52,7 @@ void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 
 void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 {
+
 	//return all
 	if(InputM->GetKeyDown(Key::F12))
 	{

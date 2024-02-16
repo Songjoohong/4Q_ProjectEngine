@@ -20,6 +20,13 @@ void Collider::Initialize()
 	UpdateTransform();
 }
 
+void Collider::SetFilterData()
+{
+	PxFilterData* filter = PhysicsManager::GetInstance()->GetFilterData(m_pOwner->m_CollisionType);
+	assert(filter != nullptr);
+	m_pShape->setSimulationFilterData(*filter);
+}
+
 void Collider::UpdateTransform()
 {
 	/*
@@ -30,8 +37,4 @@ void Collider::UpdateTransform()
 	m_Transform.p.y = m_pOwner->m_Center.GetY();
 	m_Transform.p.z = m_pOwner->m_Center.GetZ();
 
-	/*PxReal angle = PxPi / 180.f;
-	m_Transform.q.x = m_pOwner->m_Rotation.GetX() * angle;
-	m_Transform.q.y = m_pOwner->m_Rotation.GetY() * angle;
-	m_Transform.q.z = m_pOwner->m_Rotation.GetZ() * angle;*/
 }

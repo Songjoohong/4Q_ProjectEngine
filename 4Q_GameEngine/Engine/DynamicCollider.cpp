@@ -7,6 +7,12 @@ DynamicCollider::DynamicCollider(BoxCollider* owner)
 {
 }
 
+DynamicCollider::~DynamicCollider()
+{
+	delete static_cast<UserData*>(m_Rigid->userData);
+	PX_RELEASE(m_Rigid);
+}
+
 void DynamicCollider::Initialize()
 {
 	__super::Initialize();
@@ -39,13 +45,6 @@ void DynamicCollider::UpdatePhysics()
 	//m_pOwner->m_Rotation.SetY(pxTrans.q.y * angle);
 	//m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
 
-}
-
-void DynamicCollider::SetFilterData()
-{
-	PxFilterData* filter = PhysicsManager::GetInstance()->GetFilterData(m_pOwner->m_CollisionType);
-	assert(filter != nullptr);
-	m_pShape->setSimulationFilterData(*filter);
 }
 
 void DynamicCollider::SetDensity(float mass)
