@@ -73,19 +73,26 @@ void RenderManager::SetCamera(const DirectX::SimpleMath::Matrix matrix)
 	Renderer::Instance->SetCamera(matrix);
 }
 
-void RenderManager::AddDebug(int entID, const std::string& text, const Vector3D& pos)
+void RenderManager::AddText(int entID, const std::string& text, const Vector3D& pos)
 {
-	Renderer::Instance->AddDebugInformation(entID, text, pos);
+	Vector3D p = { pos.m_X, pos.m_Y + 50.f,pos.m_Y };
+	Renderer::Instance->AddTextInformation(entID, text, p);
 }
 
-void RenderManager::AddSprite(int entID, const std::string& filePath, MyPoint pos, float layer)
+void RenderManager::AddSprite(int entID, const std::string& filePath, POINT pos, float layer)
 {
 	Renderer::Instance->AddSpriteInformation(entID, filePath, DirectX::XMFLOAT2{static_cast<float>(pos.x), static_cast<float>(pos.y)}, layer);
 }
 
-void RenderManager::EditDebug(int entID, const std::string& text, const Vector3D& pos)
+void RenderManager::AddDynamicText(int entID, const vector<std::wstring>& textVector)
 {
-	Renderer::Instance->EditDebugInformation(entID, text, pos);
+	Renderer::Instance->AddDynamicTextInformation(entID, textVector);
+}
+
+void RenderManager::EditText(int entID, const std::string& text, const Vector3D& pos)
+{
+	Vector3D p = { pos.m_X, pos.m_Y + 50.f,pos.m_Y };
+	Renderer::Instance->EditTextInformation(entID, text, p);
 }
 
 void RenderManager::EditSprite(int entID, bool isRendered)
@@ -93,14 +100,24 @@ void RenderManager::EditSprite(int entID, bool isRendered)
 	Renderer::Instance->EditSpriteInformation(entID, isRendered);
 }
 
-void RenderManager::DeleteDebug(int entID)
+void RenderManager::EditDynamicText(int size, int index, bool enable)
 {
-	Renderer::Instance->DeleteDebugInformation(entID);
+	Renderer::Instance->EditDynamicTextInformation(size, index, enable);
+}
+
+void RenderManager::DeleteText(int entID)
+{
+	Renderer::Instance->DeleteTextInformation(entID);
 }
 
 void RenderManager::DeleteSprite(int entID)
 {
 	Renderer::Instance->DeleteSpriteInformation(entID);
+}
+
+void RenderManager::DeleteDynamicText(int entID)
+{
+	Renderer::Instance->DeleteDynamicTextInformation(entID);
 }
 
 

@@ -1,19 +1,41 @@
 #include "pch.h"
 #include "SceneHierarchyPanel.h"
 
+// Component Headers 
 #include "../Engine/Transform.h"
 #include "../Engine/Camera.h"
 #include "../Engine/EntityIdentifier.h"
 #include "../Engine/Light.h"
-
+#include "../Engine/Script.h"
 #include "../Engine/BoxCollider.h"
 #include "../Engine/StaticMesh.h"
+#include "../Engine/Debug.h"
+#include "../Engine/Movement.h"
+#include "../Engine/RigidBody.h"
+#include "../Engine/Sound.h"
+#include "../Engine/Sprite2D.h"
+#include "../Engine/UI.h"
+
+// Script Headers
+#include "../Engine/SampleScript.h"
+#include "../Engine/FreeCameraScript.h"
+#include "../Engine/PlayerScript.h"
+#include "../Engine/POVCameraScript.h"
+#include "../Engine/TestUIScript.h"
+
 #include "Prefab.h"
 #include "NameManager.h"
+#include "ImGuizmo.h"
 
+#include <cassert>
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
 	SetContext(context, m_PrefabManager, m_NameManager);
+}
+
+SceneHierarchyPanel::~SceneHierarchyPanel()
+{
+	std::remove("../Resource/CopiedEntity/CopiedEntity.json");
 }
 
 void SceneHierarchyPanel::SetContext(ECS::World* context, std::shared_ptr<PrefabManager> prefab, std::shared_ptr<NameManager> nameManager)
@@ -56,18 +78,35 @@ void SceneHierarchyPanel::RenderImGui()
 			{
 				ECS::Entity* entity = m_Context->create();
 
-				entity->Assign<EntityIdentifier>();	// 기본적으로 생성한다. (이름정보 때문)
+				entity->Assign<EntityIdentifier>(entity->getEntityId());	// 기본적으로 생성한다. (이름정보 때문)
 				m_NameManager->AddEntityName(entity);
 				entity->Assign<Transform>();	// 에디터에서 오브젝트의 위치를 조정하기위해 Transform은 기본적으로 생성해준다.
+				//entity->Assign<StaticMesh>();	// 아무 파일 경로도 가지지 않은 빈 StaticMesh 기본적으로 생성
 			}
 
 			ImGui::EndPopup();
 		}
 	}
+
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_C))
+	{
+		m_SelectionContext->get<EntityIdentifier>()->m_HasParent = false;
+		m_SelectionContext->get<EntityIdentifier>()->m_ParentEntityId = 0;
+		m_PrefabManager->SavePrefab(m_SelectionContext, "../Resource/CopiedEntity/CopiedEntity.json");
+	}
+
+	bool isFileExists = FileExists("../Resource/CopiedEntity/CopiedEntity.json");
+	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_V) && isFileExists)
+	{
+		m_PrefabManager->LoadPrefab("../Resource/CopiedEntity/CopiedEntity.json");
+		m_PrefabManager->m_prefabContainer.clear();
+	}
+
 	ImGui::End();	/* Hierarchy End */
 
 	ImGui::Begin("Properties");		
-	// 선택된 오브젝트가 가진 모든 컴포넌트 정보를 출력한다. 
+	// 선택된 오브젝트가 가진 모든 컴포넌트 정보를 출력한다. 6
 	if (m_SelectionContext)
 	{
 		DrawComponents(m_SelectionContext);
@@ -95,7 +134,7 @@ void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 			{
 				std::string prefabFile = prefabName;
 				prefabFile += ".prefab";
-				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
+				m_PrefabManager.get()->SavePrefab(entity, "../Resource/prefab/" + prefabFile);
 				ImGui::CloseCurrentPopup();
 				m_SelectionContext = nullptr;
 				m_OpenTextPopup = false;
@@ -164,7 +203,7 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 		{
 			size_t pickedID = *(static_cast<size_t*>(payLoad->Data));
 
-			ECS::Entity* picked = m_Context->getByIndex(pickedID - 1);
+			ECS::Entity* picked = m_Context->getById(pickedID);
 			ECS::Entity* target = entity;
 
 			// 자기 자식의 자식으로 등록하려는 경우 아무런 처리를 하지 않는다. (이거 허용하면 엔티티가 삭제됨.)
@@ -173,15 +212,24 @@ void SceneHierarchyPanel::DragDropEntityHierarchy(ECS::Entity* entity)
 				return;
 			}
 
-			picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
-			picked->get<EntityIdentifier>().get().m_HasParent = true;
-			target->addChild(picked);
+			//picked->get<EntityIdentifier>().get().m_ParentEntityId = target->getEntityId();
+			//picked->get<EntityIdentifier>().get().m_HasParent = true;
+			//target->addChild(picked);
+
+			SetParent(picked, target);
+
 			m_SelectionContext = nullptr;
 			
 		}
 
 		ImGui::EndDragDropTarget();
 	}
+}
+
+bool SceneHierarchyPanel::FileExists(const std::string& filename)
+{
+	std::ifstream file(filename);
+	return file.good();
 }
 
 void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지 않으면 함수 종료시 객체의 소멸자가 호출되어서 오류가 뜰 수 있음.
@@ -223,6 +271,8 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 			if (entity->m_parent != nullptr)
 			{
 				entity->m_parent->RemoveChild(entity);
+				entity->get<EntityIdentifier>()->m_HasParent = false;
+				entity->get<EntityIdentifier>()->m_ParentEntityId = 0;
 			}
 		}
 
@@ -366,8 +416,12 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 		}
 
 		if (removeComponent)
-			entity->remove<T>();
+		{
+			if(typeid(T) != typeid(Transform) && typeid(T) != typeid(EntityIdentifier))
+				entity->remove<T>();
+		}
 	}
+	
 }
 
 void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
@@ -388,8 +442,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	ImGui::PushItemWidth(-1);
 	ImGui::SameLine();
 
-
-
 	if (ImGui::Button("Add Component"))
 		ImGui::OpenPopup("AddComponent");
 
@@ -401,13 +453,25 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<BoxCollider>("BoxCollider");
 		DisplayAddComponentEntry<Camera>("Camera");
 		DisplayAddComponentEntry<Light>("Light");
-
+		DisplayAddComponentEntry<Script>("Script");
 		ImGui::EndPopup();
 	}
-
 	ShowStaticModelDialog();	// TODO: 수정..?
 
 	ImGui::PopItemWidth();
+
+	DrawComponent<EntityIdentifier>("EntityIdentifier", entity, [](auto component)
+	{
+			std::string entityName = "EntityName : " + component->m_EntityName;
+			ImGui::Text(entityName.c_str());
+			std::string entityID = "EntityID : " + std::to_string(component->m_EntityId);
+			ImGui::Text(entityID.c_str());
+			std::string trueOrFalse = component->m_HasParent ? "true" : "false";
+			std::string HasParent = "HasParent : " + trueOrFalse;
+			ImGui::Text(HasParent.c_str());
+			std::string parentID = "ParentID : " + std::to_string(component->m_ParentEntityId);
+			ImGui::Text(parentID.c_str());
+	});
 
 	DrawComponent<Transform>("Transform", entity, [](auto component)
 	{
@@ -425,11 +489,54 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
 	{
-		// 이것도 사용법을..
+		switch (component->m_CollisionType)
+		{
+		case(0):
+			ImGui::Text("CollisionType : Dynamic");
+			break;
+		case(1):
+			ImGui::Text("CollisionType : Static");
+			break;
+		case(2):
+			ImGui::Text("CollisionType : Plane");
+			break;
+		}
+
+		//switch (component->m_CollisionMask)
+		//{
+		//case(0):
+		//	ImGui::Text("CollisionMask : Player");
+		//	break;
+		//case(1):
+		//	ImGui::Text("CollisionMask : Wall");
+		//	break;
+		//case(2):
+		//	ImGui::Text("CollisionMask : Ground");
+		//	break;
+		//case(3):
+		//	ImGui::Text("CollisionMask : Slope");
+		//	break;
+		//case(4):
+		//	ImGui::Text("CollisionMask : Object");
+		//	break;
+		//case(5):
+		//	ImGui::Text("CollisionMask : Block");
+		//	break;
+		//}
+
+		DrawVec3Control("Center", component->m_Center);
+		DrawVec3Control("Size", component->m_Size);
+		DrawVec3Control("Rotation", component->m_Rotation);
+
+		std::string trueOrFalse = component->m_IsTrigger ? "true" : "false";
+		std::string Trigger = "IsTrigger : " + trueOrFalse;
+		ImGui::Text(Trigger.c_str());
+
 	});
 
 	DrawComponent<Camera>("Camera", entity, [](auto component)
 	{
+
 	});
 
 	DrawComponent<Light>("Light", entity, [](auto component)
@@ -462,9 +569,43 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		/// -> 라이트 타입별 나타내야 하는 정보가 다르다.     다른가? 흐음..
 	});
+
+	DrawComponent<Script>("Script", entity, [](auto component)
+	{
+		const char* scripts[] = { 
+			"FreeCameraScript"
+			, "SampleScript"
+			, "PlayerScript"
+			, "POVCameraScript"
+			, "TestUIScript" };
+
+		static int item_current = 1;
+		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
+
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			if (item_current >= 0 && item_current < IM_ARRAYSIZE(scripts)) // Check if the index is valid
+			{
+				component->m_ComponentName = scripts[item_current]; // Assign the selected script name
+			}
+		}
+		std::string s = "SelectedScript : " + component->m_ComponentName;
+
+		ImGui::Text(s.c_str());
+	});
+
+	DrawComponent<Debug>("Debug", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Debug>("MoveMent", entity, [](auto component)
+	{
+
+	});
 }
 
-void SceneHierarchyPanel::ShowStaticModelDialog()	// TODO: 이걸 World 파일 불러오는 거에도 쓸 수 있을듯
+void SceneHierarchyPanel::ShowStaticModelDialog()
 {
 	std::string fileName;
 	std::string filePathName;
@@ -472,7 +613,7 @@ void SceneHierarchyPanel::ShowStaticModelDialog()	// TODO: 이걸 World 파일 불러�
 
 	if (m_IsDialogOpen)
 	{
-		IGFD::FileDialogConfig config; config.path = ".";
+		IGFD::FileDialogConfig config; config.path = "../Resource/fbx";
 		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".fbx", config);
 	}
 
@@ -484,12 +625,33 @@ void SceneHierarchyPanel::ShowStaticModelDialog()	// TODO: 이걸 World 파일 불러�
 			filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 			// action
 
-			m_SelectionContext->Assign<StaticMesh>("FBXLoad_Test/fbx/" + fileName);
+			m_SelectionContext->Assign<StaticMesh>("fbx/" + fileName);
 		}
 
 		// close
 		ImGuiFileDialog::Instance()->Close();
 		m_IsDialogOpen = false;
 	}
+}
+
+void SceneHierarchyPanel::SetParent(ECS::Entity* child, ECS::Entity* parent)
+{
+	child->get<EntityIdentifier>().get().m_ParentEntityId = parent->getEntityId();
+	child->get<EntityIdentifier>().get().m_HasParent = true;
+
+
+	auto matrix = child->get<Transform>().get().m_RelativeMatrix.ConvertToMatrix() * DirectX::XMMatrixInverse(nullptr, parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix());
+
+	float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
+	float fRotation[3] = { 0.0f, 0.0f, 0.0f };
+	float fScale[3] = { 0.0f, 0.0f, 0.0f };
+
+	ImGuizmo::DecomposeMatrixToComponents(*matrix.m, fTranslation, fRotation, fScale);
+
+	child->get<Transform>()->m_Position = { fTranslation[0],fTranslation[1],fTranslation[2] };
+	child->get<Transform>()->m_Rotation = { fRotation[0],fRotation[1],fRotation[2] };
+	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
+
+	parent->addChild(child);
 }
 

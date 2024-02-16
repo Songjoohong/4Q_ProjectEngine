@@ -4,46 +4,50 @@
 #include "DynamicCollider.h"
 #include "StaticCollider.h"
 
-PxU32 g_Collision_Mask_Player=1;
-PxU32 g_Collision_Mask_Ground=2;
-PxU32 g_Collision_Mask_Slope=3;
-PxU32 g_Collision_Mask_Object=4;
-PxU32 g_Collision_Mask_Block=5;
-
+// ì„ì˜ : filter ì„¤ì • ì–´ë–»ê²Œ í•´ì¤„ì§€
 PxFilterFlags CustomFilterShader(PxFilterObjectAttributes attributes0, PxFilterData filterData0, PxFilterObjectAttributes attributes1, PxFilterData filterData1, PxPairFlags& pairFlags, const void* constantBlock, PxU32 constantBlockSize)
 {
-	// ÇÃ·¹ÀÌ¾î¿Í ´Ù¸¥ ¹°Ã¼µéÀº Ãæµ¹ Ã³¸® / ³ª¸ÓÁö´Â ¹°¸®X 
-	if (filterData0.word0 == g_Collision_Mask_Player || filterData1.word0 == g_Collision_Mask_Player)
+	printf("Filtering: %u, %u\n", filterData0.word0, filterData1.word0);
+
+	// í”Œë ˆì´ì–´ì™€ ë‹¤ë¥¸ ë¬¼ì²´ë“¤ì€ ì¶©ëŒ ì²˜ë¦¬ / ë‚˜ë¨¸ì§€ëŠ” ë¬¼ë¦¬X 
+	if (filterData0.word0 == CollisionMask::PLAYER || filterData1.word0 == CollisionMask::PLAYER)
 	{
-		pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+		if (filterData0.word0 == CollisionMask::TRIGGER || filterData1.word0 == CollisionMask::TRIGGER )
+		{
+			pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
+			return PxFilterFlags();
+		}
+
+		pairFlags = PxPairFlag::eCONTACT_DEFAULT | PxPairFlag::eNOTIFY_TOUCH_FOUND | PxPairFlag::eNOTIFY_TOUCH_PERSISTS | PxPairFlag::eNOTIFY_TOUCH_LOST;
 		return PxFilterFlag::eDEFAULT;
 	}
-	else
-	{
-		pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
-		return PxFilterFlag::eSUPPRESS;
-	}
+
+	return PxFilterFlag::eDEFAULT;
 }
 
 void PhysicsManager::Initialize()
 {
 	m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, m_ErrorCallback);
 #ifdef _DEBUG
-	// PhysX Visual Debbugger º¸±âÀ§ÇÑ ¼¼ÆÃ
+	// PhysX Visual Debbugger ë³´ê¸°ìœ„í•œ ì„¸íŒ…
 	m_pPvd = PxCreatePvd(*m_pFoundation);
 	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
 	m_pPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
 	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
 
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
 #endif // _DEBUG
-	// ¼®¿µ : PxScene »ý¼º 
+	// ì„ì˜ : PxScene ìƒì„±
+	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
 	PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -981.f, 0.0f);
+	sceneDesc.gravity = PxVec3(0.0f, -98.1f, 0.0f);
 	m_pDispatcher = PxDefaultCpuDispatcherCreate(2);
 	sceneDesc.cpuDispatcher = m_pDispatcher;
 	sceneDesc.filterShader = CustomFilterShader;
+
+	// Filter Callback í•¨ìˆ˜ ë“±ë¡
+	FilterCallback* callback = new FilterCallback;
+	sceneDesc.simulationEventCallback = callback;
 
 	m_pPxScene = m_pPhysics->createScene(sceneDesc);
 
@@ -51,96 +55,99 @@ void PhysicsManager::Initialize()
 	DebugSetUp();
 #endif // _DEBUG
 
-	InitFilterDatas();
+	InitFilterData();
+
 }
 
 void PhysicsManager::Update(float deltatime)
 {
-	// ¼®¿µ : Collider À§Ä¡¸¦ ¿ÀºêÁ§Æ® À§Ä¡·Î º¯°æ ¸ÕÀú ÇØÁÖ±â
+	// ì„ì˜ : Collider ìœ„ì¹˜ë¥¼ ì˜¤ë¸Œì íŠ¸ ìœ„ì¹˜ë¡œ ë³€ê²½ ë¨¼ì € í•´ì£¼ê¸°
 	/*for (auto& collider : m_pDynamicColliders)
 		if (collider->m_pOwner->m_IsTrigger == false)
 			collider->UpdateTransform();*/
 
 	for (auto& collider : m_pStaticColliders)
-		if (collider->m_pOwner->m_IsTrigger == false)
-			collider->UpdateTransform();
+		if (collider.second->m_pOwner->m_IsTrigger == false)
+			collider.second->UpdateTransform();
 
-	// ¼®¿µ : ¹°¸® ½Ã¹Ä·¹ÀÌ¼Ç µ¹¸®±â
+	// ì„ì˜ : ë¬¼ë¦¬ ì‹œë®¬ë ˆì´ì…˜ ëŒë¦¬ê¸°
 	m_pPxScene->simulate(deltatime);
 	m_pPxScene->fetchResults(true);
 
-	// ¼®¿µ : °á°ú·Î ³ª¿Â °ªÀ» ¿ÀºêÁ§Æ®·Î ³Ö¾îÁÖ±â
+	// ì„ì˜ : ê²°ê³¼ë¡œ ë‚˜ì˜¨ ê°’ì„ ì˜¤ë¸Œì íŠ¸ë¡œ ë„£ì–´ì£¼ê¸°
 	for (auto& collider : m_pDynamicColliders)
 		if (collider.second->m_pOwner->m_IsTrigger == false)
 		{
 			collider.second->UpdatePhysics();
 		}
+
+	// ì„ì˜ : ì¶©ëŒ ìƒíƒœ ë„˜ê²¨ì£¼ê³  í´ë¦¬ì–´í•˜ê¸°.
+	SendDataToObjects();
 }
 
-void PhysicsManager::RayCast(Vector3D dir)
+void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 {
 	PxRaycastBuffer hit;
-	PxVec3 Dir = { dir.GetX(),dir.GetY(),dir.GetZ() };
-	bool bHit = m_pPxScene->raycast(Dir, PxVec3(0.f, 0.f, 1.f), 5.f, hit, PxHitFlag::eDEFAULT);
+	PxVec3 vector = { 0,0,0 };
+ 	raycastDir.normalize();
+	if (raycastDir == vector)
+		return;
+	bool bHit = m_pPxScene->raycast(raycastPoint, raycastDir, 150.f, hit);
 
 	if (bHit)
 	{
-		void* data = hit.block.actor->userData;
-		void* checkData = (void*)g_Collision_Mask_Object;
+		UserData* data = static_cast<UserData*>(hit.block.actor->userData);
+		int id = data->m_EntityId;
+		cout << "Entity Id : " << id << endl;
 
-		assert(data != checkData);
+		for (const auto& obj : m_pStaticColliders) {
+			int Id = obj.first;
+			StaticCollider* colliderPtr = obj.second;
+
+			if (obj.first == id)
+			{
+				obj.second->m_pOwner->m_IsRaycastHit = true;
+			}
+		}
 	}
 }
 
-void PhysicsManager::InitFilterDatas()
-{
-	PxFilterData* playerFilterData = new PxFilterData;
-	playerFilterData->word0 = g_Collision_Mask_Player;
-
-	PxFilterData* groundFilterData = new PxFilterData;
-	groundFilterData->word0 = g_Collision_Mask_Ground;
-
-	PxFilterData* slopeFilterData = new PxFilterData;
-	slopeFilterData->word0 = g_Collision_Mask_Slope;
-
-	PxFilterData* objectFilterData = new PxFilterData;
-	objectFilterData->word0 = g_Collision_Mask_Object;
-
-	PxFilterData* blockFilterData = new PxFilterData;
-	blockFilterData->word0 = g_Collision_Mask_Block;
-
-	m_pFilterDatas.insert(std::pair<Collision_Mask, PxFilterData*>(Collision_Mask::BLOCK, blockFilterData));
-	m_pFilterDatas.insert(std::pair<Collision_Mask, PxFilterData*>(Collision_Mask::PLAYER, playerFilterData));
-	m_pFilterDatas.insert(std::pair<Collision_Mask, PxFilterData*>(Collision_Mask::GROUND, groundFilterData));
-	m_pFilterDatas.insert(std::pair<Collision_Mask, PxFilterData*>(Collision_Mask::SLOPE, slopeFilterData));
-	m_pFilterDatas.insert(std::pair<Collision_Mask, PxFilterData*>(Collision_Mask::OBJECT, objectFilterData));
-	m_pFilterDatas.insert(std::pair<Collision_Mask, PxFilterData*>(Collision_Mask::WALL, blockFilterData));
-}
-
-
 void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 {
-	if (boxcollider->m_CollisionType == CollisionType::DYNAMIC)
+	if (boxcollider->m_ColliderType == ColliderType::DYNAMIC)
 	{
 		DynamicCollider* newDynamicCollider = new DynamicCollider(boxcollider);
 
 		newDynamicCollider->Initialize();
 		m_pDynamicColliders.push_back(make_pair(entId, newDynamicCollider));
 
+		UserData* user = new UserData;
+		user->m_CollisionType = boxcollider->m_CollisionType;
+		user->m_EntityId = entId;
+		user->m_State = CollisionState::NONE;
+
+		newDynamicCollider->m_Rigid->userData = user;
+
 	}
-	else if (boxcollider->m_CollisionType == CollisionType::STATIC)
+	else if (boxcollider->m_ColliderType == ColliderType::STATIC)
 	{
 		StaticCollider* newStaticCollider = new StaticCollider(boxcollider);
 
 		newStaticCollider->Initialize();
-		m_pStaticColliders.push_back(newStaticCollider);
+		m_pStaticColliders.push_back(make_pair(entId, newStaticCollider));
+
+		UserData* user = new UserData;
+		user->m_CollisionType = boxcollider->m_CollisionType;
+		user->m_EntityId = entId;
+		user->m_State = CollisionState::NONE;
+
+		newStaticCollider->m_Rigid->userData = user;
 	}
 }
 
 void PhysicsManager::DebugSetUp()
 {
-	// PhysX Visual Debbugger º¸±âÀ§ÇÑ ¼¼ÆÃ
-
+	// PhysX Visual Debbugger ë³´ê¸°ìœ„í•œ ì„¸íŒ…
 	PxPvdSceneClient* pvdClient = m_pPxScene->getScenePvdClient();
 	if (pvdClient)
 	{
@@ -150,15 +157,62 @@ void PhysicsManager::DebugSetUp()
 	}
 }
 
+void PhysicsManager::InitFilterData()
+{
+	PxFilterData* playerFilterData = new PxFilterData;
+	playerFilterData->word0 = CollisionMask::PLAYER;
+
+	PxFilterData* groundFilterData = new PxFilterData;
+	groundFilterData->word0 = CollisionMask::GROUND;
+
+	PxFilterData* wallFilterData = new PxFilterData;
+	wallFilterData->word0 = CollisionMask::WALL;
+
+	PxFilterData* objectFilterData = new PxFilterData;
+	objectFilterData->word0 = CollisionMask::OBJECT;
+
+	PxFilterData* blockFilterData = new PxFilterData;
+	blockFilterData->word0 = CollisionMask::TRIGGER;
+
+	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::TRIGGER, blockFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::PLAYER, playerFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::GROUND, groundFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::WALL, wallFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::OBJECT, objectFilterData));
+}
+
+void PhysicsManager::AddToCollisionQueue(int entId)
+{
+	for (const auto& obj : m_pStaticColliders) {
+		int Id = obj.first;
+		StaticCollider* colliderPtr = obj.second;
+
+		if (obj.first == entId)
+		{
+			m_CollisionQue.push(make_pair(entId, obj.second));
+		}
+	}
+}
+
+void PhysicsManager::SendDataToObjects()
+{
+	while (!m_CollisionQue.empty())
+	{
+		StaticCollider* obj = m_CollisionQue.front().second;
+		UserData* data = static_cast<UserData*>(obj->m_Rigid->userData);
+		obj->m_pOwner->m_State = data->m_State;
+		m_CollisionQue.pop();
+	}
+}
+
 DynamicCollider* PhysicsManager::GetDynamicCollider(int entId)
 {
-	const auto it = std::find_if(m_pDynamicColliders.begin(), m_pDynamicColliders.end(), [entId](pair<int, DynamicCollider*> collider)
+	const auto it = std::find_if(m_pDynamicColliders.begin(), m_pDynamicColliders.end(), [entId](std::pair<int, DynamicCollider*> collider)
 		{
 			return collider.first == entId;
 		});
 	return it->second;
 }
-
 
 PhysicsManager::~PhysicsManager()
 {
@@ -174,3 +228,99 @@ PhysicsManager::~PhysicsManager()
 	}
 	PX_RELEASE(m_pFoundation);
 }
+
+void FilterCallback::onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs)
+{
+	for (physx::PxU32 i = 0; i < nbPairs; ++i)
+	{
+		const physx::PxContactPair& pair = pairs[i];
+
+		// Collsion Enter
+		if (pair.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+
+			auto& pair = pairHeader.actors;
+
+			bool player = false;
+			for (auto& actor : pair)
+			{
+				UserData* userData = static_cast<UserData*>(actor->userData);
+				if (userData->m_CollisionType == CollisionMask::PLAYER)
+					player = true;
+			}
+
+			for (auto& actor : pair)
+			{
+				UserData* userData = static_cast<UserData*>(actor->userData);
+				userData->m_State = CollisionState::ENTER;
+
+				if (player && userData->m_CollisionType != CollisionMask::PLAYER)
+				{
+					PhysicsManager::GetInstance()->AddToCollisionQueue(userData->m_EntityId);
+					player = false;
+				}
+			}
+		}
+
+		// Collsion Stay
+		if (pair.events & physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
+		{
+			auto& pair = pairHeader.actors;
+
+			bool player = false;
+			for (auto& actor : pair)
+			{
+				UserData* userData = static_cast<UserData*>(actor->userData);
+				if (userData->m_CollisionType == CollisionMask::PLAYER)
+					player = true;
+			}
+
+			for (auto& actor : pair)
+			{
+				UserData* userData = static_cast<UserData*>(actor->userData);
+				userData->m_State = CollisionState::STAY;
+
+				if (player && userData->m_CollisionType != CollisionMask::PLAYER)
+				{
+					PhysicsManager::GetInstance()->AddToCollisionQueue(userData->m_EntityId);
+					player = false;
+				}
+			}
+		}
+
+		// Collsion Exit
+		if (pair.events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
+		{
+			auto& pair = pairHeader.actors;
+
+			for (auto& actor : pair)
+			{
+				UserData* userData = static_cast<UserData*>(actor->userData);
+				userData->m_State = CollisionState::EXIT;
+			}
+		}
+
+	}
+}
+
+void FilterCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
+{
+	for (PxU32 i = 0; i < count; i++)
+	{
+		const PxTriggerPair& pair = pairs[i];
+
+		if (pair.status & PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+			UserData* userData = static_cast<UserData*>(pair.triggerActor->userData);
+			userData->m_State = CollisionState::ENTER;
+			PhysicsManager::GetInstance()->AddToCollisionQueue(userData->m_EntityId);
+		}
+	
+		if (pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
+		{
+			UserData* userData = static_cast<UserData*>(pair.triggerActor->userData);
+			userData->m_State = CollisionState::EXIT;
+		}
+	}
+}
+

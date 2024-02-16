@@ -64,14 +64,21 @@ struct cbBall
 	int mUseIBL;
 };
 
-struct DebugInformation
+struct TextInformation
 {
-	int entityID;
+	int mEntityID;
 	string mText;
-	DirectX::XMFLOAT2 mPosition;
-	float depth;
+	XMFLOAT2 mPosition;
+	float mDepth;
 };
 
+struct DynamicTextInformation
+{
+	int mEntityID;
+	int mIndex;
+	bool mEnable = false;
+	vector<wstring> mText;
+};
 struct SpriteInformation
 {
 	int mEntityID;
@@ -194,11 +201,11 @@ public:
 	void Clear(Math::Vector3 color);
 
 	//리소스 경로 설정 및 리턴
-	void SetPath(string filePath) { BasePath = filePath; }
-	string GetPath() { return BasePath; }
+	void SetPath(std::string filePath) { BasePath = filePath; }
+	std::string GetPath() { return BasePath; }
 
 	//빈 모델에 정보 입력
-	void AddStaticModel(string filename, const Math::Matrix& worldTM);
+	void AddStaticModel(std::string filename, const Math::Matrix& worldTM);
 
 	//디버그용 콜라이더 박스
 	void AddColliderBox(Vector3 center, Vector3 extents, bool isCollision);
@@ -208,18 +215,21 @@ public:
 
 	void AddOutlineMesh(StaticModel* model);
 	//디버그 정보 추가
-	void AddDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
+	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
 
 	// 디버그 정보 수정
-	void EditDebugInformation(int id, const std::string& text, const Vector3D& position);
+	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
 	void EditSpriteInformation(int id, bool isRendered);
+	void EditDynamicTextInformation(int id, int index, bool enable);
 
-	void DeleteDebugInformation(int id);
+	void DeleteTextInformation(int id);
 	void DeleteSpriteInformation(int id);
+	void DeleteDynamicTextInformation(int entId);
 
 	//모델 만들어서 모델 리스트에 추가
-	void CreateModel(string filename);
+	void CreateModel(std::string filename);
 
 
 	void CreateViewport(UINT width, UINT height);
@@ -232,7 +242,7 @@ public:
 	//월드 좌표 ndc로 변환
 	DirectX::XMFLOAT3 ConvertToNDC(const Vector3D& pos) const;
 
-	const wchar_t* ConvertToWchar(const string& str) const;
+	const wchar_t* ConvertToWchar(const std::string& str) const;
 
 
 	void FrustumCulling(StaticModel* model);
@@ -258,7 +268,7 @@ public:
 	void ShadowRender();
 
 	//환경맵 세팅
-	void SetEnvironment(string filename);
+	void SetEnvironment(std::string filename);
 
 	void Update();
 
@@ -291,8 +301,9 @@ public:
 	// minjeong : Create Shadow VS & PS
 	void CreateShadowVS();
 	void CreateShadowPS();private:
-	string BasePath = "../Resource/";
-	const wchar_t* m_fontFilePath = L"../Resource/font/bitstream.spritefont";
-	vector<DebugInformation> m_debugs;
+		std::string BasePath = "../Resource/";
+	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
+	vector<TextInformation> m_texts;
 	vector<SpriteInformation> m_sprites;
+	vector<DynamicTextInformation> m_dynamicTexts;
 };

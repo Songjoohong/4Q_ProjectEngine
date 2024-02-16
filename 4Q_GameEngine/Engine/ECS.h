@@ -368,7 +368,7 @@ namespace ECS
 		{
 			ECS_DECLARE_TYPE
 
-				Entity* entity;
+			Entity* entity;
 		};
 
 
@@ -376,7 +376,7 @@ namespace ECS
 		{
 			ECS_DECLARE_TYPE
 
-				Entity* entity;
+			Entity* entity;
 		};
 		// Called when a component is assigned (not necessarily created).
 		template<typename T>
@@ -398,6 +398,22 @@ namespace ECS
 			ComponentHandle<T> component;
 		};
 
+		struct SpaceAssemble
+		{
+			ECS_DECLARE_TYPE
+
+			Entity* objectEntity;
+			Entity* subjectEntity;
+			int objectExit;
+			int subjectExit;
+		};
+
+		struct DynamicTextChange
+		{
+			ECS_DECLARE_TYPE
+
+			Entity* entity;
+		};
 #ifdef ECS_NO_RTTI
 		template<typename T>
 		ECS_DEFINE_TYPE(ECS::Events::OnComponentAssigned<T>);
@@ -543,16 +559,6 @@ namespace ECS
 
 		Entity* getParent() const { return m_parent; }
 
-		//void addChild(Entity* child)
-		//{
-		//	child->SetParent(this);
-		//	m_children.push_back(child);
-		//}
-
-		//void SetParent(Entity* parent)
-		//{
-		//	this->m_parent = parent;
-		//}
 
 		// ¼ö¹Î --------------------------------------------------------------------------------------------------------
 
@@ -621,7 +627,6 @@ namespace ECS
 		
 		size_t id;
 		bool bPendingDestroy = false;
-		Entity* parentEntity = nullptr;
 	};
 
 	/**
@@ -669,7 +674,9 @@ namespace ECS
 			//auto deserializedTransform = DeserializeContainerFromFile<std::array<Transform, 3>>(fullPath);
 		}
 		// Use this to destroy the world instead of calling delete.
-		// This will emit OnEntityDestroyed events and call EntitySystem::unconfigure as appropriate.
+		// This will 
+		//
+		//  OnEntityDestroyed events and call EntitySystem::unconfigure as appropriate.
 		void DestroyWorld()
 		{
 			WorldAllocator alloc(entAlloc);
@@ -1109,7 +1116,8 @@ namespace ECS
 		}
 		if (ent->m_parent != nullptr)
 		{
-			ent->m_parent->m_children.clear();
+			ent->m_parent->RemoveChild(ent);
+			//ent->m_parent->m_children.clear();
 		}
 		ent->bPendingDestroy = true;
 		emit<Events::OnEntityDestroyed>({ ent });
@@ -1119,6 +1127,12 @@ namespace ECS
 			entities.erase(std::remove(entities.begin(), entities.end(), ent), entities.end());
 			std::allocator_traits<EntityAllocator>::destroy(entAlloc, ent);
 			std::allocator_traits<EntityAllocator>::deallocate(entAlloc, ent, 1);
+		}
+
+		for (Entity* child : ent->m_children)
+		{
+			destroy(child);
+			ent->RemoveChild(child);
 		}
 	}
 
@@ -1200,7 +1214,7 @@ namespace ECS
 	ComponentHandle<T> Entity::Assign(Args&&... args)
 	{
 		using ComponentAllocator = std::allocator_traits<World::EntityAllocator>::template rebind_alloc<Internal::ComponentContainer<T>>;
-
+		auto i = this;
 		auto found = components.find(getTypeIndex<T>());
 		if (found != components.end())
 		{
