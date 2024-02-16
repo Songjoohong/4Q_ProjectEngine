@@ -45,6 +45,7 @@ public:
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
 		}
 
+		
 		m_pOwner->get<Movement>()->m_CurrentRotation[0] = InputM->GetMouseMove().x;
 	}
 };
