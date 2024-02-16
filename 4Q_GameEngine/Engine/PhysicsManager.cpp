@@ -12,7 +12,7 @@ PxFilterFlags CustomFilterShader(PxFilterObjectAttributes attributes0, PxFilterD
 	// 플레이어와 다른 물체들은 충돌 처리 / 나머지는 물리X 
 	if (filterData0.word0 == CollisionMask::PLAYER || filterData1.word0 == CollisionMask::PLAYER)
 	{
-		if (filterData0.word0 == CollisionMask::TRIGGER || filterData1.word0 == CollisionMask::TRIGGER )
+		if (filterData0.word0 == CollisionMask::TRIGGER || filterData1.word0 == CollisionMask::TRIGGER)
 		{
 			pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
 			return PxFilterFlags();
@@ -89,7 +89,7 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 {
 	PxRaycastBuffer hit;
 	PxVec3 vector = { 0,0,0 };
- 	raycastDir.normalize();
+	raycastDir.normalize();
 	if (raycastDir == vector)
 		return;
 	bool bHit = m_pPxScene->raycast(raycastPoint, raycastDir, 150.f, hit);
@@ -104,12 +104,27 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 			int Id = obj.first;
 			StaticCollider* colliderPtr = obj.second;
 
+			colliderPtr->m_pOwner->m_WasRaycastHit = colliderPtr->m_pOwner->m_IsRaycastHit;
+			colliderPtr->m_pOwner->m_IsRaycastHit = false;
+
 			if (obj.first == id)
 			{
-				obj.second->m_pOwner->m_IsRaycastHit = true;
+				colliderPtr->m_pOwner->m_IsRaycastHit = true;
 			}
 		}
 	}
+	else
+	{
+		// bHit = flase 일 때 모든 객체 false를 해준다.
+		for (const auto& obj : m_pStaticColliders) {
+			StaticCollider* colliderPtr = obj.second;
+
+			colliderPtr->m_pOwner->m_WasRaycastHit = colliderPtr->m_pOwner->m_IsRaycastHit;
+			colliderPtr->m_pOwner->m_IsRaycastHit = false;
+
+		}
+	}
+
 }
 
 void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
@@ -315,7 +330,7 @@ void FilterCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 			userData->m_State = CollisionState::ENTER;
 			PhysicsManager::GetInstance()->AddToCollisionQueue(userData->m_EntityId);
 		}
-	
+
 		if (pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 		{
 			UserData* userData = static_cast<UserData*>(pair.triggerActor->userData);

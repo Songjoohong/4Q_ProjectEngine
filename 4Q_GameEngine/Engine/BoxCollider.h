@@ -46,6 +46,7 @@ struct BoxCollider
 	Vector3D m_Size = { 1.f,1.f,1.f };
 	Vector3D m_Rotation = { 0.f,0.f,0.f };
 	bool m_IsTrigger = false;
+	bool m_WasRaycastHit = false;
 	bool m_IsRaycastHit = false;
 
 

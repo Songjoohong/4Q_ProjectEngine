@@ -4,6 +4,7 @@
 #include "ECS.h"
 #include "InputManager.h"
 #include "Script.h"
+#include "BoxCollider.h"
 
 struct DynamicTextScript : public Script
 {
@@ -18,16 +19,16 @@ struct DynamicTextScript : public Script
 
 	virtual void Update(float deltaTime) override
 	{
-		if(InputM->GetKeyDown(Key::SPACE))
+		if (InputM->GetKeyDown(Key::SPACE))
 		{
 			m_pOwner->get<DynamicText>()->m_CurrentTextIndex += 1;
 			m_pOwner->get<DynamicText>()->m_CurrentTextIndex %= m_Size;
 			m_pOwner->getWorld()->emit<Events::DynamicTextChange>({ m_pOwner });
 		}
 
-		if(InputM->GetKeyDown(Key::MBUTTON))
+		if (m_pOwner->get<BoxCollider>()->m_WasRaycastHit != m_pOwner->get<BoxCollider>()->m_IsRaycastHit)
 		{
-			m_pOwner->get<DynamicText>()->m_IsTextShow = !m_pOwner->get<DynamicText>()->m_IsTextShow;
+			m_pOwner->get<DynamicText>()->m_IsTextShow = m_pOwner->get<BoxCollider>()->m_IsRaycastHit;
 			m_pOwner->getWorld()->emit<Events::DynamicTextChange>({ m_pOwner });
 		}
 	}
