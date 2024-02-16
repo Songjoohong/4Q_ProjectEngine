@@ -37,6 +37,9 @@
 #include "../Engine/TimeManager.h"
 #include "../Engine/CollisionSystem.h"
 #include "../Engine/SpriteSystem.h"
+#include "../Engine/DebugSystem.h"
+#include "../Engine/UISystem.h"
+#include "../Engine/SpaceSystem.h"
 
 #include "Prefab.h"
 #include "NameManager.h"
@@ -538,11 +541,20 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld = ECS::World::CreateWorld(fileName);
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 	m_NameManager->ClearContainer();
-	m_EditorWorld->registerSystem(new ScriptSystem);
+
+	// 시스템 등록
 	m_EditorWorld->registerSystem(new RenderSystem);
 	m_EditorWorld->registerSystem(new TransformSystem);
 	m_EditorWorld->registerSystem(new MovementSystem);
 	m_EditorWorld->registerSystem(new CameraSystem);
+	m_EditorWorld->registerSystem(new ScriptSystem);
+	m_EditorWorld->registerSystem(new CollisionSystem);
+	m_EditorWorld->registerSystem(new SpriteSystem);
+
+	m_EditorWorld->registerSystem(new DebugSystem);
+	m_EditorWorld->registerSystem(new class UISystem);
+	m_EditorWorld->registerSystem(new SpaceSystem);
+
 	//Free Camera
 	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
@@ -937,14 +949,9 @@ void GameEditor::NewScene()
 {
 	m_SceneName = "NewScene";	// 씬 이름 기본 설정
 
-	m_EditorWorld = ECS::World::CreateWorld(m_SceneName);
-	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Resource/scene/" + m_SceneName + ".scene"));
 
-	m_NameManager = std::make_shared<NameManager>();
-	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld, m_NameManager);
-
-	// Scene 새로 불러올 때 원래 이름값들 초기화
-	m_NameManager->ClearContainer();
+	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();
 
 	// 시스템 등록
 	m_EditorWorld->registerSystem(new RenderSystem);
@@ -955,6 +962,17 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new CollisionSystem);
 	m_EditorWorld->registerSystem(new SpriteSystem);
 
+	m_EditorWorld->registerSystem(new DebugSystem);
+	m_EditorWorld->registerSystem(new class UISystem);
+	m_EditorWorld->registerSystem(new SpaceSystem);
+
+
+	// Scene 새로 불러올 때 원래 이름값들 초기화
+
+	m_NameManager = std::make_shared<NameManager>();
+	m_PrefabManager = std::make_shared<PrefabManager>(m_EditorWorld, m_NameManager);
+
+	m_NameManager->ClearContainer();
 
 	// Panel들 등록
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
@@ -1007,11 +1025,6 @@ void GameEditor::NewScene()
 
 	// for test
 	{
-		Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-		ent->Assign<EntityIdentifier>(ent->getEntityId(), "Test Collider");
-		ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-		ent->Assign<BoxCollider>();
-
 		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 		ent2->Assign<EntityIdentifier>(ent->getEntityId(), "Test UI");
 		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
@@ -1045,6 +1058,7 @@ void GameEditor::NewScene()
 	{
 		m_NameManager->AddEntityName(entity);
 	}
+
 }
 
 void GameEditor::PlayScene()
