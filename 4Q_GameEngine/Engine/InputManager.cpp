@@ -17,7 +17,19 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	'D',
 	'Q',
 	'E',
-	VK_CONTROL
+	VK_CONTROL,
+	VK_F1,
+	VK_F2,
+	VK_F3,
+	VK_F4,
+	VK_F5,
+	VK_F6,
+	VK_F7,
+	VK_F8,
+	VK_F9,
+	VK_F10,
+	VK_F11,
+	VK_F12,
 };
 
 void InputManager::Initialize(UINT width, UINT height)
