@@ -8,5 +8,7 @@ class SpaceSystem : public EntitySystem,
 	virtual void Deconfigure(World* world) override;
 
 	virtual void Receive(World* world, const Events::SpaceAssemble& event) override;
+
+	virtual void Tick(World* world, ECS::DefaultTickData data) override;
 };
 
