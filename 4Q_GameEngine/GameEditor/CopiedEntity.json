@@ -1,13 +1,13 @@
 {
     "Prefabs": [
         {
-            "Character": [
+            "Empty Entity (1)": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 3,
-                            "m_EntityName": "Character",
+                            "m_EntityId": 6,
+                            "m_EntityName": "Empty Entity (1)",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -17,6 +17,9 @@
                     "Transform": [
                         {
                             "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
                             "m_Position": {
                                 "m_X": 0.0,
                                 "m_Y": 0.0,
@@ -32,22 +35,6 @@
                                 "m_Y": 1.0,
                                 "m_Z": 1.0
                             }
-                        }
-                    ]
-                },
-                {
-                    "StaticMesh": [
-                        {
-                            "m_ComponentName": "StaticMesh",
-                            "m_FileName": "FBXLoad_Test/fbx/Character.fbx",
-                            "m_IsModelCreated": true
-                        }
-                    ]
-                },
-                {
-                    "Debug": [
-                        {
-                            "m_ComponentName": "Debug"
                         }
                     ]
                 }

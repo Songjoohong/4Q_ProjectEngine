@@ -7,13 +7,13 @@ class VertexShader :
 {
 public:
     VertexShader() {}
-    VertexShader(wstring filename) { SetShader(filename); }
+    VertexShader(std::wstring filename) { SetShader(filename); }
     ~VertexShader() {}
 
     ComPtr<ID3D11VertexShader> m_pVertexShader;
 
 public:
-    virtual bool CompileShader(wstring filename);
-    virtual bool SetShader(wstring filename);
+    virtual bool CompileShader(std::wstring filename);
+    virtual bool SetShader(std::wstring filename);
 };
 

@@ -50,7 +50,7 @@ void Renderer::Clear(Math::Vector3 color)
 	//m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView.Get(), clearColor);
 }
 
-void Renderer::AddStaticModel(string filename, const Math::Matrix& worldTM)
+void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 {
 	for (auto& model : m_pStaticModels)
 	{
@@ -246,7 +246,7 @@ DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
 	return { (translation.x + 1) * 960.f,540.f * (1 - translation.y), translation.z};
 }
 
-const wchar_t* Renderer::ConvertToWchar(const string& str) const
+const wchar_t* Renderer::ConvertToWchar(const std::string& str) const
 {
 	const int bufferSize = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, nullptr, 0);
 	const auto finalText = new wchar_t[bufferSize];
@@ -451,7 +451,7 @@ void Renderer::RenderQueueSort()
 		});
 }
 
-void Renderer::SetEnvironment(string filename)
+void Renderer::SetEnvironment(std::string filename)
 {
 	auto it = ResourceManager::Instance->m_pOriginalEnvironments.find(filename);
 	if (it != ResourceManager::Instance->m_pOriginalEnvironments.end())
@@ -563,12 +563,12 @@ void Renderer::RenderText() const
 	delete[] systemMemory;
 
 	float FPS = TimeManager::GetInstance()->GetFPS();
-	string strFPS = "Frame per Second : " + std::to_string(FPS);
+	std::string strFPS = "Frame per Second : " + std::to_string(FPS);
 	const wchar_t* wFPS = ConvertToWchar(strFPS);
 	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
 	delete[] wFPS;
 
-	string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
+	std::string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
 	const wchar_t* wMousePos = ConvertToWchar(mousePos);
 	m_spriteFont->DrawString(m_spriteBatch.get(), wMousePos, XMFLOAT2(0.f, 60.f), Colors::White, 0.f, XMFLOAT2(0.f, 0.f), 0.7f);
 }
@@ -663,7 +663,7 @@ void Renderer::EditorRender()
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
 	//그림자 렌더
-	ShadowRender();
+	//ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
@@ -680,13 +680,13 @@ void Renderer::EditorRender()
 	MeshRender();
 
 
-	RenderDebugDraw();
+	//RenderDebugDraw();
 
 
-	m_spriteBatch->Begin();
-	RenderText();
-	RenderSprite();
-	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	//m_spriteBatch->Begin();
+	//RenderText();
+	//RenderSprite();
+	//m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 
 	//임구이 렌더
@@ -848,7 +848,7 @@ void Renderer::RenderImgui()
 		// Shadow
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
-		string str = to_string(m_shadowDirection.x) + ", " + to_string(m_shadowDirection.y) + ", " + to_string(m_shadowDirection.z);
+		std::string str = std::to_string(m_shadowDirection.x) + ", " + std::to_string(m_shadowDirection.y) + ", " + std::to_string(m_shadowDirection.z);
 		ImGui::Text("ShadowDirection : %s", str.c_str());
 		ImGui::End();
 	}

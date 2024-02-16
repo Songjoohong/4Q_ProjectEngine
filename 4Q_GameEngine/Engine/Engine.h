@@ -1,6 +1,8 @@
 #pragma once
 #include <Windows.h>
 
+#include "ECS.h"
+
 class InputManager;
 class TimeManager;
 class RenderManager;
@@ -25,6 +27,7 @@ private:
 
 	bool m_IsPaused = false;
 	bool m_bIsRunning = false;
+
 public:
 	virtual bool Initialize(UINT width, UINT height);
 	virtual void Run();

@@ -13,6 +13,8 @@ public:
 
 public:
 	std::string m_ComponentName = "Script";
+
+	bool m_IsFreeCamera = false;
 	Entity* m_pOwner = nullptr;
 	virtual void Update(float deltaTime) {}
 	virtual void Awake() {}
@@ -24,5 +26,5 @@ public:
 	virtual void OnCollisionExit() {}
 	virtual void OnCollisionStay() {}
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Script, m_ComponentName)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Script, m_ComponentName, m_IsFreeCamera)
 };
