@@ -66,9 +66,9 @@ void PhysicsManager::Update(float deltatime)
 		if (collider->m_pOwner->m_IsTrigger == false)
 			collider->UpdateTransform();*/
 
-	for (auto& collider : m_pStaticColliders)
-		if (collider.second->m_pOwner->m_IsTrigger == false)
-			collider.second->UpdateTransform();
+	//for (auto& collider : m_pStaticColliders)
+	//	if (collider.second->m_pOwner->m_IsTrigger == false)
+	//		collider.second->UpdateTransform();
 
 	// 석영 : 물리 시뮬레이션 돌리기
 	m_pPxScene->simulate(deltatime);

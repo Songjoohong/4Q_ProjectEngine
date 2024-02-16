@@ -489,40 +489,55 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
 	{
-		switch (component->m_CollisionType)
+		// Collider Type Combo Box
+		const char* ColliderTypeStrings[] = { "Dynamic", "Static", "Plane" };
+		const char* currentColliderTypeString = ColliderTypeStrings[(int)component->m_ColliderType];
+		ImGui::SetNextItemWidth(150.f);
+
+		if (ImGui::BeginCombo("Collider Type", currentColliderTypeString))
 		{
-		case(0):
-			ImGui::Text("CollisionType : Dynamic");
-			break;
-		case(1):
-			ImGui::Text("CollisionType : Static");
-			break;
-		case(2):
-			ImGui::Text("CollisionType : Plane");
-			break;
+			for (int i = 0; i < 3; i++)
+			{
+				bool isSelected = currentColliderTypeString == ColliderTypeStrings[i];
+				if (ImGui::Selectable(ColliderTypeStrings[i], isSelected))
+				{
+					currentColliderTypeString = ColliderTypeStrings[i];
+					component->m_ColliderType = static_cast<ColliderType>(i);
+					cout << "Collider Type Changed!!!!!!!!" << endl;		// TODO: [delete] test for debug1
+				}
+
+				if (isSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+
+			ImGui::EndCombo();
 		}
 
-		//switch (component->m_CollisionMask)
-		//{
-		//case(0):
-		//	ImGui::Text("CollisionMask : Player");
-		//	break;
-		//case(1):
-		//	ImGui::Text("CollisionMask : Wall");
-		//	break;
-		//case(2):
-		//	ImGui::Text("CollisionMask : Ground");
-		//	break;
-		//case(3):
-		//	ImGui::Text("CollisionMask : Slope");
-		//	break;
-		//case(4):
-		//	ImGui::Text("CollisionMask : Object");
-		//	break;
-		//case(5):
-		//	ImGui::Text("CollisionMask : Block");
-		//	break;
-		//}
+		// CollisionType Combo Box
+		const char* CollisionTypeStrings[] = { "Player", "Wall", "Ground",  "Slope" , "Object", "Trigger" };
+		const char* currentCollisionTypeString = CollisionTypeStrings[(int)component->m_CollisionType];
+		ImGui::SetNextItemWidth(150.f);
+
+		if (ImGui::BeginCombo("Collision Type Type", currentCollisionTypeString))
+		{
+			for (int i = 0; i < 6; i++)
+			{
+				bool isSelected = currentCollisionTypeString == CollisionTypeStrings[i];
+				if (ImGui::Selectable(CollisionTypeStrings[i], isSelected))
+				{
+					currentCollisionTypeString = CollisionTypeStrings[i];
+					component->m_CollisionType = static_cast<CollisionMask>(i);
+					cout << "Collision Type Changed!!!!!!!!" << endl;	// TODO: [delete] test for debug2
+				}
+
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
 
 		DrawVec3Control("Center", component->m_Center);
 		DrawVec3Control("Size", component->m_Size);

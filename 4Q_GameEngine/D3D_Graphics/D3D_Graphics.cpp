@@ -679,8 +679,9 @@ void Renderer::EditorRender()
 	SphereRender();
 	MeshRender();
 
-
-	//RenderDebugDraw();
+#ifdef _DEBUG
+	RenderDebugDraw();
+#endif
 
 
 	//m_spriteBatch->Begin();

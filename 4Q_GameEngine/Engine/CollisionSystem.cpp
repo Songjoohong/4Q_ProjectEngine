@@ -24,7 +24,7 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 	world->each<Transform, BoxCollider>([&](Entity* ent, ComponentHandle<Transform> transform, ComponentHandle<BoxCollider> collider)
 		{
 			collider->m_IsRaycastHit = false;
-			transform->m_Position = collider->m_Center;
+			collider->m_Center = transform->m_Position;	// TODO: 24.02.16 임시 수정
 			//transform->m_Rotation = collider->m_Rotation;
 		});
 }

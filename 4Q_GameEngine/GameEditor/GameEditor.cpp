@@ -317,7 +317,7 @@ void GameEditor::RenderImGui()
 
 
 			bool snap = InputManager::GetInstance()->GetKey(Key::CTRL);
-			std::cout << snap << std::endl;
+			//std::cout << snap << std::endl;
 
 			if (ImGuizmo::Manipulate(floatViewMatrix, floatProjectionMatrix, (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL, &myMatrix.m_11, nullptr, snap ? &m_CurrentSnapMode->m_X : nullptr))
 			{
@@ -448,10 +448,8 @@ void GameEditor::EndRenderImGui()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
-		//GLFWwindow* backup_current_context = glfwGetCurrentContext();
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
-		//glfwMakeContextCurrent(backup_current_context);
 	}
 }
 
@@ -1002,6 +1000,14 @@ void GameEditor::NewScene()
 	ent->get<Script>()->m_ComponentName = "FreeCameraScript";
 	ent->get<Script>()->m_IsFreeCamera = true;
 	ent->Assign<Movement>();
+
+	// for test
+	{
+		Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent->Assign<EntityIdentifier>(ent->getEntityId(), "Test Collider");
+		ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+		ent->Assign<BoxCollider>();
+	}
 
 	//// Test Entities
 	//{
