@@ -18,6 +18,7 @@ struct UI
 	~UI() = default;
 
 	long m_Size[2] = { 0,0 };
+	bool m_IsShow = false;
 	UISTATE m_UIstate = UISTATE::UINONE;
 };
 ECS_DEFINE_TYPE(UI);

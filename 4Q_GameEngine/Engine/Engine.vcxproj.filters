@@ -80,6 +80,9 @@
     <Filter Include="Component\Script">
       <UniqueIdentifier>{9c16fac9-2ef2-4a69-ac12-5f4a443cce73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Clue">
+      <UniqueIdentifier>{05162f46-1741-429b-80a5-0e55c8be94ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ISingleton.h">
@@ -215,9 +218,6 @@
     <ClInclude Include="FreeCameraScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
-    <ClInclude Include="CameraScript.h">
-      <Filter>Component\Script</Filter>
-    </ClInclude>
     <ClInclude Include="PlayerScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
@@ -229,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="Script.h">
       <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Clue.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ClueSystem.h">
+      <Filter>System\Clue</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -303,6 +309,9 @@
     </ClCompile>
     <ClCompile Include="DynamicTextScript.h">
       <Filter>Component\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="ClueSystem.cpp">
+      <Filter>System\Clue</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

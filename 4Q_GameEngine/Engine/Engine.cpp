@@ -12,6 +12,8 @@
 #include "POVCameraScript.h"
 #include "FreeCameraScript.h"
 #include "CameraSystem.h"
+#include "Clue.h"
+#include "ClueSystem.h"
 #include "CollisionSystem.h"
 #include "Debug.h"
 #include "DebugSystem.h"
@@ -119,6 +121,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 	EntitySystem* spaceSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpaceSystem());
+	EntitySystem* clueSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ClueSystem());
 
 
 	//Free Camera
@@ -149,7 +152,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent2->Assign<RigidBody>();
 	ent2->Assign<Movement>();
 
-	setlocale(LC_ALL, "Korean");
 	std::vector<std::wstring> wideStrings;
 	std::wstring text = L"안녕하세요";
 	std::wstring text1 = L"안녕히\n가세요";
@@ -175,7 +177,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
 	ent5->Assign<EntityIdentifier>(ent5->getEntityId(), "ui");
 	ent5->Assign<UI>(100, 100);
-	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 100,100 );
+	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/cancle_btn_dummy.png", 0, 350,100 );
 	ent5->Assign<TestUIScript>(ent5);
 
 	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
@@ -185,6 +187,46 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent6->Assign<Movement>();
 	ent6->Assign<Space>(1, exit);
 	ent6->SetParent(ent2);
+
+	Entity* ent7 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent7->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	ent7->Assign<EntityIdentifier>(ent7->getEntityId(), "ui");
+	ent7->Assign<UI>(100, 100);
+	ent7->Assign<Sprite2D>(ent7, "../Resource/UI/question.png", 0, 450, 150);
+	ent7->Assign<Clue>(1, 1, "../Resource/UI/find.png");
+	ent7->Assign<TestUIScript>(ent7);
+
+	Entity* ent8 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent8->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	ent8->Assign<EntityIdentifier>(ent8->getEntityId(), "ui");
+	ent8->Assign<UI>(100, 100);
+	ent8->Assign<Sprite2D>(ent8, "../Resource/UI/question.png", 0, 650, 150);
+	ent8->Assign<Clue>(1, 2, "../Resource/UI/find.png");
+	ent8->Assign<TestUIScript>(ent8);
+
+	Entity* ent9 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent9->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	ent9->Assign<EntityIdentifier>(ent9->getEntityId(), "ui");
+	ent9->Assign<UI>(100, 100);
+	ent9->Assign<Sprite2D>(ent9, "../Resource/UI/question.png", 0, 850, 150);
+	ent9->Assign<Clue>(1, 3, "../Resource/UI/find.png");
+	ent9->Assign<TestUIScript>(ent9);
+
+	Entity* ent10 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent10->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	ent10->Assign<EntityIdentifier>(ent10->getEntityId(), "ui");
+	ent10->Assign<UI>(100, 100);
+	ent10->Assign<Sprite2D>(ent10, "../Resource/UI/question.png", 0, 450, 150);
+	ent10->Assign<Clue>(2, 1, "../Resource/UI/find.png");
+	ent10->Assign<TestUIScript>(ent10);
+
+	Entity* ent11 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent11->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	ent11->Assign<EntityIdentifier>(ent11->getEntityId(), "ui");
+	ent11->Assign<UI>(100, 100);
+	ent11->Assign<Sprite2D>(ent11, "../Resource/UI/question.png", 0, 650, 150);
+	ent11->Assign<Clue>(2, 2, "../Resource/UI/find.png");
+	ent11->Assign<TestUIScript>(ent11);
 
 	/*SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");*/	 

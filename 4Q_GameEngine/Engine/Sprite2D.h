@@ -15,7 +15,7 @@ struct Sprite2D
 	// Layer는 0 과 1 사이
 	float m_Layer;
 	long m_Position[2];
-	bool m_IsRendered = true;
+	bool m_IsRendered = false;
 	std::string m_ComponentName = "Sprite2D";
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Sprite2D, m_FileName, m_Layer, m_Position, m_IsRendered)

@@ -95,9 +95,9 @@ void RenderManager::EditText(int entID, const std::string& text, const Vector3D&
 	Renderer::Instance->EditTextInformation(entID, text, p);
 }
 
-void RenderManager::EditSprite(int entID, bool isRendered)
+void RenderManager::EditSprite(int entID, bool isRendered, std::string& fileName)
 {
-	Renderer::Instance->EditSpriteInformation(entID, isRendered);
+	Renderer::Instance->EditSpriteInformation(entID, isRendered, fileName);
 }
 
 void RenderManager::EditDynamicText(int size, int index, bool enable)

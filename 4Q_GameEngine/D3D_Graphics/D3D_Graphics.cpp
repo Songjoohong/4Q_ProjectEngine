@@ -88,12 +88,12 @@ void Renderer::AddTextInformation(const int id, const std::string& text, const V
 	m_texts.push_back(newText);
 }
 
-void Renderer::AddSpriteInformation(int id, const std::string& filePath, const XMFLOAT2 position, float layer)
+void Renderer::AddSpriteInformation(int id, const std::string filePath, const XMFLOAT2 position, float layer)
 {
     ComPtr<ID3D11ShaderResourceView> texture;
     const wchar_t* filePathT = ConvertToWchar(filePath);
     HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
-    m_sprites.push_back(SpriteInformation{ id, layer, true, position, texture });
+    m_sprites.push_back(SpriteInformation{filePath, id, layer, true, position, texture });
 }
 
 void Renderer::AddDynamicTextInformation(int entId, const vector<std::wstring>& vector)
@@ -116,13 +116,22 @@ void Renderer::EditTextInformation(int id, const std::string& text, const Vector
 	it->mText = text;
 }
 
-void Renderer::EditSpriteInformation(int id, bool isRendered)
+void Renderer::EditSpriteInformation(int id, bool isRendered, std::string& filePath)
 {
    const auto it = std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
         {
             return id == sprite.mEntityID;
         });
+
     it->IsRendered = isRendered;
+	if(it->mFilePath != filePath)
+	{
+		it->mFilePath = filePath;
+		ComPtr<ID3D11ShaderResourceView> texture;
+		const wchar_t* filePathT = ConvertToWchar(filePath);
+		HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
+		it->mSprite = texture;
+	}
 }
 
 void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
@@ -582,7 +591,10 @@ void Renderer::RenderSprite() const
 	
     for(const auto& it : m_sprites)
     {
-        m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0,0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
+		if(it.IsRendered)
+		{
+			m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0, 0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
+		}
     }
 
 	m_spriteBatch->End();

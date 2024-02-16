@@ -40,7 +40,7 @@ public:
 	void AddDynamicText(int entID, const std::vector<std::wstring>& textVector);
 
 	void EditText(int entID, const std::string& text, const Vector3D& pos);
-	void EditSprite(int entID, bool isRendered);
+	void EditSprite(int entID, bool isRendered, std::string& fileName);
 	void EditDynamicText(int size, int index, bool enable);
 
 	Renderer* GetRender() { return m_Renderer; }

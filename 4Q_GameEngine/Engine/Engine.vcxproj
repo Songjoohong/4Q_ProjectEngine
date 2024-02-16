@@ -162,7 +162,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-
+    <ClInclude Include="Clue.h" />
+    <ClInclude Include="ClueSystem.h" />
     <ClInclude Include="DynamicText.h" />
     <ClInclude Include="POVCameraScript.h" />
     <ClInclude Include="FreeCameraScript.h" />
@@ -213,6 +214,7 @@
     <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ClueSystem.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="CameraSystem.cpp" />
     <ClCompile Include="CollisionSystem.cpp" />

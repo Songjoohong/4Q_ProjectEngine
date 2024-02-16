@@ -81,6 +81,7 @@ struct DynamicTextInformation
 };
 struct SpriteInformation
 {
+	std::string mFilePath;
 	int mEntityID;
 	float mLayer;
 	bool IsRendered;
@@ -208,12 +209,12 @@ public:
 
 	//디버그 정보 추가
 	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
-	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
+	void AddSpriteInformation(int id, const std::string filePath, const DirectX::XMFLOAT2 position, float layer);
 	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
 
 	// 디버그 정보 수정
 	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
-	void EditSpriteInformation(int id, bool isRendered);
+	void EditSpriteInformation(int id, bool isRendered, std::string& filePath);
 	void EditDynamicTextInformation(int id, int index, bool enable);
 
 	void DeleteTextInformation(int id);
