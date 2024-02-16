@@ -151,6 +151,31 @@ void Renderer::CreateModel(string filename)
 	m_pStaticModels.push_back(pModel);
 }
 
+void Renderer::CreateScreenMesh()
+{
+	m_pScreenMesh = new StaticMeshResource();
+	m_pScreenMesh->m_vertices.resize(4);
+	m_pScreenMesh->m_vertices[0].Position = { -1,1,0 };
+	m_pScreenMesh->m_vertices[0].Texcoord = { 0,0 };
+	m_pScreenMesh->m_vertices[1].Position = { 1,1,0 };
+	m_pScreenMesh->m_vertices[1].Texcoord = { 1,0 };
+	m_pScreenMesh->m_vertices[2].Position = { -1,-1,0 };
+	m_pScreenMesh->m_vertices[2].Texcoord = { 0,1 };
+	m_pScreenMesh->m_vertices[3].Position = { 1,-1,0 };
+	m_pScreenMesh->m_vertices[3].Texcoord = { 1,1 };
+
+	m_pScreenMesh->m_indices = { 0,1,2,2,1,3 };
+
+	m_pScreenMesh->CreateVertexBuffer(m_pDevice.Get(), m_pScreenMesh->m_vertices, 4);
+	m_pScreenMesh->CreateIndexBuffer(m_pDevice.Get(), m_pScreenMesh->m_indices, 6);
+
+	m_pScreenMesh->Setting(L"VS_Screen");
+
+	m_pScreenMeshInstance = new StaticMeshInstance();
+	m_pScreenMeshInstance->m_pMeshResource = m_pScreenMesh;
+	m_pScreenMeshInstance->Initialize();
+}
+
 void Renderer::CreateViewport(UINT width, UINT height)
 {
 	//뷰포트 설정
@@ -344,7 +369,7 @@ void Renderer::OutlineRender()
 	for (auto it : m_pOutlineMesh)
 	{
 		m_pDeviceContext->VSSetShader(m_pOutlineVS.Get(), nullptr, 0);
-		m_pDeviceContext->PSSetShader(m_pOutlinePS.Get(), nullptr, 0);
+		m_pDeviceContext->PSSetShader(nullptr, nullptr, 0);
 		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(m_pDeviceContext.Get());
@@ -515,11 +540,7 @@ void Renderer::RenderBegin()
     m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
     m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
-    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-
-	
-
-    
+    m_pDeviceContext->RSSetState(m_pRasterizerState.Get());    
 
     m_pointLightCB.mPos = m_pointLight.GetPosition();
     m_pointLightCB.mRadius = m_pointLight.GetRadius();
@@ -533,7 +554,7 @@ void Renderer::RenderBegin()
     m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
     Clear(0,1,0);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -612,14 +633,14 @@ void Renderer::GameAppRender()
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 실제 게임 렌더타겟에 렌더
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 실제 게임 렌더타겟에 렌더
 
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	SphereRender();
 
-	OutlineRender();
+	//OutlineRender();
 	MeshRender();
 
 
@@ -634,6 +655,7 @@ void Renderer::GameAppRender()
 
 	//임구이 렌더
 	RenderImgui();
+	FinalRender();
 }
 
 void Renderer::EditorRender()
@@ -689,7 +711,7 @@ void Renderer::EditorRender()
 	//RenderImgui();
 
 	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	
 }
 
 
@@ -711,6 +733,22 @@ void Renderer::RenderEnvironment()
 	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Initialize();
 	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Render(m_pDeviceContext.Get());
 	
+}
+
+void Renderer::FinalRender()
+{
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pDeviceContext->RSSetViewports(1, &m_viewport);
+	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	Clear();
+	m_pDeviceContext->VSSetShader(m_pScreenMeshInstance->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
+	m_pDeviceContext->PSSetShader(m_pOutlinePS.Get(), nullptr, 0);
+	m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+	m_pDeviceContext->PSSetShaderResources(12, 1, m_pFirstMapSRV.GetAddressOf());
+	m_pScreenMeshInstance->Render(m_pDeviceContext.Get());
 }
 
 
@@ -929,7 +967,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 
 	swapDesc.Windowed = true;
-	swapDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 
 	swapDesc.BufferDesc.Width = width;
@@ -960,7 +998,28 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     HR_T(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBufferMaterial));
     HR_T(m_pDevice->CreateRenderTargetView(pBackBufferMaterial.Get(), nullptr, m_pRenderTargetView.GetAddressOf()));
 
+	D3D11_TEXTURE2D_DESC t2d = {};
+	t2d.Width = width;
+	t2d.Height = height;
+	t2d.MipLevels = 1;
+	t2d.ArraySize = 1;
+	t2d.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	t2d.SampleDesc.Count = 1;
+	t2d.SampleDesc.Quality = 0;
+	t2d.Usage = D3D11_USAGE_DEFAULT;
+	t2d.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	t2d.CPUAccessFlags = 0;
+	t2d.MiscFlags = 0;
+	HR_T(m_pDevice->CreateTexture2D(&t2d, nullptr, m_pFirstMap.GetAddressOf()));
 
+	HR_T(m_pDevice->CreateRenderTargetView(m_pFirstMap.Get(), nullptr, m_pFirstRenderTargetView.GetAddressOf()));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd = {};
+	srvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvd.Texture2D.MipLevels = 1;
+
+	HR_T(m_pDevice->CreateShaderResourceView(m_pFirstMap.Get(), &srvd, m_pFirstMapSRV.GetAddressOf()));
 	
   
 	//뷰포트, 뎁스 스텐실 뷰, 샘플러 상태 설정
@@ -1028,12 +1087,13 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
     HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
 
 	dsd = CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} };
+	dsd.DepthEnable = false;
 	dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pSkyboxDSS.GetAddressOf()));
 
 	dsd = CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} };
-	dsd.DepthEnable = false;
+	dsd.DepthEnable = true;
 	dsd.StencilEnable = true;
 	dsd.StencilWriteMask = 0xff;
 	dsd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
@@ -1058,7 +1118,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
     m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
+    m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), NULL);
 
     DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 
@@ -1100,7 +1160,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(m_pDevice->CreateVertexShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pOutlineVS.GetAddressOf()));
 
 	buffer.Reset();
-	HR_T(CompileShaderFromFile(L"../Resource/PS_Outline.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(CompileShaderFromFile(L"../Resource/PS_Screen.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
 	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pOutlinePS.GetAddressOf()));
 
 	buffer.Reset();
@@ -1109,6 +1169,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	
 	SphereInit("FBXLoad_Test/fbx/8Ball.fbx");
 
+	CreateScreenMesh();
 
 	// 렌더링 텍스처 객체를 생성한다.
 	m_RenderTexture = new RenderTextureClass;

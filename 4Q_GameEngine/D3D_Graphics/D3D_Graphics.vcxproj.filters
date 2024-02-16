@@ -216,5 +216,11 @@
     <FxCompile Include="..\Resource\PS_Outline.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="..\Resource\VS_Screen.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\PS_Screen.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

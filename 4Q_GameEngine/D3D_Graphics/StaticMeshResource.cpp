@@ -56,7 +56,7 @@ void StaticSceneResource::Create(const std::string& path)
 		Math::Vector4 meshMax = Math::Vector4(pMesh->mAABB.mMax.x, pMesh->mAABB.mMax.y, pMesh->mAABB.mMax.z,1);
 
 		meshMin = XMVector4Transform(meshMin, m_meshes[i].m_localMatrix);
-		meshMax = XMVector4Transform(meshMin, m_meshes[i].m_localMatrix);
+		meshMax = XMVector4Transform(meshMax, m_meshes[i].m_localMatrix);
 
 		Math::Vector3 meshMn = Math::Vector3(meshMin.x, meshMin.y, meshMin.z);
 		Math::Vector3 meshMx = Math::Vector3(meshMax.x, meshMax.y, meshMax.z);

@@ -95,12 +95,16 @@ public:
 	ComPtr<ID3D11DeviceContext> m_pDeviceContext = nullptr;			//디바이스컨텍스트
 	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;					//스왑체인
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
+	ComPtr<ID3D11RenderTargetView> m_pFirstRenderTargetView = nullptr; 
+
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
 
 	ComPtr<ID3D11DepthStencilState> m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
 	ComPtr<ID3D11DepthStencilState> m_pSkyboxDSS = nullptr;
 	ComPtr<ID3D11DepthStencilState> m_pOutlineDSS = nullptr;
 
+	ComPtr<ID3D11Texture2D>m_pFirstMap=nullptr;
+	ComPtr<ID3D11ShaderResourceView> m_pFirstMapSRV = nullptr;
 
 	ComPtr<ID3D11BlendState> m_pAlphaBlendState = nullptr;			//알파 블렌드 스테이트
 
@@ -124,6 +128,8 @@ public:
 	D3D11_VIEWPORT m_viewport;
 	D3D11_VIEWPORT m_shadowViewport;
 
+
+	
 	ComPtr<ID3D11VertexShader> m_pOutlineVS;
 	ComPtr<ID3D11PixelShader> m_pOutlinePS;
 
@@ -147,6 +153,9 @@ public:
 	list<StaticMeshInstance*>m_pMeshInstance;	//렌더링 할 메쉬 인스턴스 리스트
 
 	D3D11_VIEWPORT m_baseViewport;
+
+	StaticMeshResource* m_pScreenMesh;
+	StaticMeshInstance* m_pScreenMeshInstance;
 
 	//spritefont 렌더용
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
@@ -221,6 +230,7 @@ public:
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(string filename);
 
+	void CreateScreenMesh();
 
 	void CreateViewport(UINT width, UINT height);
 	void CreateDepthStencilView(UINT width, UINT height);
@@ -280,7 +290,7 @@ public:
 
 	void RenderEnvironment();
 
-
+	void FinalRender();
 
 
 	void RenderEnd();
