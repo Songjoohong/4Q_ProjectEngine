@@ -137,6 +137,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::GROUND,Vector3D{ 1000.f,1.f,1000.f });
 
 
+
 	vector<ExitInfo> exit;
 	exit.push_back({ 1, Vector3D{ 100.f,100.f,100.f } });
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
@@ -169,6 +170,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 	ent4->Assign<Transform>(Vector3D(200.f, 10.f, 0.f));
 	ent4->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::TRIGGER, Vector3D{ 100.f,100.f,100.f });
+
 
 
 	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
