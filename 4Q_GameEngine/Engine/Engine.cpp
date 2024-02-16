@@ -133,8 +133,8 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
-	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 10.f,1.f,10.f });
+	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/bathroom_floor_001.fbx");
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
 	ent1->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND,Vector3D{ 10.f,1.f,10.f });
 
 
@@ -153,12 +153,12 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
 
-	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f));
+	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 100.f), Vector3D(45.f, 0.f, 0.f));
 	ent3->Assign<BoxCollider>(CollisionType::STATIC, Collision_Mask::GROUND, Vector3D{ 10000.f,1.f,10000.f });
 
 	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent4->Assign<EntityIdentifier>(ent4->getEntityId(), "Zelda2");
-	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/mask.fbx");
 	ent4->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
 
 

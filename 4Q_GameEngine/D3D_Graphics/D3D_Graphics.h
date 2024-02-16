@@ -96,7 +96,12 @@ public:
 	ComPtr<IDXGISwapChain> m_pSwapChain = nullptr;					//스왑체인
 	ComPtr<ID3D11RenderTargetView> m_pRenderTargetView = nullptr;	//렌더 타겟 뷰
 	ComPtr<ID3D11DepthStencilView> m_pDepthStencilView = nullptr;	//뎁스 스텐실 뷰
+
 	ComPtr<ID3D11DepthStencilState> m_pDepthStencilState = nullptr;	//뎁스 스텐실 스테이트
+	ComPtr<ID3D11DepthStencilState> m_pSkyboxDSS = nullptr;
+	ComPtr<ID3D11DepthStencilState> m_pOutlineDSS = nullptr;
+
+
 	ComPtr<ID3D11BlendState> m_pAlphaBlendState = nullptr;			//알파 블렌드 스테이트
 
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
@@ -106,7 +111,6 @@ public:
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;
 
-	ComPtr<ID3D11DepthStencilState> m_pSkyboxDSS = nullptr;
 
 	// minjeong : shadow Interface
 	ComPtr<ID3D11VertexShader> m_pShadowVS;
@@ -120,7 +124,8 @@ public:
 	D3D11_VIEWPORT m_viewport;
 	D3D11_VIEWPORT m_shadowViewport;
 
-
+	ComPtr<ID3D11VertexShader> m_pOutlineVS;
+	ComPtr<ID3D11PixelShader> m_pOutlinePS;
 
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
@@ -135,6 +140,8 @@ public:
 
 	vector<ColliderBox> m_colliderBox;
 	
+	vector<StaticMeshInstance*> m_pOutlineMesh;		//아웃라인을 그릴 메쉬
+
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
 	list<StaticMeshInstance*>m_pMeshInstance;	//렌더링 할 메쉬 인스턴스 리스트
@@ -199,6 +206,7 @@ public:
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
 
+	void AddOutlineMesh(StaticModel* model);
 	//디버그 정보 추가
 	void AddDebugInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
@@ -243,6 +251,7 @@ public:
 	Math::Matrix GetProjectionMatrix() { return m_projectionMatrix; }
 
 	
+	void OutlineRender();
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
 	void MeshRender();
