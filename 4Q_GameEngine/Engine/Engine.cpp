@@ -177,7 +177,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
 	ent5->Assign<EntityIdentifier>(ent5->getEntityId(), "ui");
 	ent5->Assign<UI>(100, 100);
-	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 100,100 );
+	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 500,500 );
 	ent5->Assign<TestUIScript>(ent5);
 
 	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();

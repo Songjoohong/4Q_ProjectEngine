@@ -664,7 +664,7 @@ void Renderer::GameAppRender()
 
 
 	//임구이 렌더
-	RenderImgui();
+	//RenderImgui();
 }
 
 void Renderer::EditorRender()
@@ -712,10 +712,10 @@ void Renderer::EditorRender()
 #endif
 
 
-	//m_spriteBatch->Begin();
-	//RenderText();
-	//RenderSprite();
-	//m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	m_spriteBatch->Begin();
+	RenderText();
+	RenderSprite();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 
 	//임구이 렌더
@@ -1152,8 +1152,9 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	Matrix cameraInitPos = Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(180.f), DirectX::XMConvertToRadians(0.f), DirectX::XMConvertToRadians(0.f)) * Matrix::CreateTranslation(0, 150, -250);
 	SetCamera(cameraInitPos);
 
-	if (!InitImgui(*hWnd))
-		return false;
+
+	//if (!InitImgui(*hWnd))
+	//	return false;
 
 
     return true;

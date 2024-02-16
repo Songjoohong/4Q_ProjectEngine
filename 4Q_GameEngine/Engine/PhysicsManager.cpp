@@ -61,25 +61,18 @@ void PhysicsManager::Initialize()
 
 void PhysicsManager::Update(float deltatime)
 {
-	// 석영 : Collider 위치를 오브젝트 위치로 변경 먼저 해주기
-	/*for (auto& collider : m_pDynamicColliders)
-		if (collider->m_pOwner->m_IsTrigger == false)
-			collider->UpdateTransform();*/
-
-	//for (auto& collider : m_pStaticColliders)
-	//	if (collider.second->m_pOwner->m_IsTrigger == false)
-	//		collider.second->UpdateTransform();
-
 	// 석영 : 물리 시뮬레이션 돌리기
 	m_pPxScene->simulate(deltatime);
 	m_pPxScene->fetchResults(true);
 
 	// 석영 : 결과로 나온 값을 오브젝트로 넣어주기
+	//for (auto& collider : m_pDynamicColliders)
+	//	if (collider.second->m_pOwner->m_IsTrigger == false)
+	//	{
+	//		collider.second->UpdatePhysics();
+	//	}
 	for (auto& collider : m_pDynamicColliders)
-		if (collider.second->m_pOwner->m_IsTrigger == false)
-		{
-			collider.second->UpdatePhysics();
-		}
+		collider.second->UpdatePhysics();
 
 	// 석영 : 충돌 상태 넘겨주고 클리어하기.
 	SendDataToObjects();
@@ -108,6 +101,60 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 			{
 				obj.second->m_pOwner->m_IsRaycastHit = true;
 			}
+		}
+	}
+}
+
+void PhysicsManager::ChangeCollider(BoxCollider* boxcollider, int entId)
+{
+	for (const auto& obj : m_pStaticColliders) {
+		int Id = obj.first;
+		StaticCollider* colliderPtr = obj.second;
+
+		if (obj.first == entId)
+		{
+			// 벡터 삭제 추가
+			delete colliderPtr;
+			CreateCollider(boxcollider, entId);
+			return;
+		}
+	}
+
+	for (const auto& obj : m_pDynamicColliders) {
+		int Id = obj.first;
+		DynamicCollider* colliderPtr = obj.second;
+
+		if (obj.first == entId)
+		{
+			// 벡터 삭제 추가
+			delete colliderPtr;
+			CreateCollider(boxcollider, entId);
+			return;
+		}
+	}
+}
+
+void PhysicsManager::ChangeFilter(int entId)
+{
+	for (const auto& obj : m_pStaticColliders) {
+		int Id = obj.first;
+		StaticCollider* colliderPtr = obj.second;
+
+		if (obj.first == entId)
+		{
+			colliderPtr->SetFilterData();
+			return;
+		}
+	}
+
+	for (const auto& obj : m_pDynamicColliders) {
+		int Id = obj.first;
+		DynamicCollider* colliderPtr = obj.second;
+
+		if (obj.first == entId)
+		{
+			colliderPtr->SetFilterData();
+			return;
 		}
 	}
 }

@@ -36,10 +36,12 @@
 #include "../Engine/ScriptSystem.h"
 #include "../Engine/TimeManager.h"
 #include "../Engine/CollisionSystem.h"
+#include "../Engine/SpriteSystem.h"
 
 #include "Prefab.h"
 #include "NameManager.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
+
 using json = nlohmann::json;
 
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -951,6 +953,8 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new CameraSystem);
 	m_EditorWorld->registerSystem(new ScriptSystem);
 	m_EditorWorld->registerSystem(new CollisionSystem);
+	m_EditorWorld->registerSystem(new SpriteSystem);
+
 
 	// Panel들 등록
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
@@ -1007,6 +1011,13 @@ void GameEditor::NewScene()
 		ent->Assign<EntityIdentifier>(ent->getEntityId(), "Test Collider");
 		ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 		ent->Assign<BoxCollider>();
+
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<EntityIdentifier>(ent->getEntityId(), "Test UI");
+		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+		ent2->Assign<UI>(100, 100);
+		ent2->Assign<Sprite2D>(ent2, "../Resource/UI/image.jpg", 0, 100, 100);
+		ent2->Assign<TestUIScript>(ent2);
 	}
 
 	//// Test Entities

@@ -23,6 +23,8 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 
+#include "../Engine/PhysicsManager.h"
+
 #include "Prefab.h"
 #include "NameManager.h"
 #include "ImGuizmo.h"
@@ -143,7 +145,7 @@ void SceneHierarchyPanel::SetPrefabFileName(ECS::Entity* entity)
 			{
 				std::string prefabFile = prefabName;
 				prefabFile += ".prefab";
-				m_PrefabManager.get()->SavePrefab(entity, prefabFile);
+				m_PrefabManager.get()->SavePrefab(entity, "../Resource/prefab/" + prefabFile);
 				ImGui::CloseCurrentPopup();
 				m_SelectionContext = nullptr;
 				m_OpenTextPopup = false;
@@ -411,7 +413,7 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 
 		if (open)
 		{
-			uiFunction(component);
+			uiFunction(component.component);
 			ImGui::TreePop();
 		}
 
@@ -487,7 +489,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		ImGui::Text(temp.c_str());
 	});
 
-	DrawComponent<BoxCollider>("BoxCollider", entity, [](auto component)
+	DrawComponent<BoxCollider>("BoxCollider", entity, [entity](auto component)
 	{
 		// Collider Type Combo Box
 		const char* ColliderTypeStrings[] = { "Dynamic", "Static", "Plane" };
@@ -503,6 +505,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 				{
 					currentColliderTypeString = ColliderTypeStrings[i];
 					component->m_ColliderType = static_cast<ColliderType>(i);
+
+					PhysicsManager::GetInstance()->ChangeCollider(component, entity->getEntityId());
 					cout << "Collider Type Changed!!!!!!!!" << endl;		// TODO: [delete] test for debug1
 				}
 
@@ -529,6 +533,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 				{
 					currentCollisionTypeString = CollisionTypeStrings[i];
 					component->m_CollisionType = static_cast<CollisionMask>(i);
+
+					PhysicsManager::GetInstance()->ChangeFilter(entity->getEntityId());
 					cout << "Collision Type Changed!!!!!!!!" << endl;	// TODO: [delete] test for debug2
 				}
 
