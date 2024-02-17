@@ -666,7 +666,7 @@ void Renderer::GameAppRender()
 
 
 	//임구이 렌더
-	//RenderImgui();
+	RenderImgui();
 }
 
 void Renderer::EditorRender()
@@ -1155,8 +1155,8 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	SetCamera(cameraInitPos);
 
 
-	//if (!InitImgui(*hWnd))
-	//	return false;
+	if (!InitImgui(*hWnd))
+		return false;
 
 
     return true;

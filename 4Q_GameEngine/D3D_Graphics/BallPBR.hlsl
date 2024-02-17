@@ -180,11 +180,11 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     }
 
-    float3 final = DirectionLighting + AmbientLighting + EmissiveLighting; //saturate(directionLighting + BaseColor);
+    PointLight = (Attenuation * Intensity * (PhongD + PhongS));
+    float3 final = DirectionLighting + AmbientLighting + EmissiveLighting + PointLight; //saturate(directionLighting + BaseColor);
    
 
 
-    //final = final + (Attenuation * Intensity * (PhongD + PhongS));
     final.rgb = pow(final.rgb, 1 / 2.2);
 
     return float4(final, 1.0f);

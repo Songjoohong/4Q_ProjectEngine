@@ -119,6 +119,22 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 	EntitySystem* spaceSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpaceSystem());
 
+	//Free Camera
+	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
+	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	ent->Assign<Debug>();
+	ent->Assign<Camera>();
+	ent->Assign<FreeCameraScript>(ent);
+	ent->Assign<Movement>();
+
+	//Ground Test
+	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
+	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
+	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::GROUND, Vector3D{ 1000.f,1.f,1000.f });
+
 	return true;
 }
 
