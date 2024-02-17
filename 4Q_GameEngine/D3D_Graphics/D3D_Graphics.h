@@ -11,13 +11,11 @@ class Environment;
 
 struct ColliderBox
 {
-	ColliderBox(Vector3 center, Vector3 extents, bool collision) {
+	ColliderBox(Vector3 center, Vector3 extents) {
 		colliderBox.Center = center;
 		colliderBox.Extents = extents;
-		isCollision = collision;
 	}
 	DirectX::BoundingBox colliderBox;
-	bool isCollision = false;
 };
 
 const size_t BUFFER_SIZE = 2;
@@ -208,7 +206,7 @@ public:
 	void AddStaticModel(std::string filename, const Math::Matrix& worldTM);
 
 	//디버그용 콜라이더 박스
-	void AddColliderBox(Vector3 center, Vector3 extents, bool isCollision);
+	void AddColliderBox(Vector3 center, Vector3 extents);
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);

@@ -178,33 +178,31 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Resource\Header.hlsli">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Resource\VertexShader.hlsl">
+    <FxCompile Include="VertexShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\PixelShader.hlsl">
+    <FxCompile Include="VS_Environment.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\ShadowDepthPS.hlsl">
+    <FxCompile Include="PS_Environment.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\ShadowVertexShader.hlsl">
+    <FxCompile Include="ShadowDepthPS.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\VS_Environment.hlsl">
+    <FxCompile Include="ShadowPixelShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\PS_Environment.hlsl">
+    <FxCompile Include="ShadowVertexShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\OpaquePBR.hlsl">
+    <FxCompile Include="OpaquePBR.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\BallPBR.hlsl">
+    <FxCompile Include="PixelShader.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="BallPBR.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\DefferedShader.hlsl">
@@ -216,5 +214,10 @@
     <FxCompile Include="..\Resource\PS_Outline.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Header.hlsli">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </None>
   </ItemGroup>
 </Project>

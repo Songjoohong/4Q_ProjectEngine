@@ -5,6 +5,9 @@
 #include "Movement.h"
 #include "Script.h"
 #include "Transform.h"
+#include "Space.h"
+
+#include <queue>
 
 class PlayerScript : public Script
 {
@@ -13,13 +16,15 @@ public:
 		: Script(ent)
 	{}
 	virtual ~PlayerScript() override = default;
+	queue<int> m_VisitedRooms;
 
 	virtual void Awake() override
 	{
 		m_pOwner->get<Transform>()->m_FreezeRotationX = true;
 		m_pOwner->get<Transform>()->m_FreezeRotationZ = true;
 
-		PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotation(true,true,true);
+		//Todo ¼®¿µ
+		//PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotation(true,true,true);
 
 		InputM->SetCameraMode(true);
 
