@@ -30,9 +30,7 @@ struct BoxCollider
 {
 	ECS_DECLARE_TYPE
 
-	BoxCollider() = default;
-
-	BoxCollider(ColliderType type,CollisionMask collisionmask, Vector3D scale)
+	BoxCollider(ColliderType type = ColliderType::STATIC, CollisionMask collisionmask = CollisionMask::TRIGGER, Vector3D scale = Vector3D{ 1.f,1.f,1.f })
 		: m_ColliderType(type)
 		, m_CollisionType(collisionmask)
 		, m_Size(scale)
@@ -50,7 +48,7 @@ struct BoxCollider
 
 
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(BoxCollider, m_ComponentName, m_CollisionType, m_Center, m_Size, m_Rotation, m_IsTrigger)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(BoxCollider, m_ComponentName, m_ColliderType, m_CollisionType, m_Center, m_Size, m_Rotation, m_IsTrigger)
 };
 
 ECS_DEFINE_TYPE(BoxCollider)

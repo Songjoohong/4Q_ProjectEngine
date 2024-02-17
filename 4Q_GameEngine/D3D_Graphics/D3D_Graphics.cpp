@@ -453,12 +453,15 @@ void Renderer::RenderDebugDraw()
 
     DebugDraw::g_Batch->Begin();
 
+#ifdef _DEBUG
     for (auto& model : m_pStaticModels)
     {
         DebugDraw::Draw(DebugDraw::g_Batch.get(), model->m_boundingBox,
             model->m_bIsCulled ? Colors::Red : Colors::Blue);
-		
     }
+#endif
+
+
 	for (auto& box : m_colliderBox)
 	{
 		DebugDraw::Draw(DebugDraw::g_Batch.get(), box.colliderBox,
@@ -527,7 +530,7 @@ void Renderer::Update()
 		FrustumCulling(model);
 	}
 
-	AddOutlineMesh(m_pStaticModels[1]);
+	//AddOutlineMesh(m_pStaticModels[1]);
 	RenderQueueSort();
 }
 
@@ -664,7 +667,7 @@ void Renderer::GameAppRender()
 
 
 	//임구이 렌더
-	RenderImgui();
+	//RenderImgui();
 }
 
 void Renderer::EditorRender()
@@ -691,7 +694,7 @@ void Renderer::EditorRender()
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
 	//그림자 렌더
-	//ShadowRender();
+	ShadowRender();
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();
@@ -708,13 +711,14 @@ void Renderer::EditorRender()
 	MeshRender();
 
 
-	//RenderDebugDraw();
+	RenderDebugDraw();
 
 
-	//m_spriteBatch->Begin();
+
+	m_spriteBatch->Begin();
 	//RenderText();
-	//RenderSprite();
-	//m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	RenderSprite();
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 
 	//임구이 렌더
@@ -1151,8 +1155,9 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	Matrix cameraInitPos = Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(180.f), DirectX::XMConvertToRadians(0.f), DirectX::XMConvertToRadians(0.f)) * Matrix::CreateTranslation(0, 150, -250);
 	SetCamera(cameraInitPos);
 
-	if (!InitImgui(*hWnd))
-		return false;
+
+	//if (!InitImgui(*hWnd))
+	//	return false;
 
 
     return true;

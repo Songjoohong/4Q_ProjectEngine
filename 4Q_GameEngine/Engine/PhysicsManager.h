@@ -25,6 +25,8 @@ public:
 	void Update(float deltatime);
 	void RayCast(PxVec3 raycastPoint,PxVec3 raycastDir);
 
+	void ChangeCollider(BoxCollider* boxcollider, int entId);
+	void ChangeFilter(int entId);
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
 	void InitFilterData();

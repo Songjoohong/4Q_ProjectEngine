@@ -32,8 +32,12 @@ void StaticModel::SetSceneResource(shared_ptr<StaticSceneResource> sceneResource
 	Math::Vector3 aabbMin = m_pStaticSceneResource->m_BoundingBoxMin;
 	Math::Vector3 aabbMax = m_pStaticSceneResource->m_BoundingBoxMax;
 
+	Math::Vector3 scale, position;
+	Math::Quaternion rotation;
+	m_worldTransform.Decompose(scale, rotation, position);
+
 	Vector3 aabb = (aabbMax - aabbMin) / 2;
-	m_boundingBox.Extents = Vector3(aabb.x, aabb.y, aabb.z);
+	m_boundingBox.Extents = Vector3(aabb.x, aabb.y, aabb.z)*scale;
 	m_boundingBox.Center = m_worldTransform.Translation()+Vector3(0, sceneResource->m_BoundingBoxMax.y - sceneResource->m_BoundingBoxMin.y, 0) * 0.5;
 	//
 	// m_boundingBox.Center=Vector3(DirectX::XMVector3TransformCoord(m_worldTransform.Translation(), m_worldTransform));
