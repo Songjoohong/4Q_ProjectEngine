@@ -301,6 +301,17 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	// Entity 삭제
 	if (entityDeleted)
 	{
+
+		deletedEntities.push_back(m_SelectionContext);
+
+		if (!m_SelectionContext->m_children.empty())
+		{
+			for (const auto& child : m_SelectionContext->m_children)
+			{
+				deletedEntities.push_back(child);
+			}
+		}
+
 		m_Context->destroy(entity);
 		if (m_SelectionContext == entity)
 			m_SelectionContext = nullptr;

@@ -263,15 +263,15 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 
-		//// Game Play Buttons Test
-		//{
-		//	ImGui::Begin("Play");
-		//	ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
+		// Game Play Buttons Test
+		{
+			ImGui::Begin("Play");
+			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 
-		//	PlayButton();
+			PlayButton();
 
-		//	ImGui::End();
-		//}
+			ImGui::End();
+		}
 		
 
 		/* Viewport ------------------------------------------------------------------------ */
@@ -925,7 +925,6 @@ void GameEditor::PlayButton()
 	{
 		if (ImGui::Button("||", ImVec2(40.0f, 40.0f)))
 		{
-
 			m_IsPlaying = false;
 			m_ActiveWorld->GetEntities().clear();
 			m_NameManager->ClearContainer();
