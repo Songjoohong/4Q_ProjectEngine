@@ -196,9 +196,6 @@
     <FxCompile Include="ShadowVertexShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="OpaquePBR.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="PixelShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
@@ -214,6 +211,8 @@
     <FxCompile Include="..\Resource\PS_Outline.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="..\Resource\OpaquePBR.hlsl" />
+    <FxCompile Include="..\Resource\ShadowDepthPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Header.hlsli">

@@ -82,9 +82,6 @@ void PhysicsManager::Update(float deltatime)
 		for (auto& collider : m_pDynamicColliders)
 			collider.second->UpdatePhysics();
 	}
-
-	for (auto& collider : m_pDynamicColliders)
-		collider.second->UpdatePhysics();
 		
 	// 석영 : 충돌 상태 넘겨주고 클리어하기.
 	SendDataToObjects();
@@ -152,60 +149,6 @@ void PhysicsManager::ChangeCollider(BoxCollider* boxcollider, int entId)
 		if (Id == entId) {
 			delete colliderPtr;
 			m_pDynamicColliders.erase(it);
-			CreateCollider(boxcollider, entId);
-			return;
-		}
-	}
-}
-
-void PhysicsManager::ChangeFilter(int entId)
-{
-	for (const auto& obj : m_pStaticColliders) {
-		int Id = obj.first;
-		StaticCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			colliderPtr->SetFilterData();
-			return;
-		}
-	}
-
-	for (const auto& obj : m_pDynamicColliders) {
-		int Id = obj.first;
-		DynamicCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			colliderPtr->SetFilterData();
-			return;
-		}
-	}
-}
-
-void PhysicsManager::ChangeCollider(BoxCollider* boxcollider, int entId)
-{
-	for (const auto& obj : m_pStaticColliders) {
-		int Id = obj.first;
-		StaticCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			// 벡터 삭제 추가
-			delete colliderPtr;
-			CreateCollider(boxcollider, entId);
-			return;
-		}
-	}
-
-	for (const auto& obj : m_pDynamicColliders) {
-		int Id = obj.first;
-		DynamicCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			// 벡터 삭제 추가
-			delete colliderPtr;
 			CreateCollider(boxcollider, entId);
 			return;
 		}

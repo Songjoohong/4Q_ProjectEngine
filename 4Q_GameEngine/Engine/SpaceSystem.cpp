@@ -78,7 +78,7 @@ void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 		});
 
-	/*world->each<PlayerScript>([&](Entity* ent_player, ComponentHandle<PlayerScript> player)->void
+	world->each<PlayerScript>([&](Entity* ent_player, ComponentHandle<PlayerScript> player)->void
 		{
 			if (!_entity.empty())
 			{
@@ -88,7 +88,7 @@ void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 					cout << "Player visite Room : " << ent->getEntityId() << endl;
 				}
 			}
-		});*/
+		});
 
 	_entity.clear();
 }
