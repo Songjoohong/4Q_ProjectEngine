@@ -13,8 +13,7 @@ enum  CollisionState
 enum ColliderType
 {
 	DYNAMIC,
-	STATIC,
-	PLANE,
+	STATIC
 };
 
 enum CollisionType
@@ -48,8 +47,6 @@ struct BoxCollider
 	Vector3D m_Rotation = { 0.f,0.f,0.f };
 	bool m_WasRaycastHit = false;
 	bool m_IsRaycastHit = false;
-
-
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(BoxCollider, m_ComponentName, m_ColliderType, m_CollisionType, m_Center, m_Size, m_Rotation)
 };

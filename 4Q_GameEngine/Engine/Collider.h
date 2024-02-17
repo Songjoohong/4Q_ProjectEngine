@@ -30,7 +30,7 @@ public:
 	virtual void Initialize();
 	virtual void SetMaterial(float staticFriction, float DynamicFriction, float restitution) {}
 	virtual void SetFilterData();
-	void UpdateTransform();
+	void UpdateRotation();
 public:
 	BoxCollider* m_pOwner;
 	Vector3D m_Scale;

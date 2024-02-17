@@ -37,6 +37,7 @@ public:
 	PxScene* GetPxScene() { return m_pPxScene; }
 	PxFilterData* GetFilterData(CollisionType type) { return m_pFilterDatas[type]; }
 	DynamicCollider* GetDynamicCollider(int entId);
+	DynamicCollider* GetPlayerCollider() { return m_PlayerCollider; }
 
 public:
 	PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> 시각화 하여 디버깅 할 수 있는 프로그램
@@ -54,7 +55,9 @@ private:
 	vector<pair<int, StaticCollider*>> m_pStaticColliders;
 	queue<pair<int, StaticCollider*>> m_CollisionQue;
 
-	// Filter 관련 ---석영 : 일단 이렇게 해놓고..깔끔하게 바꿀 수 있으면 바꿀게요..
+	// Player 일단 따로 저장 -> 시간되면 빼놓기
+	DynamicCollider* m_PlayerCollider;
+
 	map<CollisionType, PxFilterData*> m_pFilterDatas;
 };
 

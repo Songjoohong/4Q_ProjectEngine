@@ -5,6 +5,9 @@
 #include "Movement.h"
 #include "Script.h"
 #include "Transform.h"
+#include "Space.h"
+
+#include <queue>
 
 class PlayerScript : public Script
 {
@@ -13,6 +16,7 @@ public:
 		: Script(ent)
 	{}
 	virtual ~PlayerScript() override = default;
+	queue<int> m_VisitedRooms;
 
 	virtual void Awake() override
 	{

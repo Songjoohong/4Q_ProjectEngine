@@ -26,7 +26,6 @@ void DynamicCollider::Initialize()
 	FreezeRotation(true, true, true);
 	SetDensity(75.f); // 석영 : 기본값으로 넣어주기.
 	SetFilterData();
-
 }
 void DynamicCollider::UpdatePhysics()
 {

@@ -12,7 +12,7 @@ PxFilterFlags CustomFilterShader(PxFilterObjectAttributes attributes0, PxFilterD
 	// 플레이어와 다른 물체들은 충돌 처리 / 나머지는 물리X 
 	if (filterData0.word0 == CollisionType::PLAYER || filterData1.word0 == CollisionType::PLAYER)
 	{
-		if (filterData0.word0 == CollisionType::TRIGGER || filterData1.word0 == CollisionType::TRIGGER)
+		if (filterData0.word0 == CollisionType::TRIGGER || filterData1.word0 == CollisionType::TRIGGER|| filterData0.word0 == CollisionType::ROOM || filterData1.word0 == CollisionType::ROOM)
 		{
 			pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
 			return PxFilterFlags();
@@ -61,13 +61,27 @@ void PhysicsManager::Initialize()
 
 void PhysicsManager::Update(float deltatime)
 {
+	if (!m_pStaticColliders.empty())
+	{
+		for (auto& collider : m_pStaticColliders)
+			collider.second->UpdateRotation();
+	}
+
+	if (!m_pDynamicColliders.empty())
+	{
+		for (auto& collider : m_pDynamicColliders)
+			collider.second->UpdateRotation();
+	}
 	// 석영 : 물리 시뮬레이션 돌리기
 	m_pPxScene->simulate(deltatime);
 	m_pPxScene->fetchResults(true);
 
 	// 석영 : 결과로 나온 값을 오브젝트로 넣어주기
-	for (auto& collider : m_pDynamicColliders)
-		collider.second->UpdatePhysics();
+	if (!m_pDynamicColliders.empty())
+	{
+		for (auto& collider : m_pDynamicColliders)
+			collider.second->UpdatePhysics();
+	}
 
 	// 석영 : 충돌 상태 넘겨주고 클리어하기.
 	SendDataToObjects();
@@ -117,27 +131,24 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 
 void PhysicsManager::ChangeCollider(BoxCollider* boxcollider, int entId)
 {
-	for (const auto& obj : m_pStaticColliders) {
-		int Id = obj.first;
-		StaticCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			// 벡터 삭제 추가
+	for (auto it = m_pStaticColliders.begin(); it != m_pStaticColliders.end(); ++it) {
+		int Id = it->first;
+		StaticCollider* colliderPtr = it->second;
+		if (Id == entId) {
 			delete colliderPtr;
+			m_pStaticColliders.erase(it);
 			CreateCollider(boxcollider, entId);
 			return;
 		}
 	}
 
-	for (const auto& obj : m_pDynamicColliders) {
-		int Id = obj.first;
-		DynamicCollider* colliderPtr = obj.second;
+	for (auto it = m_pDynamicColliders.begin(); it != m_pDynamicColliders.end(); ++it) {
+		int Id = it->first;
+		DynamicCollider* colliderPtr = it->second;
 
-		if (obj.first == entId)
-		{
-			// 벡터 삭제 추가
+		if (Id == entId) {
 			delete colliderPtr;
+			m_pDynamicColliders.erase(it);
 			CreateCollider(boxcollider, entId);
 			return;
 		}
@@ -185,6 +196,9 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 
 		newDynamicCollider->m_Rigid->userData = user;
 
+		if (boxcollider->m_CollisionType == CollisionType::PLAYER)
+			m_PlayerCollider = newDynamicCollider;
+
 	}
 	else if (boxcollider->m_ColliderType == ColliderType::STATIC)
 	{
@@ -231,11 +245,15 @@ void PhysicsManager::InitFilterData()
 	PxFilterData* blockFilterData = new PxFilterData;
 	blockFilterData->word0 = CollisionType::TRIGGER;
 
+	PxFilterData* roomFilterData = new PxFilterData;
+	roomFilterData->word0 = CollisionType::ROOM;
+
 	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::TRIGGER, blockFilterData));
 	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::PLAYER, playerFilterData));
 	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::GROUND, groundFilterData));
 	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::WALL, wallFilterData));
 	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::OBJECT, objectFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::ROOM, roomFilterData));
 }
 
 void PhysicsManager::AddToCollisionQueue(int entId)
@@ -376,6 +394,7 @@ void FilterCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 		if (pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 		{
 			UserData* userData = static_cast<UserData*>(pair.triggerActor->userData);
+			userData->m_State = CollisionState::EXIT;
 			userData->m_State = CollisionState::EXIT;
 		}
 	}

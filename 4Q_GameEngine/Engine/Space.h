@@ -20,12 +20,6 @@ struct Space
 
 	int m_SpaceIndex;
 	std::vector<ExitInfo> m_Exits;
-	bool m_IsPlayerExist = false;
+	bool m_IsPlayerExist = true;
 };
 ECS_DEFINE_TYPE(Space)
-
-/*
-* 석영 해야할 것 
-* 1. 플레이어 들어왔는지 판정
-* 2. 몇 번방에 들어왔는지 판정 -> PlayerScript 큐
-*/

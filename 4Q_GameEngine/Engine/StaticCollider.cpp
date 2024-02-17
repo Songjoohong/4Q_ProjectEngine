@@ -26,6 +26,8 @@ void StaticCollider::Initialize()
 	{
 		m_pShape->setFlags(PxShapeFlag::eTRIGGER_SHAPE);
 	}
+
 	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_Rigid);
+
 	SetFilterData();
 }
