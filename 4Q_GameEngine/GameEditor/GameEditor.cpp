@@ -964,7 +964,6 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
-
 	// Scene 새로 불러올 때 원래 이름값들 초기화
 
 	m_NameManager = std::make_shared<NameManager>();
