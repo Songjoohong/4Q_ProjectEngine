@@ -39,7 +39,6 @@ void StaticSceneResource::Create(const std::string& path)
 	{
 		m_meshes[i].Create(Renderer::Instance->m_pDevice.Get(), scene->mMeshes[i]);
 	}*/
-
 	m_materials.resize(scene->mNumMaterials);
 	for (unsigned int i = 0; i < scene->mNumMaterials; ++i)
 	{
@@ -53,11 +52,17 @@ void StaticSceneResource::Create(const std::string& path)
 	for (UINT i = 0; i < scene->mNumMeshes; i++)
 	{
 		aiMesh* pMesh = scene->mMeshes[i];
-		Math::Vector3 meshMin = Math::Vector3(pMesh->mAABB.mMin.x, pMesh->mAABB.mMin.y, pMesh->mAABB.mMin.z);
-		Math::Vector3 meshMax = Math::Vector3(pMesh->mAABB.mMax.x, pMesh->mAABB.mMax.y, pMesh->mAABB.mMax.z);
+		Math::Vector4 meshMin = Math::Vector4(pMesh->mAABB.mMin.x, pMesh->mAABB.mMin.y, pMesh->mAABB.mMin.z,1);
+		Math::Vector4 meshMax = Math::Vector4(pMesh->mAABB.mMax.x, pMesh->mAABB.mMax.y, pMesh->mAABB.mMax.z,1);
 
-		m_AABBmin = Math::Vector3::Min(m_AABBmin, meshMin);
-		m_AABBmax = Math::Vector3::Max(m_AABBmax, meshMax);
+		meshMin = XMVector4Transform(meshMin, m_meshes[i].m_localMatrix);
+		meshMax = XMVector4Transform(meshMax, m_meshes[i].m_localMatrix);
+
+		Math::Vector3 meshMn = Math::Vector3(meshMin.x, meshMin.y, meshMin.z);
+		Math::Vector3 meshMx = Math::Vector3(meshMax.x, meshMax.y, meshMax.z);
+
+		m_AABBmin = Math::Vector3::Min(m_AABBmin, meshMn);
+		m_AABBmax = Math::Vector3::Max(m_AABBmax, meshMx);
 	}
 	absMax = max(m_AABBmax.Length(), m_AABBmin.Length());
 	m_BoundingBoxMin = Math::Vector3(-absMax, -absMax, -absMax);

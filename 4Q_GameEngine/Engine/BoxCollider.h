@@ -32,7 +32,7 @@ struct BoxCollider
 
 	BoxCollider() = default;
 
-	BoxCollider(ColliderType type, CollisionType collisionmask, Vector3D scale)
+	BoxCollider(ColliderType type = ColliderType::STATIC, CollisionMask collisionmask = CollisionMask::TRIGGER, Vector3D scale = Vector3D{ 1.f,1.f,1.f })
 		: m_ColliderType(type)
 		, m_CollisionType(collisionmask)
 		, m_Size(scale)

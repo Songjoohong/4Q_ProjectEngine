@@ -136,6 +136,9 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
 	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::GROUND,Vector3D{ 1000.f,1.f,1000.f });
 
+	vector<ExitInfo> exit;
+	exit.push_back({ 1, Vector3D{ 100.f,100.f,100.f } });
+  
 	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
 	ent2->Assign<Transform>(Vector3D(0.f, 100.f, 0.f));
@@ -168,11 +171,12 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	//ent4->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::TRIGGER, Vector3D{ 100.f,100.f,100.f });
 
 
+
 	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
 	ent5->Assign<EntityIdentifier>(ent5->getEntityId(), "ui");
 	ent5->Assign<UI>(100, 100);
-	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 100,100 );
+	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 500,500 );
 	ent5->Assign<TestUIScript>(ent5);
 
 	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
