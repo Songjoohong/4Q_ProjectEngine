@@ -84,6 +84,9 @@ bool GameEditor::Initialize(UINT width, UINT height)
 {
 	__super::Initialize(width, height);
 
+	m_Width = width;
+	m_Height = height;
+
 	NewScene();
 
 	if (!InitImGui())
@@ -271,12 +274,37 @@ void GameEditor::RenderImGui()
 		//}
 		
 
-		/* Viewport ------------------------ */
+		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
 		ImGui::Begin("Viewport");
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		ID3D11ShaderResourceView* myViewportTexture = RenderManager::GetInstance()->GetRender()->m_RenderTexture->GetShaderResourceView();
-		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+
+		// Calculate the aspect ratio of the image and the content region
+		float imageAspectRatio = (float)m_Width / (float)m_Height;
+		float contentRegionAspectRatio = viewportPanelSize.x / viewportPanelSize.y;
+
+		// Scale the image horizontally if the content region is wider than the image
+		if (contentRegionAspectRatio > imageAspectRatio)
+		{
+			float imageWidth = viewportPanelSize.y * imageAspectRatio;
+			float xPadding = (viewportPanelSize.x - imageWidth) / 2;
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + xPadding);
+			ImGui::Image((void*)myViewportTexture, ImVec2{ imageWidth, viewportPanelSize.y });
+		}
+		// Scale the image vertically if the content region is taller than the image
+		else
+		{
+			float imageHeight = viewportPanelSize.x / imageAspectRatio;
+			float yPadding = (viewportPanelSize.y - imageHeight) / 2;
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + yPadding);
+			ImGui::Image((ImTextureID)(intptr_t)myViewportTexture, ImVec2(viewportPanelSize.x, imageHeight));
+		}
+
+		//ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+		/* Viewport end ------------------------------------------------------------------------ */
+
+
 		//Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
 		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
@@ -949,9 +977,9 @@ void GameEditor::NewScene()
 {
 	m_SceneName = "NewScene";	// 씬 이름 기본 설정
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Resource/scene/" + m_SceneName + ".scene"));
+	m_EditorWorld = World::CreateWorld("../Resource/scene/" + m_SceneName + ".scene");
+	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 
-	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();
 
 	// 시스템 등록
 	m_EditorWorld->registerSystem(new RenderSystem);
