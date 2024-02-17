@@ -37,7 +37,7 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 
 	world->each<Transform, BoxCollider>([&](Entity* entity, ComponentHandle<Transform> transform,ComponentHandle<BoxCollider> boxCollider)->void
 		{
-			RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+			//RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
 			RenderManager::GetInstance()->AddColliderBox(boxCollider->m_Center, boxCollider->m_Size);
 		});
 }

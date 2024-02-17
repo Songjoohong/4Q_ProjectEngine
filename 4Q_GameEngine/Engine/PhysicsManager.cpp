@@ -183,60 +183,6 @@ void PhysicsManager::ChangeFilter(int entId)
 	}
 }
 
-void PhysicsManager::ChangeCollider(BoxCollider* boxcollider, int entId)
-{
-	for (const auto& obj : m_pStaticColliders) {
-		int Id = obj.first;
-		StaticCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			// 벡터 삭제 추가
-			delete colliderPtr;
-			CreateCollider(boxcollider, entId);
-			return;
-		}
-	}
-
-	for (const auto& obj : m_pDynamicColliders) {
-		int Id = obj.first;
-		DynamicCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			// 벡터 삭제 추가
-			delete colliderPtr;
-			CreateCollider(boxcollider, entId);
-			return;
-		}
-	}
-}
-
-void PhysicsManager::ChangeFilter(int entId)
-{
-	for (const auto& obj : m_pStaticColliders) {
-		int Id = obj.first;
-		StaticCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			colliderPtr->SetFilterData();
-			return;
-		}
-	}
-
-	for (const auto& obj : m_pDynamicColliders) {
-		int Id = obj.first;
-		DynamicCollider* colliderPtr = obj.second;
-
-		if (obj.first == entId)
-		{
-			colliderPtr->SetFilterData();
-			return;
-		}
-	}
-}
-
 void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 {
 	if (boxcollider->m_ColliderType == ColliderType::DYNAMIC)
