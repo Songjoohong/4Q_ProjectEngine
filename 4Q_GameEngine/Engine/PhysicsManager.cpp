@@ -64,13 +64,19 @@ void PhysicsManager::Update(float deltatime)
 	if (!m_pStaticColliders.empty())
 	{
 		for (auto& collider : m_pStaticColliders)
+		{
 			collider.second->UpdateRotation();
+			collider.second->UpdatePosition();
+		}
 	}
 
 	if (!m_pDynamicColliders.empty())
 	{
 		for (auto& collider : m_pDynamicColliders)
+		{
 			collider.second->UpdateRotation();
+			collider.second->UpdatePosition();
+		}
 	}
 	// 석영 : 물리 시뮬레이션 돌리기
 	m_pPxScene->simulate(deltatime);
@@ -82,6 +88,9 @@ void PhysicsManager::Update(float deltatime)
 		for (auto& collider : m_pDynamicColliders)
 			collider.second->UpdatePhysics();
 	}
+
+	for (auto& collider : m_pDynamicColliders)
+		collider.second->UpdatePhysics();
 		
 	// 석영 : 충돌 상태 넘겨주고 클리어하기.
 	SendDataToObjects();
@@ -123,7 +132,6 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 
 			colliderPtr->m_pOwner->m_WasRaycastHit = colliderPtr->m_pOwner->m_IsRaycastHit;
 			colliderPtr->m_pOwner->m_IsRaycastHit = false;
-
 		}
 	}
 
@@ -394,7 +402,6 @@ void FilterCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 		if (pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 		{
 			UserData* userData = static_cast<UserData*>(pair.triggerActor->userData);
-			userData->m_State = CollisionState::EXIT;
 			userData->m_State = CollisionState::EXIT;
 		}
 	}

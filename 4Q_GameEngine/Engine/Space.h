@@ -20,6 +20,6 @@ struct Space
 
 	int m_SpaceIndex;
 	std::vector<ExitInfo> m_Exits;
-	bool m_IsPlayerExist = true;
+	bool m_IsPlayerExist = false;
 };
 ECS_DEFINE_TYPE(Space)

@@ -14,7 +14,7 @@ public:
 
 public:
 	virtual void Initialize() override;
-
+	virtual void UpdatePosition()override;
 	void UpdatePhysics();
 
 	/*
