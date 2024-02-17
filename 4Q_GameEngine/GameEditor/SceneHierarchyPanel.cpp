@@ -91,11 +91,14 @@ void SceneHierarchyPanel::RenderImGui()
 	}
 
 	ImGuiIO& io = ImGui::GetIO();
-	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_C))
+	if (m_SelectionContext)
 	{
-		//m_SelectionContext->get<EntityIdentifier>()->m_HasParent = false;
-		//m_SelectionContext->get<EntityIdentifier>()->m_ParentEntityId = 0;
-		m_PrefabManager->SavePrefab(m_SelectionContext, "../Resource/CopiedEntity/CopiedEntity.json");
+		if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_C))
+		{
+			//m_SelectionContext->get<EntityIdentifier>()->m_HasParent = false;
+			//m_SelectionContext->get<EntityIdentifier>()->m_ParentEntityId = 0;
+			m_PrefabManager->SavePrefab(m_SelectionContext, "../Resource/CopiedEntity/CopiedEntity.json");
+		}
 	}
 
 	bool isFileExists = FileExists("../Resource/CopiedEntity/CopiedEntity.json");
