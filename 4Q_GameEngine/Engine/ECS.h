@@ -942,6 +942,12 @@ namespace ECS
 		{
 			return entities;
 		}
+
+		void ResetLastEntityId()
+		{
+			lastEntityId = 0;
+		}
+
 	private:
 		EntityAllocator entAlloc;
 		SystemAllocator systemAlloc;
@@ -955,8 +961,8 @@ namespace ECS
 			std::equal_to<TypeIndex>,
 			SubscriberPairAllocator> subscribers;
 
-		size_t lastEntityId = 0;
 
+		size_t lastEntityId = 0;
 	};
 
 	namespace Internal

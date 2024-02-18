@@ -16,6 +16,7 @@
 #include "../Engine/Sprite2D.h"
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
+#include "../Engine/DynamicText.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -23,6 +24,7 @@
 #include "../Engine/PlayerScript.h"
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
+#include "../Engine/DynamicTextScript.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -276,9 +278,11 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 		{
 			if (entity->m_parent != nullptr)
 			{
-				entity->m_parent->RemoveChild(entity);
-				entity->get<EntityIdentifier>()->m_HasParent = false;
-				entity->get<EntityIdentifier>()->m_ParentEntityId = 0;
+				ResetTransform(entity, entity->m_parent);
+
+
+
+			
 			}
 		}
 
@@ -463,6 +467,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<Movement>("Movement");
 		DisplayAddComponentEntry<RigidBody>("RigidBody");
 		DisplayAddComponentEntry<Space>("Space");
+		DisplayAddComponentEntry<Sprite2D>("Sprite2D");
+		DisplayAddComponentEntry<Debug>("Debug");
+		DisplayAddComponentEntry<UI>("UI");
+		DisplayAddComponentEntry<DynamicText>("DynamicText");
+		DisplayAddComponentEntry<Sound>("Sound");
 		ImGui::EndPopup();
 	}
 	ShowStaticModelDialog();	// TODO: 수정..?
@@ -625,6 +634,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Movement>("MoveMent", entity, [](auto component)
 	{
+		ImGui::SliderFloat("Speed", &component->m_Speed, 0.0f, 1000.0f);
+		ImGui::SliderFloat("Sensitivity", &component->m_Sensitivity, 0.0f, 1000.0f);
 
 	});
 
@@ -632,6 +643,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	{
 
 	});
+
+	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
+		{
+
+		});
 
 	DrawComponent<Space>("Space", entity, [](auto component)
 	{
@@ -690,6 +706,21 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 
 	});
+
+	DrawComponent<UI>("UI", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Sprite2D>("Sprite2D", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Sound>("Sound", entity, [](auto component)
+	{
+
+	});
 }
 
 void SceneHierarchyPanel::ShowStaticModelDialog()
@@ -740,5 +771,24 @@ void SceneHierarchyPanel::SetParent(ECS::Entity* child, ECS::Entity* parent)
 	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
 
 	parent->addChild(child);
+}
+
+void SceneHierarchyPanel::ResetTransform(ECS::Entity* child, ECS::Entity* parent)
+{
+	parent->RemoveChild(child);
+	child->get<EntityIdentifier>()->m_HasParent = false;
+	child->get<EntityIdentifier>()->m_ParentEntityId = 0;
+
+	float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
+	float fRotation[3] = { 0.0f, 0.0f, 0.0f };
+	float fScale[3] = { 0.0f, 0.0f, 0.0f };
+
+	auto matrix = child->get<Transform>()->m_RelativeMatrix.ConvertToMatrix() * parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix();
+
+	ImGuizmo::DecomposeMatrixToComponents(*matrix.m, fTranslation, fRotation, fScale);
+
+	child->get<Transform>()->m_Position = { fTranslation[0],fTranslation[1],fTranslation[2] };
+	child->get<Transform>()->m_Rotation = { fRotation[0],fRotation[1],fRotation[2] };
+	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
 }
 
