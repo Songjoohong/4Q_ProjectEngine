@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CollisionSystem.h"
-
+#include "Space.h"
 #include "EntityIdentifier.h"
 #include "PhysicsManager.h"
 
@@ -32,7 +32,7 @@ void AddParentPositionToChildren(Entity* entity, const Vector3D& parentPosition)
 
 		for (auto& child : entity->m_children)
 		{
-			// ÀÚ½ÄÀÇ ÀÚ½Ä¿¡°Ôµµ ´õÇØÁÖ±â À§ÇØ Àç±Í È£Ãâ
+			// ìžì‹ì˜ ìžì‹ì—ê²Œë„ ë”í•´ì£¼ê¸° ìœ„í•´ ìž¬ê·€ í˜¸ì¶œ
 			AddParentPositionToChildren(child, collider->m_Center);
 		}
 }
@@ -41,23 +41,24 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 {
 	world->each<Transform, BoxCollider>([&](Entity* ent, ComponentHandle<Transform> transform, ComponentHandle<BoxCollider> collider)
 		{
+			transform->m_Position = collider->m_Center;
 			collider->m_IsRaycastHit = false;
 
-			if (ent->get<EntityIdentifier>()->m_HasParent)
-			{
-				collider->m_Center = ent->m_parent->get<Transform>()->m_Position + transform->m_Position;
+			//if (ent->get<EntityIdentifier>()->m_HasParent)
+			//{
+			//	if(ent->m_parent->has<Transform>())
+			//		collider->m_Center = ent->getParent()->get<Transform>()->m_Position + transform->m_Position;
+			//}
+			//else
+			//{
+			//	collider->m_Center = transform->m_Position;	// TODO: 24.02.16 ìž„ì‹œ ìˆ˜ì •
+			//}
+			collider->m_Center = transform->m_WorldMatrix.ConvertToMatrix().Translation();
 
-
-			}
-			else
-			{
-				collider->m_Center = transform->m_Position;	// TODO: 24.02.16 ÀÓ½Ã ¼öÁ¤
-			}
-
-			for (auto& child : ent->m_children)
+			/*for (auto& child : ent->m_children)
 			{
 				AddParentPositionToChildren(child, collider->m_Center);
-			}
+			}*/
 
 			//transform->m_Rotation = collider->m_Rotation;
 		});

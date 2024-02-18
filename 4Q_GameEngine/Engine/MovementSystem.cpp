@@ -52,14 +52,16 @@ void MovementSystem::Tick(World* world, float deltaTime)
 			movement->m_CurrentMoveState = 0;
 			moveVector = moveVector.Normalize();
 			// 이동 설정
-			if(entity->has<RigidBody>())
+			if (entity->has<RigidBody>())
 			{
-				PhysicsManager::GetInstance()->GetDynamicCollider(entity->getEntityId())->AddForce(moveVector);
+				DynamicCollider* player = PhysicsManager::GetInstance()->GetPlayerCollider();
+				if (player != nullptr)
+					player->AddForce(moveVector);
 			}
 			else
 			{
 				transform->m_Position += moveVector * movement->m_Speed * deltaTime;
 			}
-						
+
 		});
 }

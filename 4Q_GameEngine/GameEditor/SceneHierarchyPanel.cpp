@@ -539,7 +539,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 				if (ImGui::Selectable(CollisionTypeStrings[i], isSelected))
 				{
 					currentCollisionTypeString = CollisionTypeStrings[i];
-					component->m_CollisionType = static_cast<CollisionMask>(i);
+					component->m_CollisionType = static_cast<CollisionType>(i);
 
 					PhysicsManager::GetInstance()->ChangeFilter(entity->getEntityId());
 					cout << "Collision Type Changed!!!!!!!!" << endl;	// TODO: [delete] test for debug2
@@ -555,10 +555,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DrawVec3Control("Center", component->m_Center);
 		DrawVec3Control("Size", component->m_Size);
 		DrawVec3Control("Rotation", component->m_Rotation);
-
-		std::string trueOrFalse = component->m_IsTrigger ? "true" : "false";
-		std::string Trigger = "IsTrigger : " + trueOrFalse;
-		ImGui::Text(Trigger.c_str());
 
 	});
 
