@@ -30,9 +30,7 @@ struct Transform
 	bool m_FreezeRotationY = false;
 	bool m_FreezeRotationZ = false;
 
-	std::vector<int> m_vec;
-
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale, m_FreezeRotationX, m_FreezeRotationY, m_FreezeRotationZ, m_vec)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Transform, m_ComponentName, m_Position, m_Rotation, m_Scale, m_FreezeRotationX, m_FreezeRotationY, m_FreezeRotationZ)
 };
 
 ECS_DEFINE_TYPE(Transform)

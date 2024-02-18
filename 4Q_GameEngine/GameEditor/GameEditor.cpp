@@ -20,6 +20,7 @@
 #include "../Engine/Sprite2D.h"
 #include "../Engine/RigidBody.h"
 #include "../Engine/UI.h"
+#include "../Engine/Space.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -83,6 +84,9 @@ void QuaternionToYawPitchRoll(const XMVECTOR& quaternion, float& yaw, float& pit
 bool GameEditor::Initialize(UINT width, UINT height)
 {
 	__super::Initialize(width, height);
+
+	m_Width = width;
+	m_Height = height;
 
 	NewScene();
 
@@ -260,23 +264,48 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 
-		//// Game Play Buttons Test
-		//{
-		//	ImGui::Begin("Play");
-		//	ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
+		// Game Play Buttons Test
+		{
+			ImGui::Begin("Play");
+			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 
-		//	PlayButton();
+			PlayButton();
 
-		//	ImGui::End();
-		//}
+			ImGui::End();
+		}
 		
 
-		/* Viewport ------------------------ */
+		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
 		ImGui::Begin("Viewport");
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		ID3D11ShaderResourceView* myViewportTexture = RenderManager::GetInstance()->GetRender()->m_RenderTexture->GetShaderResourceView();
-		ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+
+		// Calculate the aspect ratio of the image and the content region
+		float imageAspectRatio = (float)m_Width / (float)m_Height;
+		float contentRegionAspectRatio = viewportPanelSize.x / viewportPanelSize.y;
+
+		// Scale the image horizontally if the content region is wider than the image
+		if (contentRegionAspectRatio > imageAspectRatio)
+		{
+			float imageWidth = viewportPanelSize.y * imageAspectRatio;
+			float xPadding = (viewportPanelSize.x - imageWidth) / 2;
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + xPadding);
+			ImGui::Image((void*)myViewportTexture, ImVec2{ imageWidth, viewportPanelSize.y });
+		}
+		// Scale the image vertically if the content region is taller than the image
+		else
+		{
+			float imageHeight = viewportPanelSize.x / imageAspectRatio;
+			float yPadding = (viewportPanelSize.y - imageHeight) / 2;
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() + yPadding);
+			ImGui::Image((ImTextureID)(intptr_t)myViewportTexture, ImVec2(viewportPanelSize.x, imageHeight));
+		}
+
+		//ImGui::Image((void*)myViewportTexture, ImVec2{ viewportPanelSize.x, viewportPanelSize.y });
+		/* Viewport end ------------------------------------------------------------------------ */
+
+
 		//Entity* selectedEntity = m_SceneHierarchyPanel.GetSelectedEntity();
 
 		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Z))
@@ -430,7 +459,8 @@ void GameEditor::RenderImGui()
 
 		std::string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
 		ImGui::Text(mousePos.c_str());
-
+		static bool show = true;
+		ImGui::ShowDemoWindow();
 		ImGui::End();
 		
 
@@ -527,6 +557,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<Script>(entity, worldData);
 		SaveComponents<RigidBody>(entity, worldData);
 		SaveComponents<UI>(entity, worldData);
+		SaveComponents<Space>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -719,6 +750,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 				{
 					m_PrefabManager->AssignComponents<UI>(prefabEntity, component["UI"][0]);
 				}
+				else if (componentName == "Space")
+				{
+					m_PrefabManager->AssignComponents<Space>(prefabEntity, component["Space"][0]);
+				}
 				else if (componentName == "FreeCameraScript")
 				{
 					m_PrefabManager->AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
@@ -866,6 +901,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<UI>(myEntity, component["UI"][0]);
 				}
+				else if (componentName == "Space")
+				{
+					AssignComponents<Space>(myEntity, component["Space"][0]);
+				}
 			}
 		}
 	}
@@ -948,9 +987,9 @@ void GameEditor::NewScene()
 {
 	m_SceneName = "NewScene";	// 씬 이름 기본 설정
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Resource/scene/" + m_SceneName + ".scene"));
+	m_EditorWorld = World::CreateWorld("../Resource/scene/" + m_SceneName + ".scene");
+	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 
-	m_EditorWorld = WorldManager::GetInstance()->GetCurrentWorld();
 
 	// 시스템 등록
 	m_EditorWorld->registerSystem(new RenderSystem);

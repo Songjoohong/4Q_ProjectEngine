@@ -51,6 +51,8 @@ private:
 	std::shared_ptr<NameManager> m_NameManager;
 	bool m_OpenTextPopup = false;
 
+
+	std::vector<ECS::Entity*> deletedEntities;
 };
 
 
