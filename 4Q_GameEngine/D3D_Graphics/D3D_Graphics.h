@@ -20,16 +20,21 @@ struct ColliderBox
 
 const size_t BUFFER_SIZE = 2;
 
+static const int pointLightCount = 4;
+
 struct cbPointLight
 {
-	Math::Vector3 mPos;
-	float mRadius = 600.f;
-	Math::Vector3 mLightColor;
-	float mLinearTerm = 0.007f;
-	Math::Vector3 mCameraPos;
-	float mQuadraticTerm = 0.0002f;
-	float mIntensity = 1.0f;
-	Math::Vector3 mPad0;
+	struct
+	{
+		Math::Vector3 mPos;
+		float mRadius;
+		Math::Vector3 mLightColor;
+		float mLinearTerm = 0.007f;
+		Math::Vector3 mCameraPos;
+		float mQuadraticTerm = 0.0002f;
+		Math::Vector3 mPad0;
+		float mIntensity;
+	} pointLights[pointLightCount];
 };
 
 struct cbWorld
@@ -158,8 +163,9 @@ public:
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 
 	//빛 테스트용
-	PointLight m_pointLight;
+	vector<PointLight> m_pointLights;
 	cbPointLight m_pointLightCB;
+	int m_pointLightIndex = 0;
 
 	//월드 행렬
 	Math::Matrix m_worldMatrix;
