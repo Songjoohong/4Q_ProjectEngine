@@ -43,16 +43,16 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 		{
 			collider->m_IsRaycastHit = false;
 
-			if (ent->get<EntityIdentifier>()->m_HasParent)
-			{
-				collider->m_Center = ent->m_parent->get<Transform>()->m_Position + transform->m_Position;
+			//if (ent->get<EntityIdentifier>()->m_HasParent)
+			//{
+			//	collider->m_Center = ent->m_parent->get<Transform>()->m_Position + transform->m_Position;
 
 
-			}
-			else
-			{
-				collider->m_Center = transform->m_Position;	// TODO: 24.02.16 임시 수정
-			}
+			//}
+			//else
+			//{
+			//	collider->m_Center = transform->m_Position;	// TODO: 24.02.16 임시 수정
+			//}
 
 			for (auto& child : ent->m_children)
 			{

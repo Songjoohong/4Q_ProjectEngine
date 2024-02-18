@@ -16,6 +16,7 @@
 #include "../Engine/Sprite2D.h"
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
+#include "../Engine/DynamicText.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -23,6 +24,7 @@
 #include "../Engine/PlayerScript.h"
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
+#include "../Engine/DynamicTextScript.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -276,9 +278,11 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 		{
 			if (entity->m_parent != nullptr)
 			{
-				entity->m_parent->RemoveChild(entity);
-				entity->get<EntityIdentifier>()->m_HasParent = false;
-				entity->get<EntityIdentifier>()->m_ParentEntityId = 0;
+				ResetTransform(entity, entity->m_parent);
+
+
+
+			
 			}
 		}
 
@@ -463,6 +467,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<Movement>("Movement");
 		DisplayAddComponentEntry<RigidBody>("RigidBody");
 		DisplayAddComponentEntry<Space>("Space");
+		DisplayAddComponentEntry<Sprite2D>("Sprite2D");
+		DisplayAddComponentEntry<Debug>("Debug");
+		DisplayAddComponentEntry<UI>("UI");
+		DisplayAddComponentEntry<DynamicText>("DynamicText");
+		DisplayAddComponentEntry<Sound>("Sound");
 		ImGui::EndPopup();
 	}
 	ShowStaticModelDialog();	// TODO: 수정..?
@@ -637,6 +646,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	});
 
+	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
+		{
+
+		});
+
 	DrawComponent<Space>("Space", entity, [](auto component)
 	{
 		std::string trueOrFalse = component->m_IsPlayerExist ? "true" : "false";
@@ -694,6 +708,21 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 
 	});
+
+	DrawComponent<UI>("UI", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Sprite2D>("Sprite2D", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Sound>("Sound", entity, [](auto component)
+	{
+
+	});
 }
 
 void SceneHierarchyPanel::ShowStaticModelDialog()
@@ -744,5 +773,14 @@ void SceneHierarchyPanel::SetParent(ECS::Entity* child, ECS::Entity* parent)
 	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
 
 	parent->addChild(child);
+}
+
+void SceneHierarchyPanel::ResetTransform(ECS::Entity* child, ECS::Entity* parent)
+{
+	parent->RemoveChild(child);
+	child->get<EntityIdentifier>()->m_HasParent = false;
+	child->get<EntityIdentifier>()->m_ParentEntityId = 0;
+
+	child->get<Transform>()->m_RelativeMatrix = child->get<Transform>()->m_RelativeMatrix.ConvertToMatrix() * parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix();
 }
 
