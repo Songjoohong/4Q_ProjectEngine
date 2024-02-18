@@ -1011,7 +1011,6 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new ScriptSystem);
 	m_EditorWorld->registerSystem(new CollisionSystem);
 	m_EditorWorld->registerSystem(new SpriteSystem);
-
 	m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
@@ -1060,7 +1059,6 @@ void GameEditor::NewScene()
 	{
 		m_NameManager->AddEntityName(entity);
 	}
-
 }
 
 void GameEditor::PlayScene()
