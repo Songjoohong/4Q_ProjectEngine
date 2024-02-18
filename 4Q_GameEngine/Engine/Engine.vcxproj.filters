@@ -227,6 +227,9 @@
     <ClInclude Include="PhysicsManager.h">
       <Filter>Manager\PhysX</Filter>
     </ClInclude>
+    <ClInclude Include="PlayerInformation.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

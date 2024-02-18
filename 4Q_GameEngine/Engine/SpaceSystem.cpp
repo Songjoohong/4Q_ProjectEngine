@@ -5,7 +5,7 @@
 #include "Space.h"
 #include "Transform.h"
 #include "BoxCollider.h"
-#include "PlayerScript.h"
+#include "PlayerInformation.h"
 
 void SpaceSystem::Configure(World* world)
 {
@@ -64,30 +64,39 @@ void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 
 	}
 
-	vector<Entity*> _entity;
+	std::vector<Entity*> _entity;
 	world->each<Space, BoxCollider>([&](Entity* ent, ComponentHandle<Space> space, ComponentHandle<BoxCollider> collider)->void
 		{
-			if (collider->m_State == CollisionState::ENTER && space->m_IsPlayerExist)
+			if (collider->m_State == CollisionState::ENTER)
 			{
-				space->m_IsPlayerExist = false;
-				_entity.push_back(ent);
+				if (space->m_IsPlayerExist == true)
+				{
+					space->m_IsPlayerExist = false;
+					_entity.push_back(ent);
+				}
+				else
+				{
+					collider->m_State = CollisionState::EXIT;
+					space->m_IsPlayerExist = true;
+				}
 			}
-			else
+			else if (collider->m_State == CollisionState::EXIT)
 			{
 				space->m_IsPlayerExist = true;
 			}
 		});
 
-	world->each<PlayerScript>([&](Entity* ent_player, ComponentHandle<PlayerScript> player)->void
+	world->each<PlayerInformation>([&](Entity* ent_player, ComponentHandle<PlayerInformation> component)->void
 		{
 			if (!_entity.empty())
 			{
 				for (auto& ent : _entity)
 				{
-					player->m_VisitedRooms.push(ent->getEntityId());
-					cout << "Player visite Room : " << ent->getEntityId() << endl;
+					component->m_VisitedRooms.push(ent->getEntityId());
+					std::cout << "Player visite Room : " << ent->getEntityId() << std::endl;
 				}
 			}
+
 		});
 
 	_entity.clear();

@@ -26,6 +26,27 @@ void DynamicCollider::Initialize()
 	FreezeRotation(true, true, true);
 	SetDensity(75.f); // 석영 : 기본값으로 넣어주기.
 	SetFilterData();
+	UpdatePosition();
+}
+void DynamicCollider::UpdatePosition()
+{
+	PxVec3 boxCenter =
+	{
+		m_pOwner->m_Center.GetX(),
+		m_pOwner->m_Center.GetY(),
+		m_pOwner->m_Center.GetZ()
+	};
+
+	PxVec3 boxPos =
+	{
+		m_pOwner->m_WorldPosition.GetX(),
+		m_pOwner->m_WorldPosition.GetY(),
+		m_pOwner->m_WorldPosition.GetZ()
+	};
+
+	m_Transform.p = boxPos + boxCenter;
+	m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
+	m_Rigid->setGlobalPose(m_Transform);
 }
 void DynamicCollider::UpdatePhysics()
 {
@@ -35,15 +56,11 @@ void DynamicCollider::UpdatePhysics()
 
 	PxTransform pxTrans = m_Rigid->getGlobalPose();
 	m_Transform = pxTrans;
-	m_pOwner->m_Center.SetX(pxTrans.p.x);
-	m_pOwner->m_Center.SetY(pxTrans.p.y);
-	m_pOwner->m_Center.SetZ(pxTrans.p.z);
-
-	//PxReal angle = 180.f / PxPi;
-	//m_pOwner->m_Rotation.SetX(pxTrans.q.x * angle);
-	//m_pOwner->m_Rotation.SetY(pxTrans.q.y * angle);
-	//m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
-
+	m_pOwner->m_WorldPosition = {
+		m_Transform.p.x,
+		m_Transform.p.y,
+		m_Transform.p.z
+	};
 }
 
 void DynamicCollider::SetDensity(float mass)

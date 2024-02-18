@@ -10,6 +10,7 @@ public:
 
 public:
 	virtual void Initialize() override;
+	virtual void UpdatePosition()override;
 
 public:
 	PxRigidStatic* m_Rigid;

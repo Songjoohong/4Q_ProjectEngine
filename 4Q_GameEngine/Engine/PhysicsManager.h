@@ -27,6 +27,7 @@ public:
 
 	void ChangeCollider(BoxCollider* boxcollider, int entId);
 	void ChangeFilter(int entId);
+	void ChangeColliderPosition(BoxCollider* boxcolldier, int entId);
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
 	void InitFilterData();

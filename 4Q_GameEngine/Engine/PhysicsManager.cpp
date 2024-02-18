@@ -64,13 +64,17 @@ void PhysicsManager::Update(float deltatime)
 	if (!m_pStaticColliders.empty())
 	{
 		for (auto& collider : m_pStaticColliders)
+		{
 			collider.second->UpdateRotation();
+		}
 	}
 
 	if (!m_pDynamicColliders.empty())
 	{
 		for (auto& collider : m_pDynamicColliders)
+		{
 			collider.second->UpdateRotation();
+		}
 	}
 	// 석영 : 물리 시뮬레이션 돌리기
 	m_pPxScene->simulate(deltatime);
@@ -123,7 +127,6 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 
 			colliderPtr->m_pOwner->m_WasRaycastHit = colliderPtr->m_pOwner->m_IsRaycastHit;
 			colliderPtr->m_pOwner->m_IsRaycastHit = false;
-
 		}
 	}
 
@@ -180,6 +183,27 @@ void PhysicsManager::ChangeFilter(int entId)
 	}
 }
 
+void PhysicsManager::ChangeColliderPosition(BoxCollider* boxcolldier, int entId)
+{
+	for (auto it = m_pStaticColliders.begin(); it != m_pStaticColliders.end(); ++it) {
+		int Id = it->first;
+		StaticCollider* colliderPtr = it->second;
+		if (Id == entId) {
+			colliderPtr->UpdatePosition();
+			return;
+		}
+	}
+
+	for (auto it = m_pDynamicColliders.begin(); it != m_pDynamicColliders.end(); ++it) {
+		int Id = it->first;
+		DynamicCollider* colliderPtr = it->second;
+		if (Id == entId) {
+			colliderPtr->UpdatePosition();
+			return;
+		}
+	}
+}
+
 void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 {
 	if (boxcollider->m_ColliderType == ColliderType::DYNAMIC)
@@ -203,7 +227,7 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 	else if (boxcollider->m_ColliderType == ColliderType::STATIC)
 	{
 		StaticCollider* newStaticCollider = new StaticCollider(boxcollider);
-
+	
 		newStaticCollider->Initialize();
 		m_pStaticColliders.push_back(make_pair(entId, newStaticCollider));
 
@@ -394,7 +418,6 @@ void FilterCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 		if (pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 		{
 			UserData* userData = static_cast<UserData*>(pair.triggerActor->userData);
-			userData->m_State = CollisionState::EXIT;
 			userData->m_State = CollisionState::EXIT;
 		}
 	}
