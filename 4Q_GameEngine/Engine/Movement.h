@@ -32,7 +32,7 @@ struct Movement
 
 	long m_CurrentRotation[2] = {0,0};
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Movement, m_ComponentName, m_Speed, m_Sensitivity, m_CurrentMoveState, m_DirectionVector, m_RightVector)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Movement, m_ComponentName, m_Speed, m_Sensitivity, m_CurrentMoveState, m_DirectionVector, m_RightVector, m_CurrentRotation)
 };
 
 ECS_DEFINE_TYPE(Movement)

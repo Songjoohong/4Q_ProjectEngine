@@ -20,6 +20,7 @@
 #include "../Engine/Sprite2D.h"
 #include "../Engine/RigidBody.h"
 #include "../Engine/UI.h"
+#include "../Engine/Space.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -458,7 +459,8 @@ void GameEditor::RenderImGui()
 
 		std::string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
 		ImGui::Text(mousePos.c_str());
-
+		static bool show = true;
+		ImGui::ShowDemoWindow();
 		ImGui::End();
 		
 
@@ -555,6 +557,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<Script>(entity, worldData);
 		SaveComponents<RigidBody>(entity, worldData);
 		SaveComponents<UI>(entity, worldData);
+		SaveComponents<Space>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -747,6 +750,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 				{
 					m_PrefabManager->AssignComponents<UI>(prefabEntity, component["UI"][0]);
 				}
+				else if (componentName == "Space")
+				{
+					m_PrefabManager->AssignComponents<Space>(prefabEntity, component["Space"][0]);
+				}
 				else if (componentName == "FreeCameraScript")
 				{
 					m_PrefabManager->AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
@@ -893,6 +900,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				else if (componentName == "UI")
 				{
 					AssignComponents<UI>(myEntity, component["UI"][0]);
+				}
+				else if (componentName == "Space")
+				{
+					AssignComponents<Space>(myEntity, component["Space"][0]);
 				}
 			}
 		}

@@ -16,6 +16,7 @@
 #include "../Engine/Sprite2D.h"
 #include "../Engine/RigidBody.h"
 #include "../Engine/UI.h"
+#include "../Engine/Space.h"
 
 // Script Headers
 #include "../Engine/CameraScript.h"
@@ -125,6 +126,10 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<UI>(prefabEntity, component["UI"][0]);
 				}
+				else if (componentName == "Space")
+				{
+					AssignComponents<Space>(prefabEntity, component["Space"][0]);
+				}
 				else if (componentName == "FreeCameraScript")
 				{
 					AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
@@ -228,6 +233,7 @@ void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabDat
 	SaveComponents<Script>(entity, prefabData);
 	SaveComponents<RigidBody>(entity, prefabData);
 	SaveComponents<UI>(entity, prefabData);
+	SaveComponents<Space>(entity, prefabData);
 
 	if (!entity->m_children.empty())
 	{

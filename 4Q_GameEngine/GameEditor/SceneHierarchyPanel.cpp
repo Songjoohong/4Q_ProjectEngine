@@ -15,6 +15,7 @@
 #include "../Engine/Sound.h"
 #include "../Engine/Sprite2D.h"
 #include "../Engine/UI.h"
+#include "../Engine/Space.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -301,17 +302,6 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 	// Entity 삭제
 	if (entityDeleted)
 	{
-
-		deletedEntities.push_back(m_SelectionContext);
-
-		if (!m_SelectionContext->m_children.empty())
-		{
-			for (const auto& child : m_SelectionContext->m_children)
-			{
-				deletedEntities.push_back(child);
-			}
-		}
-
 		m_Context->destroy(entity);
 		if (m_SelectionContext == entity)
 			m_SelectionContext = nullptr;
@@ -470,6 +460,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<Camera>("Camera");
 		DisplayAddComponentEntry<Light>("Light");
 		DisplayAddComponentEntry<Script>("Script");
+		DisplayAddComponentEntry<Movement>("Movement");
+		DisplayAddComponentEntry<RigidBody>("RigidBody");
+		DisplayAddComponentEntry<Space>("Space");
 		ImGui::EndPopup();
 	}
 	ShowStaticModelDialog();	// TODO: 수정..?
@@ -634,8 +627,71 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	});
 
-	DrawComponent<Debug>("MoveMent", entity, [](auto component)
+	DrawComponent<Movement>("MoveMent", entity, [](auto component)
 	{
+
+	});
+
+	DrawComponent<RigidBody>("RigidBody", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Space>("Space", entity, [](auto component)
+	{
+		std::string trueOrFalse = component->m_IsPlayerExist ? "true" : "false";
+		std::string PlayerExists = "PlayerExist : " + trueOrFalse;
+		ImGui::Text(PlayerExists.c_str());
+
+		ImGui::InputInt("SpaceIndex", &component->m_SpaceIndex);
+		
+		std::string spaceIdx = "SpaceIndex : " + std::to_string(component->m_SpaceIndex);
+		ImGui::Text(spaceIdx.c_str());
+
+		//const char* direction[] = {
+		//	  "1"
+		//	, "2"
+		//	, "3"
+		//	, "4"
+		//};
+
+		//static int item_Current = 1;
+
+		//ImGui::ListBox("ExitDirection", &item_Current, direction, IM_ARRAYSIZE(direction), 4);
+
+		//int ExitDirection = 0;
+		//if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		//{
+		//	if (item_Current >= 0 && item_Current < IM_ARRAYSIZE(direction)) // Check if the index is valid
+		//	{
+		//		ExitDirection = direction[item_Current]; // Assign the selected script name
+		//	}
+		//}
+
+		//std::string s = "ExitDirection : " + ExitDirection;
+
+		//ImGui::Text(s.c_str());
+
+		//Vector3D distance;
+		//DrawVec3Control("Distance", distance);
+
+		//if (ImGui::Button("+", ImVec2{ 40.0f, 40.0f }))
+		//{
+		//	component->m_Exits.push_back({ ExitDirection, distance });
+		//}
+
+		if (ImGui::Button("+"))
+		{
+			component->m_Exits.push_back(ExitInfo{ 0, Vector3D{0.0f, 0.0f, 0.0f} });
+		}
+
+		for (size_t i = 0; i < component->m_Exits.size(); i++)
+		{
+			ImGui::Text("Exit &z", i);
+			ImGui::Text("Direction : %d", component->m_Exits[i].m_ExitDirection);
+			ImGui::Text("Direction : %d", component->m_Exits[i].m_ExitDirection);
+		}
+
 
 	});
 }
