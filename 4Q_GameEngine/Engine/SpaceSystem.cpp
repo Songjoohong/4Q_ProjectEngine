@@ -10,6 +10,7 @@
 void SpaceSystem::Configure(World* world)
 {
 	world->Subscribe<Events::SpaceAssemble>(this);
+	world->Subscribe<Events::SpaceReturn>(this);
 }
 
 void SpaceSystem::Deconfigure(World* world)
@@ -50,6 +51,18 @@ void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 	const Vector3D vec = objectDistance - subjectDistance;
 	event.subjectEntity->get<Transform>()->m_Position = event.objectEntity->get<Transform>()->m_Position + vec;
 }
+
+void SpaceSystem::Receive(World* world, const Events::SpaceReturn& event)
+{
+	world->each<Space, Transform>([&](Entity* ent, ComponentHandle<Space> space, ComponentHandle<Transform> transform)
+		{
+			if (event.spaceIndex == space->m_SpaceIndex)
+			{
+				transform->m_Position.SetY(event.spaceIndex * 10000.f);
+			}
+		});
+}
+
 
 void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 {
