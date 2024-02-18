@@ -16,7 +16,7 @@ void CollisionSystem::Deconfigure(World* world)
 
 void CollisionSystem::Receive(World* world, const Events::OnComponentAssigned<BoxCollider>& event)
 {
-	event.component->m_WorldPosition = event.entity->get<Transform>()->m_Position + event.component->m_Center;
+	event.component->m_WorldPosition = event.entity->get<Transform>()->m_Position;
 	PhysicsManager::GetInstance()->CreateCollider(event.component.component, event.entity->getEntityId());
 }
 

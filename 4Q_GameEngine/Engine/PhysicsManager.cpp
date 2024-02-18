@@ -66,7 +66,6 @@ void PhysicsManager::Update(float deltatime)
 		for (auto& collider : m_pStaticColliders)
 		{
 			collider.second->UpdateRotation();
-			collider.second->UpdatePosition();
 		}
 	}
 
@@ -75,7 +74,6 @@ void PhysicsManager::Update(float deltatime)
 		for (auto& collider : m_pDynamicColliders)
 		{
 			collider.second->UpdateRotation();
-			collider.second->UpdatePosition();
 		}
 	}
 	// 석영 : 물리 시뮬레이션 돌리기
@@ -88,9 +86,6 @@ void PhysicsManager::Update(float deltatime)
 		for (auto& collider : m_pDynamicColliders)
 			collider.second->UpdatePhysics();
 	}
-
-	for (auto& collider : m_pDynamicColliders)
-		collider.second->UpdatePhysics();
 		
 	// 석영 : 충돌 상태 넘겨주고 클리어하기.
 	SendDataToObjects();
@@ -188,6 +183,27 @@ void PhysicsManager::ChangeFilter(int entId)
 	}
 }
 
+void PhysicsManager::ChangeColliderPosition(BoxCollider* boxcolldier, int entId)
+{
+	for (auto it = m_pStaticColliders.begin(); it != m_pStaticColliders.end(); ++it) {
+		int Id = it->first;
+		StaticCollider* colliderPtr = it->second;
+		if (Id == entId) {
+			colliderPtr->UpdatePosition();
+			return;
+		}
+	}
+
+	for (auto it = m_pDynamicColliders.begin(); it != m_pDynamicColliders.end(); ++it) {
+		int Id = it->first;
+		DynamicCollider* colliderPtr = it->second;
+		if (Id == entId) {
+			colliderPtr->UpdatePosition();
+			return;
+		}
+	}
+}
+
 void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 {
 	if (boxcollider->m_ColliderType == ColliderType::DYNAMIC)
@@ -211,7 +227,7 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 	else if (boxcollider->m_ColliderType == ColliderType::STATIC)
 	{
 		StaticCollider* newStaticCollider = new StaticCollider(boxcollider);
-
+	
 		newStaticCollider->Initialize();
 		m_pStaticColliders.push_back(make_pair(entId, newStaticCollider));
 

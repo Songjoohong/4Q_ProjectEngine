@@ -157,11 +157,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent5->Assign<Space>();
 	ent5->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::ROOM, Vector3D{ 400.f,400.f,400.f });
 
-	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent6->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
-	ent6->Assign<Space>();
-	ent6->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::ROOM, Vector3D{ 400.f,400.f,400.f });
-
 	setlocale(LC_ALL, "Korean");
 	std::vector<std::wstring> wideStrings;
 	std::wstring text = L"안녕하세요";

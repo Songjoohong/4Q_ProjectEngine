@@ -30,6 +30,7 @@ void StaticCollider::Initialize()
 	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_Rigid);
 
 	SetFilterData();
+	UpdatePosition();
 }
 
 void StaticCollider::UpdatePosition()
