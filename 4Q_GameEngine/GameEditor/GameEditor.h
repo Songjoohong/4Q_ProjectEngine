@@ -92,6 +92,10 @@ private:
 
 	// play
 	bool m_IsPlaying = false;
+
+	// Application Height & Width
+	UINT m_Width;
+	UINT m_Height;
 };
 
 template<typename ComponentType>

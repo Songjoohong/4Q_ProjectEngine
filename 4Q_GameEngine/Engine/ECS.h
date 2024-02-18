@@ -30,6 +30,7 @@ SOFTWARE.
 #include <type_traits>
 #include <filesystem>
 #include <fstream>
+#include <queue>
 #include "jsonSerializer.h"
 
 using json = nlohmann::json;
@@ -1104,36 +1105,39 @@ namespace ECS
 		if (ent == nullptr)
 			return;
 
-		if (ent->isPendingDestroy())
-		{
-			if (immediate)
-			{
-				entities.erase(std::remove(entities.begin(), entities.end(), ent), entities.end());
-				std::allocator_traits<EntityAllocator>::destroy(entAlloc, ent);
-				std::allocator_traits<EntityAllocator>::deallocate(entAlloc, ent, 1);
+		std::queue<Entity*> entitiesQueue;
+		entitiesQueue.push(ent);
+
+		while (!entitiesQueue.empty()) {
+			Entity* currentEntity = entitiesQueue.front();
+			entitiesQueue.pop();
+
+			if (currentEntity->isPendingDestroy()) {
+				if (immediate) {
+					entities.erase(std::remove(entities.begin(), entities.end(), currentEntity), entities.end());
+					std::allocator_traits<EntityAllocator>::destroy(entAlloc, currentEntity);
+					std::allocator_traits<EntityAllocator>::deallocate(entAlloc, currentEntity, 1);
+				}
+				continue;
 			}
 
-			return;
-		}
-		if (ent->m_parent != nullptr)
-		{
-			ent->m_parent->RemoveChild(ent);
-			//ent->m_parent->m_children.clear();
-		}
-		ent->bPendingDestroy = true;
-		emit<Events::OnEntityDestroyed>({ ent });
+			if (currentEntity->m_parent != nullptr) {
+				currentEntity->m_parent->RemoveChild(currentEntity);
+			}
 
-		if (immediate)
-		{
-			entities.erase(std::remove(entities.begin(), entities.end(), ent), entities.end());
-			std::allocator_traits<EntityAllocator>::destroy(entAlloc, ent);
-			std::allocator_traits<EntityAllocator>::deallocate(entAlloc, ent, 1);
-		}
+			currentEntity->bPendingDestroy = true;
+			emit<Events::OnEntityDestroyed>({ currentEntity });
 
-		for (Entity* child : ent->m_children)
-		{
-			destroy(child);
-			ent->RemoveChild(child);
+			if (immediate) {
+				entities.erase(std::remove(entities.begin(), entities.end(), currentEntity), entities.end());
+				std::allocator_traits<EntityAllocator>::destroy(entAlloc, currentEntity);
+				std::allocator_traits<EntityAllocator>::deallocate(entAlloc, currentEntity, 1);
+			}
+
+			for (const auto& child : currentEntity->m_children) {
+				entitiesQueue.push(child);
+			}
+			currentEntity->m_children.clear();
 		}
 	}
 

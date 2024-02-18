@@ -82,7 +82,7 @@ void PhysicsManager::Update(float deltatime)
 		for (auto& collider : m_pDynamicColliders)
 			collider.second->UpdatePhysics();
 	}
-		
+
 	// 석영 : 충돌 상태 넘겨주고 클리어하기.
 	SendDataToObjects();
 }
