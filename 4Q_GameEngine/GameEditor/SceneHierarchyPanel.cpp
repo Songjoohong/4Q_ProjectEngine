@@ -634,6 +634,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Movement>("MoveMent", entity, [](auto component)
 	{
+		ImGui::SliderFloat("Speed", &component->m_Speed, 0.0f, 1000.0f);
+		ImGui::SliderFloat("Sensitivity", &component->m_Sensitivity, 0.0f, 1000.0f);
 
 	});
 
@@ -777,6 +779,16 @@ void SceneHierarchyPanel::ResetTransform(ECS::Entity* child, ECS::Entity* parent
 	child->get<EntityIdentifier>()->m_HasParent = false;
 	child->get<EntityIdentifier>()->m_ParentEntityId = 0;
 
-	child->get<Transform>()->m_RelativeMatrix = child->get<Transform>()->m_RelativeMatrix.ConvertToMatrix() * parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix();
+	float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
+	float fRotation[3] = { 0.0f, 0.0f, 0.0f };
+	float fScale[3] = { 0.0f, 0.0f, 0.0f };
+
+	auto matrix = child->get<Transform>()->m_RelativeMatrix.ConvertToMatrix() * parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix();
+
+	ImGuizmo::DecomposeMatrixToComponents(*matrix.m, fTranslation, fRotation, fScale);
+
+	child->get<Transform>()->m_Position = { fTranslation[0],fTranslation[1],fTranslation[2] };
+	child->get<Transform>()->m_Rotation = { fRotation[0],fRotation[1],fRotation[2] };
+	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
 }
 
