@@ -1,13 +1,13 @@
 {
     "Prefabs": [
         {
-            "Character": [
+            "MOLY": [
                 {
                     "EntityIdentifier": [
                         {
                             "m_ComponentName": "EntityIdentifier",
-                            "m_EntityId": 3,
-                            "m_EntityName": "Character",
+                            "m_EntityId": 5,
+                            "m_EntityName": "MOLY",
                             "m_HasParent": false,
                             "m_ParentEntityId": 0
                         }
@@ -17,10 +17,13 @@
                     "Transform": [
                         {
                             "m_ComponentName": "Transform",
+                            "m_FreezeRotationX": false,
+                            "m_FreezeRotationY": false,
+                            "m_FreezeRotationZ": false,
                             "m_Position": {
-                                "m_X": 0.0,
-                                "m_Y": 0.0,
-                                "m_Z": 0.0
+                                "m_X": 1.0,
+                                "m_Y": 3.0,
+                                "m_Z": 5.0
                             },
                             "m_Rotation": {
                                 "m_X": 0.0,
@@ -28,9 +31,9 @@
                                 "m_Z": 0.0
                             },
                             "m_Scale": {
-                                "m_X": 1.0,
-                                "m_Y": 1.0,
-                                "m_Z": 1.0
+                                "m_X": 200.0,
+                                "m_Y": 200.0,
+                                "m_Z": 200.0
                             }
                         }
                     ]
@@ -39,15 +42,8 @@
                     "StaticMesh": [
                         {
                             "m_ComponentName": "StaticMesh",
-                            "m_FileName": "FBXLoad_Test/fbx/Character.fbx",
+                            "m_FileName": "FBXLoad_Test/fbx/box.fbx",
                             "m_IsModelCreated": true
-                        }
-                    ]
-                },
-                {
-                    "Debug": [
-                        {
-                            "m_ComponentName": "Debug"
                         }
                     ]
                 }

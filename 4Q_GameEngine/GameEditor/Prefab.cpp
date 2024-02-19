@@ -14,8 +14,18 @@
 #include "../Engine/Debug.h"
 #include "../Engine/Sound.h"
 #include "../Engine/Sprite2D.h"
+#include "../Engine/RigidBody.h"
+#include "../Engine/UI.h"
+
+// Script Headers
 #include "../Engine/CameraScript.h"
+#include "../Engine/PlayerScript.h"
+#include "../Engine/POVCameraScript.h"
+#include "../Engine/TestUIScript.h"
+#include "../Engine/FreeCameraScript.h"
+
 #include "NameManager.h"
+#include "ImGuizmo.h"
 #include <set>
 using json = nlohmann::json;
 
@@ -31,35 +41,20 @@ PrefabManager::~PrefabManager()
 
 void PrefabManager::SavePrefab(ECS::Entity* _selectedEntity, const std::string& _filename)
 {
-	std::string fullPath = basePath + _filename;
-
 	json prefabData;
 
-	if (!_selectedEntity->m_children.empty())
-	{
-		RecursiveSaveComponents(_selectedEntity, prefabData);
+	RecursiveSaveComponents(_selectedEntity, prefabData);
 
-		std::ofstream outputFile(fullPath);
-		outputFile << std::setw(4) << prefabData << std::endl;
+	std::ofstream outputFile(_filename);
+	outputFile << std::setw(4) << prefabData << std::endl;
 
-		outputFile.close();
-	}
-	else
-	{
-		RecursiveSaveComponents(_selectedEntity, prefabData);
-		std::ofstream outputFile(fullPath);
-		outputFile << std::setw(4) << prefabData << std::endl;
-
-		outputFile.close();
-	}
+	outputFile.close();
 }
 
 
 ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 {
-	std::string fullPath = basePath + _filename;
-
-	std::ifstream inputFile(fullPath);
+	std::ifstream inputFile(_filename);
 	json prefabData;
 	inputFile >> prefabData;
 	inputFile.close();
@@ -123,9 +118,38 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<Sound>(prefabEntity, component["Sound"][0]);
 				}
-				else if (componentName == "CameraScript")
+				else if (componentName == "RigidBody")
 				{
-					AssignComponents<CameraScript>(prefabEntity, component["CameraScript"][0]);
+					AssignComponents<RigidBody>(prefabEntity, component["RigidBody"][0]);
+				}
+				else if (componentName == "UI")
+				{
+					AssignComponents<UI>(prefabEntity, component["UI"][0]);
+				}
+				else if (componentName == "FreeCameraScript")
+				{
+					AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
+				}
+				else if (componentName == "SampleScript")
+				{
+					AssignComponents<SampleScript>(prefabEntity, component["SampleScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "SampleScript";
+				}
+				else if (componentName == "PlayerScript")
+				{
+					AssignComponents<PlayerScript>(prefabEntity, component["PlayerScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "PlayerScript";
+				}
+				else if (componentName == "POVCameraScript")
+				{
+					AssignComponents<POVCameraScript>(prefabEntity, component["POVCameraScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
+				}
+				else if (componentName == "TestUIScript")
+				{
+					AssignComponents<TestUIScript>(prefabEntity, component["TestUIScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "TestUIScript";
 				}
 			}
 			m_prefabContainer.push_back({ prefabEntity, oldID });
@@ -201,10 +225,15 @@ void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabDat
 	SaveComponents<Debug>(entity, prefabData);
 	SaveComponents<Sound>(entity, prefabData);
 	SaveComponents<Sprite2D>(entity, prefabData);
-	SaveComponents<CameraScript>(entity, prefabData);
+	SaveComponents<Script>(entity, prefabData);
+	SaveComponents<RigidBody>(entity, prefabData);
+	SaveComponents<UI>(entity, prefabData);
 
-	for (const auto& child : entity->m_children)
+	if (!entity->m_children.empty())
 	{
-		RecursiveSaveComponents(child, prefabData);
+		for (const auto& child : entity->m_children)
+		{
+			RecursiveSaveComponents(child, prefabData);
+		}
 	}
 }

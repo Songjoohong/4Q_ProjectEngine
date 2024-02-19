@@ -19,5 +19,8 @@ struct UI
 
 	long m_Size[2] = { 0,0 };
 	UISTATE m_UIstate = UISTATE::UINONE;
+	std::string m_ComponentName = "UI";
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(UI, m_ComponentName, m_Size, m_UIstate)
 };
 ECS_DEFINE_TYPE(UI);

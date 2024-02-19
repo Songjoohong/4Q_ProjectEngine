@@ -6,13 +6,7 @@
 
 using namespace DirectX::SimpleMath;
 using namespace DirectX;
-struct MyPoint
-{
-	LONG x;
-	LONG y;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(MyPoint, x, y)
-};
 class Vector3D
 {
 public:
@@ -31,6 +25,11 @@ public:
 	Vector3D operator+(const Vector3D& other) const
 	{
 		return Vector3D{ m_X + other.m_X, m_Y + other.m_Y, m_Z + other.m_Z };
+	}
+
+	Vector3D operator+(const Vector3& other) const
+	{
+		return Vector3D{ m_X + other.x, m_Y + other.y, m_Z + other.z };
 	}
 
 	Vector3D operator-(const Vector3D& other) const
@@ -77,16 +76,10 @@ public:
 		m_Z = vec.z;
 		return *this;
 	}
-	Vector3D& operator=(const DirectX::XMVECTOR& q) {
-		// Convert XMVECTOR to Quaternion
-		DirectX::XMFLOAT4 quat;
-		DirectX::XMStoreFloat4(&quat, q);
-
-		// Assign quaternion components to Vector3D components
-		m_X = quat.x;
-		m_Y = quat.y;
-		m_Z = quat.z;
-
+	Vector3D& operator=(const DirectX::XMFLOAT4& quaternion) {
+		m_X = quaternion.x;
+		m_Y = quaternion.y;
+		m_Z = quaternion.z;
 		return *this;
 	}
 
@@ -130,7 +123,7 @@ public:
 	void SetY(float y) { m_Y = y; }
 	void SetZ(float z) { m_Z = z; }
 
-
+	void AddY(float y) { m_Y += y; }
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Vector3D, m_X, m_Y, m_Z)
 };
 

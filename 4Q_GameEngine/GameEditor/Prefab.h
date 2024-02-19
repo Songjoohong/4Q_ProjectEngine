@@ -32,7 +32,7 @@ public:
 
     ECS::Entity* FindEntityByName(std::string entityName);
 public:
-	std::string basePath = "../Test/";
+	std::string basePath = "/prefab/";
     json prefabData;
 
     ECS::World* m_CurrentWorld;
@@ -81,14 +81,16 @@ inline void PrefabManager::AssignComponents(ECS::Entity* entity, const json& com
 {
     if constexpr (std::is_base_of_v<Script, ComponentType>)
     {
-        entity->Assign<ComponentType>();
+        entity->Assign<ComponentType>(entity);
     }
     else
     {
         entity->Assign<ComponentType>();
+
+        auto& component = entity->get<ComponentType>().get();
+
+        component = componentData;
     }
 
-    auto& component = entity->get<ComponentType>().get();
 
-    component = componentData;
 }
