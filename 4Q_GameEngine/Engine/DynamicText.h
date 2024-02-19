@@ -14,9 +14,9 @@ struct DynamicText
 	{}
 	~DynamicText() = default;
 	
-	std::vector<std::wstring> m_Text;
-	float m_TriggerDistance = 100.f;
-	int m_CurrentTextIndex = 0;
+	std::vector<std::wstring> m_Text; // TODO
+	float m_TriggerDistance = 100.f; // TODO
+	int m_CurrentTextIndex = 0;	// TODO.. 이건 나타내지 않고 조정할 수 있도록 해서 에디터에 나타내는 m_Text 값 변경하게하기
 	bool m_IsTextShow = false;
 
 	std::string m_ComponentName = "DynamicText";
