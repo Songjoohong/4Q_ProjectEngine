@@ -106,7 +106,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	SoundManager::GetInstance()->Initialize();
 	PhysicsManager::GetInstance()->Initialize();
 	InputManager::GetInstance()->Initialize(m_ClientWidth, m_ClientHeight);
-
 	return true;
 }
 
