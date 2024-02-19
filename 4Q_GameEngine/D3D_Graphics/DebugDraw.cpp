@@ -122,7 +122,7 @@ namespace DebugDraw
 		const BoundingBox& box,
 		FXMVECTOR color)
 	{
-		XMMATRIX matWorld = XMMatrixScaling(box.Extents.x, box.Extents.y, box.Extents.z);
+		XMMATRIX matWorld = XMMatrixScaling(box.Extents.x/2.f, box.Extents.y/2.f, box.Extents.z/2.f);
 		XMVECTOR position = XMLoadFloat3(&box.Center);
 		matWorld.r[3] = XMVectorSelect(matWorld.r[3], position, g_XMSelect1110);
 

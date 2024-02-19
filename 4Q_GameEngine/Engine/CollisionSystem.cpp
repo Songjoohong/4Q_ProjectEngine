@@ -41,23 +41,8 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 {
 	world->each<Transform, BoxCollider>([&](Entity* ent, ComponentHandle<Transform> transform, ComponentHandle<BoxCollider> collider)
 		{
-			//transform->m_Position = collider->m_WorldPosition - collider->m_Center;
 			collider->m_IsRaycastHit = false;
 
-			//if (ent->get<EntityIdentifier>()->m_HasParent)
-			//{
-			//	collider->m_Center = ent->m_parent->get<Transform>()->m_Position + transform->m_Position;
-			//}
-			//else
-			//{
-			//	collider->m_Center = transform->m_Position;	// TODO: 24.02.16 임시 수정
-			//}
-
-			//for (auto& child : ent->m_children)
-			//{
-			//	AddParentPositionToChildren(child, collider->m_Center);
-			//}
-			//collider->m_Center = transform->m_Position;
 
 			if (ent->get<EntityIdentifier>()->m_HasParent)
 			{
@@ -66,15 +51,9 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 			else
 			{
-				collider->m_WorldPosition = transform->m_Position + collider->m_Center;
+				collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix()).Translation();
 			}
 
-			/*for (auto& child : ent->m_children)
-			{
-				AddParentPositionToChildren(child, collider->m_Center);
-			}*/
-
-			//transform->m_Rotation = collider->m_Rotation;
 		});
 }
 
