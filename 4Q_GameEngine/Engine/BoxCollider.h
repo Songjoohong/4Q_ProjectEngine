@@ -30,8 +30,6 @@ struct BoxCollider
 {
 	ECS_DECLARE_TYPE
 
-	BoxCollider() = default;
-
 	BoxCollider(ColliderType type = ColliderType::STATIC,CollisionType collisionmask = CollisionType::TRIGGER, Vector3D scale = Vector3D{ 1.f,1.f,1.f })
 		: m_ColliderType(type)
 		, m_CollisionType(collisionmask)

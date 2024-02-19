@@ -23,7 +23,7 @@ public:
 public:
 	void Initialize();
 	void Update(float deltatime);
-	void RayCast(PxVec3 raycastPoint,PxVec3 raycastDir);
+	void RayCast(PxVec3 raycastPoint, PxVec3 raycastDir);
 
 	void ChangeCollider(BoxCollider* boxcollider, int entId);
 	void ChangeFilter(int entId);
@@ -31,14 +31,16 @@ public:
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
 	void InitFilterData();
-	void AddToCollisionQueue(int entId);
-	void SendDataToObjects();
+	void AddCollisionColliders(int entId);
+	void DeleteCollisionCollider(int entId);
 
+	vector<pair<int, StaticCollider*>> GetCollider();
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
 	PxFilterData* GetFilterData(CollisionType type) { return m_pFilterDatas[type]; }
 	DynamicCollider* GetDynamicCollider(int entId);
 	DynamicCollider* GetPlayerCollider() { return m_PlayerCollider; }
+
 
 public:
 	PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> 시각화 하여 디버깅 할 수 있는 프로그램
@@ -54,7 +56,7 @@ private:
 	// Colliders
 	vector<pair<int, DynamicCollider*>> m_pDynamicColliders;
 	vector<pair<int, StaticCollider*>> m_pStaticColliders;
-	queue<pair<int, StaticCollider*>> m_CollisionQue;
+	vector<pair<int, StaticCollider*>> m_CollisionObjects;
 
 	// Player 일단 따로 저장 -> 시간되면 빼놓기
 	DynamicCollider* m_PlayerCollider;

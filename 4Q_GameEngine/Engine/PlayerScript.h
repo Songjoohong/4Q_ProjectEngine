@@ -9,6 +9,8 @@
 
 #include <queue>
 
+#include "PlayerInformation.h"
+
 class PlayerScript : public Script
 {
 public:
@@ -17,12 +19,13 @@ public:
 	{}
 	virtual ~PlayerScript() override = default;
 	queue<int> m_VisitedRooms;
-
+	ComponentHandle<PlayerInformation> info;
 	virtual void Awake() override
 	{
 		m_pOwner->get<Transform>()->m_FreezeRotationX = true;
 		m_pOwner->get<Transform>()->m_FreezeRotationZ = true;
 
+		info = m_pOwner->get<PlayerInformation>();
 		//Todo ¼®¿µ
 		//PhysicsManager::GetInstance()->GetDynamicCollider(m_pOwner->getEntityId())->FreezeRotation(true,true,true);
 
@@ -50,7 +53,18 @@ public:
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
 		}
 
-		
 		m_pOwner->get<Movement>()->m_CurrentRotation[0] = InputM->GetMouseMove().x;
+
+		if(std::find(info->m_CollidingEntity.begin(),info->m_CollidingEntity.end(),"room_02_triggercoll_01") != info->m_CollidingEntity.end()
+			&&(info->m_LookingEntity == "Wall_5" || info->m_LookingEntity == "Wall_4" || info->m_LookingEntity == "Wall_3"))
+		{
+			m_pOwner->getWorld()->emit<Events::SpaceAssemble>({ 2,3,1,1 });
+		}
+
+		if(std::find(info->m_CollidingEntity.begin(), info->m_CollidingEntity.end(),"room_03_triggercoll_01") != info->m_CollidingEntity.end() && info->m_LookingEntity == "room_03_door_01")
+		{
+			m_pOwner->getWorld()->emit<Events::SpaceReturn>({ 2 });
+			m_pOwner->getWorld()->emit<Events::SpaceAssemble>({ 3,4,2,1 });
+		}
 	}
 };
