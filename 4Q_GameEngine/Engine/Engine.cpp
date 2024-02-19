@@ -88,9 +88,9 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	RegisterClassExW(&m_Wcex);
 
 	RECT rcClient = { 0,0,static_cast<LONG>(width), static_cast<LONG>(height) };
-	AdjustWindowRect(&rcClient, WS_POPUPWINDOW, FALSE);
+	AdjustWindowRect(&rcClient, WS_POPUP, FALSE);
 
-	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_POPUPWINDOW,
+	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_POPUP,
 		0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top
 		, nullptr, nullptr, m_hInstance, nullptr);
 
@@ -106,19 +106,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	SoundManager::GetInstance()->Initialize();
 	PhysicsManager::GetInstance()->Initialize();
 	InputManager::GetInstance()->Initialize(m_ClientWidth, m_ClientHeight);
-
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Resource/scene/world_main.scene"));
-	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
-	EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
-	EntitySystem* collisionSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CollisionSystem());
-	EntitySystem* transformSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new TransformSystem());
-	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
-	EntitySystem* cameraSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CameraSystem());
-	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
-	EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
-	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
-	EntitySystem* spaceSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpaceSystem());
-
 	return true;
 }
 
@@ -155,8 +142,8 @@ void Engine::Update()
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	InputManager::GetInstance()->Update(deltaTime);
 	SoundManager::GetInstance()->Update();
-	PhysicsManager::GetInstance()->Update(deltaTime);
 	WorldManager::GetInstance()->Update(deltaTime);
+	PhysicsManager::GetInstance()->Update(deltaTime);
 	RenderManager::GetInstance()->Update();
 }
 
