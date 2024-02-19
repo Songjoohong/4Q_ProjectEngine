@@ -80,6 +80,9 @@
     <Filter Include="Component\Script">
       <UniqueIdentifier>{9c16fac9-2ef2-4a69-ac12-5f4a443cce73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Event">
+      <UniqueIdentifier>{a33f5cd5-9e94-496e-a66a-699dfc0a66ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ISingleton.h">
@@ -230,6 +233,7 @@
     <ClInclude Include="PlayerInformation.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="EventSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
@@ -304,5 +308,6 @@
     <ClCompile Include="DynamicTextScript.h">
       <Filter>Component\Script</Filter>
     </ClCompile>
+    <ClCompile Include="EventSystem.cpp" />
   </ItemGroup>
 </Project>

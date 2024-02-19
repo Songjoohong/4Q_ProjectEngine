@@ -584,7 +584,7 @@ void GameEditor::ShowSceneDialog()
 			// action
 
 			// 현재 에디터가 화면에 띄우고 있는 월드의 이름을 변경
-			//LoadWorld("scene/" + fileName);	// TODO : ??
+			LoadWorld("scene/" + fileName);	// TODO : ??
 
 			// ".scene" 문자열을 찾습니다.
 			size_t found = fileName.find(".scene");

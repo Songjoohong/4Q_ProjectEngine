@@ -168,6 +168,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DynamicText.h" />
+    <ClInclude Include="EventSystem.h" />
     <ClInclude Include="PlayerInformation.h" />
     <ClInclude Include="POVCameraScript.h" />
     <ClInclude Include="FreeCameraScript.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="DebugSystem.cpp" />
     <ClCompile Include="DynamicTextScript.h" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="EventSystem.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="pch.cpp">

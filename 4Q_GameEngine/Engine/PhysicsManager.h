@@ -36,6 +36,7 @@ public:
 	void AddStaticColliders(StaticCollider* collider) { m_AddStaticColliders.push_back(collider); }
 	void AddCollidersIntoPxScene();
 
+	vector<pair<int, StaticCollider*>> GetCollisionObjects();
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
 	PxFilterData* GetFilterData(CollisionType type) { return m_pFilterDatas[type]; }

@@ -3,6 +3,7 @@
 #include "Space.h"
 #include "EntityIdentifier.h"
 #include "PhysicsManager.h"
+#include "PlayerInformation.h"
 
 void CollisionSystem::Configure(World* world)
 {
@@ -39,9 +40,39 @@ void AddParentPositionToChildren(Entity* entity, const Vector3D& parentPosition)
 
 void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 {
+	Entity* player;
+	ComponentHandle<PlayerInformation> info;
+
+	world->each<PlayerInformation>([&](Entity* ent, ComponentHandle<PlayerInformation> playerInfo)->void
+		{
+			player = ent;
+			info = playerInfo;
+		});
+
 	world->each<Transform, BoxCollider>([&](Entity* ent, ComponentHandle<Transform> transform, ComponentHandle<BoxCollider> collider)
 		{
+			if(collider->m_IsRaycastHit)
+			{
+				if(player)
+				{
+					if(player->has<PlayerInformation>())
+					{
+						info->m_LookingEntity = ent->get<EntityIdentifier>()->m_EntityName;
+						std::cout << info->m_LookingEntity << std::endl;
+					}
+				}
+			}
+			collider->m_WasRaycastHit = collider->m_IsRaycastHit;
 			collider->m_IsRaycastHit = false;
+
+			if(collider->m_State == CollisionState::ENTER)
+			{
+				info->m_CollidingEntities.push_back(ent->get<EntityIdentifier>()->m_EntityName);
+			}
+			if(collider->m_State == CollisionState::EXIT)
+			{
+				info->m_CollidingEntities.erase(std::remove_if(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), [&](const string& str) { return str == ent->get<EntityIdentifier>()->m_EntityName; }), info->m_CollidingEntities.end());
+			}
 
 			if (ent->get<EntityIdentifier>()->m_HasParent)
 			{

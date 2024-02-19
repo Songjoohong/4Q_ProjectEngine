@@ -67,7 +67,7 @@ void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 void Renderer::AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation)
 {
 	Quaternion rot = Math::Quaternion::CreateFromYawPitchRoll(rotation.y, rotation.x, rotation.z);
-	m_colliderBox.push_back(ColliderBox(center + Vector3{ 0.f,extents.y, 0.f }, extents, rot));
+	m_colliderBox.push_back(ColliderBox(center, extents, rot));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)

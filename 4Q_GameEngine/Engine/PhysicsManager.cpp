@@ -328,6 +328,11 @@ void PhysicsManager::AddCollidersIntoPxScene()
 	m_AddStaticColliders.clear();
 }
 
+vector<pair<int, StaticCollider*>> PhysicsManager::GetCollisionObjects()
+{
+	return m_CollisionObjects;
+}
+
 DynamicCollider* PhysicsManager::GetDynamicCollider(int entId)
 {
 	const auto it = std::find_if(m_pDynamicColliders.begin(), m_pDynamicColliders.end(), [entId](std::pair<int, DynamicCollider*> collider)
