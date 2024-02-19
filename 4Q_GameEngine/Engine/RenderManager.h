@@ -38,7 +38,7 @@ public:
 	void SetCamera(const DirectX::SimpleMath::Matrix matrix);
 	
 	void AddText(int entID, const std::string& text, const Vector3D& pos);
-	void AddSprite(int entID, const std::string& filePath, POINT pos, float layer);
+	void AddSprite(World* world, int entID, const std::string& filePath, POINT pos, float layer);
 	void AddDynamicText(int entID, const std::vector<std::wstring>& textVector);
 
 	void EditText(int entID, const std::string& text, const Vector3D& pos);

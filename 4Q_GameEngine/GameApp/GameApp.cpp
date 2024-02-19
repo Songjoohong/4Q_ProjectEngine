@@ -63,7 +63,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 		return result;
 
 	//m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
-	m_GameWorld = DeserializeGame("scene/Scene_Main.scene");
+	m_GameWorld = DeserializeGame("scene/jasonScene.scene");
 	//m_OutroWorld = DeserializeGame("");
 
 	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);

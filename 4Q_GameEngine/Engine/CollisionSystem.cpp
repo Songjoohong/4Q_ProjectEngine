@@ -65,14 +65,18 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 			collider->m_WasRaycastHit = collider->m_IsRaycastHit;
 			collider->m_IsRaycastHit = false;
 
-			if(collider->m_State == CollisionState::ENTER)
+			if(info)
 			{
-				info->m_CollidingEntities.push_back(ent->get<EntityIdentifier>()->m_EntityName);
+				if (collider->m_State == CollisionState::ENTER)
+				{
+					info->m_CollidingEntities.push_back(ent->get<EntityIdentifier>()->m_EntityName);
+				}
+				if (collider->m_State == CollisionState::EXIT)
+				{
+					info->m_CollidingEntities.erase(std::remove_if(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), [&](const string& str) { return str == ent->get<EntityIdentifier>()->m_EntityName; }), info->m_CollidingEntities.end());
+				}
 			}
-			if(collider->m_State == CollisionState::EXIT)
-			{
-				info->m_CollidingEntities.erase(std::remove_if(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), [&](const string& str) { return str == ent->get<EntityIdentifier>()->m_EntityName; }), info->m_CollidingEntities.end());
-			}
+			
 
 			if (ent->get<EntityIdentifier>()->m_HasParent)
 			{

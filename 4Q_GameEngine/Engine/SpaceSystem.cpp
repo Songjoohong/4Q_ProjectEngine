@@ -20,10 +20,19 @@ void SpaceSystem::Deconfigure(World* world)
 
 void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 {
-	if (!event.objectEntity->has<Space>() || !event.subjectEntity->has<Space>())
-		return;
-	const auto object = event.objectEntity->get<Space>();
-	const auto subject = event.subjectEntity->get<Space>();
+	Entity* objectEntity;
+	Entity* subjectEntity;
+
+	world->each<Space>([&](Entity* ent, ComponentHandle<Space> space)->void
+		{
+			if (space->m_SpaceIndex == event.objectIndex)
+				objectEntity = ent;
+			else if (space->m_SpaceIndex == event.subjectIndex)
+				subjectEntity = ent;
+
+		});
+	const auto object = objectEntity->get<Space>();
+	const auto subject = subjectEntity->get<Space>();
 	Vector3D subjectDistance = subject->m_Exits[event.subjectExit - 1].m_Distance;
 	const Vector3D objectDistance = object->m_Exits[event.objectExit - 1].m_Distance;
 	//Vector3D initialDistance = subjectDistance;
@@ -31,25 +40,25 @@ void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 
 	if (rotationKey == -1 || rotationKey == 3)
 	{
-		event.subjectEntity->get<Transform>()->m_Rotation.SetY(270.f);
+		subjectEntity->get<Transform>()->m_Rotation.SetY(270.f);
 		subjectDistance = Vector3D{ -subjectDistance.GetY(), subjectDistance.GetX(),subjectDistance.GetZ() };
 	}
 	else if (rotationKey == 1 || rotationKey == -3)
 	{
-		event.subjectEntity->get<Transform>()->m_Rotation.SetY(90.f);
+		subjectEntity->get<Transform>()->m_Rotation.SetY(90.f);
 		subjectDistance = Vector3D{ subjectDistance.GetY(), -subjectDistance.GetX(),subjectDistance.GetZ() };
 	}
 	else if (rotationKey == 0)
 	{
-		event.subjectEntity->get<Transform>()->m_Rotation.SetY(180.f);
+		subjectEntity->get<Transform>()->m_Rotation.SetY(180.f);
 		subjectDistance = Vector3D{ -subjectDistance.GetX(), -subjectDistance.GetY(),subjectDistance.GetZ() };
 	}
 	else
 	{
-		event.subjectEntity->get<Transform>()->m_Rotation.SetY(0.f);
+		subjectEntity->get<Transform>()->m_Rotation.SetY(0.f);
 	}
 	const Vector3D vec = objectDistance - subjectDistance;
-	event.subjectEntity->get<Transform>()->m_Position = event.objectEntity->get<Transform>()->m_Position + vec;
+	subjectEntity->get<Transform>()->m_Position = objectEntity->get<Transform>()->m_Position + vec;
 }
 
 void SpaceSystem::Receive(World* world, const Events::SpaceReturn& event)
@@ -105,8 +114,8 @@ void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 			{
 				for (auto& ent : _entity)
 				{
-					component->m_VisitedRooms.push(ent->getEntityId());
-					std::cout << "Player visite Room : " << ent->getEntityId() << std::endl;
+					component->m_VisitedRooms.push(ent->get<Space>()->m_SpaceIndex);
+					std::cout << "Player visit Room : " << ent->get<Space>()->m_SpaceIndex << std::endl;
 				}
 			}
 

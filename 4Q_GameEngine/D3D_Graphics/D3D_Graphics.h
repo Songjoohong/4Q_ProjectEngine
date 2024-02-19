@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "PointLight.h"
+#include "../Engine/ECS.h"
 
 class RenderTextureClass;
 class StaticMeshResource;
@@ -88,6 +89,7 @@ struct DynamicTextInformation
 };
 struct SpriteInformation
 {
+	ECS::World* world;
 	int mEntityID;
 	float mLayer;
 	bool IsRendered;
@@ -229,7 +231,7 @@ public:
 	void AddOutlineMesh(StaticModel* model);
 	//디버그 정보 추가
 	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
-	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
+	void AddSpriteInformation(ECS::World* world, int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
 	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
 
 	// 디버그 정보 수정
