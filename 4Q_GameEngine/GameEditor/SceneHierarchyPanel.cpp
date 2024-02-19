@@ -33,6 +33,8 @@
 #include "ImGuizmo.h"
 
 #include <cassert>
+#include <codecvt>
+
 SceneHierarchyPanel::SceneHierarchyPanel(ECS::World* context)
 {
 	SetContext(context, m_PrefabManager, m_NameManager);
@@ -62,14 +64,8 @@ void SceneHierarchyPanel::RenderImGui()
 		for (auto entity : m_Context->GetEntities())
 		{
 			// 최상위 부모로 등록된 애들만 먼저 그림
-			/*if (entity->get<EntityIdentifier>().get().m_HasParent == false)
-			{
-				DrawEntityNode(entity);
-			}*/
-
 			if (entity->m_parent == nullptr)
 				DrawEntityNode(entity);
-
 		}
 
 		// Unselect object when left-clicking on blank space.
@@ -114,12 +110,11 @@ void SceneHierarchyPanel::RenderImGui()
 	ImGui::End();	/* Hierarchy End */
 
 	ImGui::Begin("Properties");		
-	// 선택된 오브젝트가 가진 모든 컴포넌트 정보를 출력한다. 6
+	// 선택된 오브젝트가 가진 모든 컴포넌트 정보를 출력한다.
 	if (m_SelectionContext)
 	{
 		DrawComponents(m_SelectionContext);
 		SetPrefabFileName(m_SelectionContext);
-
 	}
 	ImGui::End();	/* Properties End */
 }
@@ -434,6 +429,8 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 	
 }
 
+
+
 void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 {
 	// Type Entity's Name
@@ -474,7 +471,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<Sound>("Sound");
 		ImGui::EndPopup();
 	}
-	ShowStaticModelDialog();	// TODO: 수정..?
+	ShowStaticModelDialog();
 
 	ImGui::PopItemWidth();
 
@@ -523,7 +520,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 					component->m_ColliderType = static_cast<ColliderType>(i);
 
 					PhysicsManager::GetInstance()->ChangeCollider(component, entity->getEntityId());
-					cout << "Collider Type Changed!!!!!!!!" << endl;		// TODO: [delete] test for debug1
+#ifdef _DEBUG
+					cout << "Collider Type Changed" << endl;
+#endif
 				}
 
 				if (isSelected)
@@ -551,7 +550,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 					component->m_CollisionType = static_cast<CollisionType>(i);
 
 					PhysicsManager::GetInstance()->ChangeFilter(entity->getEntityId());
-					cout << "Collision Type Changed!!!!!!!!" << endl;	// TODO: [delete] test for debug2
+#ifdef _DEBUG
+					cout << "Collision Type Changed" << endl;
+#endif
 				}
 
 				if (isSelected)
@@ -645,9 +646,37 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	});
 
 	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
-		{
+	{
+		//int currentTextIndex = component->m_CurrentTextIndex;
 
-		});
+		//wstring wtext = component->m_Text.at(currentTextIndex);
+
+		//// Using std::wstring_convert
+		//using convert_typeX = std::codecvt_utf8<wchar_t>;
+		//std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+		//std::string utf8Text = converterX.to_bytes(wtext);
+
+		//char buffer[256];
+
+		//// Now you can use 'utf8Text' with ImGui::InputText
+		//strncpy_s(buffer, sizeof(buffer), utf8Text.c_str(), sizeof(buffer));
+		//ImGui::InputText("Prefab Name", buffer, sizeof(buffer));
+		//utf8Text = buffer;
+
+		//if (ImGui::Button("Increase Index"))
+		//{
+		//	currentTextIndex++;
+		//}
+
+		//ImGui::SameLine();
+
+		//if (ImGui::Button("Increase Index"))
+		//{
+		//	currentTextIndex--;
+		//}
+
+	});
 
 	DrawComponent<Space>("Space", entity, [](auto component)
 	{
