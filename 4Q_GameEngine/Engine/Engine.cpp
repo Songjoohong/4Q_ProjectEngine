@@ -88,9 +88,9 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	RegisterClassExW(&m_Wcex);
 
 	RECT rcClient = { 0,0,static_cast<LONG>(width), static_cast<LONG>(height) };
-	AdjustWindowRect(&rcClient, WS_POPUPWINDOW, FALSE);
+	AdjustWindowRect(&rcClient, WS_POPUP, FALSE);
 
-	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_POPUPWINDOW,
+	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_POPUP,
 		0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top
 		, nullptr, nullptr, m_hInstance, nullptr);
 

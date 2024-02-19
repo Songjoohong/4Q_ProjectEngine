@@ -81,14 +81,8 @@ void SceneHierarchyPanel::DisplayAddComponentEntry<StaticMesh>(const std::string
 	{
 		if (ImGui::MenuItem(entryName.c_str()))
 		{
-			// TODO: StaticMesh 다이얼로그
-			// 불러올 fbx 파일 선택.
-			// 파일 다이어로그 메뉴 나타냄.
-			// open Dialog Simple
-
+			// 불러올 fbx 파일 선택하는 다이얼로그를 나타내는 트리거 on
 			m_IsDialogOpen = true;
-
-			// fbx 파일을 선택하지 않았다면 컴포넌트 추가하지 않음.
 			ImGui::CloseCurrentPopup();
 		}
 	}

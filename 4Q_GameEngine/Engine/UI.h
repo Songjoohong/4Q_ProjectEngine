@@ -17,7 +17,7 @@ struct UI
 	{}
 	~UI() = default;
 
-	long m_Size[2] = { 0,0 };
+	long m_Size[2] = { 0,0 };	// TODO
 	UISTATE m_UIstate = UISTATE::UINONE;
 	std::string m_ComponentName = "UI";
 

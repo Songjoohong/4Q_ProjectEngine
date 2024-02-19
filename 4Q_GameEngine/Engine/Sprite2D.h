@@ -11,10 +11,10 @@ struct Sprite2D
 		, m_Position{ x, y }
 	{}
 
-	std::string m_FileName;
+	std::string m_FileName;	// TODO
 	// Layer는 0 과 1 사이
-	float m_Layer;
-	long m_Position[2];
+	float m_Layer;	// TODO
+	long m_Position[2];	// TODO
 	bool m_IsRendered = true;
 	std::string m_ComponentName = "Sprite2D";
 
