@@ -102,7 +102,7 @@ private:
 template<typename ComponentType>
 inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 {
-	if (std::is_same_v < Script, ComponentType>)
+	if (std::is_same_v < Script, ComponentType> && entity->has<ComponentType>())
 	{
 		std::vector<ComponentType> container;
 		container.push_back(entity->get<ComponentType>().get());
