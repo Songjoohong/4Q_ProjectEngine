@@ -21,7 +21,6 @@ struct Space
 
 	int m_SpaceIndex;
 	std::vector<ExitInfo> m_Exits;
-
 	bool m_IsPlayerExist = false;
 
 	std::string m_ComponentName = "Space";

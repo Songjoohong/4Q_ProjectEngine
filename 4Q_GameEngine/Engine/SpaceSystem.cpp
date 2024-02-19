@@ -5,11 +5,12 @@
 #include "Space.h"
 #include "Transform.h"
 #include "BoxCollider.h"
-#include "PlayerScript.h"
+#include "PlayerInformation.h"
 
 void SpaceSystem::Configure(World* world)
 {
 	world->Subscribe<Events::SpaceAssemble>(this);
+	world->Subscribe<Events::SpaceReturn>(this);
 }
 
 void SpaceSystem::Deconfigure(World* world)
@@ -51,6 +52,18 @@ void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 	event.subjectEntity->get<Transform>()->m_Position = event.objectEntity->get<Transform>()->m_Position + vec;
 }
 
+void SpaceSystem::Receive(World* world, const Events::SpaceReturn& event)
+{
+	world->each<Space, Transform>([&](Entity* ent, ComponentHandle<Space> space, ComponentHandle<Transform> transform)
+		{
+			if (event.spaceIndex == space->m_SpaceIndex)
+			{
+				transform->m_Position.SetY(event.spaceIndex * 10000.f);
+			}
+		});
+}
+
+
 void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 {
 	//return all
@@ -64,30 +77,39 @@ void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 
 	}
 
-	vector<Entity*> _entity;
+	std::vector<Entity*> _entity;
 	world->each<Space, BoxCollider>([&](Entity* ent, ComponentHandle<Space> space, ComponentHandle<BoxCollider> collider)->void
 		{
-			if (collider->m_State == CollisionState::ENTER && space->m_IsPlayerExist)
+			if (collider->m_State == CollisionState::ENTER)
 			{
-				space->m_IsPlayerExist = false;
-				_entity.push_back(ent);
+				if (space->m_IsPlayerExist == true)
+				{
+					space->m_IsPlayerExist = false;
+					_entity.push_back(ent);
+				}
+				else
+				{
+					collider->m_State = CollisionState::EXIT;
+					space->m_IsPlayerExist = true;
+				}
 			}
-			else
+			else if (collider->m_State == CollisionState::EXIT)
 			{
 				space->m_IsPlayerExist = true;
 			}
 		});
 
-	world->each<PlayerScript>([&](Entity* ent_player, ComponentHandle<PlayerScript> player)->void
+	world->each<PlayerInformation>([&](Entity* ent_player, ComponentHandle<PlayerInformation> component)->void
 		{
 			if (!_entity.empty())
 			{
 				for (auto& ent : _entity)
 				{
-					player->m_VisitedRooms.push(ent->getEntityId());
-					cout << "Player visite Room : " << ent->getEntityId() << endl;
+					component->m_VisitedRooms.push(ent->getEntityId());
+					std::cout << "Player visite Room : " << ent->getEntityId() << std::endl;
 				}
 			}
+
 		});
 
 	_entity.clear();
