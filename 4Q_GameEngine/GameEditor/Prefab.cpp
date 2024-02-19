@@ -136,10 +136,10 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<DynamicText>(prefabEntity, component["DynamicText"][0]);
 				}
-				else if (componentName == "Sprite2D")
-				{
-					AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
-				}
+				//else if (componentName == "Sprite2D")
+				//{
+				//	AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
+				//}
 				else if (componentName == "FreeCameraScript")
 				{
 					AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);

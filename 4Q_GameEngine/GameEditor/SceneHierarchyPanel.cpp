@@ -429,8 +429,6 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 	
 }
 
-
-
 void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 {
 	// Type Entity's Name
@@ -471,7 +469,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<Sound>("Sound");
 		ImGui::EndPopup();
 	}
-	ShowStaticModelDialog();
+
+	if (m_AssignStaticMesh)
+		ShowDialog<StaticMesh>();
+	else if (m_AssignSprite2D)
+		ShowDialog<Sprite2D>();
 
 	ImGui::PopItemWidth();
 
@@ -647,22 +649,30 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
 	{
+
+		//static int a = 1;
+		//if (a == 1)
+		//{
+		//	component->m_Text.push_back(L"hello 안녕하세요");
+		//	wcout << component->m_Text.at(0) << endl;
+		//	a++;
+		//}
+
 		//int currentTextIndex = component->m_CurrentTextIndex;
 
 		//wstring wtext = component->m_Text.at(currentTextIndex);
 
-		//// Using std::wstring_convert
-		//using convert_typeX = std::codecvt_utf8<wchar_t>;
-		//std::wstring_convert<convert_typeX, wchar_t> converterX;
+		//string strTo;
 
-		//std::string utf8Text = converterX.to_bytes(wtext);
+		//// 방법 1
+		//{
+		//	int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), -1, NULL, 0, NULL, NULL);
+		//	std::string strTo(sizeNeeded, 0);
+		//	WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), -1, strTo.data(), sizeNeeded, NULL, NULL);
+		//}
 
-		//char buffer[256];
+		//ImGui::InputText("dynamic text", strTo.data(), sizeof(strTo));
 
-		//// Now you can use 'utf8Text' with ImGui::InputText
-		//strncpy_s(buffer, sizeof(buffer), utf8Text.c_str(), sizeof(buffer));
-		//ImGui::InputText("Prefab Name", buffer, sizeof(buffer));
-		//utf8Text = buffer;
 
 		//if (ImGui::Button("Increase Index"))
 		//{
@@ -671,11 +681,13 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		//ImGui::SameLine();
 
-		//if (ImGui::Button("Increase Index"))
+		//if (ImGui::Button("Decrease Index"))
 		//{
 		//	currentTextIndex--;
 		//}
 
+
+		ImGui::SliderFloat("Trigger Distance:", &component->m_TriggerDistance, 0.f, 1000.f);
 	});
 
 	DrawComponent<Space>("Space", entity, [](auto component)
@@ -684,33 +696,78 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		std::string PlayerExists = "PlayerExist : " + trueOrFalse;
 		ImGui::Text(PlayerExists.c_str());
 
-		ImGui::InputInt("SpaceIndex", &component->m_SpaceIndex);
-		
-		std::string spaceIdx = "SpaceIndex : " + std::to_string(component->m_SpaceIndex);
+		ImGui::SetNextItemWidth(75.f);
+		ImGui::InputInt("Space Index", &component->m_SpaceIndex);
+		std::string spaceIdx = "Space Index : " + std::to_string(component->m_SpaceIndex);
 		ImGui::Text(spaceIdx.c_str());
 
-		if (ImGui::Button("+"))
+		static int exitDirectionInput = 0;
+		static float distanceInput[3] = { 0,0,0 };
+		ImGui::SetNextItemWidth(75.f);
+		ImGui::InputInt("Exit Direction : ", &exitDirectionInput);
+		ImGui::Text("distance x, y, z");
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat("x", &distanceInput[0], 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat("y", &distanceInput[1], 0.1f, 0.0f, 0.0f, "%.2f");
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(80.f);
+		ImGui::DragFloat("z", &distanceInput[2], 0.1f, 0.0f, 0.0f, "%.2f");
+
+		if (ImGui::Button("make ExitInfo"))
 		{
-			component->m_Exits.push_back(ExitInfo{ 0, Vector3D{0.0f, 0.0f, 0.0f} });
+			component->m_Exits.push_back(ExitInfo{ exitDirectionInput, Vector3D{distanceInput[0], distanceInput[1], distanceInput[2]} });
 		}
 
 		for (size_t i = 0; i < component->m_Exits.size(); i++)
 		{
-			ImGui::Text("Exit &z", i);
+			ImGui::Text("Exit %d", i);
 			ImGui::Text("Direction : %d", component->m_Exits[i].m_ExitDirection);
-			ImGui::Text("Direction : %d", component->m_Exits[i].m_ExitDirection);
+			ImGui::Text("Distance : x: %.2f y: %.2f z: %.2f", component->m_Exits[i].m_Distance.m_X, component->m_Exits[i].m_Distance.m_Y, component->m_Exits[i].m_Distance.m_Z);
 		}
-
 
 	});
 
 	DrawComponent<UI>("UI", entity, [](auto component)
 	{
+			static int x = component->m_Size[0];
+			static int y = component->m_Size[1];
 
+			ImGui::Text("Interactive Size");
+			//ImGui::DragFloat("X", &x, 0.1f, 0.0f, 0.0f, "%.2f");
+			//ImGui::DragFloat("Y", &y, 0.1f, 0.0f, 0.0f, "%.2f");
+			ImGui::SetNextItemWidth(100.f);
+			ImGui::DragInt("X", &x, 0.1f, 0, 0, "%d");
+			ImGui::SetNextItemWidth(100.f);
+			ImGui::DragInt("Y", &y, 0.1f, 0, 0, "%d");
+
+			component->m_Size[0] = x;
+			component->m_Size[1] = y;
+
+			const char* uiTypeStrings[] = { "HOVER", "CLICK", "NONE" };
+			const char* currentUiTypeString = uiTypeStrings[(int)component->m_UIstate];
+
+			ImGui::Text("State :");
+			ImGui::SameLine();
+			ImGui::Text(currentUiTypeString);
 	});
 
 	DrawComponent<Sprite2D>("Sprite2D", entity, [](auto component)
 	{
+		std::string temp = component->m_FileName;
+		ImGui::Text(temp.c_str());
+
+		ImGui::DragFloat("Layer :", &component->m_Layer, 0.1f, 0.f, 1.f, "%.1f");
+
+		static int posX = component->m_Position[0];
+		static int posY = component->m_Position[1];
+		ImGui::SetNextItemWidth(100.f);
+		ImGui::DragInt("X", &posX, 0.1f, 0, 0, "%d");
+		ImGui::SetNextItemWidth(100.f);
+		ImGui::DragInt("Y", &posY, 0.1f, 0, 0, "%d");
+		component->m_Position[0] = posX;
+		component->m_Position[1] = posY;
 
 	});
 

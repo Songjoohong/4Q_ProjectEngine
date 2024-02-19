@@ -4,14 +4,15 @@
 struct Sprite2D
 {
 	ECS_DECLARE_TYPE
-	Sprite2D() = default;
-	explicit Sprite2D(const ECS::Entity* ent, std::string fileName, const float layer,long x, long y)
+	//Sprite2D() = default;
+	//explicit Sprite2D(const ECS::Entity* ent, std::string fileName, const float layer, long x, long y)
+	explicit Sprite2D(std::string fileName, const float layer = 0 ,long x = 1, long y = 1)
 		: m_FileName(fileName)
 		, m_Layer(layer)
 		, m_Position{ x, y }
 	{}
 
-	std::string m_FileName;	// TODO
+	std::string m_FileName;
 	// Layer는 0 과 1 사이
 	float m_Layer;	// TODO
 	long m_Position[2];	// TODO
