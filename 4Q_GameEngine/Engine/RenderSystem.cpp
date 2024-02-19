@@ -28,7 +28,7 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 				
 				if (staticMesh->m_IsModelCreated)
 				{
-					if(RenderManager::GetInstance()->Culling(staticMesh->m_BoundingBox))
+					//if(RenderManager::GetInstance()->Culling(staticMesh->m_BoundingBox))
 						RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
 				}
 				else
@@ -39,10 +39,10 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 			}
 		});
 
-	world->each<Transform, BoxCollider>([&](Entity* entity, ComponentHandle<Transform> transform,ComponentHandle<BoxCollider> boxCollider)->void
+	world->each<StaticMesh, Transform, BoxCollider>([&](Entity* entity, const ComponentHandle<StaticMesh> staticMesh, ComponentHandle<Transform> transform, ComponentHandle<BoxCollider> boxCollider)->void
 		{
-			//RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
-			RenderManager::GetInstance()->AddColliderBox(boxCollider->m_WorldPosition, boxCollider->m_Size);
+			RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+			RenderManager::GetInstance()->AddColliderBox(boxCollider->m_Center, boxCollider->m_Size, transform->m_Rotation);
 		});
 }
 

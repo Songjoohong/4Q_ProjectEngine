@@ -11,11 +11,13 @@ class Environment;
 
 struct ColliderBox
 {
-	ColliderBox(Vector3 center, Vector3 extents) {
+	ColliderBox(Vector3 center, Vector3 extents, Quaternion rotation) {
 		colliderBox.Center = center;
 		colliderBox.Extents = extents;
+		colliderBox.Orientation = rotation;
 	}
-	DirectX::BoundingBox colliderBox;
+	DirectX::BoundingOrientedBox colliderBox;
+
 };
 
 const size_t BUFFER_SIZE = 2;
@@ -92,6 +94,8 @@ struct SpriteInformation
 	DirectX::XMFLOAT2 mPosition;
 	ComPtr<ID3D11ShaderResourceView> mSprite;
 };
+
+
 class Renderer
 {
 public:
@@ -217,7 +221,7 @@ public:
 	void AddStaticModel(std::string filename, const Math::Matrix& worldTM);
 
 	//디버그용 콜라이더 박스
-	void AddColliderBox(Vector3 center, Vector3 extents);
+	void AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation);
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
