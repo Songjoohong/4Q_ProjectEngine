@@ -3,6 +3,8 @@
 
 class BoxCollider;
 class Transform;
+class Script;
+
 class GameApp : public Engine
 {
 public:

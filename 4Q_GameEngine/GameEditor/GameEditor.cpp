@@ -22,6 +22,7 @@
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
+#include "../Engine/PlayerInformation.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -534,6 +535,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<UI>(entity, worldData);
 		SaveComponents<Space>(entity, worldData);
 		SaveComponents<DynamicText>(entity, worldData);
+		SaveComponents<PlayerInformation>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -725,6 +727,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 				{
 					m_PrefabManager->AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
 				}
+				else if (componentName == "PlayerInformation")
+				{
+					m_PrefabManager->AssignComponents<PlayerInformation>(prefabEntity, component["PlayerInformation"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
@@ -868,6 +874,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				else if (componentName == "Script")
 				{
 					AssignComponents<Script>(myEntity, component["Script"][0]);
+				}
+				else if (componentName == "PlayerInformation")
+				{
+					m_PrefabManager->AssignComponents<PlayerInformation>(myEntity, component["PlayerInformation"][0]);
 				}
 			}
 		}

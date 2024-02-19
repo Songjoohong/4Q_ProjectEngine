@@ -17,6 +17,7 @@
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
+#include "../Engine/PlayerInformation.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -467,6 +468,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<UI>("UI");
 		DisplayAddComponentEntry<DynamicText>("DynamicText");
 		DisplayAddComponentEntry<Sound>("Sound");
+		DisplayAddComponentEntry<PlayerInformation>("PlayerInformation");
 		ImGui::EndPopup();
 	}
 
@@ -772,6 +774,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	});
 
 	DrawComponent<Sound>("Sound", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<PlayerInformation>("PlayerInformation", entity, [](auto component)
 	{
 
 	});

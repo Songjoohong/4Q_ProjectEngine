@@ -62,11 +62,11 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
-	m_GameWorld = DeserializeGame("scene/test.scene");
+	//m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
+	//m_GameWorld = DeserializeGame("scene/test.scene");
 	//m_OutroWorld = DeserializeGame("");
 
-	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+	//WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 	
 	return true;
 }
@@ -176,6 +176,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 				{
 					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
 				}
+				else if (componentName == "PlayerInformation")
+				{
+					AssignComponents<PlayerInformation>(myEntity, component["PlayerInformation"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
@@ -230,26 +234,6 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 		}
 	}
 
-	//Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Player");
-	//ent1->Assign<Transform>(Vector3D(-45.f, 30.f, 0.f));
-	//ent1->Assign<BoxCollider>(ColliderType::DYNAMIC, CollisionType::PLAYER, Vector3D{ 100.f,100.f,100.f });
-	//ent1->Assign<Movement>();
-	//ent1->Assign<Debug>();
-	//ent1->Assign<PlayerScript>(ent1);
-	//ent1->Assign<RigidBody>();
-
-	//// PlayerCamera
-	//Entity* playerCamera = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//playerCamera->Assign<EntityIdentifier>(playerCamera->getEntityId(), "PlayerCamera");
-	//playerCamera->Assign<Transform>(Vector3D{ 0.0, 200.0, 0.0f });
-	//playerCamera->Assign<Camera>();
-	//playerCamera->Assign<Movement>();
-
-	//Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Ground");
-	//ent2->Assign<Transform>(Vector3D(0.f, 0.f, 0.f));
-	//ent2->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::GROUND, Vector3D{ 1000.f,1.f,1000.f });
 	return world;
 }
 
