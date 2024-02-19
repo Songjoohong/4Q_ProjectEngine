@@ -61,12 +61,12 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	//m_IntroWorld = DeserializeGame("");
-
+	m_IntroWorld = DeserializeGame("");
 	m_GameWorld = DeserializeGame("scene/ScriptTestScene.scene");
+	m_OutroWorld = DeserializeGame("");
 
-	//m_OutroWorld = DeserializeGame("");
-
+	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+	
 	return true;
 }
 
@@ -249,6 +249,16 @@ void GameApp::SetParentTransform(ECS::Entity* child, ECS::Entity* parent)
 void GameApp::Update()
 {
 	__super::Update();
+
+	if (InputManager::GetInstance()->GetKeyDown(Key::F8))
+	{
+		WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+	}
+
+	if (InputManager::GetInstance()->GetKeyDown(Key::F9))
+	{
+		WorldManager::GetInstance()->ChangeWorld(m_OutroWorld);
+	}
 }
 
 void GameApp::Render()
