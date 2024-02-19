@@ -20,7 +20,7 @@ struct ColliderBox
 
 const size_t BUFFER_SIZE = 2;
 
-static const int pointLightCount = 5;
+static const int pointLightCount = 1;
 
 struct cbPointLight
 {
@@ -48,12 +48,16 @@ struct cbView
 {
 	Math::Matrix mView;
 	Math::Matrix mShadowView;
+	Math::Matrix mPointLightShadowView[pointLightCount][6];
+	int mPointLightIndex;
+	int mDirIndex;
 };
 
 struct cbProjection
 {
 	Math::Matrix mProjection;
 	Math::Matrix mShadowProjection;
+	Math::Matrix mPointLightShadowProjection[pointLightCount];
 };
 
 struct cbLight
@@ -126,12 +130,16 @@ public:
 
 	// minjeong : shadow Interface
 	ComPtr<ID3D11VertexShader> m_pShadowVS;
+	ComPtr<ID3D11VertexShader> m_pPointLightShadowVS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
 	ComPtr<ID3D11PixelShader> m_pEnvironmentPS;
 	ComPtr<ID3D11PixelShader> m_pSpherePS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
+	ComPtr<ID3D11Texture2D> m_pPointLightShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
+	ComPtr<ID3D11DepthStencilView> m_pPointLightShadowMapDSV[6];
 	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
+	ComPtr<ID3D11ShaderResourceView> m_pPointLightShadowMapSRV;
 	ComPtr<ID3D11SamplerState> m_pShadowSampler;
 	D3D11_VIEWPORT m_viewport;
 	D3D11_VIEWPORT m_shadowViewport;
@@ -255,6 +263,8 @@ public:
 
 	void FrustumCulling(StaticModel* model);
 
+	void PointLightFrustumCulling();
+
 	void SetCamera(Math::Matrix matrix);
 
 	void ApplyMaterial(Material* pMaterial);
@@ -308,7 +318,10 @@ public:
 
 	// minjeong : Create Shadow VS & PS
 	void CreateShadowVS();
-	void CreateShadowPS();private:
+	void CreateShadowPS();
+	void SetPointLightViewMatrix(Vector3 pointLightDir, Vector3 upDir, int pointLightIndex, int dirIndex);
+
+private:
 		std::string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
 	vector<TextInformation> m_texts;

@@ -43,16 +43,19 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 		{
 			collider->m_IsRaycastHit = false;
 
-
-			if (ent->get<EntityIdentifier>()->m_HasParent)
+			if(ent->has<EntityIdentifier>())
 			{
-				if (ent->m_parent->has<Transform>())
-					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix() * ent->getParent()->get<Transform>()->m_WorldMatrix.ConvertToMatrix()).Translation();
+				if (ent->get<EntityIdentifier>()->m_HasParent)
+				{
+					if (ent->m_parent->has<Transform>())
+						collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix() * ent->getParent()->get<Transform>()->m_WorldMatrix.ConvertToMatrix()).Translation();
+				}
+				else
+				{
+					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix()).Translation();
+				}
 			}
-			else
-			{
-				collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix()).Translation();
-			}
+			
 
 		});
 }
