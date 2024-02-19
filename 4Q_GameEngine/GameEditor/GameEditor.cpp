@@ -440,11 +440,8 @@ void GameEditor::RenderImGui()
 
 		std::string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);
 		ImGui::Text(mousePos.c_str());
-		static bool show = true;
-		ImGui::ShowDemoWindow();
-		ImGui::End();
-		
 
+		ImGui::End();
 	}
 	else
 	{
@@ -521,10 +518,10 @@ void GameEditor::SaveWorld(const std::string& _filename)
 	json worldData;
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
-		if (entity->has<Script>() && entity->get<Script>()->m_IsFreeCamera == true)
+		/*if (entity->has<Script>() && entity->get<Script>()->m_IsFreeCamera == true)
 		{
 			continue;
-		}
+		}*/
 		SaveComponents<EntityIdentifier>(entity, worldData);
 		SaveComponents<Transform>(entity, worldData);
 		SaveComponents<StaticMesh>(entity, worldData);
@@ -569,16 +566,16 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
 	//Free Camera
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
-	ent->Assign<Camera>();
-	ent->Assign<FreeCameraScript>(ent);
-	ent->get<Script>()->m_ComponentName = "FreeCameraScript";
-	ent->get<Script>()->m_IsFreeCamera = true;
-	ent->Assign<Movement>();
-	m_NameManager->ClearContainer();
+	//Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
+	//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//ent->Assign<Debug>();
+	//ent->Assign<Camera>();
+	//ent->Assign<FreeCameraScript>(ent);
+	//ent->get<Script>()->m_ComponentName = "FreeCameraScript";
+	//ent->get<Script>()->m_IsFreeCamera = true;
+	//ent->Assign<Movement>();
+	//m_NameManager->ClearContainer();
 
 	Deserialize(m_EditorWorld, fileName);
 
@@ -874,37 +871,41 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
 				}
-				else if (componentName == "FreeCameraScript")
+				/*else if (componentName == "Script")
 				{
-					AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
-				}
-				else if (componentName == "SampleScript")
-				{
-					AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "SampleScript";
+					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
+				}*/
+				//else if (componentName == "FreeCameraScript")
+				//{
+				//	AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
+				//	myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
+				//}
+				//else if (componentName == "SampleScript")
+				//{
+				//	AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
+				//	myEntity->get<Script>().get().m_ComponentName = "SampleScript";
 
-				}
-				else if (componentName == "PlayerScript")
-				{
-					AssignComponents<PlayerScript>(myEntity, component["PlayerScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "PlayerScript";
-				}
-				else if (componentName == "POVCameraScript")
-				{
-					AssignComponents<POVCameraScript>(myEntity, component["POVCameraScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
-				}
-				else if (componentName == "TestUIScript")
-				{
-					AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "TestUIScript";
-				}
-				else if (componentName == "DynamicTextScript")
-				{
-					AssignComponents<DynamicTextScript>(myEntity, component["DynamicTextScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "DynamicTextScript";
-				}
+				//}
+				//else if (componentName == "PlayerScript")
+				//{
+				//	AssignComponents<PlayerScript>(myEntity, component["PlayerScript"][0]);
+				//	myEntity->get<Script>().get().m_ComponentName = "PlayerScript";
+				//}
+				//else if (componentName == "POVCameraScript")
+				//{
+				//	AssignComponents<POVCameraScript>(myEntity, component["POVCameraScript"][0]);
+				//	myEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
+				//}
+				//else if (componentName == "TestUIScript")
+				//{
+				//	AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
+				//	myEntity->get<Script>().get().m_ComponentName = "TestUIScript";
+				//}
+				//else if (componentName == "DynamicTextScript")
+				//{
+				//	AssignComponents<DynamicTextScript>(myEntity, component["DynamicTextScript"][0]);
+				//	myEntity->get<Script>().get().m_ComponentName = "DynamicTextScript";
+				//}
 			}
 		}
 	}
@@ -952,18 +953,19 @@ void GameEditor::PlayButton()
 
 			m_EditorWorld->ResetLastEntityId();
 
-			//Free Camera
-			Entity* ent = m_EditorWorld->create();
-			ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
-			ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-			ent->Assign<Debug>();
-			ent->Assign<Camera>();
-			ent->Assign<FreeCameraScript>(ent);
-			ent->get<Script>()->m_ComponentName = "FreeCameraScript";
-			ent->get<Script>()->m_IsFreeCamera = true;
-			ent->Assign<Movement>();
 
 			PlayDeserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
+
+			////Free Camera
+			//Entity* ent = m_EditorWorld->create();
+			//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
+			//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+			//ent->Assign<Debug>();
+			//ent->Assign<Camera>();
+			//ent->Assign<FreeCameraScript>(ent);
+			//ent->get<Script>()->m_ComponentName = "FreeCameraScript";
+			//ent->get<Script>()->m_IsFreeCamera = true;
+			//ent->Assign<Movement>();
 		}
 	}
 	else
@@ -1035,8 +1037,32 @@ void GameEditor::NewScene()
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
 	Vector3D posPlayer = { 1.0f, 1.0f, 1.0f };
 
+	// Player
+	Entity* player = m_EditorWorld->create();
+	player->Assign<EntityIdentifier>(player->getEntityId(), "Player");
+	player->Assign<Transform>(posPlayer);
+	player->Assign<Movement>();
+	player->Assign<RigidBody>();
+	player->Assign<BoxCollider>();
+	//player->Assign<PlayerScript>(player);
+	//player->get<Script>()->m_ComponentName = "PlayerScript";
+
+	// PlayerCamera
+	Entity* playerCamera = m_EditorWorld->create();
+	playerCamera->Assign<EntityIdentifier>(playerCamera->getEntityId(), "PlayerCamera");
+	playerCamera->Assign<Transform>(posPlayer);
+	playerCamera->Assign<Camera>();
+	playerCamera->Assign<Movement>();
+	playerCamera->Assign<RigidBody>();
+	//playerCamera->Assign<POVCameraScript>(playerCamera);
+	//playerCamera->get<Script>()->m_ComponentName = "POVCameraScript";
+
+	SetParent(playerCamera, player);
+	SetParentTransform(playerCamera, player);
+
+
 	//Free Camera
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	Entity* ent = m_EditorWorld->create();
 	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 	ent->Assign<Debug>();
@@ -1047,14 +1073,14 @@ void GameEditor::NewScene()
 	ent->Assign<Movement>();
 
 	// for test
-	{
-		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-		ent2->Assign<EntityIdentifier>(ent->getEntityId(), "Test UI");
-		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-		ent2->Assign<UI>(100, 100);
-		ent2->Assign<Sprite2D>(ent2, "../Resource/UI/image.jpg", 0, 100, 100);
-		ent2->Assign<TestUIScript>(ent2);
-	}
+	//{
+	//	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//	ent2->Assign<EntityIdentifier>(ent->getEntityId(), "Test UI");
+	//	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//	ent2->Assign<UI>(100, 100);
+	//	ent2->Assign<Sprite2D>(ent2, "../Resource/UI/image.jpg", 0, 100, 100);
+	//	ent2->Assign<TestUIScript>(ent2);
+	//}
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{

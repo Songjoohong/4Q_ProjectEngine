@@ -153,7 +153,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent4->SetParent(ent2);
 
 	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent5->Assign<Transform>(Vector3D(-200.f, 100.f, 0.f));
+	ent5->Assign<Transform>(Vector3D(0.f, 0.f, 0.f));
 	ent5->Assign<Space>();
 	ent5->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::ROOM, Vector3D{ 400.f,400.f,400.f });
 

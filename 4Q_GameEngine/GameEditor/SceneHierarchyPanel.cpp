@@ -689,38 +689,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		std::string spaceIdx = "SpaceIndex : " + std::to_string(component->m_SpaceIndex);
 		ImGui::Text(spaceIdx.c_str());
 
-		//const char* direction[] = {
-		//	  "1"
-		//	, "2"
-		//	, "3"
-		//	, "4"
-		//};
-
-		//static int item_Current = 1;
-
-		//ImGui::ListBox("ExitDirection", &item_Current, direction, IM_ARRAYSIZE(direction), 4);
-
-		//int ExitDirection = 0;
-		//if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-		//{
-		//	if (item_Current >= 0 && item_Current < IM_ARRAYSIZE(direction)) // Check if the index is valid
-		//	{
-		//		ExitDirection = direction[item_Current]; // Assign the selected script name
-		//	}
-		//}
-
-		//std::string s = "ExitDirection : " + ExitDirection;
-
-		//ImGui::Text(s.c_str());
-
-		//Vector3D distance;
-		//DrawVec3Control("Distance", distance);
-
-		//if (ImGui::Button("+", ImVec2{ 40.0f, 40.0f }))
-		//{
-		//	component->m_Exits.push_back({ ExitDirection, distance });
-		//}
-
 		if (ImGui::Button("+"))
 		{
 			component->m_Exits.push_back(ExitInfo{ 0, Vector3D{0.0f, 0.0f, 0.0f} });
