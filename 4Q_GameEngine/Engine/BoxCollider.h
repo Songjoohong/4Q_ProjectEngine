@@ -18,12 +18,12 @@ enum ColliderType
 
 enum CollisionType
 {
-	PLAYER = (1 << 0),
-	WALL = (2 << 0),
-	GROUND = (3 << 0),
-	OBJECT = (4 << 0),
-	TRIGGER = (5 << 0),
-	ROOM = (6 << 0)
+	PLAYER = (0 << 0),
+	WALL = (1 << 0),
+	GROUND = (2 << 0),
+	OBJECT = (3 << 0),
+	TRIGGER = (4 << 0),
+	ROOM = (5 << 0)
 };
 
 struct BoxCollider
