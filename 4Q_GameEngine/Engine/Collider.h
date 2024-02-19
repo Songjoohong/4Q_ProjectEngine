@@ -32,6 +32,7 @@ public:
 	virtual void SetFilterData();
 	void UpdateRotation();
 	virtual void UpdatePosition() = 0;
+	void UpdateScale();
 
 public:
 	BoxCollider* m_pOwner;

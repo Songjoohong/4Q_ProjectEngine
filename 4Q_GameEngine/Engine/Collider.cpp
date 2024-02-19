@@ -42,3 +42,13 @@ void Collider::UpdateRotation()
 	m_Transform.q = angleX * angleY * angleZ;
 	m_pShape->setLocalPose(m_Transform);
 }
+
+void Collider::UpdateScale()
+{
+	if (m_Scale != m_pOwner->m_Size)
+	{
+		m_Scale = m_pOwner->m_Size;
+		m_BoxGeometry = { m_Scale.GetX() / 2,m_Scale.GetY() / 2,m_Scale.GetZ() / 2 };
+		m_pShape->setGeometry(m_BoxGeometry);
+	}
+}
