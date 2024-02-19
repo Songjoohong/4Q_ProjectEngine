@@ -243,8 +243,6 @@ void GameEditor::RenderImGui()
 		//ImGui::ShowDemoWindow();
 		ImGui::End();
 
-
-#ifdef _DEBUG
 		// Game Play Buttons Test
 		{
 			ImGui::Begin("Play");
@@ -254,7 +252,6 @@ void GameEditor::RenderImGui()
 
 			ImGui::End();
 		}
-#endif
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
@@ -566,7 +563,6 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
 	Deserialize(m_EditorWorld, fileName);
-
 }
 
 void GameEditor::ShowSceneDialog()
@@ -909,18 +905,7 @@ void GameEditor::PlayButton()
 			m_EditorWorld->ResetLastEntityId();
 
 
-			PlayDeserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
-
-			////Free Camera
-			//Entity* ent = m_EditorWorld->create();
-			//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
-			//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-			//ent->Assign<Debug>();
-			//ent->Assign<Camera>();
-			//ent->Assign<FreeCameraScript>(ent);
-			//ent->get<Script>()->m_ComponentName = "FreeCameraScript";
-			//ent->get<Script>()->m_IsFreeCamera = true;
-			//ent->Assign<Movement>();
+			Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
 		}
 	}
 	else

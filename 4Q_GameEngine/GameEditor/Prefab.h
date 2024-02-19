@@ -7,6 +7,10 @@ namespace ECS { class World; }
 
 class EntityIdentifier;
 class NameManager;
+
+class Script;
+class FreeCameraScript;
+
 using json = nlohmann::json;
 
 class PrefabManager
@@ -120,7 +124,16 @@ inline void PrefabManager::AssignComponents(ECS::Entity* entity, const json& com
 {
     if constexpr (std::is_base_of_v<Script, ComponentType>)
     {
-        entity->Assign<ComponentType>(entity);
+        if (componentData["m_ComponentName"].get<std::string>() == "FreeCameraScript")
+        {
+            entity->Assign<FreeCameraScript>(entity);
+            entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
+        }
+        else
+        {
+            entity->Assign<ComponentType>(entity);
+            entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
+        }
     }
     else
     {
