@@ -243,8 +243,6 @@ void GameEditor::RenderImGui()
 		//ImGui::ShowDemoWindow();
 		ImGui::End();
 
-
-#ifdef _DEBUG
 		// Game Play Buttons Test
 		{
 			ImGui::Begin("Play");
@@ -254,7 +252,6 @@ void GameEditor::RenderImGui()
 
 			ImGui::End();
 		}
-#endif
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
@@ -565,20 +562,7 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
-	//Free Camera
-	//Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
-	//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//ent->Assign<Debug>();
-	//ent->Assign<Camera>();
-	//ent->Assign<FreeCameraScript>(ent);
-	//ent->get<Script>()->m_ComponentName = "FreeCameraScript";
-	//ent->get<Script>()->m_IsFreeCamera = true;
-	//ent->Assign<Movement>();
-	//m_NameManager->ClearContainer();
-
 	Deserialize(m_EditorWorld, fileName);
-
 }
 
 void GameEditor::ShowSceneDialog()
@@ -733,30 +717,28 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 				{
 					m_PrefabManager->AssignComponents<Space>(prefabEntity, component["Space"][0]);
 				}
-				else if (componentName == "FreeCameraScript")
+				else if (componentName == "Script")
 				{
-					m_PrefabManager->AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
-				}
-				else if (componentName == "SampleScript")
-				{
-					m_PrefabManager->AssignComponents<SampleScript>(prefabEntity, component["SampleScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "SampleScript";
-				}
-				else if (componentName == "PlayerScript")
-				{
-					m_PrefabManager->AssignComponents<PlayerScript>(prefabEntity, component["PlayerScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "PlayerScript";
-				}
-				else if (componentName == "POVCameraScript")
-				{
-					m_PrefabManager->AssignComponents<POVCameraScript>(prefabEntity, component["POVCameraScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
-				}
-				else if (componentName == "TestUIScript")
-				{
-					m_PrefabManager->AssignComponents<TestUIScript>(prefabEntity, component["TestUIScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "TestUIScript";
+					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
+					{
+						m_PrefabManager->AssignComponents<FreeCameraScript>(prefabEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "SampleScript")
+					{
+						m_PrefabManager->AssignComponents<SampleScript>(prefabEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PlayerScript")
+					{
+						m_PrefabManager->AssignComponents<PlayerScript>(prefabEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "POVCameraScript")
+					{
+						m_PrefabManager->AssignComponents<POVCameraScript>(prefabEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "TestUIScript")
+					{
+						m_PrefabManager->AssignComponents<TestUIScript>(prefabEntity, component["Script"][0]);
+					}
 				}
 			}
 			m_PrefabManager->m_prefabContainer.push_back({ prefabEntity, oldID });
@@ -871,41 +853,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
 				}
-				/*else if (componentName == "Script")
+				else if (componentName == "Script")
 				{
-					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
-				}*/
-				//else if (componentName == "FreeCameraScript")
-				//{
-				//	AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
-				//	myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
-				//}
-				//else if (componentName == "SampleScript")
-				//{
-				//	AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
-				//	myEntity->get<Script>().get().m_ComponentName = "SampleScript";
-
-				//}
-				//else if (componentName == "PlayerScript")
-				//{
-				//	AssignComponents<PlayerScript>(myEntity, component["PlayerScript"][0]);
-				//	myEntity->get<Script>().get().m_ComponentName = "PlayerScript";
-				//}
-				//else if (componentName == "POVCameraScript")
-				//{
-				//	AssignComponents<POVCameraScript>(myEntity, component["POVCameraScript"][0]);
-				//	myEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
-				//}
-				//else if (componentName == "TestUIScript")
-				//{
-				//	AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
-				//	myEntity->get<Script>().get().m_ComponentName = "TestUIScript";
-				//}
-				//else if (componentName == "DynamicTextScript")
-				//{
-				//	AssignComponents<DynamicTextScript>(myEntity, component["DynamicTextScript"][0]);
-				//	myEntity->get<Script>().get().m_ComponentName = "DynamicTextScript";
-				//}
+					AssignComponents<Script>(myEntity, component["Script"][0]);
+				}
 			}
 		}
 	}
@@ -954,18 +905,7 @@ void GameEditor::PlayButton()
 			m_EditorWorld->ResetLastEntityId();
 
 
-			PlayDeserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
-
-			////Free Camera
-			//Entity* ent = m_EditorWorld->create();
-			//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
-			//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-			//ent->Assign<Debug>();
-			//ent->Assign<Camera>();
-			//ent->Assign<FreeCameraScript>(ent);
-			//ent->get<Script>()->m_ComponentName = "FreeCameraScript";
-			//ent->get<Script>()->m_IsFreeCamera = true;
-			//ent->Assign<Movement>();
+			Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
 		}
 	}
 	else
@@ -1097,7 +1037,22 @@ void GameEditor::PlayScene()
 		SaveWorld(m_SceneName);
 	}
 
-	for (const auto& entity : m_EditorWorld->GetEntities())
+	// world 초기화 
+	for (const auto& entity : m_ActiveWorld->GetEntities())
+	{
+		m_ActiveWorld->destroy(entity);
+	}
+
+	m_ActiveWorld->GetEntities().clear();
+
+	m_NameManager->ClearContainer();
+	m_PrefabManager->m_prefabContainer.clear();
+
+	m_ActiveWorld->ResetLastEntityId();
+
+	PlayDeserialize(m_ActiveWorld, "scene/" + m_SceneName + ".scene");
+
+	for (const auto& entity : m_ActiveWorld->GetEntities())
 	{
 		if (entity->get<EntityIdentifier>()->m_EntityName == "Main Camera")
 		{

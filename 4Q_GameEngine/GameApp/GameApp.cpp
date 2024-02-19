@@ -61,7 +61,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	DeserializeGame("scene/NewScene.scene");
+	DeserializeGame("scene/ScriptTestScene.scene");
 
 	return true;
 }
@@ -71,6 +71,17 @@ void GameApp::DeserializeGame(const std::string filename)
 	std::string fullPath = basePath + filename;
 
 	m_CurrentWorld = ECS::World::CreateWorld(filename);
+	WorldManager::GetInstance()->ChangeWorld(m_CurrentWorld);
+	m_CurrentWorld->registerSystem(new ScriptSystem());
+	m_CurrentWorld->registerSystem(new MovementSystem());
+	m_CurrentWorld->registerSystem(new CollisionSystem());
+	m_CurrentWorld->registerSystem(new TransformSystem());
+	m_CurrentWorld->registerSystem(new DebugSystem());
+	m_CurrentWorld->registerSystem(new CameraSystem());
+	m_CurrentWorld->registerSystem(new RenderSystem());
+	m_CurrentWorld->registerSystem(new SpriteSystem());
+	m_CurrentWorld->registerSystem(new class UISystem);
+	m_CurrentWorld->registerSystem(new SpaceSystem());
 
 	// Deserialize
 	std::ifstream inputFile(fullPath);
@@ -155,36 +166,28 @@ void GameApp::DeserializeGame(const std::string filename)
 				{
 					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
 				}
-				else if (componentName == "FreeCameraScript")
+				else if (componentName == "Script")
 				{
-					AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
-				}
-				else if (componentName == "SampleScript")
-				{
-					AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "SampleScript";
-
-				}
-				else if (componentName == "PlayerScript")
-				{
-					AssignComponents<PlayerScript>(myEntity, component["PlayerScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "PlayerScript";
-				}
-				else if (componentName == "POVCameraScript")
-				{
-					AssignComponents<POVCameraScript>(myEntity, component["POVCameraScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
-				}
-				else if (componentName == "TestUIScript")
-				{
-					AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "TestUIScript";
-				}
-				else if (componentName == "DynamicTextScript")
-				{
-					AssignComponents<DynamicTextScript>(myEntity, component["DynamicTextScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "DynamicTextScript";
+					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
+					{
+						AssignComponents<FreeCameraScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "SampleScript")
+					{
+						AssignComponents<SampleScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PlayerScript")
+					{
+						AssignComponents<PlayerScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "POVCameraScript")
+					{
+						AssignComponents<POVCameraScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "TestUIScript")
+					{
+						AssignComponents<TestUIScript>(myEntity, component["Script"][0]);
+					}
 				}
 			}
 		}
@@ -202,6 +205,14 @@ void GameApp::DeserializeGame(const std::string filename)
 					SetParent(childEntity, parentEntity);
 				}
 			}
+		}
+	}
+
+	for (const auto& entity : m_CurrentWorld->GetEntities())
+	{
+		if (entity->get<EntityIdentifier>()->m_EntityName == "Main Camera")
+		{
+			m_CurrentWorld->destroy(entity);
 		}
 	}
 }
