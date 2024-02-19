@@ -15,6 +15,8 @@
 #include "../Engine/Sound.h"
 #include "../Engine/Sprite2D.h"
 #include "../Engine/UI.h"
+#include "../Engine/Space.h"
+#include "../Engine/DynamicText.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -22,6 +24,7 @@
 #include "../Engine/PlayerScript.h"
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
+#include "../Engine/DynamicTextScript.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -91,11 +94,14 @@ void SceneHierarchyPanel::RenderImGui()
 	}
 
 	ImGuiIO& io = ImGui::GetIO();
-	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_C))
+	if (m_SelectionContext)
 	{
-		//m_SelectionContext->get<EntityIdentifier>()->m_HasParent = false;
-		//m_SelectionContext->get<EntityIdentifier>()->m_ParentEntityId = 0;
-		m_PrefabManager->SavePrefab(m_SelectionContext, "../Resource/CopiedEntity/CopiedEntity.json");
+		if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_C))
+		{
+			//m_SelectionContext->get<EntityIdentifier>()->m_HasParent = false;
+			//m_SelectionContext->get<EntityIdentifier>()->m_ParentEntityId = 0;
+			m_PrefabManager->SavePrefab(m_SelectionContext, "../Resource/CopiedEntity/CopiedEntity.json");
+		}
 	}
 
 	bool isFileExists = FileExists("../Resource/CopiedEntity/CopiedEntity.json");
@@ -272,9 +278,11 @@ void SceneHierarchyPanel::DrawEntityNode(ECS::Entity* entity)			// 포인터로 받지
 		{
 			if (entity->m_parent != nullptr)
 			{
-				entity->m_parent->RemoveChild(entity);
-				entity->get<EntityIdentifier>()->m_HasParent = false;
-				entity->get<EntityIdentifier>()->m_ParentEntityId = 0;
+				ResetTransform(entity, entity->m_parent);
+
+
+
+			
 			}
 		}
 
@@ -456,6 +464,14 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<Camera>("Camera");
 		DisplayAddComponentEntry<Light>("Light");
 		DisplayAddComponentEntry<Script>("Script");
+		DisplayAddComponentEntry<Movement>("Movement");
+		DisplayAddComponentEntry<RigidBody>("RigidBody");
+		DisplayAddComponentEntry<Space>("Space");
+		DisplayAddComponentEntry<Sprite2D>("Sprite2D");
+		DisplayAddComponentEntry<Debug>("Debug");
+		DisplayAddComponentEntry<UI>("UI");
+		DisplayAddComponentEntry<DynamicText>("DynamicText");
+		DisplayAddComponentEntry<Sound>("Sound");
 		ImGui::EndPopup();
 	}
 	ShowStaticModelDialog();	// TODO: 수정..?
@@ -616,7 +632,60 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	});
 
-	DrawComponent<Debug>("MoveMent", entity, [](auto component)
+	DrawComponent<Movement>("MoveMent", entity, [](auto component)
+	{
+		ImGui::SliderFloat("Speed", &component->m_Speed, 0.0f, 1000.0f);
+		ImGui::SliderFloat("Sensitivity", &component->m_Sensitivity, 0.0f, 1000.0f);
+
+	});
+
+	DrawComponent<RigidBody>("RigidBody", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
+		{
+
+		});
+
+	DrawComponent<Space>("Space", entity, [](auto component)
+	{
+		std::string trueOrFalse = component->m_IsPlayerExist ? "true" : "false";
+		std::string PlayerExists = "PlayerExist : " + trueOrFalse;
+		ImGui::Text(PlayerExists.c_str());
+
+		ImGui::InputInt("SpaceIndex", &component->m_SpaceIndex);
+		
+		std::string spaceIdx = "SpaceIndex : " + std::to_string(component->m_SpaceIndex);
+		ImGui::Text(spaceIdx.c_str());
+
+		if (ImGui::Button("+"))
+		{
+			component->m_Exits.push_back(ExitInfo{ 0, Vector3D{0.0f, 0.0f, 0.0f} });
+		}
+
+		for (size_t i = 0; i < component->m_Exits.size(); i++)
+		{
+			ImGui::Text("Exit &z", i);
+			ImGui::Text("Direction : %d", component->m_Exits[i].m_ExitDirection);
+			ImGui::Text("Direction : %d", component->m_Exits[i].m_ExitDirection);
+		}
+
+
+	});
+
+	DrawComponent<UI>("UI", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Sprite2D>("Sprite2D", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Sound>("Sound", entity, [](auto component)
 	{
 
 	});
@@ -670,5 +739,24 @@ void SceneHierarchyPanel::SetParent(ECS::Entity* child, ECS::Entity* parent)
 	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
 
 	parent->addChild(child);
+}
+
+void SceneHierarchyPanel::ResetTransform(ECS::Entity* child, ECS::Entity* parent)
+{
+	parent->RemoveChild(child);
+	child->get<EntityIdentifier>()->m_HasParent = false;
+	child->get<EntityIdentifier>()->m_ParentEntityId = 0;
+
+	float fTranslation[3] = { 0.0f, 0.0f, 0.0f };
+	float fRotation[3] = { 0.0f, 0.0f, 0.0f };
+	float fScale[3] = { 0.0f, 0.0f, 0.0f };
+
+	auto matrix = child->get<Transform>()->m_RelativeMatrix.ConvertToMatrix() * parent->get<Transform>()->m_WorldMatrix.ConvertToMatrix();
+
+	ImGuizmo::DecomposeMatrixToComponents(*matrix.m, fTranslation, fRotation, fScale);
+
+	child->get<Transform>()->m_Position = { fTranslation[0],fTranslation[1],fTranslation[2] };
+	child->get<Transform>()->m_Rotation = { fRotation[0],fRotation[1],fRotation[2] };
+	child->get<Transform>()->m_Scale = { fScale[0],fScale[1],fScale[2] };
 }
 

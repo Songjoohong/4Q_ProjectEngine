@@ -30,4 +30,29 @@ void StaticCollider::Initialize()
 	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_Rigid);
 
 	SetFilterData();
+	UpdatePosition();
+}
+
+void StaticCollider::UpdatePosition()
+{
+	PxVec3 boxCenter =
+	{
+		m_pOwner->m_Center.GetX(),
+		m_pOwner->m_Center.GetY(),
+		m_pOwner->m_Center.GetZ()
+	};
+
+	PxVec3 boxPos =
+	{
+		m_pOwner->m_WorldPosition.GetX(),
+		m_pOwner->m_WorldPosition.GetY(),
+		m_pOwner->m_WorldPosition.GetZ()
+	};
+
+	if (boxPos != m_Transform.p)
+	{
+		m_Transform.p = boxPos+boxCenter;
+		m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
+		m_Rigid->setGlobalPose(m_Transform);
+	}
 }

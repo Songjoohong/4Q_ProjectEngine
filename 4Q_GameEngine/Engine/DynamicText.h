@@ -19,6 +19,8 @@ struct DynamicText
 	int m_CurrentTextIndex = 0;
 	bool m_IsTextShow = false;
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(DynamicText, m_TriggerDistance, m_CurrentTextIndex, m_Text, m_IsTextShow)
+	std::string m_ComponentName = "DynamicText";
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(DynamicText, m_ComponentName, m_TriggerDistance, m_CurrentTextIndex, m_Text, m_IsTextShow)
 };
 ECS_DEFINE_TYPE(DynamicText)

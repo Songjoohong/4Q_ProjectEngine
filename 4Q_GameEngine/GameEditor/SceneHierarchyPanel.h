@@ -41,6 +41,7 @@ private:
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
 
+	void ResetTransform(ECS::Entity* child, ECS::Entity* parent);
 	bool m_IsDialogOpen = false;
 
 private:
@@ -51,6 +52,8 @@ private:
 	std::shared_ptr<NameManager> m_NameManager;
 	bool m_OpenTextPopup = false;
 
+
+	std::vector<ECS::Entity*> deletedEntities;
 };
 
 

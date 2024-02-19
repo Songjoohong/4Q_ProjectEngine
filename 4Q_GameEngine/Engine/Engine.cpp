@@ -38,7 +38,7 @@
 #include "RigidBody.h"
 #include "TestUIScript.h"
 #include "UI.h"
-
+#include "PlayerInformation.h"
 #include "EntityIdentifier.h"
 #include "Space.h"
 #include "SpaceSystem.h"
@@ -88,9 +88,9 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	RegisterClassExW(&m_Wcex);
 
 	RECT rcClient = { 0,0,static_cast<LONG>(width), static_cast<LONG>(height) };
-	AdjustWindowRect(&rcClient, WS_OVERLAPPEDWINDOW, FALSE);
+	AdjustWindowRect(&rcClient, WS_POPUPWINDOW, FALSE);
 
-	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_OVERLAPPEDWINDOW,
+	m_hWnd = CreateWindowW(m_szWindowClass, m_szTitle, WS_POPUPWINDOW,
 		0, 0, rcClient.right - rcClient.left, rcClient.bottom - rcClient.top
 		, nullptr, nullptr, m_hInstance, nullptr);
 
@@ -107,7 +107,7 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	PhysicsManager::GetInstance()->Initialize();
 	InputManager::GetInstance()->Initialize(m_ClientWidth, m_ClientHeight);
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Test/TestScene1.json"));
+	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Resource/scene/world_main.scene"));
 	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
 	EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
 	EntitySystem* collisionSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CollisionSystem());
@@ -118,28 +118,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 	EntitySystem* spaceSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpaceSystem());
-
-	//Free Camera
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
-	ent->Assign<Camera>();
-	ent->Assign<FreeCameraScript>(ent);
-	ent->Assign<Movement>();
-
-	//Ground Test
-	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
-	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
-	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::GROUND, Vector3D{ 1000.f,1.f,1000.f });
-
-	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "jangseung");
-	ent2->Assign<StaticMesh>("FBXLoad_Test/fbx/jangseung.fbx");
-	ent2->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
-	ent2->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::GROUND, Vector3D{ 1000.f,1.f,1000.f });
 
 	return true;
 }

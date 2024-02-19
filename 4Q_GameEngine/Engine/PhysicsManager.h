@@ -30,8 +30,8 @@ public:
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
 	void InitFilterData();
-	void AddToCollisionQueue(int entId);
-	void SendDataToObjects();
+	void AddCollisionColliders(int entId);
+	void DeleteCollisionCollider(int entId);
 
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
@@ -53,7 +53,7 @@ private:
 	// Colliders
 	vector<pair<int, DynamicCollider*>> m_pDynamicColliders;
 	vector<pair<int, StaticCollider*>> m_pStaticColliders;
-	queue<pair<int, StaticCollider*>> m_CollisionQue;
+	vector<pair<int, StaticCollider*>> m_CollisionObjects;
 
 	// Player 일단 따로 저장 -> 시간되면 빼놓기
 	DynamicCollider* m_PlayerCollider;
