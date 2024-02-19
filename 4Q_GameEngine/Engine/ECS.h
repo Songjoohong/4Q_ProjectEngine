@@ -409,12 +409,20 @@ namespace ECS
 			int subjectExit;
 		};
 
+		struct SpaceReturn
+		{
+			ECS_DECLARE_TYPE
+
+			int spaceIndex;
+		};
+
 		struct DynamicTextChange
 		{
 			ECS_DECLARE_TYPE
 
 			Entity* entity;
 		};
+
 
 #ifdef ECS_NO_RTTI
 		template<typename T>
