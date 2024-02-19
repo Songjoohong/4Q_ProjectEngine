@@ -200,8 +200,8 @@ void Engine::Update()
 	const float deltaTime = TimeManager::GetInstance()->GetDeltaTime();
 	InputManager::GetInstance()->Update(deltaTime);
 	SoundManager::GetInstance()->Update();
-	PhysicsManager::GetInstance()->Update(deltaTime);
 	WorldManager::GetInstance()->Update(deltaTime);
+	PhysicsManager::GetInstance()->Update(deltaTime);
 	RenderManager::GetInstance()->Update();
 }
 
