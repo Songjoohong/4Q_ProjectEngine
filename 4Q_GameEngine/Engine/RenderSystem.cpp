@@ -25,11 +25,15 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 		{
 			if (staticMesh->m_FileName != "")
 			{
-				if(staticMesh->m_IsModelCreated)
-					RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+				
+				if (staticMesh->m_IsModelCreated)
+				{
+					if(RenderManager::GetInstance()->Culling(staticMesh->m_BoundingBox))
+						RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+				}
 				else
 				{
-					RenderManager::GetInstance()->CreateModel(staticMesh->m_FileName);
+					RenderManager::GetInstance()->CreateModel(staticMesh->m_FileName, staticMesh->m_BoundingBox);
 					staticMesh->m_IsModelCreated = true;
 				}
 			}
@@ -47,7 +51,7 @@ void RenderSystem::Receive(ECS::World* world, const ECS::Events::OnComponentAssi
 	// minjeong : fbx load test
 	if (event.component->m_FileName != "")
 	{
-		RenderManager::GetInstance()->CreateModel(event.component->m_FileName);
+		RenderManager::GetInstance()->CreateModel(event.component->m_FileName,event.component->m_BoundingBox);
 		event.component->m_IsModelCreated = true;
 	}
 }

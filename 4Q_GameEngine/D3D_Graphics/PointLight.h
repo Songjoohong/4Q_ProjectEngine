@@ -14,11 +14,13 @@ public:
 	void SetIntensity(float intensity) { m_intensity = intensity; }
 	float GetIntensity() { return m_intensity; }
 
+	float GetConstantTerm() { return m_constantTerm;  }
+
 private:
 	Math::Vector3 m_position;
 	Math::Vector3 m_color;
 	float m_radius;
 	float m_intensity;
-
+	float m_constantTerm = 1.0f;
 };
 
