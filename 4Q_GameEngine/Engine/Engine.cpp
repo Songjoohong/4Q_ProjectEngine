@@ -119,51 +119,6 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
 	EntitySystem* spaceSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpaceSystem());
 
-	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
-	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
-	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::GROUND, Vector3D{ 1000.f,1.f,1000.f });
-
-	vector<ExitInfo> exit;
-	exit.push_back({ 1, Vector3D{ 100.f,100.f,100.f } });
-
-	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
-	ent2->Assign<Transform>(Vector3D(-45.f, 30.f, 0.f));
-	ent2->Assign<BoxCollider>(ColliderType::DYNAMIC, CollisionType::PLAYER, Vector3D{ 100.f,100.f,100.f });
-	ent2->Assign<Debug>();
-	ent2->Assign<PlayerScript>(ent2);
-	ent2->Assign<PlayerInformation>();
-	ent2->Assign<RigidBody>();
-	ent2->Assign<Movement>();
-
-	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent3->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
-	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "ui");
-	ent3->Assign<UI>(100, 100);
-	ent3->Assign<Sprite2D>(ent3, "../Resource/UI/image.jpg", 0, 500, 500);
-	ent3->Assign<TestUIScript>(ent3);
-
-	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent4->Assign<Transform>(Vector3D{ -20.f,100.f,0.f });
-	ent4->Assign<Camera>();
-	ent4->Assign<POVCameraScript>(ent4);
-	ent4->Assign<Movement>();
-	ent4->SetParent(ent2);
-
-	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent5->Assign<Transform>(Vector3D(0.f, 0.f, 0.f));
-	ent5->Assign<Space>();
-	ent5->Assign<BoxCollider>(ColliderType::STATIC, CollisionType::ROOM, Vector3D{ 400.f,400.f,400.f });
-
-	setlocale(LC_ALL, "Korean");
-	std::vector<std::wstring> wideStrings;
-	std::wstring text = L"안녕하세요";
-	std::wstring text1 = L"안녕히\n가세요";
-
-	wideStrings.push_back(text);
-	wideStrings.push_back(text1);
 	return true;
 }
 
