@@ -63,18 +63,16 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 		return result;
 
 	//m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
-	//m_GameWorld = DeserializeGame("scene/test.scene");
+	m_GameWorld = DeserializeGame("scene/Scene_Main.scene");
 	//m_OutroWorld = DeserializeGame("");
 
-	//WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
 	
 	return true;
 }
 
 ECS::World* GameApp::DeserializeGame(const std::string filename)
 {
-	std::string fullPath = basePath + filename;
-
 	ECS::World* world = ECS::World::CreateWorld(filename);
 
 	world->registerSystem(new ScriptSystem());
@@ -88,13 +86,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 	world->registerSystem(new class UISystem);
 	world->registerSystem(new SpaceSystem());
 
+	std::string fullPath = basePath + filename;
+
 	// Deserialize
 	std::ifstream inputFile(fullPath);
-
-	if (!inputFile.is_open())
-	{
-		assert("Invalid File to Open");
-	}
 	json jsonObject;
 	inputFile >> jsonObject;
 	inputFile.close();
@@ -103,124 +98,127 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 	{
 		for (auto it = entity.begin(); it != entity.end(); ++it)
 		{
-			// Entity 생성 후 정보 push
-			Entity* myEntity = world->create();
-
-			for (auto component : it.value())
+			Entity* gameEntity = world->create();
+			int oldID = 0;
+			for (const auto& component : it.value())
 			{
 				std::string componentName = component.begin().key();
-
 				if (componentName == "EntityIdentifier")
 				{
-					AssignComponents<EntityIdentifier>(myEntity, component["EntityIdentifier"][0]);
-					//m_NameManager->AddEntityName(myEntity);
+					gameEntity->Assign<EntityIdentifier>();
+					oldID = component["EntityIdentifier"][0]["m_EntityId"];
+					gameEntity->get<EntityIdentifier>()->m_ComponentName = component["EntityIdentifier"][0]["m_ComponentName"];
+					gameEntity->get<EntityIdentifier>()->m_EntityName = component["EntityIdentifier"][0]["m_EntityName"];
+					gameEntity->get<EntityIdentifier>()->m_HasParent = component["EntityIdentifier"][0]["m_HasParent"];
+					gameEntity->get<EntityIdentifier>()->m_ParentEntityId = component["EntityIdentifier"][0]["m_ParentEntityId"];
+					gameEntity->get<EntityIdentifier>()->m_EntityId = gameEntity->getEntityId();
 				}
 				else if (componentName == "Transform")
 				{
-					AssignComponents<Transform>(myEntity, component["Transform"][0]);
+					AssignComponents<Transform>(gameEntity, component["Transform"][0]);
 				}
 				else if (componentName == "BoxCollider")
 				{
-					AssignComponents<BoxCollider>(myEntity, component["BoxCollider"][0]);
+					AssignComponents<BoxCollider>(gameEntity, component["BoxCollider"][0]);
 				}
 
 				else if (componentName == "Camera")
 				{
-					AssignComponents<Camera>(myEntity, component["Camera"][0]);
+					AssignComponents<Camera>(gameEntity, component["Camera"][0]);
 				}
 
 				else if (componentName == "Light")
 				{
-					AssignComponents<Light>(myEntity, component["Light"][0]);
+					AssignComponents<Light>(gameEntity, component["Light"][0]);
 				}
 
 				else if (componentName == "Movement")
 				{
-					AssignComponents<Movement>(myEntity, component["Movement"][0]);
+					AssignComponents<Movement>(gameEntity, component["Movement"][0]);
 				}
 
 				else if (componentName == "StaticMesh")
 				{
-					//AssignComponents<StaticMesh>(myEntity, component["StaticMesh"][0]);
 					std::string fileName = component["StaticMesh"][0]["m_FileName"];
-					myEntity->Assign<StaticMesh>(fileName);
-					myEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
-					myEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
-					myEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
+					gameEntity->Assign<StaticMesh>(fileName);
+					gameEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
+					gameEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
+					gameEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
 				}
 				else if (componentName == "Debug")
 				{
-					AssignComponents<Debug>(myEntity, component["Debug"][0]);
+					AssignComponents<Debug>(gameEntity, component["Debug"][0]);
 				}
 				else if (componentName == "Sound")
 				{
-					AssignComponents<Sound>(myEntity, component["Sound"][0]);
+					AssignComponents<Sound>(gameEntity, component["Sound"][0]);
 				}
 				else if (componentName == "RigidBody")
 				{
-					AssignComponents<RigidBody>(myEntity, component["RigidBody"][0]);
+					AssignComponents<RigidBody>(gameEntity, component["RigidBody"][0]);
 				}
 				else if (componentName == "UI")
 				{
-					AssignComponents<UI>(myEntity, component["UI"][0]);
+					AssignComponents<UI>(gameEntity, component["UI"][0]);
 				}
 				else if (componentName == "Space")
 				{
-					AssignComponents<Space>(myEntity, component["Space"][0]);
+					AssignComponents<Space>(gameEntity, component["Space"][0]);
 				}
 				else if (componentName == "DynamicText")
 				{
-					AssignComponents<DynamicText>(myEntity, component["DynamicText"][0]);
+					AssignComponents<DynamicText>(gameEntity, component["DynamicText"][0]);
 				}
 				else if (componentName == "Sprite2D")
 				{
-					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
+					AssignComponents<Sprite2D>(gameEntity, component["Sprite2D"][0]);
 				}
 				else if (componentName == "PlayerInformation")
 				{
-					AssignComponents<PlayerInformation>(myEntity, component["PlayerInformation"][0]);
+					AssignComponents<PlayerInformation>(gameEntity, component["PlayerInformation"][0]);
 				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
 					{
-						AssignComponents<FreeCameraScript>(myEntity, component["Script"][0]);
+						AssignComponents<FreeCameraScript>(gameEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "SampleScript")
 					{
-						AssignComponents<SampleScript>(myEntity, component["Script"][0]);
+						AssignComponents<SampleScript>(gameEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PlayerScript")
 					{
-						AssignComponents<PlayerScript>(myEntity, component["Script"][0]);
+						AssignComponents<PlayerScript>(gameEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "POVCameraScript")
 					{
-						AssignComponents<POVCameraScript>(myEntity, component["Script"][0]);
+						AssignComponents<POVCameraScript>(gameEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "TestUIScript")
 					{
-						AssignComponents<TestUIScript>(myEntity, component["Script"][0]);
+						AssignComponents<TestUIScript>(gameEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DynamicTextScript")
 					{
-						AssignComponents<DynamicTextScript>(myEntity, component["Script"][0]);
+						AssignComponents<DynamicTextScript>(gameEntity, component["Script"][0]);
 					}
 				}
 			}
+			m_entityContainer.push_back({ gameEntity, oldID });
 		}
 	}
 
-	//부모자식 관계 설정
-	for (const auto& childEntity : world->GetEntities())
+
+	for (const auto& gameEntityChild : m_entityContainer)
 	{
-		for (const auto& parentEntity : world->GetEntities())
+		for (const auto& gameEntityParent : m_entityContainer)
 		{
-			if (childEntity->get<EntityIdentifier>().get().m_HasParent == true)
+			if (gameEntityChild.first->get<EntityIdentifier>().get().m_HasParent == true)
 			{
-				if (childEntity->get<EntityIdentifier>().get().m_ParentEntityId == parentEntity->getEntityId())
+				if (gameEntityChild.first->get<EntityIdentifier>().get().m_ParentEntityId == gameEntityParent.second)
 				{
-					SetParent(childEntity, parentEntity);
+					SetParent(gameEntityChild.first, gameEntityParent.first);
 				}
 			}
 		}
@@ -234,6 +232,7 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 		}
 	}
 
+	m_entityContainer.clear();
 	return world;
 }
 

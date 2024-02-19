@@ -137,10 +137,10 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<DynamicText>(prefabEntity, component["DynamicText"][0]);
 				}
-				//else if (componentName == "Sprite2D")
-				//{
-				//	AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
-				//}
+				else if (componentName == "Sprite2D")
+				{
+					AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					AssignComponents<Script>(prefabEntity, component["Script"][0]);
@@ -175,7 +175,9 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 		m_NameManager->AddEntityName(prefab.first);
 	}
 
-	return m_prefabContainer[0].first;
+	m_prefabContainer.clear();
+
+	return nullptr;
 }
 
 void PrefabManager::SetParent(ECS::Entity* child, ECS::Entity* parent)
