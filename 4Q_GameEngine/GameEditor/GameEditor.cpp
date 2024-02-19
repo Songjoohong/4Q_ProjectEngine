@@ -717,6 +717,14 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 				{
 					m_PrefabManager->AssignComponents<Space>(prefabEntity, component["Space"][0]);
 				}
+				else if (componentName == "DynamicText")
+				{
+					m_PrefabManager->AssignComponents<DynamicText>(prefabEntity, component["DynamicText"][0]);
+				}
+				else if (componentName == "Sprite2D")
+				{
+					m_PrefabManager->AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
@@ -738,6 +746,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "TestUIScript")
 					{
 						m_PrefabManager->AssignComponents<TestUIScript>(prefabEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DynamicTextScript")
+					{
+						m_PrefabManager->AssignComponents<DynamicTextScript>(prefabEntity, component["Script"][0]);
 					}
 				}
 			}
@@ -954,7 +966,7 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new ScriptSystem);
 	m_EditorWorld->registerSystem(new CollisionSystem);
 	m_EditorWorld->registerSystem(new SpriteSystem);
-	m_EditorWorld->registerSystem(new DebugSystem);
+	//m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
@@ -984,8 +996,6 @@ void GameEditor::NewScene()
 	player->Assign<Movement>();
 	player->Assign<RigidBody>();
 	player->Assign<BoxCollider>();
-	//player->Assign<PlayerScript>(player);
-	//player->get<Script>()->m_ComponentName = "PlayerScript";
 
 	// PlayerCamera
 	Entity* playerCamera = m_EditorWorld->create();
@@ -994,18 +1004,15 @@ void GameEditor::NewScene()
 	playerCamera->Assign<Camera>();
 	playerCamera->Assign<Movement>();
 	playerCamera->Assign<RigidBody>();
-	//playerCamera->Assign<POVCameraScript>(playerCamera);
-	//playerCamera->get<Script>()->m_ComponentName = "POVCameraScript";
 
 	SetParent(playerCamera, player);
 	SetParentTransform(playerCamera, player);
-
 
 	//Free Camera
 	Entity* ent = m_EditorWorld->create();
 	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
+	//ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<FreeCameraScript>(ent);
 	ent->get<Script>()->m_ComponentName = "FreeCameraScript";

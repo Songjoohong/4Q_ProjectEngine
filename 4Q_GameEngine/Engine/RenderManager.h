@@ -25,7 +25,9 @@ public:
 	void EditorRender();
 	void RenderEnd();
 
-	void CreateModel(std::string filename);
+	bool Culling(DirectX::BoundingBox boundingBox);
+
+	void CreateModel(std::string filename, DirectX::BoundingBox& boundingBox);
 
 	void AddStaticMesh(const std::string& fileName, DirectX::SimpleMath::Matrix worldTM) const;
 

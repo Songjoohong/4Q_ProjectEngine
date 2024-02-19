@@ -4,7 +4,7 @@
 #include "../Engine/ECS.h"
 #include "../Engine/WorldManager.h"
 #include "ImGuizmo.h"
-
+#include <cassert>
 //Component Headers
 #include "../Engine/Transform.h"
 #include "../Engine/BoxCollider.h"
@@ -61,9 +61,9 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	m_IntroWorld = DeserializeGame("");
+	m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
 	m_GameWorld = DeserializeGame("scene/ScriptTestScene.scene");
-	m_OutroWorld = DeserializeGame("");
+	//m_OutroWorld = DeserializeGame("");
 
 	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 	
@@ -75,7 +75,7 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 	std::string fullPath = basePath + filename;
 
 	ECS::World* world = ECS::World::CreateWorld(filename);
-	WorldManager::GetInstance()->ChangeWorld(world);
+
 	world->registerSystem(new ScriptSystem());
 	world->registerSystem(new MovementSystem());
 	world->registerSystem(new CollisionSystem());
@@ -89,6 +89,11 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 
 	// Deserialize
 	std::ifstream inputFile(fullPath);
+
+	if (!inputFile.is_open())
+	{
+		assert("Invalid File to Open");
+	}
 	json jsonObject;
 	inputFile >> jsonObject;
 	inputFile.close();
@@ -191,6 +196,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "TestUIScript")
 					{
 						AssignComponents<TestUIScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DynamicTextScript")
+					{
+						AssignComponents<DynamicTextScript>(myEntity, component["Script"][0]);
 					}
 				}
 			}

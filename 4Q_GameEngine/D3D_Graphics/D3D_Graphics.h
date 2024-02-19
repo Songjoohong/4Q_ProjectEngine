@@ -186,6 +186,7 @@ public:
 	DirectX::BoundingFrustum m_frustumCmaera;
 
 public:
+	DirectX::BoundingFrustum GetCameraFrustum() { return m_frustumCmaera; }
 	//d3d객체 초기화
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
 
@@ -227,7 +228,7 @@ public:
 	void DeleteDynamicTextInformation(int entId);
 
 	//모델 만들어서 모델 리스트에 추가
-	void CreateModel(std::string filename);
+	void CreateModel(std::string filename,DirectX::BoundingBox& boundingBox);
 
 
 	void CreateViewport(UINT width, UINT height);

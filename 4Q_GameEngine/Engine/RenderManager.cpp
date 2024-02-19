@@ -45,6 +45,11 @@ void RenderManager::RenderEnd()
 	Renderer::Instance->RenderEnd();
 }
 
+bool RenderManager::Culling(DirectX::BoundingBox boundingBox)
+{
+	return Renderer::Instance->GetCameraFrustum().Intersects(boundingBox);
+}
+
 
 void RenderManager::AddStaticMesh(const std::string& fileName, Math::Matrix worldTM) const
 {
@@ -57,9 +62,9 @@ void RenderManager::AddColliderBox(const Vector3D center, const Vector3D extents
 }
 
 
-void RenderManager::CreateModel(string filename)
+void RenderManager::CreateModel(string filename, DirectX::BoundingBox& boundingBox)
 {
-	Renderer::Instance->CreateModel(filename);
+	Renderer::Instance->CreateModel(filename,boundingBox);
 }
 
 void RenderManager::SetBasePath(std::string filePath)

@@ -19,7 +19,7 @@
 
 #include "../Engine/InputManager.h"
 
-#define SHADOWMAP_SIZE 4096
+#define SHADOWMAP_SIZE 2048
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -168,9 +168,9 @@ void Renderer::DeleteDynamicTextInformation(int id)
 		}));
 }
 
-void Renderer::CreateModel(string filename)
+void Renderer::CreateModel(string filename, DirectX::BoundingBox& boundingBox)
 {
-	ResourceManager::Instance->CreateModel(filename);
+	ResourceManager::Instance->CreateModel(filename, boundingBox);
 	StaticModel* pModel = new StaticModel();
 	m_pStaticModels.push_back(pModel);
 }
@@ -522,11 +522,15 @@ void Renderer::Update()
 
 	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 	m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
-	for (auto& model : m_pStaticModels)
+	/*for (auto& model : m_pStaticModels)
 	{
 		if (model->GetSceneResource() == nullptr)
 			break;
 		FrustumCulling(model);
+	}*/
+	for (auto& model : m_pStaticModels)
+	{
+		AddMeshInstance(model);
 	}
 
 	//AddOutlineMesh(m_pStaticModels[1]);
