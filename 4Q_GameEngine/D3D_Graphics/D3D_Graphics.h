@@ -48,16 +48,12 @@ struct cbView
 {
 	Math::Matrix mView;
 	Math::Matrix mShadowView;
-	Math::Matrix mPointLightShadowView[pointLightCount][6];
-	int mPointLightIndex;
-	int mDirIndex;
 };
 
 struct cbProjection
 {
 	Math::Matrix mProjection;
 	Math::Matrix mShadowProjection;
-	Math::Matrix mPointLightShadowProjection[pointLightCount];
 };
 
 struct cbLight
