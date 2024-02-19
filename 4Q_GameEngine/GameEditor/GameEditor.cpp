@@ -244,6 +244,7 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 
+#ifdef _DEBUG
 		// Game Play Buttons Test
 		{
 			ImGui::Begin("Play");
@@ -253,7 +254,7 @@ void GameEditor::RenderImGui()
 
 			ImGui::End();
 		}
-		
+#endif
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
