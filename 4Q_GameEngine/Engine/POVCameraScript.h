@@ -55,7 +55,10 @@ public:
 			m_ElapsedTime = 0;
 		}
 
+	/*	Vector3D size = m_pOwner->m_parent->get<BoxCollider>()->m_Size;
+
 		Vector3D size = m_pOwner->m_parent->get<BoxCollider>()->m_Size;
+
 		Vector3D pos=m_pOwner->m_parent->get<Transform>()->m_Position;
 		Vector3D dir = m_pOwner->get<Movement>()->m_DirectionVector;
 		
@@ -65,6 +68,6 @@ public:
 		pxDir.normalize();
 		
 		pxPos = pxPos + (pxDir * r) + (pxDir);
-		PhysicsManager::GetInstance()->RayCast(pxPos, pxDir);
+		PhysicsManager::GetInstance()->RayCast(pxPos, pxDir);*/
 	}
 };
