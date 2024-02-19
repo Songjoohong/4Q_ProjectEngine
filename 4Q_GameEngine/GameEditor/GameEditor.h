@@ -76,7 +76,7 @@ private:
 	ECS::World* m_ActiveWorld;
 	ECS::World* m_EditorWorld;
 	/// 씬이 두개인 이유
-	///	게임 플레이와 씬 편집 화면을 나누기 위해. -> 게임 play 와 stop 그리고 pause 를 위해서인데 이를 위해선 엔진에서 먼저 기능이 구현되어야 한다. 고로 보류
+	///	게임 플레이와 씬 편집 화면을 나누기 위해. -> 게임 play 와 stop 그리고 pause 를 위해서.
 	std::string m_SceneName = "EmptyScene";	// 씬 이름
 	bool m_isScenePopup = false;
 

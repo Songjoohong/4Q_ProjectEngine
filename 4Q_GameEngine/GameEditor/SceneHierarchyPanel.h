@@ -41,6 +41,7 @@ private:
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
 
+	void ResetTransform(ECS::Entity* child, ECS::Entity* parent);
 	bool m_IsDialogOpen = false;
 
 private:

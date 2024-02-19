@@ -17,6 +17,7 @@
 #include "../Engine/RigidBody.h"
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
+#include "../Engine/DynamicText.h"
 
 // Script Headers
 #include "../Engine/CameraScript.h"
@@ -24,6 +25,7 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/FreeCameraScript.h"
+#include "../Engine/DynamicTextScript.h"
 
 #include "NameManager.h"
 #include "ImGuizmo.h"
@@ -130,6 +132,14 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<Space>(prefabEntity, component["Space"][0]);
 				}
+				else if (componentName == "DynamicText")
+				{
+					AssignComponents<DynamicText>(prefabEntity, component["DynamicText"][0]);
+				}
+				else if (componentName == "Sprite2D")
+				{
+					AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
+				}
 				else if (componentName == "FreeCameraScript")
 				{
 					AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
@@ -154,6 +164,11 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<TestUIScript>(prefabEntity, component["TestUIScript"][0]);
 					prefabEntity->get<Script>().get().m_ComponentName = "TestUIScript";
+				}
+				else if (componentName == "DynamicTextScript")
+				{
+					AssignComponents<DynamicTextScript>(prefabEntity, component["DynamicTextScript"][0]);
+					prefabEntity->get<Script>().get().m_ComponentName = "DynamicTextScript";
 				}
 			}
 			m_prefabContainer.push_back({ prefabEntity, oldID });
@@ -234,6 +249,7 @@ void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabDat
 	SaveComponents<RigidBody>(entity, prefabData);
 	SaveComponents<UI>(entity, prefabData);
 	SaveComponents<Space>(entity, prefabData);
+	SaveComponents<DynamicText>(entity, prefabData);
 
 	if (!entity->m_children.empty())
 	{

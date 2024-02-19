@@ -21,6 +21,7 @@
 #include "../Engine/RigidBody.h"
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
+#include "../Engine/DynamicText.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -28,6 +29,7 @@
 #include "../Engine/PlayerScript.h"
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
+#include "../Engine/DynamicTextScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -58,28 +60,6 @@ GameEditor::~GameEditor()
 	m_EditorWorld->DestroyWorld();
 	ShutDownImGui();
 }
-
-void QuaternionToYawPitchRoll(const XMVECTOR& quaternion, float& yaw, float& pitch, float& roll) {
-	XMFLOAT4 q;
-	XMStoreFloat4(&q, quaternion);
-
-	float sinPitchCosYaw = 2.0f * (q.x * q.y + q.z * q.w);
-	float cosPitchCosYaw = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
-	yaw = atan2(sinPitchCosYaw, cosPitchCosYaw);
-
-	float sinPitch = 2.0f * (q.x * q.w - q.z * q.y);
-	if (fabs(sinPitch) >= 1.0f) {
-		pitch = copysign(XM_PIDIV2, sinPitch);
-	}
-	else {
-		pitch = asin(sinPitch);
-	}
-
-	float sinRollCosPitch = 2.0f * (q.x * q.z + q.y * q.w);
-	float cosRollCosPitch = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
-	roll = atan2(sinRollCosPitch, cosRollCosPitch);
-}
-
 
 bool GameEditor::Initialize(UINT width, UINT height)
 {
@@ -558,6 +538,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<RigidBody>(entity, worldData);
 		SaveComponents<UI>(entity, worldData);
 		SaveComponents<Space>(entity, worldData);
+		SaveComponents<DynamicText>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -872,27 +853,6 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<Sound>(myEntity, component["Sound"][0]);
 				}
-				else if (componentName == "FreeCameraScript")
-				{
-					AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
-				}
-				else if (componentName == "SampleScript")
-				{
-					AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
-				}
-				else if (componentName == "PlayerScript")
-				{
-					AssignComponents<PlayerScript>(myEntity, component["PlayerScript"][0]);
-				}
-				else if (componentName == "POVCameraScript")
-				{
-					AssignComponents<POVCameraScript>(myEntity, component["POVCameraScript"][0]);
-				}
-				else if (componentName == "TestUIScript")
-				{
-					AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
-				}
 				else if (componentName == "RigidBody")
 				{
 					AssignComponents<RigidBody>(myEntity, component["RigidBody"][0]);
@@ -904,6 +864,45 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				else if (componentName == "Space")
 				{
 					AssignComponents<Space>(myEntity, component["Space"][0]);
+				}
+				else if (componentName == "DynamicText")
+				{
+					AssignComponents<DynamicText>(myEntity, component["DynamicText"][0]);
+				}
+				else if (componentName == "Sprite2D")
+				{
+					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
+				}
+				else if (componentName == "FreeCameraScript")
+				{
+					AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
+					myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
+				}
+				else if (componentName == "SampleScript")
+				{
+					AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
+					myEntity->get<Script>().get().m_ComponentName = "SampleScript";
+
+				}
+				else if (componentName == "PlayerScript")
+				{
+					AssignComponents<PlayerScript>(myEntity, component["PlayerScript"][0]);
+					myEntity->get<Script>().get().m_ComponentName = "PlayerScript";
+				}
+				else if (componentName == "POVCameraScript")
+				{
+					AssignComponents<POVCameraScript>(myEntity, component["POVCameraScript"][0]);
+					myEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
+				}
+				else if (componentName == "TestUIScript")
+				{
+					AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
+					myEntity->get<Script>().get().m_ComponentName = "TestUIScript";
+				}
+				else if (componentName == "DynamicTextScript")
+				{
+					AssignComponents<DynamicTextScript>(myEntity, component["DynamicTextScript"][0]);
+					myEntity->get<Script>().get().m_ComponentName = "DynamicTextScript";
 				}
 			}
 		}
@@ -937,11 +936,23 @@ void GameEditor::PlayButton()
 		if (ImGui::Button("||", ImVec2(40.0f, 40.0f)))
 		{
 			m_IsPlaying = false;
-			m_ActiveWorld->GetEntities().clear();
+
+			m_ActiveWorld = nullptr;
+
+			for (const auto& entity : m_EditorWorld->GetEntities())
+			{
+				m_EditorWorld->destroy(entity);
+			}
+
+			m_EditorWorld->GetEntities().clear();
+
 			m_NameManager->ClearContainer();
-			PlayDeserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
+			m_PrefabManager->m_prefabContainer.clear();
+
+			m_EditorWorld->ResetLastEntityId();
+
 			//Free Camera
-			Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+			Entity* ent = m_EditorWorld->create();
 			ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
 			ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
 			ent->Assign<Debug>();
@@ -950,6 +961,8 @@ void GameEditor::PlayButton()
 			ent->get<Script>()->m_ComponentName = "FreeCameraScript";
 			ent->get<Script>()->m_IsFreeCamera = true;
 			ent->Assign<Movement>();
+
+			PlayDeserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
 		}
 	}
 	else
@@ -989,7 +1002,6 @@ void GameEditor::NewScene()
 
 	m_EditorWorld = World::CreateWorld("../Resource/scene/" + m_SceneName + ".scene");
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
-
 
 	// 시스템 등록
 	m_EditorWorld->registerSystem(new RenderSystem);
@@ -1033,6 +1045,16 @@ void GameEditor::NewScene()
 	ent->get<Script>()->m_IsFreeCamera = true;
 	ent->Assign<Movement>();
 
+	// for test
+	{
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<EntityIdentifier>(ent->getEntityId(), "Test UI");
+		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+		ent2->Assign<UI>(100, 100);
+		ent2->Assign<Sprite2D>(ent2, "../Resource/UI/image.jpg", 0, 100, 100);
+		ent2->Assign<TestUIScript>(ent2);
+	}
+
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
 		m_NameManager->AddEntityName(entity);
@@ -1041,26 +1063,21 @@ void GameEditor::NewScene()
 
 void GameEditor::PlayScene()
 {
+	m_ActiveWorld = m_EditorWorld;
+
 	if (m_IsPlaying)
 	{
 		SaveWorld(m_SceneName);
 	}
 
-	m_EditorWorld->GetEntities().clear();
-
-	m_ActiveWorld = m_EditorWorld;
-
-	//m_ActiveWorld->registerSystem(new ScriptSystem);
-	//m_ActiveWorld->registerSystem(new RenderSystem);
-	//m_ActiveWorld->registerSystem(new TransformSystem);
-	//m_ActiveWorld->registerSystem(new MovementSystem);
-	//m_ActiveWorld->registerSystem(new CameraSystem);
-
-	m_NameManager->ClearContainer();
-	if (m_IsPlaying)
+	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
-		PlayDeserialize(m_ActiveWorld, "scene/" + m_SceneName + ".scene");
+		if (entity->get<EntityIdentifier>()->m_EntityName == "Main Camera")
+		{
+			m_EditorWorld->destroy(entity);
+		}
 	}
+
 }
 
 void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)

@@ -409,12 +409,20 @@ namespace ECS
 			int subjectExit;
 		};
 
+		struct SpaceReturn
+		{
+			ECS_DECLARE_TYPE
+
+			int spaceIndex;
+		};
+
 		struct DynamicTextChange
 		{
 			ECS_DECLARE_TYPE
 
 			Entity* entity;
 		};
+
 
 #ifdef ECS_NO_RTTI
 		template<typename T>
@@ -942,6 +950,12 @@ namespace ECS
 		{
 			return entities;
 		}
+
+		void ResetLastEntityId()
+		{
+			lastEntityId = 0;
+		}
+
 	private:
 		EntityAllocator entAlloc;
 		SystemAllocator systemAlloc;
@@ -955,8 +969,8 @@ namespace ECS
 			std::equal_to<TypeIndex>,
 			SubscriberPairAllocator> subscribers;
 
-		size_t lastEntityId = 0;
 
+		size_t lastEntityId = 0;
 	};
 
 	namespace Internal
