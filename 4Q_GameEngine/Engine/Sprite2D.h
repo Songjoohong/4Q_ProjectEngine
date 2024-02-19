@@ -4,7 +4,7 @@
 struct Sprite2D
 {
 	ECS_DECLARE_TYPE
-	//Sprite2D() = default;
+	Sprite2D() = default;
 	//explicit Sprite2D(const ECS::Entity* ent, std::string fileName, const float layer, long x, long y)
 	explicit Sprite2D(std::string fileName, const float layer = 0 ,long x = 1, long y = 1)
 		: m_FileName(fileName)

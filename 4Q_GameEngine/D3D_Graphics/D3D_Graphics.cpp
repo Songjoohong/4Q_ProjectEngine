@@ -31,7 +31,7 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
-	UnInitImgui();
+	//UnInitImgui();
 }
 
 void Renderer::Clear(float r, float g, float b)
@@ -64,9 +64,10 @@ void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 	}
 }
 
-void Renderer::AddColliderBox(Vector3 center, Vector3 extents)
+void Renderer::AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation)
 {
-	m_colliderBox.push_back(ColliderBox(center + Vector3{ 0.f,extents.y, 0.f }, extents));
+	Quaternion rot = Math::Quaternion::CreateFromYawPitchRoll(rotation.y, rotation.x, rotation.z);
+	m_colliderBox.push_back(ColliderBox(center + Vector3{ 0.f,extents.y, 0.f }, extents, rot));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
@@ -688,7 +689,7 @@ void Renderer::GameAppRender()
 
 
 	//임구이 렌더
-	RenderImgui();
+	//RenderImgui();
 }
 
 void Renderer::EditorRender()
@@ -1152,8 +1153,8 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	SetCamera(cameraInitPos);
 
 
-	if (!InitImgui(*hWnd))
-		return false;
+	/*if (!InitImgui(*hWnd))
+		return false;*/
 
 
 	return true;
