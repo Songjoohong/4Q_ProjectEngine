@@ -11,6 +11,7 @@ class EntityIdentifier;
 class Script;
 class PrefabManager;
 class NameManager;
+class FreeCameraScript;
 
 namespace ECS { class Entity; }
 namespace ECS { class World; }
@@ -101,7 +102,36 @@ private:
 template<typename ComponentType>
 inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 {
-	if (entity->has<ComponentType>())
+	if (std::is_same_v < Script, ComponentType>)
+	{
+		std::vector<ComponentType> container;
+		container.push_back(entity->get<ComponentType>().get());
+		auto serializeData = SerializeContainer(container);
+
+		json scriptData;
+		scriptData["Script"] = json::parse(serializeData);
+
+		std::string entityName = entity->get<EntityIdentifier>().get().m_EntityName;
+
+		// Check if the entity already exists in the JSON structure
+		bool entityExists = false;
+		for (auto& entityEntry : worldData["WorldEntities"]) {
+			if (entityEntry.find(entityName) != entityEntry.end()) {
+				// Add the component data to the existing entity entry
+				entityEntry[entityName].push_back(scriptData);
+				entityExists = true;
+				break;
+			}
+		}
+
+		// If the entity does not exist, create a new entry for it
+		if (!entityExists) {
+			json entityEntry;
+			entityEntry[entityName].push_back(scriptData);
+			worldData["WorldEntities"].push_back(entityEntry);
+		}
+	}
+	else if (entity->has<ComponentType>())
 	{
 		std::vector<ComponentType> container;
 		container.push_back(entity->get<ComponentType>().get());
@@ -138,7 +168,16 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, json& componentDat
 {
 	if constexpr (std::is_base_of_v<Script, ComponentType>)
 	{
-		entity->Assign<ComponentType>(entity);
+		if (componentData["m_ComponentName"].get<std::string>() == "FreeCameraScript")
+		{
+			entity->Assign<FreeCameraScript>(entity);
+			entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
+		}
+		else
+		{
+			entity->Assign<ComponentType>(entity);
+			entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
+		}
 	}
 	else
 	{

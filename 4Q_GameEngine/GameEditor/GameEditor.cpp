@@ -564,18 +564,6 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
-	//Free Camera
-	//Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
-	//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//ent->Assign<Debug>();
-	//ent->Assign<Camera>();
-	//ent->Assign<FreeCameraScript>(ent);
-	//ent->get<Script>()->m_ComponentName = "FreeCameraScript";
-	//ent->get<Script>()->m_IsFreeCamera = true;
-	//ent->Assign<Movement>();
-	//m_NameManager->ClearContainer();
-
 	Deserialize(m_EditorWorld, fileName);
 
 }
@@ -870,15 +858,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
 				}
-				/*else if (componentName == "Script")
+				else if (componentName == "Script")
 				{
-					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
-				}*/
-				//else if (componentName == "FreeCameraScript")
-				//{
-				//	AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
-				//	myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
-				//}
+					AssignComponents<Script>(myEntity, component["Script"][0]);
+				}
 				//else if (componentName == "SampleScript")
 				//{
 				//	AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
