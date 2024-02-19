@@ -105,7 +105,6 @@ void SceneHierarchyPanel::RenderImGui()
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_V) && isFileExists)
 	{
 		m_PrefabManager->LoadPrefab("../Resource/CopiedEntity/CopiedEntity.json");
-		m_PrefabManager->m_prefabContainer.clear();
 	}
 
 	ImGui::End();	/* Hierarchy End */

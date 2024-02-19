@@ -19,7 +19,7 @@ struct Sprite2D
 	bool m_IsRendered = true;
 	std::string m_ComponentName = "Sprite2D";
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Sprite2D, m_FileName, m_Layer, m_Position, m_IsRendered)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Sprite2D, m_ComponentName, m_FileName, m_Layer, m_Position, m_IsRendered)
 };
 
 ECS_DEFINE_TYPE(Sprite2D)

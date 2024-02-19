@@ -12,6 +12,7 @@ class Script;
 class PrefabManager;
 class NameManager;
 class FreeCameraScript;
+class Sprite2D;
 
 namespace ECS { class Entity; }
 namespace ECS { class World; }
@@ -51,7 +52,7 @@ public:
 	void HandleShortcuts();
 
 	template<typename ComponentType>
-	void AssignComponents(ECS::Entity* entity, json& componentData);
+	void AssignComponents(ECS::Entity* entity, const json& componentData);
 	void NewScene();
 	void PlayScene();
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
@@ -97,6 +98,10 @@ private:
 	// Application Height & Width
 	UINT m_Width;
 	UINT m_Height;
+
+	ID3D11ShaderResourceView* m_PlayButtonTexture;
+
+	std::vector<std::pair<ECS::Entity*, int>> m_LoadEntityContainer;
 };
 
 template<typename ComponentType>
@@ -164,7 +169,7 @@ inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 }
 
 template<typename ComponentType>
-inline void GameEditor::AssignComponents(ECS::Entity* entity, json& componentData)
+inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& componentData)
 {
 	if constexpr (std::is_base_of_v<Script, ComponentType>)
 	{
@@ -178,6 +183,13 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, json& componentDat
 			entity->Assign<ComponentType>(entity);
 			entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
 		}
+	}
+	else if constexpr (std::is_same_v<Sprite2D, ComponentType>)
+	{
+		entity->Assign<ComponentType>(componentData["m_FileName"].get<std::string>());
+		auto& component = entity->get<ComponentType>().get();
+
+		component = componentData;
 	}
 	else
 	{
