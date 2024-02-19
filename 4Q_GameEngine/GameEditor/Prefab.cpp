@@ -18,6 +18,7 @@
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
+#include "../Engine/PlayerInformation.h"
 
 // Script Headers
 #include "../Engine/CameraScript.h"
@@ -144,6 +145,10 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<Script>(prefabEntity, component["Script"][0]);
 				}
+				else if (componentName == "PlayerInformation")
+				{
+					AssignComponents<PlayerInformation>(prefabEntity, component["PlayerInformation"][0]);
+				}
 			}
 			m_prefabContainer.push_back({ prefabEntity, oldID });
 		}
@@ -224,6 +229,7 @@ void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabDat
 	SaveComponents<UI>(entity, prefabData);
 	SaveComponents<Space>(entity, prefabData);
 	SaveComponents<DynamicText>(entity, prefabData);
+	SaveComponents<PlayerInformation>(entity, prefabData);
 
 	if (!entity->m_children.empty())
 	{

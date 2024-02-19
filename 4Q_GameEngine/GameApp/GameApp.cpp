@@ -62,11 +62,11 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
-	m_GameWorld = DeserializeGame("scene/test.scene");
+	//m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
+	//m_GameWorld = DeserializeGame("scene/test.scene");
 	//m_OutroWorld = DeserializeGame("");
 
-	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+	//WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 	
 	return true;
 }
@@ -175,6 +175,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 				else if (componentName == "Sprite2D")
 				{
 					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
+				}
+				else if (componentName == "PlayerInformation")
+				{
+					AssignComponents<PlayerInformation>(myEntity, component["PlayerInformation"][0]);
 				}
 				else if (componentName == "Script")
 				{
