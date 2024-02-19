@@ -525,22 +525,22 @@ void Renderer::Update()
 	}
 
 	// pointLight Frustum Culling
-	for (int i = 0; i < pointLightCount; i++)
-	{
-		DirectX::BoundingBox pointLightBoundingBox;
+	//for (int i = 0; i < pointLightCount; i++)
+	//{
+	//	DirectX::BoundingBox pointLightBoundingBox;
 
-		// Calculate the extents of the bounding box based on the radius
-		Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
+	//	// Calculate the extents of the bounding box based on the radius
+	//	Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
 
-		// Set the bounding box parameters
-		pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
-		pointLightBoundingBox.Extents = extents;
+	//	// Set the bounding box parameters
+	//	pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
+	//	pointLightBoundingBox.Extents = extents;
 
-		if (m_frustumCmaera.Intersects(pointLightBoundingBox))
-		{
-			m_pointLightInstance.push_back(m_pointLights[i]);
-		}
-	}
+	//	if (m_frustumCmaera.Intersects(pointLightBoundingBox))
+	//	{
+	//		m_pointLightInstance.push_back(m_pointLights[i]);
+	//	}
+	//}
 
 	//AddOutlineMesh(m_pStaticModels[1]);
 	RenderQueueSort();
@@ -557,7 +557,7 @@ void Renderer::RenderBegin()
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-	assert(m_pointLightInstance.size() <= pointLightCount);
+	/*assert(m_pointLightInstance.size() <= pointLightCount);
 	for (int i = 0; i < m_pointLightInstance.size(); i++)
 	{
 		m_pointLightCB.pointLights[i].mPos = m_pointLightInstance[i].GetPosition();
@@ -566,7 +566,7 @@ void Renderer::RenderBegin()
 		m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
 		m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
 		m_pointLightCB.mCameraPos = m_cameraPos;
-	}
+	}*/
 
 	m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
@@ -1105,13 +1105,13 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
 
 	//포인트 라이트 테스트용
-	for (int i = 0; i < 5; i++)
+	/*for (int i = 0; i < 5; i++)
 	{
 		m_pointLights[i].SetPosition(Vector3(0, 0, 0));
 		m_pointLights[i].SetRadius(600.f);
 		m_pointLights[i].SetColor();
 		m_pointLights[i].SetIntensity(1000.f);
-	}
+	}*/
 
 	SetAlphaBlendState();
 

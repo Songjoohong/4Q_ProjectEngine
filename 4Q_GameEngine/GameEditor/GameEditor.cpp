@@ -244,14 +244,14 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 		// Game Play Buttons Test
-		{
-			ImGui::Begin("Play");
-			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
+		//{
+		//	ImGui::Begin("Play");
+		//	ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 
-			PlayButton();
+		//	PlayButton();
 
-			ImGui::End();
-		}
+		//	ImGui::End();
+		//}
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
