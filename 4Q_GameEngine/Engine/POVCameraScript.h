@@ -54,6 +54,7 @@ public:
 			m_pOwner->get<Transform>()->m_Position.SetY(m_InitialY * 0.01f + m_pOwner->get<Transform>()->m_Position.GetY() * 0.99f);
 			m_ElapsedTime = 0;
 		}
+
 		Vector3D size = m_pOwner->m_parent->get<BoxCollider>()->m_Size;
 		Vector3D pos=m_pOwner->m_parent->get<Transform>()->m_Position;
 		Vector3D dir = m_pOwner->get<Movement>()->m_DirectionVector;

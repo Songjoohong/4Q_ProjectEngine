@@ -38,7 +38,7 @@ void PhysicsManager::Initialize()
 
 #endif // _DEBUG
 	// 석영 : PxScene 생성
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
+	//m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
 	PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -98.1f, 0.0f);
 	m_pDispatcher = PxDefaultCpuDispatcherCreate(2);
@@ -65,7 +65,10 @@ void PhysicsManager::Update(float deltatime)
 	{
 		for (auto& collider : m_pStaticColliders)
 		{
+			PxVec3 tras = collider.second->m_Transform.p;
+			collider.second->UpdateScale();
 			collider.second->UpdateRotation();
+			collider.second->UpdatePosition();
 		}
 	}
 
@@ -73,7 +76,9 @@ void PhysicsManager::Update(float deltatime)
 	{
 		for (auto& collider : m_pDynamicColliders)
 		{
+			collider.second->UpdateScale();
 			collider.second->UpdateRotation();
+			collider.second->UpdatePosition();
 		}
 	}
 	// 석영 : 물리 시뮬레이션 돌리기
@@ -176,27 +181,6 @@ void PhysicsManager::ChangeFilter(int entId)
 		if (obj.first == entId)
 		{
 			colliderPtr->SetFilterData();
-			return;
-		}
-	}
-}
-
-void PhysicsManager::ChangeColliderPosition(BoxCollider* boxcolldier, int entId)
-{
-	for (auto it = m_pStaticColliders.begin(); it != m_pStaticColliders.end(); ++it) {
-		int Id = it->first;
-		StaticCollider* colliderPtr = it->second;
-		if (Id == entId) {
-			colliderPtr->UpdatePosition();
-			return;
-		}
-	}
-
-	for (auto it = m_pDynamicColliders.begin(); it != m_pDynamicColliders.end(); ++it) {
-		int Id = it->first;
-		DynamicCollider* colliderPtr = it->second;
-		if (Id == entId) {
-			colliderPtr->UpdatePosition();
 			return;
 		}
 	}
