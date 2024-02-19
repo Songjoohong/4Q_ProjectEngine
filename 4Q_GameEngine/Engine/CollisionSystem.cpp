@@ -16,7 +16,7 @@ void CollisionSystem::Deconfigure(World* world)
 
 void CollisionSystem::Receive(World* world, const Events::OnComponentAssigned<BoxCollider>& event)
 {
-	event.component->m_WorldPosition = event.entity->get<Transform>()->m_Position;
+	event.component->m_WorldPosition = event.entity->get<Transform>()->m_Position + event.component->m_Center;
 	PhysicsManager::GetInstance()->CreateCollider(event.component.component, event.entity->getEntityId());
 }
 
@@ -61,13 +61,12 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 
 			if (ent->get<EntityIdentifier>()->m_HasParent)
 			{
-				if(ent->m_parent->has<Transform>())
-					collider->m_Center = ent->getParent()->get<Transform>()->m_Position + transform->m_Position;
+				if (ent->m_parent->has<Transform>())
+					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix() * ent->getParent()->get<Transform>()->m_WorldMatrix.ConvertToMatrix()).Translation();
 			}
 			else
 			{
-				//collider->m_Center = transform->m_Position;
-				collider->m_Center = transform->m_WorldMatrix.ConvertToMatrix().Translation();
+				collider->m_WorldPosition = transform->m_Position + collider->m_Center;
 			}
 
 			/*for (auto& child : ent->m_children)
