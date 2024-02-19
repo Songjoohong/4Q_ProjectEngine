@@ -9,7 +9,7 @@ public:
 
 	bool Initialize(UINT Width, UINT Height) override;
 
-	void DeserializeGame(const std::string filename);
+	ECS::World* DeserializeGame(const std::string filename);
 
 	template<typename ComponentType>
 	void AssignComponents(ECS::Entity* entity, json& componentData);
@@ -23,7 +23,9 @@ public:
 
 private:
 	std::string basePath = "../Resource/";
-	ECS::World* m_CurrentWorld;
+	ECS::World* m_IntroWorld;
+	ECS::World* m_GameWorld;
+	ECS::World* m_OutroWorld;
 };
 
 template<typename ComponentType>

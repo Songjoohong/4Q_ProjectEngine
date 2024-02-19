@@ -638,7 +638,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<Movement>("MoveMent", entity, [](auto component)
 	{
 		ImGui::SliderFloat("Speed", &component->m_Speed, 0.0f, 1000.0f);
-		ImGui::SliderFloat("Sensitivity", &component->m_Sensitivity, 0.0f, 1000.0f);
+		ImGui::SliderFloat("Sensitivity", &component->m_Sensitivity, 0.0f, 0.1f);
 
 	});
 

@@ -39,8 +39,11 @@ void Collider::UpdateRotation()
 	PxQuat angleX = PxQuat(deg.x, PxVec3(1.0f, 0.0f, 0.0f));
 	PxQuat angleY = PxQuat(deg.y, PxVec3(0.0f, 1.0f, 0.0f));
 	PxQuat angleZ = PxQuat(deg.z, PxVec3(0.0f, 0.0f, 1.0f));
-	m_Transform.q = angleX * angleY * angleZ;
-	m_pShape->setLocalPose(m_Transform);
+	PxTransform newAngle;
+	newAngle.p = { 0,0,0 };
+	newAngle.q= angleX * angleY * angleZ;
+	//m_Transform.q = angleX * angleY * angleZ;
+	m_pShape->setLocalPose(newAngle);
 }
 
 void Collider::UpdateScale()

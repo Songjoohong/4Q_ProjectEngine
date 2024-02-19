@@ -61,16 +61,31 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	DeserializeGame("scene/NewScene.scene");
+	m_IntroWorld = DeserializeGame("");
+	m_GameWorld = DeserializeGame("scene/ScriptTestScene.scene");
+	m_OutroWorld = DeserializeGame("");
 
+	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+	
 	return true;
 }
 
-void GameApp::DeserializeGame(const std::string filename)
+ECS::World* GameApp::DeserializeGame(const std::string filename)
 {
 	std::string fullPath = basePath + filename;
 
-	m_CurrentWorld = ECS::World::CreateWorld(filename);
+	ECS::World* world = ECS::World::CreateWorld(filename);
+	WorldManager::GetInstance()->ChangeWorld(world);
+	world->registerSystem(new ScriptSystem());
+	world->registerSystem(new MovementSystem());
+	world->registerSystem(new CollisionSystem());
+	world->registerSystem(new TransformSystem());
+	world->registerSystem(new DebugSystem());
+	world->registerSystem(new CameraSystem());
+	world->registerSystem(new RenderSystem());
+	world->registerSystem(new SpriteSystem());
+	world->registerSystem(new class UISystem);
+	world->registerSystem(new SpaceSystem());
 
 	// Deserialize
 	std::ifstream inputFile(fullPath);
@@ -83,7 +98,7 @@ void GameApp::DeserializeGame(const std::string filename)
 		for (auto it = entity.begin(); it != entity.end(); ++it)
 		{
 			// Entity 생성 후 정보 push
-			Entity* myEntity = m_CurrentWorld->create();
+			Entity* myEntity = world->create();
 
 			for (auto component : it.value())
 			{
@@ -155,45 +170,37 @@ void GameApp::DeserializeGame(const std::string filename)
 				{
 					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
 				}
-				else if (componentName == "FreeCameraScript")
+				else if (componentName == "Script")
 				{
-					AssignComponents<FreeCameraScript>(myEntity, component["FreeCameraScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
-				}
-				else if (componentName == "SampleScript")
-				{
-					AssignComponents<SampleScript>(myEntity, component["SampleScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "SampleScript";
-
-				}
-				else if (componentName == "PlayerScript")
-				{
-					AssignComponents<PlayerScript>(myEntity, component["PlayerScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "PlayerScript";
-				}
-				else if (componentName == "POVCameraScript")
-				{
-					AssignComponents<POVCameraScript>(myEntity, component["POVCameraScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
-				}
-				else if (componentName == "TestUIScript")
-				{
-					AssignComponents<TestUIScript>(myEntity, component["TestUIScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "TestUIScript";
-				}
-				else if (componentName == "DynamicTextScript")
-				{
-					AssignComponents<DynamicTextScript>(myEntity, component["DynamicTextScript"][0]);
-					myEntity->get<Script>().get().m_ComponentName = "DynamicTextScript";
+					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
+					{
+						AssignComponents<FreeCameraScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "SampleScript")
+					{
+						AssignComponents<SampleScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PlayerScript")
+					{
+						AssignComponents<PlayerScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "POVCameraScript")
+					{
+						AssignComponents<POVCameraScript>(myEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "TestUIScript")
+					{
+						AssignComponents<TestUIScript>(myEntity, component["Script"][0]);
+					}
 				}
 			}
 		}
 	}
 
 	//부모자식 관계 설정
-	for (const auto& childEntity : m_CurrentWorld->GetEntities())
+	for (const auto& childEntity : world->GetEntities())
 	{
-		for (const auto& parentEntity : m_CurrentWorld->GetEntities())
+		for (const auto& parentEntity : world->GetEntities())
 		{
 			if (childEntity->get<EntityIdentifier>().get().m_HasParent == true)
 			{
@@ -204,6 +211,16 @@ void GameApp::DeserializeGame(const std::string filename)
 			}
 		}
 	}
+
+	for (const auto& entity : world->GetEntities())
+	{
+		if (entity->get<EntityIdentifier>()->m_EntityName == "Main Camera")
+		{
+			world->destroy(entity);
+		}
+	}
+
+	return world;
 }
 
 void GameApp::SetParent(ECS::Entity* child, ECS::Entity* parent)
@@ -232,6 +249,16 @@ void GameApp::SetParentTransform(ECS::Entity* child, ECS::Entity* parent)
 void GameApp::Update()
 {
 	__super::Update();
+
+	if (InputManager::GetInstance()->GetKeyDown(Key::F8))
+	{
+		WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+	}
+
+	if (InputManager::GetInstance()->GetKeyDown(Key::F9))
+	{
+		WorldManager::GetInstance()->ChangeWorld(m_OutroWorld);
+	}
 }
 
 void GameApp::Render()

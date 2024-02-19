@@ -140,35 +140,9 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				//{
 				//	AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
 				//}
-				else if (componentName == "FreeCameraScript")
+				else if (componentName == "Script")
 				{
-					AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
-				}
-				else if (componentName == "SampleScript")
-				{
-					AssignComponents<SampleScript>(prefabEntity, component["SampleScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "SampleScript";
-				}
-				else if (componentName == "PlayerScript")
-				{
-					AssignComponents<PlayerScript>(prefabEntity, component["PlayerScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "PlayerScript";
-				}
-				else if (componentName == "POVCameraScript")
-				{
-					AssignComponents<POVCameraScript>(prefabEntity, component["POVCameraScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
-				}
-				else if (componentName == "TestUIScript")
-				{
-					AssignComponents<TestUIScript>(prefabEntity, component["TestUIScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "TestUIScript";
-				}
-				else if (componentName == "DynamicTextScript")
-				{
-					AssignComponents<DynamicTextScript>(prefabEntity, component["DynamicTextScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "DynamicTextScript";
+					AssignComponents<Script>(prefabEntity, component["Script"][0]);
 				}
 			}
 			m_prefabContainer.push_back({ prefabEntity, oldID });
