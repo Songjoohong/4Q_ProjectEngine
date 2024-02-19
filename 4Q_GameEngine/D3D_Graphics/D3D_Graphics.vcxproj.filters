@@ -199,9 +199,6 @@
     <FxCompile Include="..\Resource\ShadowDepthPS.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\ShadowPixelShader.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="..\Resource\ShadowVertexShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>

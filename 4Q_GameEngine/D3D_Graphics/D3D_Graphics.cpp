@@ -460,8 +460,6 @@ void Renderer::RenderDebugDraw()
 			model->m_bIsCulled ? Colors::Red : Colors::Blue);
 	}
 #endif
-
-
 	for (auto& box : m_colliderBox)
 	{
 		DebugDraw::Draw(DebugDraw::g_Batch.get(), box.colliderBox, Colors::Green);
@@ -472,7 +470,6 @@ void Renderer::RenderDebugDraw()
 
 void Renderer::RenderQueueSort()
 {
-
 	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
 		return lhs->m_pMaterial < rhs->m_pMaterial;
 		});
@@ -488,9 +485,7 @@ void Renderer::SetEnvironment(std::string filename)
 		m_pDeviceContext->PSSetShaderResources(9, 1, pEnvironment->m_pIBLDiffuseTextureResource->m_pTextureRV.GetAddressOf());
 		m_pDeviceContext->PSSetShaderResources(10, 1, pEnvironment->m_pIBLSpecularTextureResource->m_pTextureRV.GetAddressOf());
 		m_pDeviceContext->PSSetShaderResources(11, 1, pEnvironment->m_pIBLBRDFTextureResource->m_pTextureRV.GetAddressOf());
-
 	}
-
 }
 
 void Renderer::Update()
@@ -529,6 +524,24 @@ void Renderer::Update()
 		FrustumCulling(model);
 	}
 
+	// pointLight Frustum Culling
+	for (int i = 0; i < pointLightCount; i++)
+	{
+		DirectX::BoundingBox pointLightBoundingBox;
+
+		// Calculate the extents of the bounding box based on the radius
+		Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
+
+		// Set the bounding box parameters
+		pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
+		pointLightBoundingBox.Extents = extents;
+
+		if (m_frustumCmaera.Intersects(pointLightBoundingBox))
+		{
+			m_pointLightInstance.push_back(m_pointLights[i]);
+		}
+	}
+
 	//AddOutlineMesh(m_pStaticModels[1]);
 	RenderQueueSort();
 }
@@ -544,14 +557,15 @@ void Renderer::RenderBegin()
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-	assert(m_pointLights.size() <= pointLightCount);
-	for (int i = 0; i < m_pointLights.size(); i++)
+	assert(m_pointLightInstance.size() <= pointLightCount);
+	for (int i = 0; i < m_pointLightInstance.size(); i++)
 	{
-		m_pointLightCB.pointLights[i].mPos = m_pointLights[i].GetPosition();
-		m_pointLightCB.pointLights[i].mRadius = m_pointLights[i].GetRadius();
-		m_pointLightCB.pointLights[i].mLightColor = m_pointLights[i].GetColor();
-		m_pointLightCB.pointLights[i].mIntensity = m_pointLights[i].GetIntensity();
-		m_pointLightCB.pointLights[i].mCameraPos = m_cameraPos;
+		m_pointLightCB.pointLights[i].mPos = m_pointLightInstance[i].GetPosition();
+		m_pointLightCB.pointLights[i].mRadius = m_pointLightInstance[i].GetRadius();
+		m_pointLightCB.pointLights[i].mLightColor = m_pointLightInstance[i].GetColor();
+		m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
+		m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
+		m_pointLightCB.mCameraPos = m_cameraPos;
 	}
 
 	m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
@@ -759,6 +773,7 @@ void Renderer::RenderEnd()
 	m_pSwapChain->Present(0, 0);
 	m_pMeshInstance.clear();
 	m_pOutlineMesh.clear();
+	m_pointLightInstance.clear();
 	MakeModelEmpty();
 }
 
@@ -851,7 +866,7 @@ void Renderer::RenderImgui()
 
 		// Point Light
 		ImGui::Text("Point Light Index");
-		ImGui::SliderInt("##plIndex", &m_pointLightIndex, 0, 3);
+		ImGui::SliderInt("##plIndex", &m_pointLightIndex, 0, pointLightCount - 1);
 		ImGui::Text("Point Light Pos");
 		Vector3 pointLightPos = m_pointLights[m_pointLightIndex].GetPosition();
 		ImGui::Text("X");
@@ -868,8 +883,12 @@ void Renderer::RenderImgui()
 		float pointLightIntensity = m_pointLights[m_pointLightIndex].GetIntensity();
 		ImGui::Text("Intensity");
 		ImGui::SameLine();
-		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 30.f);
+		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 10000.f);
 		m_pointLights[m_pointLightIndex].SetIntensity(pointLightIntensity);
+		if(m_pointLights[m_pointLightIndex].GetIntensity() < 100.f)
+		{
+			auto test = 1;
+		}
 
 		float pointLightRadius = m_pointLights[m_pointLightIndex].GetRadius();
 		ImGui::Text("Radius");
@@ -1076,8 +1095,8 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	pbd.ByteWidth = sizeof(cbPointLight);
 	pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	pbd.CPUAccessFlags = 0;
-	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pPointLightBuffer.GetAddressOf()));
-
+	HR_T(m_pDevice->CreateBuffer(&pbd, nullptr, m_pPointLightBuffer.GetAddressOf()));
+	
 	pbd = {};
 	pbd.Usage = D3D11_USAGE_DEFAULT;
 	pbd.ByteWidth = sizeof(cbBall);
@@ -1086,14 +1105,12 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
 
 	//포인트 라이트 테스트용
-	PointLight pointLight[4];
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
-		pointLight[i].SetPosition(Vector3(0, 0, 0));
-		pointLight[i].SetRadius(600.f);
-		pointLight[i].SetColor();
-		pointLight[i].SetIntensity(1.f);
-		m_pointLights.push_back(pointLight[i]);
+		m_pointLights[i].SetPosition(Vector3(0, 0, 0));
+		m_pointLights[i].SetRadius(600.f);
+		m_pointLights[i].SetColor();
+		m_pointLights[i].SetIntensity(1000.f);
 	}
 
 	SetAlphaBlendState();
@@ -1146,7 +1163,6 @@ void Renderer::UnInitialize()
 	}
 	m_pStaticModels.clear();
 	m_pStaticModels.shrink_to_fit();
-	m_pointLights.clear();
 }
 
 void Renderer::SetAlphaBlendState()
