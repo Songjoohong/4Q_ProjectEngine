@@ -650,7 +650,7 @@ void Renderer::GameAppRender()
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-	SphereRender();
+	//SphereRender();
 
 	OutlineRender();
 	MeshRender();
@@ -706,7 +706,7 @@ void Renderer::EditorRender()
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-	SphereRender();
+	//SphereRender();
 	MeshRender();
 
 

@@ -993,7 +993,6 @@ void GameEditor::NewScene()
 	playerCamera->Assign<Transform>(posPlayer);
 	playerCamera->Assign<Camera>();
 	playerCamera->Assign<Movement>();
-	playerCamera->Assign<RigidBody>();
 	//playerCamera->Assign<POVCameraScript>(playerCamera);
 	//playerCamera->get<Script>()->m_ComponentName = "POVCameraScript";
 

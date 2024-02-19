@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "../Engine/Engine.h"
 
+class BoxCollider;
+class Transform;
 class GameApp : public Engine
 {
 public:
@@ -34,6 +36,13 @@ inline void GameApp::AssignComponents(ECS::Entity* entity, json& componentData)
 	if constexpr (std::is_base_of_v<Script, ComponentType>)
 	{
 		entity->Assign<ComponentType>(entity);
+	}
+	else if constexpr (std::is_same_v<BoxCollider, ComponentType>)
+	{
+		entity->Assign<ComponentType>(componentData["m_ColliderType"], componentData["m_CollisionType"], componentData["m_Size"]);
+		auto& component = entity->get<ComponentType>().get();
+
+		component = componentData;
 	}
 	else
 	{

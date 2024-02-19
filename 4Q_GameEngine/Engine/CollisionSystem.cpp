@@ -22,19 +22,19 @@ void CollisionSystem::Receive(World* world, const Events::OnComponentAssigned<Bo
 
 void AddParentPositionToChildren(Entity* entity, const Vector3D& parentPosition)
 {
-		auto transform = entity->get<Transform>();
-		auto collider = entity->get<BoxCollider>();
+	auto transform = entity->get<Transform>();
+	auto collider = entity->get<BoxCollider>();
 
-		if (transform && collider) {
-			collider->m_Center = parentPosition + transform->m_Position;
+	if (transform && collider) {
+		collider->m_Center = parentPosition + transform->m_Position;
 
-		}
+	}
 
-		for (auto& child : entity->m_children)
-		{
-			// 자식의 자식에게도 더해주기 위해 재귀 호출
-			AddParentPositionToChildren(child, collider->m_Center);
-		}
+	for (auto& child : entity->m_children)
+	{
+		// 자식의 자식에게도 더해주기 위해 재귀 호출
+		AddParentPositionToChildren(child, collider->m_Center);
+	}
 }
 
 void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
@@ -43,7 +43,6 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 		{
 			collider->m_IsRaycastHit = false;
 
-
 			if (ent->get<EntityIdentifier>()->m_HasParent)
 			{
 				if (ent->m_parent->has<Transform>())
@@ -51,7 +50,13 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 			else
 			{
-				collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix()).Translation();
+				if (collider->m_CollisionType == CollisionType::PLAYER)
+				{
+					XMVECTOR determinant;
+					transform->m_Position = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_WorldPosition.ConvertToVector3()) * XMMatrixInverse(&determinant, DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()))).Translation();
+				}
+				else
+					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix()).Translation();
 			}
 
 		});

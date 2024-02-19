@@ -61,6 +61,8 @@ void PhysicsManager::Initialize()
 
 void PhysicsManager::Update(float deltatime)
 {
+	AddCollidersIntoPxScene();
+
 	if (!m_pStaticColliders.empty())
 	{
 		for (auto& collider : m_pStaticColliders)
@@ -180,6 +182,9 @@ void PhysicsManager::ChangeFilter(int entId)
 
 		if (obj.first == entId)
 		{
+			if (colliderPtr->m_pOwner->m_CollisionType == CollisionType::PLAYER)
+				m_PlayerCollider = colliderPtr;
+
 			colliderPtr->SetFilterData();
 			return;
 		}
@@ -292,13 +297,35 @@ void PhysicsManager::DeleteCollisionCollider(int entId)
 			auto it = std::remove_if(m_CollisionObjects.begin(), m_CollisionObjects.end(),
 				[entId](const std::pair<int, StaticCollider*>& element)
 				{
-					cout << "Enter Entity ID :" << entId << endl;
+					cout << "Exit Entity ID :" << entId << endl;
 					return element.first == entId;
 				});
 
 			m_CollisionObjects.erase(it);
 		}
 	}
+}
+
+void PhysicsManager::AddCollidersIntoPxScene()
+{
+	if (!m_AddDynamicColliders.empty())
+	{
+		for (const auto& collider : m_AddDynamicColliders)
+		{
+			m_pPxScene->addActor(*(collider->m_Rigid));
+		}
+	}
+
+	if (!m_AddStaticColliders.empty())
+	{
+		for (const auto& collider : m_AddStaticColliders)
+		{
+			m_pPxScene->addActor(*(collider->m_Rigid));
+		}
+	}
+
+	m_AddDynamicColliders.clear();
+	m_AddStaticColliders.clear();
 }
 
 DynamicCollider* PhysicsManager::GetDynamicCollider(int entId)
