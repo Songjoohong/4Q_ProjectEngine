@@ -61,27 +61,31 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	DeserializeGame("scene/ScriptTestScene.scene");
+	//m_IntroWorld = DeserializeGame("");
+
+	m_GameWorld = DeserializeGame("scene/ScriptTestScene.scene");
+
+	//m_OutroWorld = DeserializeGame("");
 
 	return true;
 }
 
-void GameApp::DeserializeGame(const std::string filename)
+ECS::World* GameApp::DeserializeGame(const std::string filename)
 {
 	std::string fullPath = basePath + filename;
 
-	m_CurrentWorld = ECS::World::CreateWorld(filename);
-	WorldManager::GetInstance()->ChangeWorld(m_CurrentWorld);
-	m_CurrentWorld->registerSystem(new ScriptSystem());
-	m_CurrentWorld->registerSystem(new MovementSystem());
-	m_CurrentWorld->registerSystem(new CollisionSystem());
-	m_CurrentWorld->registerSystem(new TransformSystem());
-	m_CurrentWorld->registerSystem(new DebugSystem());
-	m_CurrentWorld->registerSystem(new CameraSystem());
-	m_CurrentWorld->registerSystem(new RenderSystem());
-	m_CurrentWorld->registerSystem(new SpriteSystem());
-	m_CurrentWorld->registerSystem(new class UISystem);
-	m_CurrentWorld->registerSystem(new SpaceSystem());
+	ECS::World* world = ECS::World::CreateWorld(filename);
+	WorldManager::GetInstance()->ChangeWorld(world);
+	world->registerSystem(new ScriptSystem());
+	world->registerSystem(new MovementSystem());
+	world->registerSystem(new CollisionSystem());
+	world->registerSystem(new TransformSystem());
+	world->registerSystem(new DebugSystem());
+	world->registerSystem(new CameraSystem());
+	world->registerSystem(new RenderSystem());
+	world->registerSystem(new SpriteSystem());
+	world->registerSystem(new class UISystem);
+	world->registerSystem(new SpaceSystem());
 
 	// Deserialize
 	std::ifstream inputFile(fullPath);
@@ -94,7 +98,7 @@ void GameApp::DeserializeGame(const std::string filename)
 		for (auto it = entity.begin(); it != entity.end(); ++it)
 		{
 			// Entity 생성 후 정보 push
-			Entity* myEntity = m_CurrentWorld->create();
+			Entity* myEntity = world->create();
 
 			for (auto component : it.value())
 			{
@@ -194,9 +198,9 @@ void GameApp::DeserializeGame(const std::string filename)
 	}
 
 	//부모자식 관계 설정
-	for (const auto& childEntity : m_CurrentWorld->GetEntities())
+	for (const auto& childEntity : world->GetEntities())
 	{
-		for (const auto& parentEntity : m_CurrentWorld->GetEntities())
+		for (const auto& parentEntity : world->GetEntities())
 		{
 			if (childEntity->get<EntityIdentifier>().get().m_HasParent == true)
 			{
@@ -208,13 +212,15 @@ void GameApp::DeserializeGame(const std::string filename)
 		}
 	}
 
-	for (const auto& entity : m_CurrentWorld->GetEntities())
+	for (const auto& entity : world->GetEntities())
 	{
 		if (entity->get<EntityIdentifier>()->m_EntityName == "Main Camera")
 		{
-			m_CurrentWorld->destroy(entity);
+			world->destroy(entity);
 		}
 	}
+
+	return world;
 }
 
 void GameApp::SetParent(ECS::Entity* child, ECS::Entity* parent)

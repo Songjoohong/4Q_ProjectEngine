@@ -877,6 +877,11 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 		}
 	}
 
+	for (const auto& entity : currentWorld->GetEntities())
+	{
+		m_NameManager->AddEntityName(entity);
+	}
+
 	// HierarchyPanel에 등록
 	m_SceneHierarchyPanel.SetContext(currentWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.SetContext(currentWorld, m_PrefabManager);
@@ -890,22 +895,17 @@ void GameEditor::PlayButton()
 		{
 			m_IsPlaying = false;
 
-			m_ActiveWorld = nullptr;
+			WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 
-			for (const auto& entity : m_EditorWorld->GetEntities())
-			{
-				m_EditorWorld->destroy(entity);
-			}
+			m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
+			m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
 
-			m_EditorWorld->GetEntities().clear();
-
-			m_NameManager->ClearContainer();
-			m_PrefabManager->m_prefabContainer.clear();
-
-			m_EditorWorld->ResetLastEntityId();
+			m_ActiveWorld->DestroyWorld();
 
 
-			Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
+			//m_EditorWorld->ResetLastEntityId();
+
+			//Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
 		}
 	}
 	else
@@ -1030,20 +1030,29 @@ void GameEditor::NewScene()
 
 void GameEditor::PlayScene()
 {
-	m_ActiveWorld = m_EditorWorld;
+
+	m_ActiveWorld = ECS::World::CreateWorld("scene/" + m_SceneName + ".scene");
+	WorldManager::GetInstance()->ChangeWorld(m_ActiveWorld);
+
+	// 시스템 등록
+	m_ActiveWorld->registerSystem(new RenderSystem);
+	m_ActiveWorld->registerSystem(new TransformSystem);
+	m_ActiveWorld->registerSystem(new MovementSystem);
+	m_ActiveWorld->registerSystem(new CameraSystem);
+	m_ActiveWorld->registerSystem(new ScriptSystem);
+	m_ActiveWorld->registerSystem(new CollisionSystem);
+	m_ActiveWorld->registerSystem(new SpriteSystem);
+	m_ActiveWorld->registerSystem(new DebugSystem);
+	m_ActiveWorld->registerSystem(new class UISystem);
+	m_ActiveWorld->registerSystem(new SpaceSystem);
 
 	if (m_IsPlaying)
 	{
 		SaveWorld(m_SceneName);
 	}
 
-	// world 초기화 
-	for (const auto& entity : m_ActiveWorld->GetEntities())
-	{
-		m_ActiveWorld->destroy(entity);
-	}
-
-	m_ActiveWorld->GetEntities().clear();
+	m_SceneHierarchyPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
+	m_ContentsBrowserPanel.SetContext(m_ActiveWorld, m_PrefabManager);
 
 	m_NameManager->ClearContainer();
 	m_PrefabManager->m_prefabContainer.clear();
@@ -1056,10 +1065,9 @@ void GameEditor::PlayScene()
 	{
 		if (entity->get<EntityIdentifier>()->m_EntityName == "Main Camera")
 		{
-			m_EditorWorld->destroy(entity);
+			m_ActiveWorld->destroy(entity);
 		}
 	}
-
 }
 
 void GameEditor::SetParent(ECS::Entity* child, ECS::Entity* parent)
