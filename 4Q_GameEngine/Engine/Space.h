@@ -19,8 +19,8 @@ struct Space
 	{}
 	~Space() = default;
 
-	int m_SpaceIndex; // TODO
-	std::vector<ExitInfo> m_Exits;	// TODO 값 변경 또는 넣는 것도
+	int m_SpaceIndex;
+	std::vector<ExitInfo> m_Exits;
 	bool m_IsPlayerExist = false;
 
 	std::string m_ComponentName = "Space";

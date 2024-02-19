@@ -104,7 +104,7 @@ bool GameEditor::InitImGui()
 
 	ImFontConfig imguiFontConfig;
 	imguiFontConfig.MergeMode = false;
-	io.FontDefault = io.Fonts->AddFontFromFileTTF("../Resource/font/Roboto-SemiMedium.ttf", 15.0f, &imguiFontConfig, io.Fonts->GetGlyphRangesDefault());
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("../Resource/font/Roboto-SemiMedium.ttf", 15.0f, &imguiFontConfig, io.Fonts->GetGlyphRangesKorean());
 	
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -244,14 +244,14 @@ void GameEditor::RenderImGui()
 		ImGui::End();
 
 		// Game Play Buttons Test
-		{
-			ImGui::Begin("Play");
-			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
+		//{
+		//	ImGui::Begin("Play");
+		//	ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 
-			PlayButton();
+		//	PlayButton();
 
-			ImGui::End();
-		}
+		//	ImGui::End();
+		//}
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
@@ -528,7 +528,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<Movement>(entity, worldData);
 		SaveComponents<Debug>(entity, worldData);
 		SaveComponents<Sound>(entity, worldData);
-		SaveComponents<Sprite2D>(entity, worldData);
+		//SaveComponents<Sprite2D>(entity, worldData);
 		SaveComponents<Script>(entity, worldData);
 		SaveComponents<RigidBody>(entity, worldData);
 		SaveComponents<UI>(entity, worldData);
@@ -582,7 +582,7 @@ void GameEditor::ShowSceneDialog()
 			// action
 
 			// 현재 에디터가 화면에 띄우고 있는 월드의 이름을 변경
-			LoadWorld("scene/" + fileName);
+			//LoadWorld("scene/" + fileName);	// TODO : ??
 
 			// ".scene" 문자열을 찾습니다.
 			size_t found = fileName.find(".scene");
@@ -861,10 +861,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<DynamicText>(myEntity, component["DynamicText"][0]);
 				}
-				else if (componentName == "Sprite2D")
-				{
-					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
-				}
+				//else if (componentName == "Sprite2D")
+				//{
+				//	AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
+				//}
 				else if (componentName == "Script")
 				{
 					AssignComponents<Script>(myEntity, component["Script"][0]);
@@ -1020,14 +1020,14 @@ void GameEditor::NewScene()
 	ent->Assign<Movement>();
 
 	// for test
-	//{
-	//	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//	ent2->Assign<EntityIdentifier>(ent->getEntityId(), "Test UI");
-	//	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//	ent2->Assign<UI>(100, 100);
-	//	ent2->Assign<Sprite2D>(ent2, "../Resource/UI/image.jpg", 0, 100, 100);
-	//	ent2->Assign<TestUIScript>(ent2);
-	//}
+	{
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<EntityIdentifier>(ent->getEntityId(), "Test UI");
+		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+		ent2->Assign<UI>(100, 100);
+		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
+		ent2->Assign<TestUIScript>(ent2);
+	}
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{

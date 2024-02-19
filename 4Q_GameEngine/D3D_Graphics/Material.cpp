@@ -119,7 +119,7 @@ void Material::Create(aiMaterial* material)
         m_pAmbientOcclusionRV = ResourceManager::Instance->CreateMaterial(finalPath);
     }
     if(m_pOpacityRV)
-        m_pixelShader.SetShader(L"PixelShader");
+        m_pixelShader.SetShader(L"../Resource/PixelShader");
     else
         m_pixelShader.SetShader(L"OpaquePBR");
     //m_shadowPixelShader.SetShader(L"ShadowPixelShader");
