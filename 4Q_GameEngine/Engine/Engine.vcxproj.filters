@@ -242,6 +242,9 @@
     <ClInclude Include="EventSystem.h">
       <Filter>System\Event</Filter>
     </ClInclude>
+    <ClInclude Include="IntroCameraScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

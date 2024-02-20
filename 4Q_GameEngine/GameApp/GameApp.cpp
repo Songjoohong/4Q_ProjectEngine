@@ -31,7 +31,8 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/DynamicTextScript.h"
-
+#include "../Engine/IntroCameraScript.h"
+#include "../Engine/OutroScript.h"
 // system Headers
 #include "../Engine/MovementSystem.h"
 #include "../Engine/TransformSystem.h"
@@ -42,9 +43,12 @@
 #include "../Engine/CollisionSystem.h"
 #include "../Engine/SpriteSystem.h"
 #include "../Engine/DebugSystem.h"
+#include "../Engine/DrawerScript.h"
 #include "../Engine/UISystem.h"
 #include "../Engine/SpaceSystem.h"
 #include "../Engine/EventSystem.h"
+
+
 
 GameApp::GameApp(HINSTANCE hInstance)
 	:Engine(hInstance)
@@ -204,6 +208,18 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DynamicTextScript")
 					{
 						AssignComponents<DynamicTextScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DrawerScript")
+					{
+						AssignComponents<DrawerScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroCameraScript")
+					{
+						AssignComponents<IntroCameraScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "OutroScript")
+					{
+						AssignComponents<OutroScript>(gameEntity, component["Script"][0]);
 					}
 				}
 			}
