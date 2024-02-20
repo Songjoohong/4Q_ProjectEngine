@@ -6,7 +6,9 @@
 
 struct DrawerScript : public Script
 {
-	DrawerScript() = default;
+	DrawerScript(Entity* ent)
+		:Script(ent)
+	{}
 	virtual ~DrawerScript() override = default;
 
 	virtual void Update(float deltaTime) override

@@ -780,6 +780,7 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					{
 						m_PrefabManager->AssignComponents<DrawerScript>(playEntity, component["Script"][0]);
 					}
+					//요기
 				}
 			}
 			m_PrefabManager->m_prefabContainer.push_back({ playEntity, oldID });
