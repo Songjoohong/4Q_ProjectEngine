@@ -16,15 +16,15 @@ public:
     void CreateModel(string fileName, DirectX::BoundingBox& boundingBox);
     void CreateEnvironment(string filename);
 
-    std::unordered_map<std::string, shared_ptr<Model>> m_pOriginalModels;
-    std::unordered_map<std::string, shared_ptr<Environment>>m_pOriginalEnvironments;
+    std::map<std::string, shared_ptr<Model>> m_pOriginalModels;
+    std::map<std::string, shared_ptr<Environment>>m_pOriginalEnvironments;
 
 public:
-    std::unordered_map<std::string, std::weak_ptr<StaticSceneResource>> m_staticMeshMap;
+    std::map<std::string, std::weak_ptr<StaticSceneResource>> m_staticMeshMap;
     //std::map<std::string, std::weak_ptr<SkeletalMeshResource>> m_skeletalMeshMap;
-    std::unordered_map<std::wstring, std::weak_ptr<MaterialTexture>> m_materialMap;
+    std::map<std::wstring, std::weak_ptr<MaterialTexture>> m_materialMap;
     //std::map<std::string, std::weak_ptr<Animation>> m_animationMap;
-    std::unordered_map<std::string, ComPtr<ID3D11ShaderResourceView>> m_sprite;
+    std::map<std::string, ComPtr<ID3D11ShaderResourceView>> m_sprite;
 
     std::shared_ptr<StaticSceneResource> CreateStaticMeshResource(std::string filePath);
     std::shared_ptr<StaticSceneResource> CreateEnvironmentMeshResource(std::string filePath);

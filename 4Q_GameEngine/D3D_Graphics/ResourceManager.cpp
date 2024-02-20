@@ -25,6 +25,7 @@ void ResourceManager::CreateModel(string fileName,DirectX::BoundingBox& bounding
     {
         if (nullptr != it->second)
         {
+            boundingBox = dynamic_cast<StaticModel*>(it->second.get())->m_boundingBox;
             return;
         }
         else

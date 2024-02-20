@@ -29,7 +29,9 @@ public:
 		if (m_ElapsedTime < m_PauseTime)
 			return;
 
-		m_pOwner->get<Transform>()->m_Position.AddX(deltaTime * m_Speed);
+		// 아웃트로 이미지를 이동시킨다.
+		//m_pOwner->get<Transform>()->m_Position.AddX(deltaTime * m_Speed);
+		m_pOwner->get<Sprite2D>().get().m_Position[0] += deltaTime * m_Speed;
 
 		// TODO: 선형보간으로 부드럽게 위치이동.
 		//m_pOwner->get<Transform>()->m_Position.SetX();
@@ -38,5 +40,5 @@ public:
 private:
 	float m_ElapsedTime = 0.f;
 	float m_Speed = 10.f;
-	float m_PauseTime = 5.f;
+	float m_PauseTime = 3.f;
 };
