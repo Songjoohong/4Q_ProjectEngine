@@ -31,7 +31,7 @@ public:
 			if (m_pOwner->get<EntityIdentifier>()->m_EntityName == "hanok_door_R")
 			{
 				if (m_pOwner->get<Transform>()->m_Rotation.GetY() > -130.0f) {
-					m_pOwner->get<Transform>()->m_Rotation.SetY(m_pOwner->get<Transform>()->m_Rotation.GetY() - 80.0f * deltaTime);
+					m_pOwner->get<Transform>()->m_Rotation.SetY(m_pOwner->get<Transform>()->m_Rotation.GetY() - 200.0f * deltaTime);
 				}
 				else
 					m_IsRotating = false;
@@ -39,7 +39,7 @@ public:
 			else if (m_pOwner->get<EntityIdentifier>()->m_EntityName == "hanok_door_L")
 			{
 				if (m_pOwner->get<Transform>()->m_Rotation.GetY() < 130.0f) {
-					m_pOwner->get<Transform>()->m_Rotation.SetY(m_pOwner->get<Transform>()->m_Rotation.GetY() + 80.0f * deltaTime);
+					m_pOwner->get<Transform>()->m_Rotation.SetY(m_pOwner->get<Transform>()->m_Rotation.GetY() + 200.0f * deltaTime);
 				}
 			}
 		}
