@@ -167,6 +167,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Door.h" />
+    <ClInclude Include="DoorScript.h" />
     <ClInclude Include="DrawerScript.h" />
     <ClInclude Include="DynamicText.h" />
     <ClInclude Include="EventSystem.h" />

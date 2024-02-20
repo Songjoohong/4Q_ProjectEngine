@@ -248,6 +248,12 @@
     <ClInclude Include="IntroDoorScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
+    <ClInclude Include="DoorScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Door.h">
+      <Filter>Component</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

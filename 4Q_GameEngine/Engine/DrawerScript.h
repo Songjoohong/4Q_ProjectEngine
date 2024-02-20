@@ -14,10 +14,9 @@ struct DrawerScript : public Script
 
 	virtual void Update(float deltaTime) override
 	{
-		int a = 0;
 		if(m_pOwner->has<BoxCollider>())
 		{
-			auto a = m_pOwner->get<BoxCollider>()->m_IsRaycastHit;
+			auto isRayCast = m_pOwner->get<BoxCollider>()->m_IsRaycastHit;
 			if (m_pOwner->get<BoxCollider>()->m_IsRaycastHit)
 			{
 				// ¿Ü°û¼± Ã³¸®
