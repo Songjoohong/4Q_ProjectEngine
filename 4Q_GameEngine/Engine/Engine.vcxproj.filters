@@ -237,6 +237,9 @@
     <ClInclude Include="IntroCameraScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
+    <ClInclude Include="OutroScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

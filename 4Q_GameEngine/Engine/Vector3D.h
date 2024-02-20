@@ -132,7 +132,10 @@ public:
 	void SetY(float y) { m_Y = y; }
 	void SetZ(float z) { m_Z = z; }
 
+	void AddX(float x) { m_X += x; }
 	void AddY(float y) { m_Y += y; }
+	void AddZ(float z) { m_Z += z; }
+
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Vector3D, m_X, m_Y, m_Z)
 };
 

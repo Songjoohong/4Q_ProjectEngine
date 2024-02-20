@@ -31,6 +31,7 @@
 #include "../Engine/TestUIScript.h"
 #include "../Engine/DynamicTextScript.h"
 #include "../Engine/IntroCameraScript.h"
+#include "../Engine/OutroScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -232,6 +233,7 @@ void GameEditor::RenderImGui()
 				ImGui::EndMenu();
 			}
 
+
 			//ImGui::SameLine(ImGui::GetWindowWidth() / 2 - 120);
 			//ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 30.0f, 30.0f });
 
@@ -248,7 +250,9 @@ void GameEditor::RenderImGui()
 		ShowSceneDialog();
 		ShowSaveSceneAsPopup();
 
+#ifdef _DEBUG
 		//ImGui::ShowDemoWindow();
+#endif
 		ImGui::End();
 
 		// Game Play Buttons Test
@@ -1038,6 +1042,7 @@ void GameEditor::NewScene()
 	ent->Assign<Movement>();
 
 	// for test
+#ifdef _DEBUG
 	{
 		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test UI");
@@ -1046,6 +1051,7 @@ void GameEditor::NewScene()
 		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
 		ent2->Assign<TestUIScript>(ent2);
 	}
+#endif
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
