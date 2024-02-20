@@ -1034,6 +1034,7 @@ void GameEditor::NewScene()
 	ent->Assign<Movement>();
 
 	// for test
+#ifdef _DEBUG
 	{
 		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test UI");
@@ -1042,6 +1043,7 @@ void GameEditor::NewScene()
 		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
 		ent2->Assign<TestUIScript>(ent2);
 	}
+#endif
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
