@@ -23,6 +23,7 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -35,6 +36,7 @@
 #include "../Engine/OutroScript.h"
 #include "../Engine/DrawerScript.h"
 #include "../Engine/IntroDoorScript.h"
+#include "../Engine/DoorScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -71,7 +73,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 		return result;
 
 	m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
-	m_GameWorld = DeserializeGame("scene/TestGameScene.scene");
+	//m_GameWorld = DeserializeGame("scene/TestGameScene.scene");
 	//m_OutroWorld = DeserializeGame("");
 
 	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
@@ -187,6 +189,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 				{
 					AssignComponents<PlayerInformation>(gameEntity, component["PlayerInformation"][0]);
 				}
+				else if (componentName == "Interactive")
+				{
+					AssignComponents<Interactive>(gameEntity, component["Interactive"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
@@ -228,6 +234,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroDoorScript")
 					{
 						AssignComponents<IntroDoorScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DoorScript")
+					{
+						AssignComponents<DoorScript>(gameEntity, component["Script"][0]);
 					}
 				}
 			}
@@ -295,7 +305,10 @@ void GameApp::Update()
 		{
 			if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
 			{
-				WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+				/*if (m_GameWorld != nullptr)
+				{
+					WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+				}*/
 			}
 		}
 	}

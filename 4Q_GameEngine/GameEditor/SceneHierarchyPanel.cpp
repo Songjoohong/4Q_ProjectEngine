@@ -18,6 +18,7 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -460,6 +461,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<DynamicText>("DynamicText");
 		DisplayAddComponentEntry<Sound>("Sound");
 		DisplayAddComponentEntry<PlayerInformation>("PlayerInformation");
+		DisplayAddComponentEntry<Interactive>("Interactive");
 		ImGui::EndPopup();
 	}
 
@@ -781,6 +783,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<PlayerInformation>("PlayerInformation", entity, [](auto component)
 	{
 
+	});
+
+	DrawComponent<Interactive>("Interactive", entity, [](auto component)
+	{
+		ImGui::InputInt("OpeningDir", &component->m_OpeningDir);
 	});
 }
 

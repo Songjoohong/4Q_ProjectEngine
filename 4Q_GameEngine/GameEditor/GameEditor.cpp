@@ -23,6 +23,7 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -35,6 +36,7 @@
 #include "../Engine/OutroScript.h"
 #include "../Engine/DrawerScript.h"
 #include "../Engine/IntroDoorScript.h"
+#include "../Engine/DoorScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -729,6 +731,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 				{
 					m_PrefabManager->AssignComponents<PlayerInformation>(playEntity, component["PlayerInformation"][0]);
 				}
+				else if (componentName == "Interactive")
+				{
+					m_PrefabManager->AssignComponents<Interactive>(playEntity, component["Interactive"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
@@ -898,6 +904,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<PlayerInformation>(loadEntity, component["PlayerInformation"][0]);
 				}
+				else if (componentName == "Interactive")
+				{
+					AssignComponents<Interactive>(loadEntity, component["Interactive"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					AssignComponents<Script>(loadEntity, component["Script"][0]);
@@ -1061,12 +1071,12 @@ void GameEditor::NewScene()
 	}
 #endif
 	// for test 2
-	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
-	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 100, 100);
-	ent2->Assign<OutroScript>(ent2);
-	ent->get<Script>()->m_ComponentName = "OutroScript";
+	//Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
+	//ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 100, 100);
+	//ent2->Assign<OutroScript>(ent2);
+	//ent->get<Script>()->m_ComponentName = "OutroScript";
 
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
