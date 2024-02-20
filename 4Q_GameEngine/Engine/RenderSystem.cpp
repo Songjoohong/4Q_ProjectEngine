@@ -25,7 +25,6 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 		{
 			if (staticMesh->m_FileName != "")
 			{
-				
 				if (staticMesh->m_IsModelCreated)
 				{
 					//if(RenderManager::GetInstance()->Culling(staticMesh->m_BoundingBox))

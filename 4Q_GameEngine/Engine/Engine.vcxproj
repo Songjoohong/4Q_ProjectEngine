@@ -167,6 +167,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DrawerScript.h" />
     <ClInclude Include="DynamicText.h" />
     <ClInclude Include="EventSystem.h" />
     <ClInclude Include="IntroCameraScript.h" />
