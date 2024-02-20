@@ -251,7 +251,7 @@
     <ClInclude Include="DoorScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
-    <ClInclude Include="Door.h">
+    <ClInclude Include="Interactive.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
