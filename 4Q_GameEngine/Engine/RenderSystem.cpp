@@ -25,8 +25,6 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 		{
 			if (staticMesh->m_FileName != "")
 			{
-<<<<<<< Updated upstream
-=======
 				if (entity->get<EntityIdentifier>()->m_HasParent)
 				{
 					auto matrix = transform->m_RelativeMatrix.ConvertToMatrix()* entity->getParent()->get<Transform>()->m_WorldMatrix.ConvertToMatrix();
@@ -39,7 +37,6 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 				{
 					staticMesh->m_BoundingBox.Center = transform->m_Position.ConvertToVector3();
 				}
->>>>>>> Stashed changes
 				if (staticMesh->m_IsModelCreated)
 				{
 					
