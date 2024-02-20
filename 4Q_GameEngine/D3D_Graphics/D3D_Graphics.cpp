@@ -64,9 +64,13 @@ void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 	}
 }
 
-void Renderer::AddColliderBox(Vector3 center, Vector3 extents)
+
+void Renderer::AddColliderBox(Vector3 center, Vector3 extents, Math::Matrix worldTM)
 {
-	m_colliderBox.push_back(ColliderBox(center + Vector3{ 0.f,extents.y, 0.f }, extents));
+	Math::Vector3 scale, pos;
+	Math::Quaternion rotation;
+	worldTM.Decompose(scale, rotation, pos);
+	m_colliderBox.push_back(ColliderBox(center , extents, rotation));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
@@ -175,6 +179,31 @@ void Renderer::CreateModel(string filename)
 	m_pStaticModels.push_back(pModel);
 }
 
+void Renderer::CreateScreenMesh()
+{
+	m_pScreenMesh = new StaticMeshResource();
+	m_pScreenMesh->m_vertices.resize(4);
+	m_pScreenMesh->m_vertices[0].Position = { -1,1,0 };
+	m_pScreenMesh->m_vertices[0].Texcoord = { 0,0 };
+	m_pScreenMesh->m_vertices[1].Position = { 1,1,0 };
+	m_pScreenMesh->m_vertices[1].Texcoord = { 1,0 };
+	m_pScreenMesh->m_vertices[2].Position = { -1,-1,0 };
+	m_pScreenMesh->m_vertices[2].Texcoord = { 0,1 };
+	m_pScreenMesh->m_vertices[3].Position = { 1,-1,0 };
+	m_pScreenMesh->m_vertices[3].Texcoord = { 1,1 };
+
+	m_pScreenMesh->m_indices = { 0,1,2,2,1,3 };
+
+	m_pScreenMesh->CreateVertexBuffer(m_pDevice.Get(), m_pScreenMesh->m_vertices, 4);
+	m_pScreenMesh->CreateIndexBuffer(m_pDevice.Get(), m_pScreenMesh->m_indices, 6);
+
+	m_pScreenMesh->Setting(L"VS_Screen");
+
+	m_pScreenMeshInstance = new StaticMeshInstance();
+	m_pScreenMeshInstance->m_pMeshResource = m_pScreenMesh;
+	m_pScreenMeshInstance->Initialize();
+}
+
 void Renderer::CreateViewport(UINT width, UINT height)
 {
 	//뷰포트 설정
@@ -219,6 +248,37 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.Texture2D.MipSlice = 0;
 	HR_T(m_pDevice->CreateDepthStencilView(textureDepthStencil.Get(), &descDSV, &m_pDepthStencilView));
 
+	//Outline DepthStencil
+	descDepth.Width = width;
+	descDepth.Height = height;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+	HR_T(m_pDevice->CreateTexture2D(&descDepth, nullptr, &m_pOutlineMap));
+	HR_T(m_pDevice->CreateTexture2D(&descDepth, nullptr, m_pOriginMap.GetAddressOf()));
+
+
+	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	HR_T(m_pDevice->CreateDepthStencilView(m_pOutlineMap.Get(), &descDSV, m_pOutlineDepthStencilView.GetAddressOf()));
+	HR_T(m_pDevice->CreateDepthStencilView(m_pOriginMap.Get(), &descDSV, m_pOutlineOriginDSV.GetAddressOf()));
+	
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension= D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	HR_T(m_pDevice->CreateShaderResourceView(m_pOutlineMap.Get(), &srvDesc, m_pOutlineMapSRV.GetAddressOf()));
+	HR_T(m_pDevice->CreateShaderResourceView(m_pOriginMap.Get(), &srvDesc, m_pOriginMapSRV.GetAddressOf()));
+
 	//Shadow DepthStencilView 초기화
 	descDepth = {};
 	descDepth.Width = (float)(SHADOWMAP_SIZE);
@@ -238,7 +298,7 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
@@ -364,8 +424,21 @@ void Renderer::SphereRender()
 
 void Renderer::OutlineRender()
 {
+	m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pOutlineOriginDSV.Get());
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
-	m_pDeviceContext->OMSetDepthStencilState(m_pOutlineDSS.Get(), 1);
+	m_pDeviceContext->OMSetDepthStencilState(m_pOutlineDSS.Get(), 0);
+	for (auto it : m_pOutlineMesh)
+	{
+		m_pDeviceContext->VSSetShader(it->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
+		m_pDeviceContext->PSSetShader(m_pOutlinePS.Get(), nullptr, 0);
+		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
+		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+		it->Render(m_pDeviceContext.Get());
+	}
+
+	m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pOutlineDepthStencilView.Get());
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+	m_pDeviceContext->OMSetDepthStencilState(m_pOutlineDSS.Get(), 0);
 	for (auto it : m_pOutlineMesh)
 	{
 		m_pDeviceContext->VSSetShader(m_pOutlineVS.Get(), nullptr, 0);
@@ -506,7 +579,7 @@ void Renderer::Update()
 	//그림자 View, Projection 매트릭스 생성
 	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 300.0f, 20000.0f);
 	Vector3 shadowLookAt = { 0, 0, 0 };
-	Vector3 shadowPos = shadowLookAt + (-m_lightCB.mDirection * 1000);
+	Vector3 shadowPos = shadowLookAt + (-m_lightCB.mDirection * 20000);
 	Matrix shadowView = DirectX::XMMatrixLookAtLH(shadowPos, shadowLookAt, Vector3(0.f, 1.f, 0.f));
 
 	m_shadowDirection = shadowLookAt - shadowPos;
@@ -570,13 +643,13 @@ void Renderer::RenderBegin()
 
 	m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
-	m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-	m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-	Clear(0, 1, 0);
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
-	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
+    m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
+    Clear(0,1,0);
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Renderer::RenderText() const
@@ -663,20 +736,22 @@ void Renderer::GameAppRender()
 	//m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);		// Clear() 함수에 이미 있는디?
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 실제 게임 렌더타겟에 렌더
-
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 실제 게임 렌더타겟에 렌더
+	m_pDeviceContext->ClearDepthStencilView(m_pOutlineDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->ClearDepthStencilView(m_pOutlineOriginDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	SphereRender();
 
+	//OutlineRender();
 	OutlineRender();
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get()); 
 	MeshRender();
-
-
 	RenderDebugDraw();
 
 
+	FinalRender();
 	m_spriteBatch->Begin();
 	RenderText();
 	RenderSprite();
@@ -742,7 +817,7 @@ void Renderer::EditorRender()
 	//RenderImgui();
 
 	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	
 }
 
 
@@ -764,6 +839,24 @@ void Renderer::RenderEnvironment()
 	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Initialize();
 	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Render(m_pDeviceContext.Get());
 
+}
+
+void Renderer::FinalRender()
+{
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pDeviceContext->RSSetViewports(1, &m_viewport);
+	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	Clear();
+	m_pDeviceContext->VSSetShader(m_pScreenMeshInstance->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
+	m_pDeviceContext->PSSetShader(m_pScreenPS.Get(), nullptr, 0);
+	m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+	m_pDeviceContext->PSSetShaderResources(12, 1, m_pFirstMapSRV.GetAddressOf());
+	m_pDeviceContext->PSSetShaderResources(13, 1, m_pOutlineMapSRV.GetAddressOf());
+	m_pDeviceContext->PSSetShaderResources(14, 1, m_pOriginMapSRV.GetAddressOf());
+	m_pScreenMeshInstance->Render(m_pDeviceContext.Get());
 }
 
 
@@ -907,6 +1000,11 @@ void Renderer::RenderImgui()
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
 		std::string str = std::to_string(m_shadowDirection.x) + ", " + std::to_string(m_shadowDirection.y) + ", " + std::to_string(m_shadowDirection.z);
 		ImGui::Text("ShadowDirection : %s", str.c_str());
+
+		ImGui::Text("Shadow");
+		ImGui::Image(m_pOriginMapSRV.Get(), ImVec2(256, 256));
+		//std::string str = std::to_string(m_shadowDirection.x) + ", " + std::to_string(m_shadowDirection.y) + ", " + std::to_string(m_shadowDirection.z);
+		ImGui::Text("ShadowDirection : %s", str.c_str());
 		ImGui::End();
 	}
 
@@ -955,7 +1053,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 
 	swapDesc.Windowed = true;
-	swapDesc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
 
 	swapDesc.BufferDesc.Width = width;
@@ -988,6 +1086,28 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 
 
+	D3D11_TEXTURE2D_DESC t2d = {};
+	t2d.Width = width;
+	t2d.Height = height;
+	t2d.MipLevels = 1;
+	t2d.ArraySize = 1;
+	t2d.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	t2d.SampleDesc.Count = 1;
+	t2d.SampleDesc.Quality = 0;
+	t2d.Usage = D3D11_USAGE_DEFAULT;
+	t2d.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	t2d.CPUAccessFlags = 0;
+	t2d.MiscFlags = 0;
+	HR_T(m_pDevice->CreateTexture2D(&t2d, nullptr, m_pFirstMap.GetAddressOf()));
+
+	HR_T(m_pDevice->CreateRenderTargetView(m_pFirstMap.Get(), nullptr, m_pFirstRenderTargetView.GetAddressOf()));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvd = {};
+	srvd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvd.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvd.Texture2D.MipLevels = 1;
+
+	HR_T(m_pDevice->CreateShaderResourceView(m_pFirstMap.Get(), &srvd, m_pFirstMapSRV.GetAddressOf()));
 
 	//뷰포트, 뎁스 스텐실 뷰, 샘플러 상태 설정
 	CreateViewport(width, height);
@@ -1054,13 +1174,16 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pDepthStencilState.GetAddressOf()));
 
 	dsd = CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} };
+	dsd.DepthEnable = false;
 	dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pSkyboxDSS.GetAddressOf()));
 
 	dsd = CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} };
-	dsd.DepthEnable = false;
-	dsd.StencilEnable = true;
+	dsd.DepthEnable = true;
+	dsd.StencilEnable = false;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D11_COMPARISON_LESS;
 	dsd.StencilWriteMask = 0xff;
 	dsd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	dsd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
@@ -1069,22 +1192,25 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 
 	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pOutlineDSS.GetAddressOf()));
-	//래스터라이저 스테이트 초기화
-	D3D11_RASTERIZER_DESC rasterizerDesc = {};
-	rasterizerDesc.AntialiasedLineEnable = true;
-	rasterizerDesc.MultisampleEnable = true;
-	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	rasterizerDesc.CullMode = D3D11_CULL_NONE;
-	rasterizerDesc.FrontCounterClockwise = false;
-	rasterizerDesc.DepthClipEnable = true;
-	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
 
+    //래스터라이저 스테이트 초기화
+  D3D11_RASTERIZER_DESC rasterizerDesc = {};
+  rasterizerDesc.AntialiasedLineEnable = true;
+  rasterizerDesc.MultisampleEnable = true;
+  rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+  rasterizerDesc.CullMode = D3D11_CULL_NONE;
+  rasterizerDesc.FrontCounterClockwise = false;
+  rasterizerDesc.DepthClipEnable = true;
+  HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
+  
 	rasterizerDesc.FrontCounterClockwise = true;
 	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerStateCCW.GetAddressOf()));
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), NULL);
+
+    m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), NULL);
+
 
 	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 
@@ -1132,11 +1258,16 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pOutlinePS.GetAddressOf()));
 
 	buffer.Reset();
+	HR_T(CompileShaderFromFile(L"../Resource/PS_Screen.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pScreenPS.GetAddressOf()));
+
+	buffer.Reset();
 	HR_T(CompileShaderFromFile(L"../Resource/BallPBR.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
 	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pSpherePS.GetAddressOf()));
 
 	SphereInit("FBXLoad_Test/fbx/8Ball.fbx");
 
+	CreateScreenMesh();
 
 	// 렌더링 텍스처 객체를 생성한다.
 	m_RenderTexture = new RenderTextureClass;

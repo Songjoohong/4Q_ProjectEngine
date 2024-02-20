@@ -51,9 +51,10 @@ void RenderManager::AddStaticMesh(const std::string& fileName, Math::Matrix worl
 	Renderer::Instance->AddStaticModel(fileName, worldTM);
 }
 
-void RenderManager::AddColliderBox(const Vector3D center, const Vector3D extents)
+
+void RenderManager::AddColliderBox(const Vector3D center, const Vector3D extents, const bool collision, DirectX::SimpleMath::Matrix worldTM)
 {
-	Renderer::Instance->AddColliderBox(Vector3(center.GetX(), center.GetY(), center.GetZ()), Vector3(extents.GetX(), extents.GetY(), extents.GetZ()));
+	Renderer::Instance->AddColliderBox(Vector3(center.GetX(), center.GetY(), center.GetZ()), Vector3(extents.GetX(), extents.GetY(), extents.GetZ()),  worldTM);
 }
 
 

@@ -8,6 +8,7 @@ struct aiMesh;
 
 struct Vertex
 {
+	Vertex() {}
 	Vector3 Position;
 	Vector2 Texcoord;
 	Vector3 Normal;
@@ -38,12 +39,11 @@ public:
 	string m_meshName;
 
 	Math::Matrix m_localMatrix;
-	
-private:
-	void CreateVertexBuffer(ID3D11Device* device, const std::vector<Vertex>& vertices, UINT vertexCount);
-	void CreateIndexBuffer(ID3D11Device* device, const std::vector<UINT>& indices, UINT indexCount);
 
 public:
+	void CreateVertexBuffer(ID3D11Device* device, const vector<Vertex>& vertices, UINT vertexCount);
+	void CreateIndexBuffer(ID3D11Device* device, const vector<UINT>& indices, UINT indexCount);
+
 	void Create(ID3D11Device* device, aiMesh* mesh);
 	void CreateEnvironment(ID3D11Device* device, aiMesh* mesh);
 	void Setting(std::wstring vs_name);
