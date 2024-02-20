@@ -234,12 +234,9 @@ void GameEditor::RenderImGui()
 
 				ImGui::EndMenu();
 			}
-			/*ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
-			ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });*/
 
-
-			//ImGui::SameLine(ImGui::GetWindowWidth() / 2 - 120);
-			//ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 30.0f, 30.0f });
+			// Display Play & Pause Button 
+			PlayButton();
 
 			ImGui::EndMenuBar();
 		}
@@ -249,25 +246,13 @@ void GameEditor::RenderImGui()
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
 
-
-
 		ShowSceneDialog();
 		ShowSaveSceneAsPopup();
 
 #ifdef _DEBUG
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 #endif
 		ImGui::End();
-
-		// Game Play Buttons Test
-		{
-			ImGui::Begin("Play");
-			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
-
-			PlayButton();
-
-			ImGui::End();
-		}
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
@@ -940,9 +925,11 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 
 void GameEditor::PlayButton()
 {
+	// 중간에 버튼 하나를 배치할것이다.
+	ImGui::SameLine(ImGui::GetWindowWidth() / 2 - 63);
 	if (m_IsPlaying)
 	{
-		if (ImGui::Button("||", ImVec2(40.0f, 40.0f)))
+		if (ImGui::Button("Stop", ImVec2(60.0f, 0.0f)))
 		{
 			m_IsPlaying = false;
 
@@ -956,7 +943,7 @@ void GameEditor::PlayButton()
 	}
 	else
 	{
-		if (ImGui::Button(">", ImVec2(40.0f, 40.0f)))
+		if (ImGui::Button("Play", ImVec2(60.0f, 0.0f)))
 		{
 			m_IsPlaying = true;
 			PlayScene();
