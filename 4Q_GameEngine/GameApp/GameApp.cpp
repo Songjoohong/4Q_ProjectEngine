@@ -31,6 +31,10 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/DynamicTextScript.h"
+#include "../Engine/IntroCameraScript.h"
+#include "../Engine/OutroScript.h"
+#include "../Engine/DrawerScript.h"
+#include "../Engine/IntroDoorScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -62,11 +66,11 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	//m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
-	m_GameWorld = DeserializeGame("scene/jasonScene.scene");
+	m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
+	m_GameWorld = DeserializeGame("scene/TestGameScene.scene");
 	//m_OutroWorld = DeserializeGame("");
 
-	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 	
 	return true;
 }
@@ -203,6 +207,22 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					{
 						AssignComponents<DynamicTextScript>(gameEntity, component["Script"][0]);
 					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroCameraScript")
+					{
+						AssignComponents<IntroCameraScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "OutroScript")
+					{
+						AssignComponents<OutroScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DrawerScript")
+					{
+						AssignComponents<DrawerScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroDoorScript")
+					{
+						AssignComponents<IntroDoorScript>(gameEntity, component["Script"][0]);
+					}
 				}
 			}
 			m_entityContainer.push_back({ gameEntity, oldID });
@@ -263,9 +283,15 @@ void GameApp::Update()
 {
 	__super::Update();
 
-	if (InputManager::GetInstance()->GetKeyDown(Key::F8))
+	for (const auto& introEntity : m_IntroWorld->GetEntities())
 	{
-		WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+		if (introEntity->get<EntityIdentifier>()->m_EntityName == "PlayerCamera")
+		{
+			if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
+			{
+				WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+			}
+		}
 	}
 
 	if (InputManager::GetInstance()->GetKeyDown(Key::F9))

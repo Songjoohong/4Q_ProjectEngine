@@ -34,6 +34,7 @@
 #include "../Engine/IntroCameraScript.h"
 #include "../Engine/OutroScript.h"
 #include "../Engine/DrawerScript.h"
+#include "../Engine/IntroDoorScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -779,6 +780,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DrawerScript")
 					{
 						m_PrefabManager->AssignComponents<DrawerScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroDoorScript")
+					{
+						m_PrefabManager->AssignComponents<IntroDoorScript>(playEntity, component["Script"][0]);
 					}
 				}
 			}
