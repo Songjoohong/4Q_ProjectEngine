@@ -31,7 +31,9 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/DynamicTextScript.h"
+#include "../Engine/IntroCameraScript.h"
 #include "../Engine/OutroScript.h"
+#include "../Engine/DrawerScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -72,8 +74,8 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	NewScene();
 
-	std::string pngPath = "../Resource/UI/play button.png";
-	auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
+	//std::string pngPath = "../Resource/UI/play button.png";
+	//auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
 	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
 
 	if (!InitImGui())
@@ -232,8 +234,12 @@ void GameEditor::RenderImGui()
 
 				ImGui::EndMenu();
 			}
-			//ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
-			//ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });
+			/*ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
+			ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });*/
+
+
+			//ImGui::SameLine(ImGui::GetWindowWidth() / 2 - 120);
+			//ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 30.0f, 30.0f });
 
 			ImGui::EndMenuBar();
 		}
@@ -253,15 +259,15 @@ void GameEditor::RenderImGui()
 #endif
 		ImGui::End();
 
-		//// Game Play Buttons Test
-		//{
-		//	ImGui::Begin("Play");
-		//	ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
+		// Game Play Buttons Test
+		{
+			ImGui::Begin("Play");
+			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 
-		//	PlayButton();
+			PlayButton();
 
-		//	ImGui::End();
-		//}
+			ImGui::End();
+		}
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
@@ -761,6 +767,18 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DynamicTextScript")
 					{
 						m_PrefabManager->AssignComponents<DynamicTextScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroCameraScript")
+					{
+						m_PrefabManager->AssignComponents<IntroCameraScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "OutroScript")
+					{
+						m_PrefabManager->AssignComponents<OutroScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DrawerScript")
+					{
+						m_PrefabManager->AssignComponents<DrawerScript>(playEntity, component["Script"][0]);
 					}
 				}
 			}

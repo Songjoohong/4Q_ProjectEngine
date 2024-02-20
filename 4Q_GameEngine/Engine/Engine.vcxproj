@@ -170,6 +170,7 @@
     <ClInclude Include="DrawerScript.h" />
     <ClInclude Include="DynamicText.h" />
     <ClInclude Include="EventSystem.h" />
+    <ClInclude Include="IntroCameraScript.h" />
     <ClInclude Include="OutroScript.h" />
     <ClInclude Include="PlayerInformation.h" />
     <ClInclude Include="POVCameraScript.h" />

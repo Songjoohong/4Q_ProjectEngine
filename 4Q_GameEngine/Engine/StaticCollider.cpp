@@ -31,6 +31,7 @@ void StaticCollider::Initialize()
 	PhysicsManager::GetInstance()->AddStaticColliders(this);
 
 	SetFilterData();
+	UpdateRotation();
 	UpdatePosition();
 }
 
