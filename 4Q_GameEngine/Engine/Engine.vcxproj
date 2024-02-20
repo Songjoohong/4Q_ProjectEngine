@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClInclude Include="DynamicText.h" />
     <ClInclude Include="EventSystem.h" />
+    <ClInclude Include="OutroScript.h" />
     <ClInclude Include="PlayerInformation.h" />
     <ClInclude Include="POVCameraScript.h" />
     <ClInclude Include="FreeCameraScript.h" />
