@@ -178,15 +178,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Resource\Header.hlsli">
+    <FxCompile Include="..\Resource\BallPBR.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Resource\VertexShader.hlsl">
+    </FxCompile>
+    <FxCompile Include="..\Resource\DefferedShader.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\OpaquePBR.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\PixelShader.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\PS_Environment.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\PS_Outline.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\ShadowDepthPS.hlsl">
@@ -195,25 +202,18 @@
     <FxCompile Include="..\Resource\ShadowVertexShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="..\Resource\VertexShader.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
     <FxCompile Include="..\Resource\VS_Environment.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resource\PS_Environment.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resource\OpaquePBR.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resource\BallPBR.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resource\DefferedShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\VS_Outline.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\PS_Outline.hlsl">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Resource\Header.hlsli">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\VS_Screen.hlsl">
@@ -228,5 +228,6 @@
     <FxCompile Include="..\Resource\PS_Box.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
+    </None>
   </ItemGroup>
 </Project>

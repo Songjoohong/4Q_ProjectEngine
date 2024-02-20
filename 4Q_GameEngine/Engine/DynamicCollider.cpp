@@ -7,20 +7,46 @@ DynamicCollider::DynamicCollider(BoxCollider* owner)
 {
 }
 
+DynamicCollider::~DynamicCollider()
+{
+	delete static_cast<UserData*>(m_Rigid->userData);
+	PX_RELEASE(m_Rigid);
+}
+
 void DynamicCollider::Initialize()
 {
 	__super::Initialize();
 
 	m_Rigid = PhysicsManager::GetInstance()->GetPhysics()->createRigidDynamic(PxTransform(m_Transform.p));
 	// 석영 : Box만 사용중.
-	m_Rigid->setMaxLinearVelocity(100.f);
+	m_Rigid->setMaxLinearVelocity(150.f);
 	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
 	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_Rigid);
 
 	FreezeRotation(true, true, true);
 	SetDensity(75.f); // 석영 : 기본값으로 넣어주기.
 	SetFilterData();
+	UpdatePosition();
+}
+void DynamicCollider::UpdatePosition()
+{
+	PxVec3 boxCenter =
+	{
+		m_pOwner->m_Center.GetX(),
+		m_pOwner->m_Center.GetY(),
+		m_pOwner->m_Center.GetZ()
+	};
 
+	PxVec3 boxPos =
+	{
+		m_pOwner->m_WorldPosition.GetX(),
+		m_pOwner->m_WorldPosition.GetY(),
+		m_pOwner->m_WorldPosition.GetZ()
+	};
+
+	m_Transform.p = boxPos + boxCenter;
+	m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
+	m_Rigid->setGlobalPose(m_Transform);
 }
 void DynamicCollider::UpdatePhysics()
 {
@@ -30,22 +56,11 @@ void DynamicCollider::UpdatePhysics()
 
 	PxTransform pxTrans = m_Rigid->getGlobalPose();
 	m_Transform = pxTrans;
-	m_pOwner->m_Center.SetX(pxTrans.p.x);
-	m_pOwner->m_Center.SetY(pxTrans.p.y);
-	m_pOwner->m_Center.SetZ(pxTrans.p.z);
-
-	//PxReal angle = 180.f / PxPi;
-	//m_pOwner->m_Rotation.SetX(pxTrans.q.x * angle);
-	//m_pOwner->m_Rotation.SetY(pxTrans.q.y * angle);
-	//m_pOwner->m_Rotation.SetZ(pxTrans.q.z * angle);
-
-}
-
-void DynamicCollider::SetFilterData()
-{
-	PxFilterData* filter = PhysicsManager::GetInstance()->GetFilterData(m_pOwner->m_CollisionType);
-	assert(filter != nullptr);
-	m_pShape->setSimulationFilterData(*filter);
+	m_pOwner->m_WorldPosition = {
+		m_Transform.p.x,
+		m_Transform.p.y,
+		m_Transform.p.z
+	};
 }
 
 void DynamicCollider::SetDensity(float mass)
@@ -74,7 +89,7 @@ void DynamicCollider::AddForce(Vector3D dir)
 	else if (m_CurrentDir == checkmove && m_bKeyUp == false)
 	{
 		m_bKeyUp = true;
-		m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass() * 100.f, PxForceMode::eIMPULSE, true);
+		m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass() * 150.f, PxForceMode::eIMPULSE, true);
 	}
 
 	m_PrevDir = m_CurrentDir;

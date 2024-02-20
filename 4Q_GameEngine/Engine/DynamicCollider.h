@@ -10,12 +10,11 @@ class DynamicCollider
 {
 public:
 	DynamicCollider(BoxCollider* owner);
-	virtual ~DynamicCollider() override = default;
+	virtual ~DynamicCollider() override;
 
 public:
 	virtual void Initialize() override;
-	virtual void SetFilterData() override;
-
+	virtual void UpdatePosition()override;
 	void UpdatePhysics();
 
 	/*
@@ -27,7 +26,7 @@ public:
 	// 석영 : 이동을 위한 함수
 	void AddForce(Vector3D dir);
 
-	// 석영 : 물리 효과에서 회전축 고정용
+	// 석영 : 축 고정용
 	void FreezeRotation(bool x_active,bool y_active,bool z_active);
 	void FreezeLinear(bool x_active,bool y_active,bool z_active);
 public:

@@ -10,9 +10,9 @@ PxFilterFlags CustomFilterShader(PxFilterObjectAttributes attributes0, PxFilterD
 	printf("Filtering: %u, %u\n", filterData0.word0, filterData1.word0);
 
 	// 플레이어와 다른 물체들은 충돌 처리 / 나머지는 물리X 
-	if (filterData0.word0 == CollisionMask::PLAYER || filterData1.word0 == CollisionMask::PLAYER)
+	if (filterData0.word0 == CollisionType::PLAYER || filterData1.word0 == CollisionType::PLAYER)
 	{
-		if (filterData0.word0 == CollisionMask::TRIGGER || filterData1.word0 == CollisionMask::TRIGGER )
+		if (filterData0.word0 == CollisionType::TRIGGER || filterData1.word0 == CollisionType::TRIGGER|| filterData0.word0 == CollisionType::ROOM || filterData1.word0 == CollisionType::ROOM)
 		{
 			pairFlags = PxPairFlag::eTRIGGER_DEFAULT;
 			return PxFilterFlags();
@@ -61,35 +61,44 @@ void PhysicsManager::Initialize()
 
 void PhysicsManager::Update(float deltatime)
 {
-	// 석영 : Collider 위치를 오브젝트 위치로 변경 먼저 해주기
-	/*for (auto& collider : m_pDynamicColliders)
-		if (collider->m_pOwner->m_IsTrigger == false)
-			collider->UpdateTransform();*/
+	if (!m_pStaticColliders.empty())
+	{
+		for (auto& collider : m_pStaticColliders)
+		{
+			PxVec3 tras = collider.second->m_Transform.p;
+			collider.second->UpdateScale();
+			collider.second->UpdateRotation();
+			collider.second->UpdatePosition();
+		}
+	}
 
-	for (auto& collider : m_pStaticColliders)
-		if (collider.second->m_pOwner->m_IsTrigger == false)
-			collider.second->UpdateTransform();
-
+	if (!m_pDynamicColliders.empty())
+	{
+		for (auto& collider : m_pDynamicColliders)
+		{
+			collider.second->UpdateScale();
+			collider.second->UpdateRotation();
+			collider.second->UpdatePosition();
+		}
+	}
 	// 석영 : 물리 시뮬레이션 돌리기
 	m_pPxScene->simulate(deltatime);
 	m_pPxScene->fetchResults(true);
 
 	// 석영 : 결과로 나온 값을 오브젝트로 넣어주기
-	for (auto& collider : m_pDynamicColliders)
-		if (collider.second->m_pOwner->m_IsTrigger == false)
-		{
+	if (!m_pDynamicColliders.empty())
+	{
+		for (auto& collider : m_pDynamicColliders)
 			collider.second->UpdatePhysics();
-		}
+	}
 
-	// 석영 : 충돌 상태 넘겨주고 클리어하기.
-	SendDataToObjects();
 }
 
 void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 {
 	PxRaycastBuffer hit;
 	PxVec3 vector = { 0,0,0 };
- 	raycastDir.normalize();
+	raycastDir.normalize();
 	if (raycastDir == vector)
 		return;
 	bool bHit = m_pPxScene->raycast(raycastPoint, raycastDir, 150.f, hit);
@@ -104,10 +113,75 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 			int Id = obj.first;
 			StaticCollider* colliderPtr = obj.second;
 
+			colliderPtr->m_pOwner->m_WasRaycastHit = colliderPtr->m_pOwner->m_IsRaycastHit;
+			colliderPtr->m_pOwner->m_IsRaycastHit = false;
+
 			if (obj.first == id)
 			{
-				obj.second->m_pOwner->m_IsRaycastHit = true;
+				colliderPtr->m_pOwner->m_IsRaycastHit = true;
 			}
+		}
+	}
+	else
+	{
+		// bHit = flase 일 때 모든 객체 false를 해준다.
+		for (const auto& obj : m_pStaticColliders) {
+			StaticCollider* colliderPtr = obj.second;
+
+			colliderPtr->m_pOwner->m_WasRaycastHit = colliderPtr->m_pOwner->m_IsRaycastHit;
+			colliderPtr->m_pOwner->m_IsRaycastHit = false;
+		}
+	}
+
+}
+
+void PhysicsManager::ChangeCollider(BoxCollider* boxcollider, int entId)
+{
+	for (auto it = m_pStaticColliders.begin(); it != m_pStaticColliders.end(); ++it) {
+		int Id = it->first;
+		StaticCollider* colliderPtr = it->second;
+		if (Id == entId) {
+			delete colliderPtr;
+			m_pStaticColliders.erase(it);
+			CreateCollider(boxcollider, entId);
+			return;
+		}
+	}
+
+	for (auto it = m_pDynamicColliders.begin(); it != m_pDynamicColliders.end(); ++it) {
+		int Id = it->first;
+		DynamicCollider* colliderPtr = it->second;
+
+		if (Id == entId) {
+			delete colliderPtr;
+			m_pDynamicColliders.erase(it);
+			CreateCollider(boxcollider, entId);
+			return;
+		}
+	}
+}
+
+void PhysicsManager::ChangeFilter(int entId)
+{
+	for (const auto& obj : m_pStaticColliders) {
+		int Id = obj.first;
+		StaticCollider* colliderPtr = obj.second;
+
+		if (obj.first == entId)
+		{
+			colliderPtr->SetFilterData();
+			return;
+		}
+	}
+
+	for (const auto& obj : m_pDynamicColliders) {
+		int Id = obj.first;
+		DynamicCollider* colliderPtr = obj.second;
+
+		if (obj.first == entId)
+		{
+			colliderPtr->SetFilterData();
+			return;
 		}
 	}
 }
@@ -128,11 +202,14 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 
 		newDynamicCollider->m_Rigid->userData = user;
 
+		if (boxcollider->m_CollisionType == CollisionType::PLAYER)
+			m_PlayerCollider = newDynamicCollider;
+
 	}
 	else if (boxcollider->m_ColliderType == ColliderType::STATIC)
 	{
 		StaticCollider* newStaticCollider = new StaticCollider(boxcollider);
-
+	
 		newStaticCollider->Initialize();
 		m_pStaticColliders.push_back(make_pair(entId, newStaticCollider));
 
@@ -160,28 +237,32 @@ void PhysicsManager::DebugSetUp()
 void PhysicsManager::InitFilterData()
 {
 	PxFilterData* playerFilterData = new PxFilterData;
-	playerFilterData->word0 = CollisionMask::PLAYER;
+	playerFilterData->word0 = CollisionType::PLAYER;
 
 	PxFilterData* groundFilterData = new PxFilterData;
-	groundFilterData->word0 = CollisionMask::GROUND;
+	groundFilterData->word0 = CollisionType::GROUND;
 
 	PxFilterData* wallFilterData = new PxFilterData;
-	wallFilterData->word0 = CollisionMask::WALL;
+	wallFilterData->word0 = CollisionType::WALL;
 
 	PxFilterData* objectFilterData = new PxFilterData;
-	objectFilterData->word0 = CollisionMask::OBJECT;
+	objectFilterData->word0 = CollisionType::OBJECT;
 
 	PxFilterData* blockFilterData = new PxFilterData;
-	blockFilterData->word0 = CollisionMask::TRIGGER;
+	blockFilterData->word0 = CollisionType::TRIGGER;
 
-	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::TRIGGER, blockFilterData));
-	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::PLAYER, playerFilterData));
-	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::GROUND, groundFilterData));
-	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::WALL, wallFilterData));
-	m_pFilterDatas.insert(std::pair<CollisionMask, PxFilterData*>(CollisionMask::OBJECT, objectFilterData));
+	PxFilterData* roomFilterData = new PxFilterData;
+	roomFilterData->word0 = CollisionType::ROOM;
+
+	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::TRIGGER, blockFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::PLAYER, playerFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::GROUND, groundFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::WALL, wallFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::OBJECT, objectFilterData));
+	m_pFilterDatas.insert(std::pair<CollisionType, PxFilterData*>(CollisionType::ROOM, roomFilterData));
 }
 
-void PhysicsManager::AddToCollisionQueue(int entId)
+void PhysicsManager::AddCollisionColliders(int entId)
 {
 	for (const auto& obj : m_pStaticColliders) {
 		int Id = obj.first;
@@ -189,19 +270,34 @@ void PhysicsManager::AddToCollisionQueue(int entId)
 
 		if (obj.first == entId)
 		{
-			m_CollisionQue.push(make_pair(entId, obj.second));
+			UserData* data = static_cast<UserData*>(colliderPtr->m_Rigid->userData);
+			colliderPtr->m_pOwner->m_State = data->m_State;
+			m_CollisionObjects.push_back(make_pair(entId, obj.second));
+			cout << "Enter Entity ID :" << data->m_EntityId << endl;
 		}
 	}
 }
 
-void PhysicsManager::SendDataToObjects()
+void PhysicsManager::DeleteCollisionCollider(int entId)
 {
-	while (!m_CollisionQue.empty())
-	{
-		StaticCollider* obj = m_CollisionQue.front().second;
-		UserData* data = static_cast<UserData*>(obj->m_Rigid->userData);
-		obj->m_pOwner->m_State = data->m_State;
-		m_CollisionQue.pop();
+	for (const auto& obj : m_pStaticColliders) {
+		int Id = obj.first;
+		StaticCollider* colliderPtr = obj.second;
+
+		if (obj.first == entId)
+		{
+			UserData* data = static_cast<UserData*>(colliderPtr->m_Rigid->userData);
+			colliderPtr->m_pOwner->m_State = data->m_State;
+
+			auto it = std::remove_if(m_CollisionObjects.begin(), m_CollisionObjects.end(),
+				[entId](const std::pair<int, StaticCollider*>& element)
+				{
+					cout << "Enter Entity ID :" << entId << endl;
+					return element.first == entId;
+				});
+
+			m_CollisionObjects.erase(it);
+		}
 	}
 }
 
@@ -245,7 +341,7 @@ void FilterCallback::onContact(const PxContactPairHeader& pairHeader, const PxCo
 			for (auto& actor : pair)
 			{
 				UserData* userData = static_cast<UserData*>(actor->userData);
-				if (userData->m_CollisionType == CollisionMask::PLAYER)
+				if (userData->m_CollisionType == CollisionType::PLAYER)
 					player = true;
 			}
 
@@ -254,39 +350,38 @@ void FilterCallback::onContact(const PxContactPairHeader& pairHeader, const PxCo
 				UserData* userData = static_cast<UserData*>(actor->userData);
 				userData->m_State = CollisionState::ENTER;
 
-				if (player && userData->m_CollisionType != CollisionMask::PLAYER)
+				if (player && userData->m_CollisionType != CollisionType::PLAYER)
 				{
-					PhysicsManager::GetInstance()->AddToCollisionQueue(userData->m_EntityId);
+					PhysicsManager::GetInstance()->AddCollisionColliders(userData->m_EntityId);
 					player = false;
 				}
 			}
 		}
 
-		// Collsion Stay
-		if (pair.events & physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
-		{
-			auto& pair = pairHeader.actors;
+		//// Collsion Stay
+		//if (pair.events & physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
+		//{
+		//	auto& pair = pairHeader.actors;
 
-			bool player = false;
-			for (auto& actor : pair)
-			{
-				UserData* userData = static_cast<UserData*>(actor->userData);
-				if (userData->m_CollisionType == CollisionMask::PLAYER)
-					player = true;
-			}
+		//	bool player = false;
+		//	for (auto& actor : pair)
+		//	{
+		//		UserData* userData = static_cast<UserData*>(actor->userData);
+		//		if (userData->m_CollisionType == CollisionType::PLAYER)
+		//			player = true;
+		//	}
 
-			for (auto& actor : pair)
-			{
-				UserData* userData = static_cast<UserData*>(actor->userData);
-				userData->m_State = CollisionState::STAY;
+		//	for (auto& actor : pair)
+		//	{
+		//		UserData* userData = static_cast<UserData*>(actor->userData);
+		//		userData->m_State = CollisionState::STAY;
 
-				if (player && userData->m_CollisionType != CollisionMask::PLAYER)
-				{
-					PhysicsManager::GetInstance()->AddToCollisionQueue(userData->m_EntityId);
-					player = false;
-				}
-			}
-		}
+		//		if (player && userData->m_CollisionType != CollisionType::PLAYER)
+		//		{
+		//			player = false;
+		//		}
+		//	}
+		//}
 
 		// Collsion Exit
 		if (pair.events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
@@ -297,6 +392,7 @@ void FilterCallback::onContact(const PxContactPairHeader& pairHeader, const PxCo
 			{
 				UserData* userData = static_cast<UserData*>(actor->userData);
 				userData->m_State = CollisionState::EXIT;
+				PhysicsManager::GetInstance()->DeleteCollisionCollider(userData->m_EntityId);
 			}
 		}
 
@@ -313,13 +409,14 @@ void FilterCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 		{
 			UserData* userData = static_cast<UserData*>(pair.triggerActor->userData);
 			userData->m_State = CollisionState::ENTER;
-			PhysicsManager::GetInstance()->AddToCollisionQueue(userData->m_EntityId);
+			PhysicsManager::GetInstance()->AddCollisionColliders(userData->m_EntityId);
 		}
-	
+
 		if (pair.status & PxPairFlag::eNOTIFY_TOUCH_LOST)
 		{
 			UserData* userData = static_cast<UserData*>(pair.triggerActor->userData);
 			userData->m_State = CollisionState::EXIT;
+			PhysicsManager::GetInstance()->DeleteCollisionCollider(userData->m_EntityId);
 		}
 	}
 }

@@ -25,16 +25,19 @@ public:
 	void Update(float deltatime);
 	void RayCast(PxVec3 raycastPoint,PxVec3 raycastDir);
 
+	void ChangeCollider(BoxCollider* boxcollider, int entId);
+	void ChangeFilter(int entId);
 	void CreateCollider(BoxCollider* boxcollider, int entId);
 	void DebugSetUp();
 	void InitFilterData();
-	void AddToCollisionQueue(int entId);
-	void SendDataToObjects();
+	void AddCollisionColliders(int entId);
+	void DeleteCollisionCollider(int entId);
 
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
-	PxFilterData* GetFilterData(CollisionMask type) { return m_pFilterDatas[type]; }
+	PxFilterData* GetFilterData(CollisionType type) { return m_pFilterDatas[type]; }
 	DynamicCollider* GetDynamicCollider(int entId);
+	DynamicCollider* GetPlayerCollider() { return m_PlayerCollider; }
 
 public:
 	PxPvd* m_pPvd = nullptr; // PhysX Visual Debbugger -> 시각화 하여 디버깅 할 수 있는 프로그램
@@ -50,10 +53,12 @@ private:
 	// Colliders
 	vector<pair<int, DynamicCollider*>> m_pDynamicColliders;
 	vector<pair<int, StaticCollider*>> m_pStaticColliders;
-	queue<pair<int, StaticCollider*>> m_CollisionQue;
+	vector<pair<int, StaticCollider*>> m_CollisionObjects;
 
-	// Filter 관련 ---석영 : 일단 이렇게 해놓고..깔끔하게 바꿀 수 있으면 바꿀게요..
-	map<CollisionMask, PxFilterData*> m_pFilterDatas;
+	// Player 일단 따로 저장 -> 시간되면 빼놓기
+	DynamicCollider* m_PlayerCollider;
+
+	map<CollisionType, PxFilterData*> m_pFilterDatas;
 };
 
 class FilterCallback

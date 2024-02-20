@@ -6,6 +6,7 @@ struct ExitInfo
 {
 	int m_ExitDirection = 0;
 	Vector3D m_Distance;
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(ExitInfo, m_ExitDirection, m_Distance)
 };
 
 struct Space
@@ -18,8 +19,13 @@ struct Space
 	{}
 	~Space() = default;
 
-	int m_SpaceIndex;
-	std::vector<ExitInfo> m_Exits;
+	int m_SpaceIndex; // TODO
+	std::vector<ExitInfo> m_Exits;	// TODO 값 변경 또는 넣는 것도
 	bool m_IsPlayerExist = false;
+
+	std::string m_ComponentName = "Space";
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Space, m_ComponentName, m_SpaceIndex, m_Exits, m_IsPlayerExist)
+
 };
 ECS_DEFINE_TYPE(Space)

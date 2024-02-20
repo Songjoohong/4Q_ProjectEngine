@@ -4,6 +4,7 @@
 #include "../Engine/ECS.h"
 #include "../Engine/StaticMesh.h"
 
+struct BoxCollider;
 struct StaticMesh;
 class PrefabManager;
 class NameManager;
@@ -29,9 +30,9 @@ public:
 	bool FileExists(const std::string& filename);
 private:
 	template <typename T>
-	void DisplayAddComponentEntry(const std::string& entryName);
+	inline void DisplayAddComponentEntry(const std::string& entryName);
 	template <>
-	void DisplayAddComponentEntry<StaticMesh>(const std::string& entryName);
+	inline void DisplayAddComponentEntry<StaticMesh>(const std::string& entryName);
 
 	void DrawEntityNode(ECS::Entity* entity);
 	void DrawComponents(ECS::Entity* entity);
@@ -40,6 +41,7 @@ private:
 
 	void SetParent(ECS::Entity* child, ECS::Entity* parent);
 
+	void ResetTransform(ECS::Entity* child, ECS::Entity* parent);
 	bool m_IsDialogOpen = false;
 
 private:
@@ -50,6 +52,8 @@ private:
 	std::shared_ptr<NameManager> m_NameManager;
 	bool m_OpenTextPopup = false;
 
+
+	std::vector<ECS::Entity*> deletedEntities;
 };
 
 
@@ -70,21 +74,15 @@ void SceneHierarchyPanel::DisplayAddComponentEntry(const std::string& entryName)
 }
 
 template <>
-inline void SceneHierarchyPanel::DisplayAddComponentEntry<StaticMesh>(const std::string& entryName)
+void SceneHierarchyPanel::DisplayAddComponentEntry<StaticMesh>(const std::string& entryName)
 {
 	// 선택된 Entity 가 T타입의 component 를 가지고 있지 않다면
 	if (!m_SelectionContext->has<StaticMesh>())
 	{
 		if (ImGui::MenuItem(entryName.c_str()))
 		{
-			// TODO: StaticMesh 다이얼로그
-			// 불러올 fbx 파일 선택.
-			// 파일 다이어로그 메뉴 나타냄.
-			// open Dialog Simple
-
+			// 불러올 fbx 파일 선택하는 다이얼로그를 나타내는 트리거 on
 			m_IsDialogOpen = true;
-
-			// fbx 파일을 선택하지 않았다면 컴포넌트 추가하지 않음.
 			ImGui::CloseCurrentPopup();
 		}
 	}

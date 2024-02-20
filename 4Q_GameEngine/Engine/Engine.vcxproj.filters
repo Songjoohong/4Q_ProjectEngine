@@ -130,9 +130,6 @@
     <ClInclude Include="RenderSystem.h">
       <Filter>System\Render</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsManager.h">
-      <Filter>Manager\PhysX</Filter>
-    </ClInclude>
     <ClInclude Include="StaticCollider.h">
       <Filter>Instance</Filter>
     </ClInclude>
@@ -226,6 +223,12 @@
     </ClInclude>
     <ClInclude Include="Script.h">
       <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Manager\PhysX</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerInformation.h">
+      <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

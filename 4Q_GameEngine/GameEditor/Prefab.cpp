@@ -16,6 +16,8 @@
 #include "../Engine/Sprite2D.h"
 #include "../Engine/RigidBody.h"
 #include "../Engine/UI.h"
+#include "../Engine/Space.h"
+#include "../Engine/DynamicText.h"
 
 // Script Headers
 #include "../Engine/CameraScript.h"
@@ -23,6 +25,7 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/FreeCameraScript.h"
+#include "../Engine/DynamicTextScript.h"
 
 #include "NameManager.h"
 #include "ImGuizmo.h"
@@ -70,13 +73,12 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				std::string componentName = component.begin().key();
 				if (componentName == "EntityIdentifier")
 				{
-					prefabEntity->Assign<EntityIdentifier>();
+					prefabEntity->Assign<EntityIdentifier>(prefabEntity->getEntityId());
 					oldID = component["EntityIdentifier"][0]["m_EntityId"];
 					prefabEntity->get<EntityIdentifier>()->m_ComponentName = component["EntityIdentifier"][0]["m_ComponentName"];
 					prefabEntity->get<EntityIdentifier>()->m_EntityName = component["EntityIdentifier"][0]["m_EntityName"];
 					prefabEntity->get<EntityIdentifier>()->m_HasParent = component["EntityIdentifier"][0]["m_HasParent"];
 					prefabEntity->get<EntityIdentifier>()->m_ParentEntityId = component["EntityIdentifier"][0]["m_ParentEntityId"];
-					prefabEntity->get<EntityIdentifier>()->m_EntityId = prefabEntity->getEntityId();
 				}
 				else if (componentName == "Transform")
 				{
@@ -126,30 +128,21 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<UI>(prefabEntity, component["UI"][0]);
 				}
-				else if (componentName == "FreeCameraScript")
+				else if (componentName == "Space")
 				{
-					AssignComponents<FreeCameraScript>(prefabEntity, component["FreeCameraScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "FreeCameraScript";
+					AssignComponents<Space>(prefabEntity, component["Space"][0]);
 				}
-				else if (componentName == "SampleScript")
+				else if (componentName == "DynamicText")
 				{
-					AssignComponents<SampleScript>(prefabEntity, component["SampleScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "SampleScript";
+					AssignComponents<DynamicText>(prefabEntity, component["DynamicText"][0]);
 				}
-				else if (componentName == "PlayerScript")
+				else if (componentName == "Sprite2D")
 				{
-					AssignComponents<PlayerScript>(prefabEntity, component["PlayerScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "PlayerScript";
+					AssignComponents<Sprite2D>(prefabEntity, component["Sprite2D"][0]);
 				}
-				else if (componentName == "POVCameraScript")
+				else if (componentName == "Script")
 				{
-					AssignComponents<POVCameraScript>(prefabEntity, component["POVCameraScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "POVCameraScript";
-				}
-				else if (componentName == "TestUIScript")
-				{
-					AssignComponents<TestUIScript>(prefabEntity, component["TestUIScript"][0]);
-					prefabEntity->get<Script>().get().m_ComponentName = "TestUIScript";
+					AssignComponents<Script>(prefabEntity, component["Script"][0]);
 				}
 			}
 			m_prefabContainer.push_back({ prefabEntity, oldID });
@@ -166,6 +159,7 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				if (prefabChild.first->get<EntityIdentifier>().get().m_ParentEntityId == prefabParent.second)
 				{
 					SetParent(prefabChild.first, prefabParent.first);
+					break;
 				}
 			}
 		}
@@ -228,6 +222,8 @@ void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabDat
 	SaveComponents<Script>(entity, prefabData);
 	SaveComponents<RigidBody>(entity, prefabData);
 	SaveComponents<UI>(entity, prefabData);
+	SaveComponents<Space>(entity, prefabData);
+	SaveComponents<DynamicText>(entity, prefabData);
 
 	if (!entity->m_children.empty())
 	{

@@ -3,7 +3,7 @@
 #include "Prefab.h"
 #include "d3d11.h"
 #include "../D3D_Graphics/D3D_Graphics.h"
-static const std::filesystem::path s_AssetsPath = "../Resource/";
+static const std::filesystem::path s_AssetsPath = "../Resource/prefab";
 
 ContentsBrowserPanel::ContentsBrowserPanel()
 	:m_CurrentDirectory(s_AssetsPath)
@@ -60,7 +60,7 @@ void ContentsBrowserPanel::RenderImGui()
 				continue;
 			}
 			
-			m_PrefabManager->LoadPrefab("../Resource/" + filenameString);
+			m_PrefabManager->LoadPrefab("../Resource/prefab/" + filenameString);
 			m_PrefabManager->m_prefabContainer.clear();
 		}
 		ImGui::Text(filenameString.c_str());

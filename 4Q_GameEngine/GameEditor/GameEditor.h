@@ -11,6 +11,7 @@ class EntityIdentifier;
 class Script;
 class PrefabManager;
 class NameManager;
+class FreeCameraScript;
 
 namespace ECS { class Entity; }
 namespace ECS { class World; }
@@ -76,7 +77,7 @@ private:
 	ECS::World* m_ActiveWorld;
 	ECS::World* m_EditorWorld;
 	/// 씬이 두개인 이유
-	///	게임 플레이와 씬 편집 화면을 나누기 위해. -> 게임 play 와 stop 그리고 pause 를 위해서인데 이를 위해선 엔진에서 먼저 기능이 구현되어야 한다. 고로 보류
+	///	게임 플레이와 씬 편집 화면을 나누기 위해. -> 게임 play 와 stop 그리고 pause 를 위해서.
 	std::string m_SceneName = "EmptyScene";	// 씬 이름
 	bool m_isScenePopup = false;
 
@@ -92,12 +93,45 @@ private:
 
 	// play
 	bool m_IsPlaying = false;
+
+	// Application Height & Width
+	UINT m_Width;
+	UINT m_Height;
 };
 
 template<typename ComponentType>
 inline void GameEditor::SaveComponents(ECS::Entity* entity, json& worldData)
 {
-	if (entity->has<ComponentType>())
+	if (std::is_same_v < Script, ComponentType> && entity->has<ComponentType>())
+	{
+		std::vector<ComponentType> container;
+		container.push_back(entity->get<ComponentType>().get());
+		auto serializeData = SerializeContainer(container);
+
+		json scriptData;
+		scriptData["Script"] = json::parse(serializeData);
+
+		std::string entityName = entity->get<EntityIdentifier>().get().m_EntityName;
+
+		// Check if the entity already exists in the JSON structure
+		bool entityExists = false;
+		for (auto& entityEntry : worldData["WorldEntities"]) {
+			if (entityEntry.find(entityName) != entityEntry.end()) {
+				// Add the component data to the existing entity entry
+				entityEntry[entityName].push_back(scriptData);
+				entityExists = true;
+				break;
+			}
+		}
+
+		// If the entity does not exist, create a new entry for it
+		if (!entityExists) {
+			json entityEntry;
+			entityEntry[entityName].push_back(scriptData);
+			worldData["WorldEntities"].push_back(entityEntry);
+		}
+	}
+	else if (entity->has<ComponentType>())
 	{
 		std::vector<ComponentType> container;
 		container.push_back(entity->get<ComponentType>().get());
@@ -134,7 +168,16 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, json& componentDat
 {
 	if constexpr (std::is_base_of_v<Script, ComponentType>)
 	{
-		entity->Assign<ComponentType>(entity);
+		if (componentData["m_ComponentName"].get<std::string>() == "FreeCameraScript")
+		{
+			entity->Assign<FreeCameraScript>(entity);
+			entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
+		}
+		else
+		{
+			entity->Assign<ComponentType>(entity);
+			entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
+		}
 	}
 	else
 	{

@@ -6,11 +6,11 @@ class StaticCollider
 {
 public:
 	StaticCollider(BoxCollider* owner);
-	~StaticCollider() = default;
+	virtual ~StaticCollider() override;
 
 public:
 	virtual void Initialize() override;
-	virtual void SetFilterData() override;
+	virtual void UpdatePosition()override;
 
 public:
 	PxRigidStatic* m_Rigid;
