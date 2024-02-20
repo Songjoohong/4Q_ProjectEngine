@@ -429,7 +429,10 @@ void FilterCallback::onContact(const PxContactPairHeader& pairHeader, const PxCo
 			{
 				UserData* userData = static_cast<UserData*>(actor->userData);
 				userData->m_State = CollisionState::EXIT;
-				PhysicsManager::GetInstance()->DeleteCollisionCollider(userData->m_EntityId);
+				if (userData->m_CollisionType != CollisionType::PLAYER)
+				{
+					PhysicsManager::GetInstance()->DeleteCollisionCollider(userData->m_EntityId);
+				}
 			}
 		}
 
