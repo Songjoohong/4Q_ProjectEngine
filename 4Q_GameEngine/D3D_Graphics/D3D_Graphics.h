@@ -27,9 +27,8 @@ struct cbPointLight
 {
 	float mConstantTerm = 0.0f;
 	float mLinearTerm = 0.007f;
-	Math::Vector2 mPad0;
-	Math::Vector3 mCameraPos;
 	float mQuadraticTerm = 0.0002f;
+	float mPad0;
 
 	struct
 	{
