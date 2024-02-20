@@ -27,6 +27,7 @@
 #include "../Engine/TestUIScript.h"
 #include "../Engine/FreeCameraScript.h"
 #include "../Engine/DynamicTextScript.h"
+#include "../Engine/IntroCameraScript.h"
 
 #include "NameManager.h"
 #include "ImGuizmo.h"

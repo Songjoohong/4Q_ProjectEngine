@@ -12,6 +12,7 @@ class Script;
 class PrefabManager;
 class NameManager;
 class FreeCameraScript;
+class BoxCollider;
 class Sprite2D;
 
 namespace ECS { class Entity; }
@@ -187,6 +188,13 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& compon
 	else if constexpr (std::is_same_v<Sprite2D, ComponentType>)
 	{
 		entity->Assign<ComponentType>(componentData["m_FileName"].get<std::string>());
+		auto& component = entity->get<ComponentType>().get();
+
+		component = componentData;
+	}
+	else if constexpr (std::is_same_v<BoxCollider, ComponentType>)
+	{
+		entity->Assign<ComponentType>(componentData["m_ColliderType"], componentData["m_CollisionType"], componentData["m_Size"]);
 		auto& component = entity->get<ComponentType>().get();
 
 		component = componentData;

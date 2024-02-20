@@ -74,6 +74,10 @@ public:
 		return (this->m_X != other.m_X || this->m_Y != other.m_Y || this->m_Z != other.m_Z);
 	}
 
+	bool operator==(const Vector3D& other) const
+	{
+		return (this->m_X == other.m_X && this->m_Y == other.m_Y && this->m_Z == other.m_Z);
+	}
 	Vector3D& operator=(const DirectX::SimpleMath::Vector3& vec) 
 	{
 		m_X = vec.x;
