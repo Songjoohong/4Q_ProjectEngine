@@ -23,6 +23,7 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+
 // Script Headers
 #include "../Engine/SampleScript.h"
 #include "../Engine/FreeCameraScript.h"
@@ -32,6 +33,7 @@
 #include "../Engine/DynamicTextScript.h"
 #include "../Engine/IntroCameraScript.h"
 #include "../Engine/OutroScript.h"
+#include "../Engine/DrawerScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -769,6 +771,14 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroCameraScript")
 					{
 						m_PrefabManager->AssignComponents<IntroCameraScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "OutroScript")
+					{
+						m_PrefabManager->AssignComponents<OutroScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DrawerScript")
+					{
+						m_PrefabManager->AssignComponents<DrawerScript>(playEntity, component["Script"][0]);
 					}
 				}
 			}

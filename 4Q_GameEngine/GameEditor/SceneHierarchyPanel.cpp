@@ -18,14 +18,6 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
-// Script Headers
-#include "../Engine/SampleScript.h"
-#include "../Engine/FreeCameraScript.h"
-#include "../Engine/PlayerScript.h"
-#include "../Engine/POVCameraScript.h"
-#include "../Engine/TestUIScript.h"
-#include "../Engine/DynamicTextScript.h"
-#include "../Engine/IntroCameraScript.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -619,7 +611,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			, "POVCameraScript"
 			, "TestUIScript"
 			, "DynamicText"
-			, "IntroCameraScript" };
+			, "IntroCameraScript"
+			, "OutroScript"
+			, "DrawerScript"};
 
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
