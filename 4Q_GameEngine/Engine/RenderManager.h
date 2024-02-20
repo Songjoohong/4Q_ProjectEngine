@@ -19,6 +19,7 @@ public:
 	void Initialize(HWND* hwnd,UINT width,UINT height);
 	void UnInitialize();
 
+
 	void Update();
 
 	void RenderBegin();
@@ -33,6 +34,8 @@ public:
 	void AddStaticMesh(const std::string& fileName, DirectX::SimpleMath::Matrix worldTM) const;
 
 	void AddColliderBox(const Vector3D center, const Vector3D extents, const Vector3D rotation);
+
+	void AddBoundingBox(DirectX::BoundingBox boundingBox);
 
 	void SetBasePath(std::string filePath);
 

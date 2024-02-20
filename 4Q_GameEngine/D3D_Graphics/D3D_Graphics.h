@@ -29,11 +29,12 @@ static const int pointLightCount = 5;
 
 struct cbPointLight
 {
+	float mQuadraticTerm = 0.0002f;
 	float mConstantTerm = 0.0f;
 	float mLinearTerm = 0.007f;
-	Math::Vector2 mPad0;
-	Math::Vector3 mCameraPos;
-	float mQuadraticTerm = 0.0002f;
+	float mpad1;
+	Math::Vector4 mPad0;
+	
 
 	struct
 	{
@@ -59,6 +60,8 @@ struct cbProjection
 {
 	Math::Matrix mProjection;
 	Math::Matrix mShadowProjection;
+	Math::Vector3 mCameraPos;
+	float pad;
 };
 
 struct cbLight
@@ -159,12 +162,15 @@ public:
 	ComPtr<ID3D11Buffer> m_pSphereBuffer = nullptr;
 
 	vector<ColliderBox> m_colliderBox;
+	vector<DirectX::BoundingBox> m_boundingBox;
 	
 	vector<StaticMeshInstance*> m_pOutlineMesh;		//아웃라인을 그릴 메쉬
 
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
 	list<StaticMeshInstance*>m_pMeshInstance;	//렌더링 할 메쉬 인스턴스 리스트
+
+	list<StaticMeshInstance*>m_pOpacityInstance;	
 
 	D3D11_VIEWPORT m_baseViewport;
 
@@ -204,7 +210,7 @@ public:
 
 
 public:
-	DirectX::BoundingFrustum GetCameraFrustum() { return m_frustumCmaera; }
+	DirectX::BoundingFrustum& GetCameraFrustum() { return m_frustumCmaera; }
 	//d3d객체 초기화
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
 
@@ -226,11 +232,13 @@ public:
 
 	//디버그용 콜라이더 박스
 	void AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation);
+	void AddBoundingBox(DirectX::BoundingBox boundingBox);
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
 
 	void AddOutlineMesh(StaticModel* model);
+
 	//디버그 정보 추가
 	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(ECS::World* world, int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
@@ -282,6 +290,7 @@ public:
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
 	void MeshRender();
+	void OpacityMeshRender();
 	void ShadowRender();
 
 	//환경맵 세팅

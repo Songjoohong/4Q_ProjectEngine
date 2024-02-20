@@ -47,7 +47,10 @@ void RenderManager::RenderEnd()
 
 bool RenderManager::Culling(DirectX::BoundingBox boundingBox)
 {
-	return Renderer::Instance->GetCameraFrustum().Intersects(boundingBox);
+	DirectX::BoundingFrustum m_frustumCmaera;
+	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, Renderer::Instance->GetProjectionMatrix());
+	m_frustumCmaera.Transform(m_frustumCmaera, Renderer::Instance->GetViewMatrix().Invert());
+	return m_frustumCmaera.Intersects(boundingBox);
 }
 
 
@@ -59,6 +62,11 @@ void RenderManager::AddStaticMesh(const std::string& fileName, Math::Matrix worl
 void RenderManager::AddColliderBox(const Vector3D center, const Vector3D extents, const Vector3D rotation)
 {
 	Renderer::Instance->AddColliderBox(Vector3(center.GetX(), center.GetY(), center.GetZ()), Vector3(extents.GetX(), extents.GetY(), extents.GetZ()), Vector3(rotation.GetX(), rotation.GetY(), rotation.GetZ()));
+}
+
+void RenderManager::AddBoundingBox(DirectX::BoundingBox boundingBox)
+{
+	Renderer::Instance->AddBoundingBox(boundingBox);
 }
 
 

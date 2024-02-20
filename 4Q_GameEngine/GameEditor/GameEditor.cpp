@@ -77,7 +77,6 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	//std::string pngPath = "../Resource/UI/play button.png";
 	//auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
 	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
-
 	if (!InitImGui())
 	{
 		return false;
@@ -237,6 +236,7 @@ void GameEditor::RenderImGui()
 
 			// Display Play & Pause Button 
 			PlayButton();
+
 
 			ImGui::EndMenuBar();
 		}
