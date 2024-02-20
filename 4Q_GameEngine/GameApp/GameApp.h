@@ -62,5 +62,6 @@ inline void GameApp::AssignComponents(ECS::Entity* entity, const json& component
 		auto& component = entity->get<ComponentType>().get();
 
 		component = componentData;
+		int a = 0;
 	}
 }
