@@ -1,6 +1,7 @@
 #pragma once
 #include "BoxCollider.h"
 #include "InputManager.h"
+#include "Interactive.h"
 #include "Script.h"
 #include "Transform.h"
 
@@ -22,13 +23,13 @@ struct DrawerScript : public Script
 				// ¿Ü°û¼± Ã³¸®
 				if (InputM->GetKeyDown(Key::E))
 				{
-					m_IsInteract = !m_IsInteract;
+					m_pOwner->get<Interactive>()->m_IsInteract = !m_pOwner->get<Interactive>()->m_IsInteract;
 				}
 			}
 		}
 		
 
-		if(m_IsInteract)
+		if(m_pOwner->get<Interactive>()->m_IsInteract)
 		{
 			if(m_pOwner->get<Transform>()->m_Position.GetZ() <= -35.f)
 			{
@@ -52,5 +53,4 @@ struct DrawerScript : public Script
 		}
 	}
 
-	bool m_IsInteract = false;
 };
