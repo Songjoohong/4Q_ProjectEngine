@@ -74,9 +74,15 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	NewScene();
 
+<<<<<<< Updated upstream
 	//std::string pngPath = "../Resource/UI/play button.png";
 	//auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
 	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
+=======
+	/*std::string pngPath = "../Resource/UI/play button.png";
+	auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
+	CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);*/
+>>>>>>> Stashed changes
 
 	if (!InitImGui())
 	{
@@ -234,9 +240,14 @@ void GameEditor::RenderImGui()
 
 				ImGui::EndMenu();
 			}
+<<<<<<< Updated upstream
 
 			// Display Play & Pause Button 
 			PlayButton();
+=======
+			/*ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
+			ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });*/
+>>>>>>> Stashed changes
 
 			ImGui::EndMenuBar();
 		}

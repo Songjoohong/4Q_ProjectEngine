@@ -4,7 +4,7 @@
 #include "StaticMesh.h"
 #include "Transform.h"
 #include "BoxCollider.h"
-
+#include "EntityIdentifier.h"
 #include "RenderManager.h"
 
 using namespace ECS;
@@ -25,10 +25,27 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 		{
 			if (staticMesh->m_FileName != "")
 			{
+<<<<<<< Updated upstream
+=======
+				if (entity->get<EntityIdentifier>()->m_HasParent)
+				{
+					auto matrix = transform->m_RelativeMatrix.ConvertToMatrix()* entity->getParent()->get<Transform>()->m_WorldMatrix.ConvertToMatrix();
+					SimpleMath::Vector3 scale, pos;
+					SimpleMath::Quaternion rot;
+					matrix.Decompose(scale, rot, pos);
+					staticMesh->m_BoundingBox.Center = { pos.x,pos.y + staticMesh->m_BoundingBox.Extents.y/2,pos.z };
+				}
+				else
+				{
+					staticMesh->m_BoundingBox.Center = transform->m_Position.ConvertToVector3();
+				}
+>>>>>>> Stashed changes
 				if (staticMesh->m_IsModelCreated)
 				{
-					//if(RenderManager::GetInstance()->Culling(staticMesh->m_BoundingBox))
+					
+					if(RenderManager::GetInstance()->Culling(staticMesh->m_BoundingBox))
 						RenderManager::GetInstance()->AddStaticMesh(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
+						RenderManager::GetInstance()->AddBoundingBox(staticMesh->m_BoundingBox);
 				}
 				else
 				{
