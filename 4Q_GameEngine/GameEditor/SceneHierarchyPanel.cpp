@@ -501,7 +501,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<StaticMesh>("StaticMesh", entity, [](auto component)
 	{
 		std::string temp = component->m_FileName;
-
 		ImGui::Text(temp.c_str());
 	});
 
@@ -600,6 +599,10 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			ImGui::EndCombo();
 		}
 
+		DrawVec3Control("Color", component->m_Color);
+		ImGui::AlignTextToFramePadding();
+		ImGui::DragFloat("Intensity", &component->m_Intensity);
+
 		// TODO: 조건 1. PointLight 일 때
 
 		// TODO: 조건 2. Directional Light 일 때
@@ -633,7 +636,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Debug>("Debug", entity, [](auto component)
 	{
-
+		ImGui::Text("For Debug");
 	});
 
 	DrawComponent<Movement>("MoveMent", entity, [](auto component)
@@ -645,12 +648,17 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<RigidBody>("RigidBody", entity, [](auto component)
 	{
+		//float vellocity = component->m_MaxVellocity;
+		//char array[10];
+		//sprintf_s(array, "%f", vellocity);
 
+		//ImGui::Text("Max Vellocity :");
+		//ImGui::SameLine();
+		//ImGui::Text(array);
 	});
 
 	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
 	{
-
 		//static int a = 1;
 		//if (a == 1)
 		//{
@@ -703,22 +711,15 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		ImGui::Text(spaceIdx.c_str());
 
 		static int exitDirectionInput = 0;
-		static float distanceInput[3] = { 0,0,0 };
+		static Vector3D distanceInput;
 		ImGui::SetNextItemWidth(75.f);
 		ImGui::InputInt("Exit Direction : ", &exitDirectionInput);
-		ImGui::Text("distance x, y, z");
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat("x", &distanceInput[0], 0.1f, 0.0f, 0.0f, "%.2f");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat("y", &distanceInput[1], 0.1f, 0.0f, 0.0f, "%.2f");
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(80.f);
-		ImGui::DragFloat("z", &distanceInput[2], 0.1f, 0.0f, 0.0f, "%.2f");
+
+		DrawVec3Control("Distance", distanceInput);
 
 		if (ImGui::Button("make ExitInfo"))
 		{
-			component->m_Exits.push_back(ExitInfo{ exitDirectionInput, Vector3D{distanceInput[0], distanceInput[1], distanceInput[2]} });
+			component->m_Exits.push_back(ExitInfo{ exitDirectionInput, Vector3D{distanceInput.m_X, distanceInput.m_Y, distanceInput.m_Z} });
 		}
 
 		for (size_t i = 0; i < component->m_Exits.size(); i++)
@@ -774,7 +775,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Sound>("Sound", entity, [](auto component)
 	{
-
+		std::string temp = component->m_FileName;
+		ImGui::Text(temp.c_str());
+		ImGui::DragFloat("Volume", &component->m_Volume, 0.1f, 0.f, 0.f, "%.2f");
 	});
 
 	DrawComponent<PlayerInformation>("PlayerInformation", entity, [](auto component)

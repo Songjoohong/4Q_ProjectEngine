@@ -13,7 +13,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 
 	GameEditor Editor(hInstance);  // 생성자에서 아이콘,윈도우 이름만 바꾼다
-	if (!Editor.Initialize(1920, 1080))
+	if (!Editor.Initialize(2560, 1440))
 		return -1;
 	Editor.Run();
 	// Debug Memory Leak Check at end point

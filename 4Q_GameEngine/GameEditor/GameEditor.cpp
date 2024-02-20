@@ -31,6 +31,7 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/DynamicTextScript.h"
+#include "../Engine/OutroScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -73,7 +74,7 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	std::string pngPath = "../Resource/UI/play button.png";
 	auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
-	CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
+	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
 
 	if (!InitImGui())
 	{
@@ -231,8 +232,8 @@ void GameEditor::RenderImGui()
 
 				ImGui::EndMenu();
 			}
-			ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
-			ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });
+			//ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
+			//ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });
 
 			ImGui::EndMenuBar();
 		}
@@ -247,7 +248,9 @@ void GameEditor::RenderImGui()
 		ShowSceneDialog();
 		ShowSaveSceneAsPopup();
 
+#ifdef _DEBUG
 		//ImGui::ShowDemoWindow();
+#endif
 		ImGui::End();
 
 		//// Game Play Buttons Test
@@ -1031,6 +1034,7 @@ void GameEditor::NewScene()
 	ent->Assign<Movement>();
 
 	// for test
+#ifdef _DEBUG
 	{
 		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test UI");
@@ -1039,6 +1043,7 @@ void GameEditor::NewScene()
 		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
 		ent2->Assign<TestUIScript>(ent2);
 	}
+#endif
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
