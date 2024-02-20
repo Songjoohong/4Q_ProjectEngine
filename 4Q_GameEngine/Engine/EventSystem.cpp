@@ -23,8 +23,8 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 				world->emit<Events::SpaceReturn>({ 1 });
 				world->emit<Events::SpaceReturn>({ 4 });
 				world->emit<Events::SpaceReturn>({ 5 });
-				world->emit<Events::SpaceAssemble>({ 2,0,3,0 });
-				world->emit<Events::SpaceAssemble>({ 3,0,6,0 });
+				world->emit<Events::SpaceAssemble>({ 2,3,0,1 });
+				world->emit<Events::SpaceAssemble>({ 3,6,0,0 });
 			}
 		}
 

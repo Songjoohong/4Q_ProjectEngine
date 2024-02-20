@@ -20,4 +20,4 @@
 #include "nlohmann/json.hpp"
 
 #endif //PCH_H
- 
+#define OBJECT_SPEED 100

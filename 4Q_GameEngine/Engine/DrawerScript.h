@@ -36,7 +36,7 @@ struct DrawerScript : public Script
 			}
 			else
 			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() - 100.f * deltaTime);
+				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() - OBJECT_SPEED * deltaTime);
 			}
 		}
 		else
@@ -47,7 +47,7 @@ struct DrawerScript : public Script
 			}
 			else
 			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() + 100.f * deltaTime);
+				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() + OBJECT_SPEED * deltaTime);
 			}
 		}
 	}

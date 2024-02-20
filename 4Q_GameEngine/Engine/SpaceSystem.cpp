@@ -33,31 +33,35 @@ void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 		});
 	const auto object = objectEntity->get<Space>();
 	const auto subject = subjectEntity->get<Space>();
-	Vector3D subjectDistance = subject->m_Exits[event.subjectExit - 1].m_Distance;
-	const Vector3D objectDistance = object->m_Exits[event.objectExit - 1].m_Distance;
+	Vector3D& subjectDistance = subject->m_Exits[event.subjectExit].m_Distance;
+	const Vector3D objectDistance = object->m_Exits[event.objectExit].m_Distance;
 	//Vector3D initialDistance = subjectDistance;
-	const int rotationKey = object->m_Exits[event.objectExit - 1].m_ExitDirection - subject->m_Exits[event.subjectExit - 1].m_ExitDirection;
+	const int rotationKey = object->m_Exits[event.objectExit].m_ExitDirection - subject->m_Exits[event.subjectExit].m_ExitDirection;
 
 	if (rotationKey == -1 || rotationKey == 3)
 	{
 		subjectEntity->get<Transform>()->m_Rotation.SetY(270.f);
-		subjectDistance = Vector3D{ -subjectDistance.GetY(), subjectDistance.GetX(),subjectDistance.GetZ() };
+		subjectDistance = Vector3D{ -subjectDistance.GetZ(), subjectDistance.GetY(),subjectDistance.GetX() };
+		subject->m_Exits[event.subjectExit].m_ExitDirection = (subject->m_Exits[event.subjectExit].m_ExitDirection + 1) % 4;
 	}
 	else if (rotationKey == 1 || rotationKey == -3)
 	{
 		subjectEntity->get<Transform>()->m_Rotation.SetY(90.f);
-		subjectDistance = Vector3D{ subjectDistance.GetY(), -subjectDistance.GetX(),subjectDistance.GetZ() };
+		subjectDistance = Vector3D{ subjectDistance.GetZ(), subjectDistance.GetY(),-subjectDistance.GetX() };
+		subject->m_Exits[event.subjectExit].m_ExitDirection = (subject->m_Exits[event.subjectExit].m_ExitDirection + 3) % 4;
 	}
 	else if (rotationKey == 0)
 	{
 		subjectEntity->get<Transform>()->m_Rotation.SetY(180.f);
-		subjectDistance = Vector3D{ -subjectDistance.GetX(), -subjectDistance.GetY(),subjectDistance.GetZ() };
+		subjectDistance = Vector3D{ -subjectDistance.GetX(), subjectDistance.GetY(), -subjectDistance.GetZ() };
+		subject->m_Exits[event.subjectExit].m_ExitDirection = (subject->m_Exits[event.subjectExit].m_ExitDirection + 2) % 4;
 	}
 	else
 	{
 		subjectEntity->get<Transform>()->m_Rotation.SetY(0.f);
 	}
 	const Vector3D vec = objectDistance - subjectDistance;
+	subjectEntity->get<Transform>()->m_Position.SetY(0);
 	subjectEntity->get<Transform>()->m_Position = objectEntity->get<Transform>()->m_Position + vec;
 }
 
