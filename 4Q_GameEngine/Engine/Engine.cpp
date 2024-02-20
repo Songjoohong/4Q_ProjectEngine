@@ -127,10 +127,10 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent->Assign<FreeCameraScript>(ent);
 	ent->Assign<Movement>();
 
-	/*Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });*/
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 5.f,1.f,5.f });
 
 	vector<ExitInfo> exit;
 	exit.push_back({ 1, Vector3D{ 100.f,100.f,100.f } });
@@ -149,6 +149,11 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "jangseung");
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/jangseung.fbx");
 	ent3->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
+
+	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent4->Assign<EntityIdentifier>(ent4->getEntityId(), "Ground1");
+	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
+	ent4->Assign<Transform>(Vector3D(200.f, 0.f, 0.f), Vector3D(90.f, 90.f, 0.f), Vector3D{ 5.f,1.f,5.f });
 
 	return true;
 }

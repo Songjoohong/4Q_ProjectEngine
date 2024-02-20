@@ -190,9 +190,6 @@
     <FxCompile Include="..\Resource\VertexShader.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\ShadowPixelShader.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="..\Resource\ShadowDepthPS.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
@@ -215,6 +212,9 @@
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\GeometryShader.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\PS_PointLightShadow.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
   </ItemGroup>

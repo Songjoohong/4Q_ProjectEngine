@@ -39,6 +39,11 @@ struct cbPointLight
 	} pointLights[pointLightCount];
 };
 
+struct cbPointLightProjection
+{
+	Math::Matrix mShadowMatrix[6];
+};
+
 struct cbWorld
 {
 	Math::Matrix mWorld;
@@ -127,13 +132,16 @@ public:
 	// minjeong : shadow Interface
 	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11VertexShader> m_pPointLightShadowVS;
+	ComPtr<ID3D11GeometryShader> m_pPointLightShadowGS;
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
+	ComPtr<ID3D11PixelShader> m_pPointLightShadowPS;
 	ComPtr<ID3D11PixelShader> m_pEnvironmentPS;
 	ComPtr<ID3D11PixelShader> m_pSpherePS;
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
 	ComPtr<ID3D11Texture2D> m_pPointLightShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
-	ComPtr<ID3D11DepthStencilView> m_pPointLightShadowMapDSV[6];
+	ComPtr<ID3D11DepthStencilView> m_pPointLightShadowMapDSV[6 * pointLightCount];
+	ComPtr<ID3D11RenderTargetView> m_pPointLightShadowMapRTV[6 * pointLightCount];
 	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
 	ComPtr<ID3D11ShaderResourceView> m_pPointLightShadowMapSRV;
 	ComPtr<ID3D11SamplerState> m_pShadowSampler;
@@ -144,6 +152,8 @@ public:
 	ComPtr<ID3D11PixelShader> m_pOutlinePS;
 
 
+	std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>> m_pPointLightShadowRTV;
+
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	RenderTextureClass* m_RenderTexture = nullptr;	// 수민 추가.
 
@@ -151,6 +161,7 @@ public:
 	ComPtr<ID3D11Buffer> m_pProjectionBuffer = nullptr;
 
 	ComPtr<ID3D11Buffer> m_pPointLightBuffer = nullptr;
+	ComPtr<ID3D11Buffer> m_pPointLightProjectionBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pLightBuffer = nullptr;
 	ComPtr<ID3D11Buffer> m_pSphereBuffer = nullptr;
 
@@ -168,11 +179,14 @@ public:
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 
-	//빛 테스트용
+	//포인트라이트 
 	vector<PointLight> m_pointLightInstance;		// 컬링된 후의 포인트라이트 인스턴스
 	cbPointLight m_pointLightCB;
-	int m_pointLightIndex = 0;
+	int m_pointLightIndex = 0;						// 테스트용 포인트 라이트 인덱스	
 	vector<PointLight> m_pointLights;				// 컬링되기 전의 포인트라이트 인스턴스
+
+	cbPointLightProjection m_pointLightProjectionCB;	// 포인트라이트로부터 6방향으로 뻗어나가는 빛 행렬
+
 
 	//월드 행렬
 	Math::Matrix m_worldMatrix;
@@ -245,6 +259,7 @@ public:
 
 
 	void CreateViewport(UINT width, UINT height);
+	void CreateRenderTargetView();
 	void CreateDepthStencilView(UINT width, UINT height);
 	void CreateSamplerState();
 
@@ -314,6 +329,7 @@ public:
 
 	// minjeong : Create Shadow VS & PS
 	void CreateShadowVS();
+	void CreateShadowGS();
 	void CreateShadowPS();
 	void SetPointLightViewMatrix(Vector3 pointLightDir, Vector3 upDir, int pointLightIndex, int dirIndex);
 
