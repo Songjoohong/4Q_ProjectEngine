@@ -8,7 +8,8 @@ struct Interactive
 	~Interactive() = default;
 
 	std::string m_ComponentName = "Interactive";
-	int m_OpeningDir;
+	int m_OpeningDir = 0;
+	bool m_IsInteract = false;
 };
 
-ECS_DEFINE_TYPE(Door)
+ECS_DEFINE_TYPE(Interactive)

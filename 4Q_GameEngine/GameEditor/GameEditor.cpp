@@ -53,6 +53,7 @@
 #include "NameManager.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
 
+struct DoorScript;
 using json = nlohmann::json;
 
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -769,6 +770,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroDoorScript")
 					{
 						m_PrefabManager->AssignComponents<IntroDoorScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DoorScript")
+					{
+						m_PrefabManager->AssignComponents<DoorScript>(playEntity, component["Script"][0]);
 					}
 					//요기
 				}
