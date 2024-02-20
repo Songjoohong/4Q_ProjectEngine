@@ -19,7 +19,8 @@
 
 #include "../Engine/InputManager.h"
 
-#define SHADOWMAP_SIZE 4096
+#define DIRECTIONAL_SHADOWMAP_SIZE 4096
+#define POINT_SHADOWMAP_SIZE 512
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -188,22 +189,29 @@ void Renderer::CreateViewport(UINT width, UINT height)
 	//Shadow 뷰포트 설정
 	m_shadowViewport.TopLeftX = 0;
 	m_shadowViewport.TopLeftY = 0;
-	m_shadowViewport.Width = (float)SHADOWMAP_SIZE;
-	m_shadowViewport.Height = (float)SHADOWMAP_SIZE;
+	m_shadowViewport.Width = (float)DIRECTIONAL_SHADOWMAP_SIZE;
+	m_shadowViewport.Height = (float)DIRECTIONAL_SHADOWMAP_SIZE;
 	m_shadowViewport.MinDepth = 0.f;
 	m_shadowViewport.MaxDepth = 1.f;
+
+	m_pointShadowViewport.TopLeftX = 0;
+	m_pointShadowViewport.TopLeftY = 0;
+	m_pointShadowViewport.Width = (float)POINT_SHADOWMAP_SIZE;
+	m_pointShadowViewport.Height = (float)POINT_SHADOWMAP_SIZE;
+	m_pointShadowViewport.MinDepth = 0.f;
+	m_pointShadowViewport.MaxDepth = 1.f;
 }
 
 void Renderer::CreateRenderTargetView()
 {
 	/// 2. Point Light Shadow RenderTargetView 초기화
 	D3D11_TEXTURE2D_DESC descDepth = {};
-	descDepth.Width = (float)(SHADOWMAP_SIZE);
-	descDepth.Height = (float)(SHADOWMAP_SIZE);
+	descDepth.Width = (float)(POINT_SHADOWMAP_SIZE);
+	descDepth.Height = (float)(POINT_SHADOWMAP_SIZE);
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = (6 * pointLightCount);			// 포인트라이트 갯수 * 6방향
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
-	descDepth.Format = DXGI_FORMAT_R32_FLOAT;
+	descDepth.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	descDepth.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	descDepth.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE | D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	descDepth.SampleDesc.Count = 1;
@@ -211,7 +219,7 @@ void Renderer::CreateRenderTargetView()
 	HR_T(m_pDevice->CreateTexture2D(&descDepth, NULL, m_pPointLightShadowMap.GetAddressOf()));
 
 	D3D11_RENDER_TARGET_VIEW_DESC rtvDesc;
-	rtvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	rtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DARRAY;
 	rtvDesc.Texture2DArray.MipSlice = 0;
 	rtvDesc.Texture2DArray.ArraySize = 1;
@@ -222,14 +230,14 @@ void Renderer::CreateRenderTargetView()
 	{
 		for (int i = 0; i < m_pointLightShadowMap.size(); i++)
 		{
-			rtvDesc.Texture2DArray.FirstArraySlice = i + (j * pointLightCount);
+			rtvDesc.Texture2DArray.FirstArraySlice = i + (j * 6);
 			HR_T(m_pDevice->CreateRenderTargetView(m_pPointLightShadowMap.Get(), &rtvDesc, m_pointLightShadowMap[i].GetAddressOf()));
 		}
 		m_pPointLightShadowRTV.push_back(m_pointLightShadowMap);
 	}
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	srvDesc.TextureCube.MostDetailedMip = 0;
 	srvDesc.TextureCube.MipLevels = -1;
@@ -263,8 +271,8 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 
 	/// 2. Directional Light Shadow DepthStencilView 초기화
 	descDepth = {};
-	descDepth.Width = (float)(SHADOWMAP_SIZE);
-	descDepth.Height = (float)(SHADOWMAP_SIZE);
+	descDepth.Width = (float)(DIRECTIONAL_SHADOWMAP_SIZE);
+	descDepth.Height = (float)(DIRECTIONAL_SHADOWMAP_SIZE);
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
@@ -287,15 +295,43 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	HR_T(m_pDevice->CreateShaderResourceView(m_pShadowMap.Get(), &srvDesc, m_pShadowMapSRV.GetAddressOf()));
 
 	/// 3. Point Light Shadow DepthStencilView 초기화
+	descDepth = {};
+	descDepth.Width = (float)(POINT_SHADOWMAP_SIZE);
+	descDepth.Height = (float)(POINT_SHADOWMAP_SIZE);
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = (6 * pointLightCount);			// 포인트라이트 갯수 * 6방향
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	descDepth.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	HR_T(m_pDevice->CreateTexture2D(&descDepth, NULL, m_pPointLightDepthMap.GetAddressOf()));
+
 	descDSV = {};
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
-	for (int i = 0; i < (6 * pointLightCount); i++)
+	descDSV.Texture2DArray.MipSlice = 0;
+	descDSV.Texture2DArray.ArraySize = 1;
+
+	std::vector<ComPtr<ID3D11DepthStencilView>> m_pointLightDepthMap;
+	m_pointLightDepthMap.resize(6);
+	for (int j = 0; j < pointLightCount; j++)
 	{
-		descDSV.Texture2DArray.FirstArraySlice = i;
-		descDSV.Texture2DArray.ArraySize = 1;
-		HR_T(m_pDevice->CreateDepthStencilView(m_pPointLightShadowMap.Get(), &descDSV, m_pPointLightShadowMapDSV[i].GetAddressOf()));
+		for (int i = 0; i < m_pointLightDepthMap.size(); i++)
+		{
+			descDSV.Texture2DArray.FirstArraySlice = i + (j * 6);
+			HR_T(m_pDevice->CreateDepthStencilView(m_pPointLightDepthMap.Get(), &descDSV, m_pointLightDepthMap[i].GetAddressOf()));
+		}
+		m_pPointLightShadowDSV.push_back(m_pointLightDepthMap);
 	}
+
+	srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+	srvDesc.TextureCube.MostDetailedMip = 0;
+	srvDesc.TextureCube.MipLevels = -1;
+	HR_T(m_pDevice->CreateShaderResourceView(m_pPointLightDepthMap.Get(), &srvDesc, m_pPointLightDepthMapSRV.GetAddressOf()));
 }
 
 DirectX::XMFLOAT3 Renderer::ConvertToNDC(const Vector3D& pos) const
@@ -576,7 +612,7 @@ void Renderer::Update()
 	m_viewMatrixCB.mView = m_viewMatrix.Transpose();
 
 	//그림자 View, Projection 매트릭스 생성
-	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 300.0f, 20000.0f);
+	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, DIRECTIONAL_SHADOWMAP_SIZE / DIRECTIONAL_SHADOWMAP_SIZE, 300.0f, 20000.0f);
 	Vector3 shadowLookAt = { 0, 0, 0 };
 	Vector3 shadowPos = shadowLookAt + (-m_lightCB.mDirection * 1000);
 	Matrix shadowView = DirectX::XMMatrixLookAtLH(shadowPos, shadowLookAt, Vector3(0.f, 1.f, 0.f));
@@ -741,28 +777,26 @@ void Renderer::GameAppRender()
 			Vector3(0.0f, 1.0f, 0.0f)
 		};
 
+		ComPtr<ID3D11RenderTargetView> arrayRTV[6];
+		ComPtr<ID3D11DepthStencilView> arrayDSV[6];
+
 		for (int i = 0; i < m_pointLightInstance.size(); i++)
 		{
 			for (int j = 0; j < 6; j++)
 			{
-				SetPointLightViewMatrix(pointLightDir[j], upDir[j], i, j);
+				UpdatePointLightProjection(pointLightDir[j], upDir[j], i, j);
+
+				arrayRTV[i] = m_pPointLightShadowRTV[i][j];
+				arrayDSV[i] = m_pPointLightShadowDSV[i][j];
 			}
 
 			//그림자 맵 생성
-			m_pDeviceContext->RSSetViewports(1, &m_shadowViewport);
-			m_pDeviceContext->OMSetRenderTargets(1, m_pPointLightShadowRTV[i].data(), m_pPointLightShadowMapDSV[(i * m_pointLightInstance.size()) + k].Get());
-			m_pDeviceContext->ClearDepthStencilView(m_pPointLightShadowMapDSV[(i * m_pointLightInstance.size()) + k].Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+			m_pDeviceContext->RSSetViewports(1, &m_pointShadowViewport);
+			m_pDeviceContext->OMSetRenderTargets(6, arrayRTV[0].GetAddressOf(), NULL);
 			m_pDeviceContext->PSSetShader(NULL, NULL, 0);
 
-			//그림자의 View, Projection 포함하여 버퍼에 업데이트
-			m_pDeviceContext->UpdateSubresource(m_pViewBuffer.Get(), 0, nullptr, &m_viewMatrixCB, 0, 0);
-			m_pDeviceContext->VSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
-			m_pDeviceContext->PSSetConstantBuffers(1, 1, m_pViewBuffer.GetAddressOf());
-
-			m_pDeviceContext->UpdateSubresource(m_pProjectionBuffer.Get(), 0, nullptr, &m_projectionMatrixCB, 0, 0);
-			m_pDeviceContext->VSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
-			m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
-
+			//포인트 라이트 그림자 프로젝션 행렬 업데이트
+			m_pointLightProjectionCB.mCurrentPointLightIndex = i;
 			m_pDeviceContext->UpdateSubresource(m_pPointLightProjectionBuffer.Get(), 0, nullptr, &m_pointLightProjectionCB, 0, 0);
 			m_pDeviceContext->GSSetConstantBuffers(6, 1, m_pPointLightProjectionBuffer.GetAddressOf());
 
@@ -772,11 +806,10 @@ void Renderer::GameAppRender()
 			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pPointLightShadowPS.Get(), nullptr, 0);
 			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 			ShadowRender();
-
-			k++;
 		}
 	}
 
+	//기하 셰이더 해제
 	Renderer::Instance->m_pDeviceContext->GSSetShader(nullptr, nullptr, 0);
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
@@ -956,14 +989,14 @@ void Renderer::CreateShadowPS()
 	HR_T(m_pDevice->CreatePixelShader(pixelShaderBuffer1->GetBufferPointer(), pixelShaderBuffer1->GetBufferSize(), NULL, m_pPointLightShadowPS.GetAddressOf()));
 }
 
-void Renderer::SetPointLightViewMatrix(Vector3 pointLightDir, Vector3 upDir, int pointLightIndex, int dirIndex)
+void Renderer::UpdatePointLightProjection(Vector3 pointLightDir, Vector3 upDir, int pointLightIndex, int dirIndex)
 {
 	// minjeong : Point Light Shadow View Projection Create
 	Vector3 plShadowPos = m_pointLightInstance[pointLightIndex].GetPosition();
 	Matrix plShadowView = DirectX::XMMatrixLookAtLH(plShadowPos, (plShadowPos + pointLightDir), upDir);
 	m_pointLightProjectionCB.mShadowMatrix[dirIndex] = plShadowView.Transpose();
 
-	Matrix plShadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 1.f, m_pointLightInstance[pointLightIndex].GetRadius());		// 포인트 라이트의 범위만큼 far을 설정
+	Matrix plShadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, DIRECTIONAL_SHADOWMAP_SIZE / DIRECTIONAL_SHADOWMAP_SIZE, 1.f, m_pointLightInstance[pointLightIndex].GetRadius());		// 포인트 라이트의 범위만큼 far을 설정
 	m_pointLightProjectionCB.mShadowMatrix[dirIndex] *= plShadowProjection.Transpose();
 }
 

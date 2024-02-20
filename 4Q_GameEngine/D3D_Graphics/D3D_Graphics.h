@@ -41,6 +41,8 @@ struct cbPointLight
 
 struct cbPointLightProjection
 {
+	int mCurrentPointLightIndex;
+	int mPad0[3];
 	Math::Matrix mShadowMatrix[6];
 };
 
@@ -128,31 +130,37 @@ public:
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;
 
-
-	// minjeong : shadow Interface
 	ComPtr<ID3D11VertexShader> m_pShadowVS;
 	ComPtr<ID3D11VertexShader> m_pPointLightShadowVS;
+
 	ComPtr<ID3D11GeometryShader> m_pPointLightShadowGS;
+
 	ComPtr<ID3D11PixelShader> m_pShadowPS;
 	ComPtr<ID3D11PixelShader> m_pPointLightShadowPS;
 	ComPtr<ID3D11PixelShader> m_pEnvironmentPS;
 	ComPtr<ID3D11PixelShader> m_pSpherePS;
+
 	ComPtr<ID3D11Texture2D> m_pShadowMap;
-	ComPtr<ID3D11Texture2D> m_pPointLightShadowMap;
 	ComPtr<ID3D11DepthStencilView> m_pShadowMapDSV;
-	ComPtr<ID3D11DepthStencilView> m_pPointLightShadowMapDSV[6 * pointLightCount];
-	ComPtr<ID3D11RenderTargetView> m_pPointLightShadowMapRTV[6 * pointLightCount];
 	ComPtr<ID3D11ShaderResourceView> m_pShadowMapSRV;
-	ComPtr<ID3D11ShaderResourceView> m_pPointLightShadowMapSRV;
 	ComPtr<ID3D11SamplerState> m_pShadowSampler;
+
+	ComPtr<ID3D11Texture2D> m_pPointLightShadowMap;
+	ComPtr<ID3D11ShaderResourceView> m_pPointLightShadowMapSRV;
+	std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>> m_pPointLightShadowRTV;
+
+	ComPtr<ID3D11Texture2D> m_pPointLightDepthMap;
+	ComPtr<ID3D11ShaderResourceView> m_pPointLightDepthMapSRV;
+	std::vector<std::vector<ComPtr<ID3D11DepthStencilView>>> m_pPointLightShadowDSV;
+
 	D3D11_VIEWPORT m_viewport;
 	D3D11_VIEWPORT m_shadowViewport;
+	D3D11_VIEWPORT m_pointShadowViewport;
 
 	ComPtr<ID3D11VertexShader> m_pOutlineVS;
 	ComPtr<ID3D11PixelShader> m_pOutlinePS;
 
 
-	std::vector<std::vector<ComPtr<ID3D11RenderTargetView>>> m_pPointLightShadowRTV;
 
 	ComPtr<ID3D11Buffer> m_pWorldBuffer = nullptr;
 	RenderTextureClass* m_RenderTexture = nullptr;	// 수민 추가.
@@ -331,10 +339,10 @@ public:
 	void CreateShadowVS();
 	void CreateShadowGS();
 	void CreateShadowPS();
-	void SetPointLightViewMatrix(Vector3 pointLightDir, Vector3 upDir, int pointLightIndex, int dirIndex);
+	void UpdatePointLightProjection(Vector3 pointLightDir, Vector3 upDir, int pointLightIndex, int dirIndex);
 
 private:
-		std::string BasePath = "../Resource/";
+	std::string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
 	vector<TextInformation> m_texts;
 	vector<SpriteInformation> m_sprites;
