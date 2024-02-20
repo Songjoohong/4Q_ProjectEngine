@@ -64,9 +64,17 @@ void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 	}
 }
 
-void Renderer::AddColliderBox(Vector3 center, Vector3 extents,bool isCollision)
+void Renderer::AddColliderBox(Vector3 center, Vector3 extents,bool isCollision,Math::Matrix worldTM)
 {
-	m_colliderBox.push_back(ColliderBox(center + Vector3{0.f,extents.y, 0.f}, extents, isCollision));
+	Math::Vector3 scale, pos;
+	Math::Quaternion rotation;
+	worldTM.Decompose(scale, rotation, pos);
+	m_colliderBox.push_back(ColliderBox(center + Vector3{0.f,extents.y, 0.f}, extents,rotation, isCollision));
+}
+
+void Renderer::BoxRender()
+{
+
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
@@ -244,6 +252,37 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.Texture2D.MipSlice = 0;
 	HR_T(m_pDevice->CreateDepthStencilView(textureDepthStencil.Get(), &descDSV, &m_pDepthStencilView));
 
+	//Outline DepthStencil
+	descDepth.Width = width;
+	descDepth.Height = height;
+	descDepth.MipLevels = 1;
+	descDepth.ArraySize = 1;
+	descDepth.Format = DXGI_FORMAT_R32_TYPELESS;
+	descDepth.SampleDesc.Count = 1;
+	descDepth.SampleDesc.Quality = 0;
+	descDepth.Usage = D3D11_USAGE_DEFAULT;
+	descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	descDepth.CPUAccessFlags = 0;
+	descDepth.MiscFlags = 0;
+	HR_T(m_pDevice->CreateTexture2D(&descDepth, nullptr, &m_pOutlineMap));
+	HR_T(m_pDevice->CreateTexture2D(&descDepth, nullptr, m_pOriginMap.GetAddressOf()));
+
+
+	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	HR_T(m_pDevice->CreateDepthStencilView(m_pOutlineMap.Get(), &descDSV, m_pOutlineDepthStencilView.GetAddressOf()));
+	HR_T(m_pDevice->CreateDepthStencilView(m_pOriginMap.Get(), &descDSV, m_pOutlineOriginDSV.GetAddressOf()));
+	
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension= D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+
+	HR_T(m_pDevice->CreateShaderResourceView(m_pOutlineMap.Get(), &srvDesc, m_pOutlineMapSRV.GetAddressOf()));
+	HR_T(m_pDevice->CreateShaderResourceView(m_pOriginMap.Get(), &srvDesc, m_pOriginMapSRV.GetAddressOf()));
+
 	//Shadow DepthStencilView 초기화
 	descDepth = {};
 	descDepth.Width = (float)(SHADOWMAP_SIZE);
@@ -263,7 +302,7 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
@@ -389,12 +428,25 @@ void Renderer::SphereRender()
 
 void Renderer::OutlineRender()
 {
+	m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pOutlineOriginDSV.Get());
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
-	m_pDeviceContext->OMSetDepthStencilState(m_pOutlineDSS.Get(), 1);
+	m_pDeviceContext->OMSetDepthStencilState(m_pOutlineDSS.Get(), 0);
+	for (auto it : m_pOutlineMesh)
+	{
+		m_pDeviceContext->VSSetShader(it->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
+		m_pDeviceContext->PSSetShader(m_pOutlinePS.Get(), nullptr, 0);
+		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
+		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+		it->Render(m_pDeviceContext.Get());
+	}
+
+	m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pOutlineDepthStencilView.Get());
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+	m_pDeviceContext->OMSetDepthStencilState(m_pOutlineDSS.Get(), 0);
 	for (auto it : m_pOutlineMesh)
 	{
 		m_pDeviceContext->VSSetShader(m_pOutlineVS.Get(), nullptr, 0);
-		m_pDeviceContext->PSSetShader(nullptr, nullptr, 0);
+		m_pDeviceContext->PSSetShader(m_pOutlinePS.Get(), nullptr, 0);
 		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
 		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
 		it->Render(m_pDeviceContext.Get());
@@ -534,7 +586,7 @@ void Renderer::Update()
 	//그림자 View, Projection 매트릭스 생성
 	Matrix shadowProjection = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, SHADOWMAP_SIZE / SHADOWMAP_SIZE, 300.0f, 20000.0f);
 	Vector3 shadowLookAt = { 0, 0, 0 };
-	Vector3 shadowPos = shadowLookAt + (-m_lightCB.mDirection * 1000);
+	Vector3 shadowPos = shadowLookAt + (-m_lightCB.mDirection * 20000);
 	Matrix shadowView = DirectX::XMMatrixLookAtLH(shadowPos, shadowLookAt, Vector3(0.f, 1.f, 0.f));
 
 	m_shadowDirection = shadowLookAt - shadowPos;
@@ -669,19 +721,21 @@ void Renderer::GameAppRender()
 	m_pDeviceContext->RSSetViewports(1, &m_viewport);
 
 	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 실제 게임 렌더타겟에 렌더
-
+	m_pDeviceContext->ClearDepthStencilView(m_pOutlineDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->ClearDepthStencilView(m_pOutlineOriginDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	SphereRender();
 
 	//OutlineRender();
+	OutlineRender();
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get()); 
 	MeshRender();
-
-
 	RenderDebugDraw();
 
 
+	FinalRender();
 	m_spriteBatch->Begin();
 	RenderText();
 	RenderSprite();
@@ -690,7 +744,6 @@ void Renderer::GameAppRender()
 
 	//임구이 렌더
 	RenderImgui();
-	FinalRender();
 }
 
 void Renderer::EditorRender()
@@ -781,9 +834,11 @@ void Renderer::FinalRender()
 	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 	Clear();
 	m_pDeviceContext->VSSetShader(m_pScreenMeshInstance->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
-	m_pDeviceContext->PSSetShader(m_pOutlinePS.Get(), nullptr, 0);
+	m_pDeviceContext->PSSetShader(m_pScreenPS.Get(), nullptr, 0);
 	m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
 	m_pDeviceContext->PSSetShaderResources(12, 1, m_pFirstMapSRV.GetAddressOf());
+	m_pDeviceContext->PSSetShaderResources(13, 1, m_pOutlineMapSRV.GetAddressOf());
+	m_pDeviceContext->PSSetShaderResources(14, 1, m_pOriginMapSRV.GetAddressOf());
 	m_pScreenMeshInstance->Render(m_pDeviceContext.Get());
 }
 
@@ -920,6 +975,11 @@ void Renderer::RenderImgui()
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
 		std::string str = std::to_string(m_shadowDirection.x) + ", " + std::to_string(m_shadowDirection.y) + ", " + std::to_string(m_shadowDirection.z);
+		ImGui::Text("ShadowDirection : %s", str.c_str());
+
+		ImGui::Text("Shadow");
+		ImGui::Image(m_pOriginMapSRV.Get(), ImVec2(256, 256));
+		//std::string str = std::to_string(m_shadowDirection.x) + ", " + std::to_string(m_shadowDirection.y) + ", " + std::to_string(m_shadowDirection.z);
 		ImGui::Text("ShadowDirection : %s", str.c_str());
 		ImGui::End();
 	}
@@ -1130,7 +1190,9 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 	dsd = CD3D11_DEPTH_STENCIL_DESC{ CD3D11_DEFAULT{} };
 	dsd.DepthEnable = true;
-	dsd.StencilEnable = true;
+	dsd.StencilEnable = false;
+	dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsd.DepthFunc = D3D11_COMPARISON_LESS;
 	dsd.StencilWriteMask = 0xff;
 	dsd.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 	dsd.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
@@ -1139,6 +1201,8 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	dsd.BackFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
 
 	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pOutlineDSS.GetAddressOf()));
+	
+
     //래스터라이저 스테이트 초기화
     D3D11_RASTERIZER_DESC rasterizerDesc = {};
     rasterizerDesc.AntialiasedLineEnable = true;
@@ -1196,8 +1260,12 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(m_pDevice->CreateVertexShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pOutlineVS.GetAddressOf()));
 
 	buffer.Reset();
-	HR_T(CompileShaderFromFile(L"../Resource/PS_Screen.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(CompileShaderFromFile(L"../Resource/PS_Outline.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
 	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pOutlinePS.GetAddressOf()));
+
+	buffer.Reset();
+	HR_T(CompileShaderFromFile(L"../Resource/PS_Screen.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));
+	HR_T(m_pDevice->CreatePixelShader(buffer->GetBufferPointer(), buffer->GetBufferSize(), NULL, m_pScreenPS.GetAddressOf()));
 
 	buffer.Reset();
 	HR_T(CompileShaderFromFile(L"../Resource/BallPBR.hlsl", nullptr, "main", "ps_5_0", buffer.GetAddressOf()));

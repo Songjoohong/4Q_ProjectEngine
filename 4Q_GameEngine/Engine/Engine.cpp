@@ -122,18 +122,18 @@ bool Engine::Initialize(const UINT width, const UINT height)
 
 
 	//Free Camera
-	//Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
-	//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//ent->Assign<Debug>();
-	//ent->Assign<Camera>();
-	//ent->Assign<FreeCameraScript>(ent);
-	//ent->Assign<Movement>();
+	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
+	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	ent->Assign<Debug>();
+	ent->Assign<Camera>();
+	ent->Assign<FreeCameraScript>(ent);
+	ent->Assign<Movement>();
 
 	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
 	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 10.f,1.f,10.f });
+	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
 	ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::GROUND,Vector3D{ 1000.f,1.f,1000.f });
 
 
@@ -163,13 +163,24 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
 	ent3->Assign<DynamicText>(wideStrings);
 	ent3->Assign<DynamicTextScript>(ent3);
-	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f));
-	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
+	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f),Vector3D(70,10,10));
+	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/ridgepole_001.fbx");
+	ent3->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::TRIGGER, Vector3D{ 100.f,100.f,100.f });
 
 	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/zeldaPosed001.fbx");
-	ent4->Assign<Transform>(Vector3D(200.f, 10.f, 0.f));
+	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/hanok_ACC.fbx");
+	ent4->Assign<Transform>(Vector3D(200.f, 0.f, 0.f));
 	ent4->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::TRIGGER, Vector3D{ 100.f,100.f,100.f });
+
+	Entity* ent9 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent9->Assign<StaticMesh>("FBXLoad_Test/fbx/hanok_roof.fbx");
+	ent9->Assign<Transform>(Vector3D(200.f, 0.f, 0.f));
+	ent9->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::TRIGGER, Vector3D{ 100.f,100.f,100.f });
+
+	Entity* ent0 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent0->Assign<StaticMesh>("FBXLoad_Test/fbx/hanok_wall.fbx");
+	ent0->Assign<Transform>(Vector3D(200.f, 0.f, 0.f));
+	ent0->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::TRIGGER, Vector3D{ 100.f,100.f,100.f });
 
 
 
@@ -180,13 +191,13 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent5->Assign<Sprite2D>(ent5, "../Resource/UI/image.jpg", 0, 100,100 );
 	ent5->Assign<TestUIScript>(ent5);
 
-	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	/*Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent6->Assign<Transform>(Vector3D{ -20.f,100.f,0.f });
 	ent6->Assign<Camera>();
 	ent6->Assign<POVCameraScript>(ent6);
 	ent6->Assign<Movement>();
 	ent6->Assign<Space>(1, exit);
-	ent6->SetParent(ent2);
+	ent6->SetParent(ent2);*/
 
 	/*SoundManager::GetInstance()->CreateSound("better-day-186374.mp3", true);	
 	SoundManager::GetInstance()->PlayBackSound("better-day-186374.mp3");*/	 
