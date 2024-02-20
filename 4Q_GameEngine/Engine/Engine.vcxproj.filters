@@ -236,11 +236,13 @@
     <ClInclude Include="PlayerInformation.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="EventSystem.h" />
-    <ClInclude Include="IntroCameraScript.h">
+    <ClInclude Include="OutroScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
-    <ClInclude Include="OutroScript.h">
+    <ClInclude Include="EventSystem.h">
+      <Filter>System\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroCameraScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
     <ClInclude Include="IntroDoorScript.h">
@@ -320,6 +322,8 @@
     <ClCompile Include="DynamicTextScript.h">
       <Filter>Component\Script</Filter>
     </ClCompile>
-    <ClCompile Include="EventSystem.cpp" />
+    <ClCompile Include="EventSystem.cpp">
+      <Filter>System\Event</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

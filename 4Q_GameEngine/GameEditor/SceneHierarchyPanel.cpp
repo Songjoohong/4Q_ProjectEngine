@@ -615,7 +615,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			, "OutroScript"
 			, "DrawerScript"
 			, "IntroDoorScript"};
-
+		//¿ä±â
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
 

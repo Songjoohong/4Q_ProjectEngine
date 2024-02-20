@@ -14,14 +14,20 @@ struct DrawerScript : public Script
 
 	virtual void Update(float deltaTime) override
 	{
-		if (m_pOwner->get<BoxCollider>()->m_IsRaycastHit)
+		int a = 0;
+		if(m_pOwner->has<BoxCollider>())
 		{
-			// ¿Ü°û¼± Ã³¸®
-			if(InputM->GetKeyDown(Key::E))
+			auto a = m_pOwner->get<BoxCollider>()->m_IsRaycastHit;
+			if (m_pOwner->get<BoxCollider>()->m_IsRaycastHit)
 			{
-				m_IsInteract = !m_IsInteract;
+				// ¿Ü°û¼± Ã³¸®
+				if (InputM->GetKeyDown(Key::E))
+				{
+					m_IsInteract = !m_IsInteract;
+				}
 			}
 		}
+		
 
 		if(m_IsInteract)
 		{
@@ -31,7 +37,7 @@ struct DrawerScript : public Script
 			}
 			else
 			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() - 10.f * deltaTime);
+				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() - 100.f * deltaTime);
 			}
 		}
 		else
@@ -42,7 +48,7 @@ struct DrawerScript : public Script
 			}
 			else
 			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() + 10.f * deltaTime);
+				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() + 100.f * deltaTime);
 			}
 		}
 	}

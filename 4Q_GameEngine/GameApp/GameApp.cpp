@@ -46,8 +46,12 @@
 #include "../Engine/CollisionSystem.h"
 #include "../Engine/SpriteSystem.h"
 #include "../Engine/DebugSystem.h"
+#include "../Engine/DrawerScript.h"
 #include "../Engine/UISystem.h"
 #include "../Engine/SpaceSystem.h"
+#include "../Engine/EventSystem.h"
+
+
 
 GameApp::GameApp(HINSTANCE hInstance)
 	:Engine(hInstance)
@@ -89,6 +93,7 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 	world->registerSystem(new SpriteSystem());
 	world->registerSystem(new class UISystem);
 	world->registerSystem(new SpaceSystem());
+	world->registerSystem(new EventSystem());
 
 	std::string fullPath = basePath + filename;
 

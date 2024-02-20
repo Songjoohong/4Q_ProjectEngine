@@ -60,15 +60,15 @@ void PhysicsManager::Initialize()
 }
 
 void PhysicsManager::Update(float deltatime)
-{
+{ 
 	AddCollidersIntoPxScene();
-
+	                    
 	if (!m_pStaticColliders.empty())
 	{
 		for (auto& collider : m_pStaticColliders)
 		{
 			PxVec3 tras = collider.second->m_Transform.p;
-			collider.second->UpdateScale();
+			collider.second->UpdateScale(); 
 			collider.second->UpdateRotation();
 			collider.second->UpdatePosition();
 		}
@@ -110,6 +110,9 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 		UserData* data = static_cast<UserData*>(hit.block.actor->userData);
 		int id = data->m_EntityId;
 		cout << "Entity Id : " << id << endl;
+		cout << "Raycast Position x : " << raycastPoint.x << endl;
+		cout << "Raycast Position y : " << raycastPoint.y << endl;
+		cout << "Raycast Position z : " << raycastPoint.z << endl;
 
 		for (const auto& obj : m_pStaticColliders) {
 			int Id = obj.first;
@@ -221,6 +224,11 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 		UserData* user = new UserData;
 		user->m_CollisionType = boxcollider->m_CollisionType;
 		user->m_EntityId = entId;
+		if (entId == 75)
+		{
+			Vector3D ro=boxcollider->m_Rotation;
+			ro=boxcollider->m_Rotation;
+		}
 		user->m_State = CollisionState::NONE;
 
 		newStaticCollider->m_Rigid->userData = user;
@@ -424,7 +432,10 @@ void FilterCallback::onContact(const PxContactPairHeader& pairHeader, const PxCo
 			{
 				UserData* userData = static_cast<UserData*>(actor->userData);
 				userData->m_State = CollisionState::EXIT;
-				PhysicsManager::GetInstance()->DeleteCollisionCollider(userData->m_EntityId);
+				if (userData->m_CollisionType != CollisionType::PLAYER)
+				{
+					PhysicsManager::GetInstance()->DeleteCollisionCollider(userData->m_EntityId);
+				}
 			}
 		}
 
