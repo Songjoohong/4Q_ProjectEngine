@@ -1050,6 +1050,14 @@ void GameEditor::NewScene()
 		ent2->Assign<TestUIScript>(ent2);
 	}
 #endif
+	// for test 2
+	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
+	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 100, 100);
+	ent2->Assign<OutroScript>(ent2);
+	ent->get<Script>()->m_ComponentName = "OutroScript";
+
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{

@@ -10,6 +10,8 @@ class Material;
 class StaticMeshInstance;
 class Environment;
 
+class Sprite2D;
+
 struct ColliderBox
 {
 	ColliderBox(Vector3 center, Vector3 extents, Quaternion rotation) {
@@ -236,7 +238,7 @@ public:
 
 	// 디버그 정보 수정
 	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
-	void EditSpriteInformation(int id, bool isRendered);
+	void EditSpriteInformation(int id, Sprite2D& sprite2D);
 	void EditDynamicTextInformation(int id, int index, bool enable);
 
 	void DeleteTextInformation(int id);

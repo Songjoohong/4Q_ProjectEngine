@@ -10,6 +10,7 @@
 #include "../Engine/Debug.h"
 
 #include "../Engine/TimeManager.h"
+#include "../Engine/Sprite2D.h"
 
 #include "RenderTextureClass.h"
 
@@ -21,6 +22,7 @@
 #include "../Engine/WorldManager.h"
 
 #define SHADOWMAP_SIZE 2048
+
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -127,13 +129,15 @@ void Renderer::EditTextInformation(int id, const std::string& text, const Vector
 	it->mText = text;
 }
 
-void Renderer::EditSpriteInformation(int id, bool isRendered)
+void Renderer::EditSpriteInformation(int id, Sprite2D& sprite2D)
 {
 	const auto it = std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
 		{
 			return id == sprite.mEntityID;
 		});
-	it->IsRendered = isRendered;
+	it->IsRendered = sprite2D.m_IsRendered;
+	it->mLayer = sprite2D.m_Layer;
+	it->mPosition = XMFLOAT2{ (float)sprite2D.m_Position[0], (float)sprite2D.m_Position[1] } ;
 }
 
 void Renderer::EditDynamicTextInformation(int id, int index, bool enable)

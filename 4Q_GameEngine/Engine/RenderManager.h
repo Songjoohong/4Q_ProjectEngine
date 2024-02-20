@@ -2,6 +2,7 @@
 #include <directxtk/SimpleMath.h>
 
 #include "DynamicText.h"
+#include "Sprite2D.h"
 #include "ISingleton.h"
 #include "Vector3D.h"
 
@@ -42,7 +43,7 @@ public:
 	void AddDynamicText(int entID, const std::vector<std::wstring>& textVector);
 
 	void EditText(int entID, const std::string& text, const Vector3D& pos);
-	void EditSprite(int entID, bool isRendered);
+	void EditSprite(int entID, Sprite2D& sprite2D);
 	void EditDynamicText(int size, int index, bool enable);
 
 	Renderer* GetRender() { return m_Renderer; }
