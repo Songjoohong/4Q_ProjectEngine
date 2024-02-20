@@ -110,6 +110,9 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 		UserData* data = static_cast<UserData*>(hit.block.actor->userData);
 		int id = data->m_EntityId;
 		cout << "Entity Id : " << id << endl;
+		cout << "Raycast Position x : " << raycastPoint.x << endl;
+		cout << "Raycast Position y : " << raycastPoint.y << endl;
+		cout << "Raycast Position z : " << raycastPoint.z << endl;
 
 		for (const auto& obj : m_pStaticColliders) {
 			int Id = obj.first;
