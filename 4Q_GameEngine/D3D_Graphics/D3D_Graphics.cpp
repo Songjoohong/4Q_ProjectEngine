@@ -598,22 +598,22 @@ void Renderer::Update()
 	}
 
 	// pointLight Frustum Culling
-	for (int i = 0; i < pointLightCount; i++)
-	{
-		DirectX::BoundingBox pointLightBoundingBox;
+	//for (int i = 0; i < pointLightCount; i++)
+	//{
+	//	DirectX::BoundingBox pointLightBoundingBox;
 
-		// Calculate the extents of the bounding box based on the radius
-		Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
+	//	// Calculate the extents of the bounding box based on the radius
+	//	Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
 
-		// Set the bounding box parameters
-		pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
-		pointLightBoundingBox.Extents = extents;
+	//	// Set the bounding box parameters
+	//	pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
+	//	pointLightBoundingBox.Extents = extents;
 
-		if (m_frustumCmaera.Intersects(pointLightBoundingBox))
-		{
-			m_pointLightInstance.push_back(m_pointLights[i]);
-		}
-	}
+	//	if (m_frustumCmaera.Intersects(pointLightBoundingBox))
+	//	{
+	//		m_pointLightInstance.push_back(m_pointLights[i]);
+	//	}
+	//}
 
 	//AddOutlineMesh(m_pStaticModels[1]);
 	RenderQueueSort();
@@ -647,7 +647,7 @@ void Renderer::RenderBegin()
     m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
     Clear(0,1,0);
     m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-    m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
     m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
     m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
@@ -759,7 +759,7 @@ void Renderer::GameAppRender()
 
 
 	//임구이 렌더
-	RenderImgui();
+	//RenderImgui();
 }
 
 void Renderer::EditorRender()
@@ -804,20 +804,20 @@ void Renderer::EditorRender()
 
 
 	RenderDebugDraw();
-
+	
 
 
 	m_spriteBatch->Begin();
 	//RenderText();
 	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-
+	
 
 	//임구이 렌더
 	//RenderImgui();
 
 	// 렌더링 대상을 원래의 백 버퍼로 다시 설정하고 렌더링에 대한 렌더링을 더 이상 다시 설정하지 않습니다.
-	
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 }
 
 
@@ -1231,13 +1231,13 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
 
 	//포인트 라이트 테스트용
-	for (int i = 0; i < 5; i++)
-	{
-		m_pointLights[i].SetPosition(Vector3(0, 0, 0));
-		m_pointLights[i].SetRadius(600.f);
-		m_pointLights[i].SetColor();
-		m_pointLights[i].SetIntensity(1000.f);
-	}
+	//for (int i = 0; i < 5; i++)
+	//{
+	//	m_pointLights[i].SetPosition(Vector3(0, 0, 0));
+	//	m_pointLights[i].SetRadius(600.f);
+	//	m_pointLights[i].SetColor();
+	//	m_pointLights[i].SetIntensity(1000.f);
+	//}
 
 	SetAlphaBlendState();
 
@@ -1279,8 +1279,8 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	SetCamera(cameraInitPos);
 
 
-	if (!InitImgui(*hWnd))
-		return false;
+	/*if (!InitImgui(*hWnd))
+		return false;*/
 
 
 	return true;

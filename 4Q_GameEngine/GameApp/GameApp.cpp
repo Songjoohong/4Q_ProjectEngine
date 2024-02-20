@@ -61,11 +61,11 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	m_IntroWorld = DeserializeGame("");
-	m_GameWorld = DeserializeGame("scene/ScriptTestScene.scene");
-	m_OutroWorld = DeserializeGame("");
+	//m_IntroWorld = DeserializeGame("");
+	m_GameWorld = DeserializeGame("scene/ObjTest.scene");
+	//m_OutroWorld = DeserializeGame("");
 
-	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
 	
 	return true;
 }
