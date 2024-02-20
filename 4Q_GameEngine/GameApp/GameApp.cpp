@@ -44,6 +44,7 @@
 #include "../Engine/DebugSystem.h"
 #include "../Engine/UISystem.h"
 #include "../Engine/SpaceSystem.h"
+#include "../Engine/EventSystem.h"
 
 GameApp::GameApp(HINSTANCE hInstance)
 	:Engine(hInstance)
@@ -63,7 +64,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 		return result;
 
 	//m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
-	m_GameWorld = DeserializeGame("scene/jasonScene.scene");
+	m_GameWorld = DeserializeGame("scene/Scene_Main.scene");
 	//m_OutroWorld = DeserializeGame("");
 
 	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
@@ -85,6 +86,7 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 	world->registerSystem(new SpriteSystem());
 	world->registerSystem(new class UISystem);
 	world->registerSystem(new SpaceSystem());
+	world->registerSystem(new EventSystem());
 
 	std::string fullPath = basePath + filename;
 

@@ -71,9 +71,9 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	NewScene();
 
-	std::string pngPath = "../Resource/UI/play button.png";
-	auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
-	CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
+	//std::string pngPath = "../Resource/UI/play button.png";
+	//auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
+	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
 
 	if (!InitImGui())
 	{
@@ -231,8 +231,8 @@ void GameEditor::RenderImGui()
 
 				ImGui::EndMenu();
 			}
-			ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
-			ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });
+			/*ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
+			ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });*/
 
 			ImGui::EndMenuBar();
 		}
@@ -250,15 +250,15 @@ void GameEditor::RenderImGui()
 		//ImGui::ShowDemoWindow();
 		ImGui::End();
 
-		//// Game Play Buttons Test
-		//{
-		//	ImGui::Begin("Play");
-		//	ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
+		// Game Play Buttons Test
+		{
+			ImGui::Begin("Play");
+			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
 
-		//	PlayButton();
+			PlayButton();
 
-		//	ImGui::End();
-		//}
+			ImGui::End();
+		}
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거

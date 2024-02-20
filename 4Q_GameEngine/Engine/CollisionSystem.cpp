@@ -16,8 +16,9 @@ void CollisionSystem::Deconfigure(World* world)
 }
 
 void CollisionSystem::Receive(World* world, const Events::OnComponentAssigned<BoxCollider>& event)
-{
+{ 
 	event.component->m_WorldPosition = event.entity->get<Transform>()->m_Position + event.component->m_Center;
+	event.component->m_Rotation = event.entity->get<Transform>()->m_Rotation; // rotation test
 	PhysicsManager::GetInstance()->CreateCollider(event.component.component, event.entity->getEntityId());
 }
 
@@ -40,7 +41,7 @@ void AddParentPositionToChildren(Entity* entity, const Vector3D& parentPosition)
 
 void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 {
-	Entity* player;
+	Entity* player = nullptr;
 	ComponentHandle<PlayerInformation> info;
 
 	world->each<PlayerInformation>([&](Entity* ent, ComponentHandle<PlayerInformation> playerInfo)->void
@@ -51,6 +52,7 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 
 	world->each<Transform, BoxCollider>([&](Entity* ent, ComponentHandle<Transform> transform, ComponentHandle<BoxCollider> collider)
 		{
+			collider->m_Rotation = transform->m_Rotation;
 			if(collider->m_IsRaycastHit)
 			{
 				if(player)

@@ -46,9 +46,12 @@ void DynamicCollider::UpdatePosition()
 		m_pOwner->m_WorldPosition.GetZ()
 	};
 
-	m_Transform.p = boxPos + boxCenter;
-	m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
-	m_Rigid->setGlobalPose(m_Transform);
+	if (boxPos != m_Transform.p)
+	{
+		m_Transform.p = boxPos;
+		m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
+		m_Rigid->setGlobalPose(m_Transform);
+	}
 }
 void DynamicCollider::UpdatePhysics()
 {

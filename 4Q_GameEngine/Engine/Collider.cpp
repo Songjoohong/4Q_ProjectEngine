@@ -14,7 +14,7 @@ Collider::~Collider()
 void Collider::Initialize()
 {
 	m_Scale = m_pOwner->m_Size;
-	m_BoxGeometry = { m_Scale.GetX() / 2,m_Scale.GetY() / 2,m_Scale.GetZ() / 2 };
+	m_BoxGeometry = { m_Scale.GetX(),m_Scale.GetY(),m_Scale.GetZ() };
 	m_pMaterial = PhysicsManager::GetInstance()->GetPhysics()->createMaterial(1.0f, 1.0f, 0.0f);
 
 	m_Transform = { m_pOwner->m_Center.GetX(),m_pOwner->m_Center.GetY() ,m_pOwner->m_Center.GetZ() };
@@ -51,7 +51,7 @@ void Collider::UpdateScale()
 	if (m_Scale != m_pOwner->m_Size)
 	{
 		m_Scale = m_pOwner->m_Size;
-		m_BoxGeometry = { m_Scale.GetX() / 2,m_Scale.GetY() / 2,m_Scale.GetZ() / 2 };
+		m_BoxGeometry = { m_Scale.GetX(),m_Scale.GetY(),m_Scale.GetZ()};
 		m_pShape->setGeometry(m_BoxGeometry);
 	}
 }

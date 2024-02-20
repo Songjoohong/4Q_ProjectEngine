@@ -60,15 +60,15 @@ void PhysicsManager::Initialize()
 }
 
 void PhysicsManager::Update(float deltatime)
-{
+{ 
 	AddCollidersIntoPxScene();
-
+	                    
 	if (!m_pStaticColliders.empty())
 	{
 		for (auto& collider : m_pStaticColliders)
 		{
 			PxVec3 tras = collider.second->m_Transform.p;
-			collider.second->UpdateScale();
+			collider.second->UpdateScale(); 
 			collider.second->UpdateRotation();
 			collider.second->UpdatePosition();
 		}
@@ -221,6 +221,11 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 		UserData* user = new UserData;
 		user->m_CollisionType = boxcollider->m_CollisionType;
 		user->m_EntityId = entId;
+		if (entId == 75)
+		{
+			Vector3D ro=boxcollider->m_Rotation;
+			ro=boxcollider->m_Rotation;
+		}
 		user->m_State = CollisionState::NONE;
 
 		newStaticCollider->m_Rigid->userData = user;
