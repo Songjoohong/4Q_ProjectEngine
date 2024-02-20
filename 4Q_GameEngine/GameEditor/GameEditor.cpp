@@ -31,6 +31,9 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/DynamicTextScript.h"
+#include "../Engine/IntroCameraScript.h"
+#include "../Engine/OutroScript.h"
+#include "../Engine/DrawerScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -234,6 +237,10 @@ void GameEditor::RenderImGui()
 			/*ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
 			ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });*/
 
+
+			//ImGui::SameLine(ImGui::GetWindowWidth() / 2 - 120);
+			//ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 30.0f, 30.0f });
+
 			ImGui::EndMenuBar();
 		}
 
@@ -247,7 +254,9 @@ void GameEditor::RenderImGui()
 		ShowSceneDialog();
 		ShowSaveSceneAsPopup();
 
+#ifdef _DEBUG
 		//ImGui::ShowDemoWindow();
+#endif
 		ImGui::End();
 
 		// Game Play Buttons Test
@@ -759,6 +768,18 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					{
 						m_PrefabManager->AssignComponents<DynamicTextScript>(playEntity, component["Script"][0]);
 					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroCameraScript")
+					{
+						m_PrefabManager->AssignComponents<IntroCameraScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "OutroScript")
+					{
+						m_PrefabManager->AssignComponents<OutroScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DrawerScript")
+					{
+						m_PrefabManager->AssignComponents<DrawerScript>(playEntity, component["Script"][0]);
+					}
 				}
 			}
 			m_PrefabManager->m_prefabContainer.push_back({ playEntity, oldID });
@@ -1031,6 +1052,7 @@ void GameEditor::NewScene()
 	ent->Assign<Movement>();
 
 	// for test
+#ifdef _DEBUG
 	{
 		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test UI");
@@ -1039,6 +1061,7 @@ void GameEditor::NewScene()
 		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
 		ent2->Assign<TestUIScript>(ent2);
 	}
+#endif
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{

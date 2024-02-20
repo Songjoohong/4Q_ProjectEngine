@@ -227,6 +227,9 @@
     <ClInclude Include="Script.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
+    <ClInclude Include="DrawerScript.h">
+		<Filter>Component\Script</Filter>
+	</ClInclude>
     <ClInclude Include="PhysicsManager.h">
       <Filter>Manager\PhysX</Filter>
     </ClInclude>
@@ -234,6 +237,12 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="EventSystem.h" />
+    <ClInclude Include="IntroCameraScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="OutroScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
