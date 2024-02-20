@@ -11,5 +11,7 @@ public:
 	virtual void Tick(World* world, ECS::DefaultTickData data) override;
 
 	int m_CurrentEventIndex = 0;
+	bool m_Trigger[20] = { false, };
+	
 };
 
