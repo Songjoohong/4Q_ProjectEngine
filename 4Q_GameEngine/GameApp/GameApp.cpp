@@ -37,6 +37,7 @@
 #include "../Engine/DrawerScript.h"
 #include "../Engine/IntroDoorScript.h"
 #include "../Engine/DoorScript.h"
+#include "../Engine/IntroButtonScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -77,7 +78,8 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	//m_OutroWorld = DeserializeGame("");
 
 	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
-	WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
+
+//	WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
 	
 	return true;
 }
@@ -239,6 +241,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					{
 						AssignComponents<DoorScript>(gameEntity, component["Script"][0]);
 					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroButtonScript")
+					{
+						AssignComponents<IntroButtonScript>(gameEntity, component["Script"][0]);
+					}
 				}
 			}
 			m_entityContainer.push_back({ gameEntity, oldID });
@@ -299,19 +305,23 @@ void GameApp::Update()
 {
 	__super::Update();
 
-	for (const auto& introEntity : m_IntroWorld->GetEntities())
+	if (WorldManager::GetInstance()->GetCurrentWorld() == m_IntroWorld)
 	{
-		if (introEntity->get<EntityIdentifier>()->m_EntityName == "PlayerCamera")
+		for (const auto& introEntity : m_IntroWorld->GetEntities())
 		{
-			if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
+			if (introEntity->get<EntityIdentifier>()->m_EntityName == "PlayerCamera")
 			{
-				/*if (m_GameWorld != nullptr)
+				if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
 				{
-					WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
-				}*/
+					if (m_GameWorld != nullptr)
+					{
+						WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+					}
+				}
 			}
 		}
 	}
+	
 
 	if (InputManager::GetInstance()->GetKeyDown(Key::F9))
 	{

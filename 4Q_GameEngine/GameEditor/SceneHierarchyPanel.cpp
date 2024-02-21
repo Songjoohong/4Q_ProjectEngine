@@ -617,7 +617,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			, "OutroScript"
 			, "DrawerScript"
 			, "IntroDoorScript"
-			, "DoorScript"};
+			, "DoorScript"
+			, "IntroButtonScript"};
 		//¿ä±â
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
@@ -733,8 +734,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<UI>("UI", entity, [](auto component)
 	{
-			static int x = component->m_Size[0];
-			static int y = component->m_Size[1];
+			int x = component->m_Size[0];
+			int y = component->m_Size[1];
 
 			ImGui::Text("Interactive Size");
 			//ImGui::DragFloat("X", &x, 0.1f, 0.0f, 0.0f, "%.2f");
@@ -762,15 +763,47 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		ImGui::DragFloat("Layer :", &component->m_Layer, 0.1f, 0.f, 1.f, "%.1f");
 
-		static int posX = component->m_Position[0];
-		static int posY = component->m_Position[1];
+		int posX = component->m_Position[0];
+		int posY = component->m_Position[1];
 		ImGui::SetNextItemWidth(100.f);
 		ImGui::DragInt("X", &posX, 0.1f, 0, 0, "%d");
 		ImGui::SetNextItemWidth(100.f);
 		ImGui::DragInt("Y", &posY, 0.1f, 0, 0, "%d");
-		//component->m_Position[0] = posX;
-		//component->m_Position[1] = posY;
+		component->m_Position[0] = posX;
+		component->m_Position[1] = posY;
 
+		const char* IsRendered[] = { "false", "true" };
+		const char* currentIsRendered = IsRendered[(int)component->m_IsRendered];
+		ImGui::SetNextItemWidth(150.f);
+
+		if (ImGui::BeginCombo("IsRendered", currentIsRendered))
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				bool isSelected = currentIsRendered == IsRendered[i];
+				if (ImGui::Selectable(IsRendered[i], isSelected))
+				{
+					currentIsRendered = IsRendered[i];
+
+					bool temp;
+					if (currentIsRendered == "true")
+					{
+						temp = true;
+					}
+					else
+					{
+						temp = false;
+					}
+
+					component->m_IsRendered = temp;
+				}
+
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
 	});
 
 	DrawComponent<Sound>("Sound", entity, [](auto component)

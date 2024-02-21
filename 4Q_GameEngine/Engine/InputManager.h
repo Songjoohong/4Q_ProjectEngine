@@ -13,6 +13,7 @@ enum Key
 	LEFT,
 	RIGHT,
 	SPACE,
+	Enter,
 	W,
 	A,
 	S,

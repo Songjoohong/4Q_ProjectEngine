@@ -37,6 +37,7 @@
 #include "../Engine/DrawerScript.h"
 #include "../Engine/IntroDoorScript.h"
 #include "../Engine/DoorScript.h"
+#include "../Engine/IntroButtonScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -78,9 +79,6 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	NewScene();
 
-	//std::string pngPath = "../Resource/UI/play button.png";
-	//auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
-	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
 	if (!InitImGui())
 	{
 		return false;
@@ -781,6 +779,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					{
 						m_PrefabManager->AssignComponents<DoorScript>(playEntity, component["Script"][0]);
 					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroButtonScript")
+					{
+						m_PrefabManager->AssignComponents<IntroButtonScript>(playEntity, component["Script"][0]);
+					}
 					//요기
 				}
 			}
@@ -1007,7 +1009,7 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new ScriptSystem);
 	m_EditorWorld->registerSystem(new CollisionSystem);
 	m_EditorWorld->registerSystem(new SpriteSystem);
-	//m_EditorWorld->registerSystem(new DebugSystem);
+	m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
@@ -1087,9 +1089,11 @@ void GameEditor::NewScene()
 
 void GameEditor::PlayScene()
 {
-
+	
 	m_ActiveWorld = ECS::World::CreateWorld("scene/" + m_SceneName + ".scene");
 	WorldManager::GetInstance()->ChangeWorld(m_ActiveWorld);
+
+	//m_EditorWorld->DestroyWorld();
 
 	// 시스템 등록
 	m_ActiveWorld->registerSystem(new RenderSystem);

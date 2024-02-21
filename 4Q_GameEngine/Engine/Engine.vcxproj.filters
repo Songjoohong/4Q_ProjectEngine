@@ -242,7 +242,21 @@
     <ClInclude Include="EventSystem.h">
       <Filter>System\Event</Filter>
     </ClInclude>
-    <ClInclude Include="IntroCameraScript.h" />
+    <ClInclude Include="IntroCameraScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroDoorScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="DoorScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Interactive.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroButtonScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
