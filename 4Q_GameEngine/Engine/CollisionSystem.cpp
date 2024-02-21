@@ -19,7 +19,6 @@ void CollisionSystem::Receive(World* world, const Events::OnComponentAssigned<Bo
 {
 	event.component->m_WorldPosition = event.entity->get<Transform>()->m_Position + event.component->m_Center;
 	event.component->m_Rotation = event.entity->get<Transform>()->m_Rotation; // rotation test
-	event.component->m_Size = event.entity->get<Transform>()->m_Scale;
 	PhysicsManager::GetInstance()->CreateCollider(event.component.component, event.entity->getEntityId());
 }
 

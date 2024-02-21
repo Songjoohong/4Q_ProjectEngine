@@ -219,21 +219,19 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Resource\Header.hlsli">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resource\VS_Screen.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resource\PS_Screen.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resource\VS_Box.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Resource\PS_Box.hlsl">
-      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
-    </FxCompile>
-    </None>
+	  <None Include="..\Resource\Header.hlsli">
+		  <FxCompile Include="..\Resource\VS_Screen.hlsl">
+			  <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+		  </FxCompile>
+		  <FxCompile Include="..\Resource\PS_Screen.hlsl">
+			  <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+		  </FxCompile>
+		  <FxCompile Include="..\Resource\VS_Box.hlsl">
+			  <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+		  </FxCompile>
+		  <FxCompile Include="..\Resource\PS_Box.hlsl">
+			  <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+		  </FxCompile>
+	  </None>
   </ItemGroup>
 </Project>

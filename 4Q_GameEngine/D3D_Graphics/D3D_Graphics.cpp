@@ -802,7 +802,7 @@ void Renderer::RenderText() const
 	float FPS = TimeManager::GetInstance()->GetFPS();
 	std::string strFPS = "Frame per Second : " + std::to_string(FPS);
 	const wchar_t* wFPS = ConvertToWchar(strFPS);
-	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::White, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
+	m_spriteFont->DrawString(m_spriteBatch.get(), wFPS, DirectX::XMFLOAT2(0.f, 40.f), DirectX::Colors::Black, 0.f, DirectX::XMFLOAT2(0.f, 0.f), 0.7f);
 	delete[] wFPS;
 
 	std::string mousePos = "Mouse Position x : " + std::to_string(InputManager::GetInstance()->GetMousePos().x) + " y : " + std::to_string(InputManager::GetInstance()->GetMousePos().y);

@@ -17,39 +17,45 @@ struct DoorScript : public Script
 	{
 		if (m_pOwner->has<BoxCollider>())
 		{
-			auto isRayCast = m_pOwner->get<BoxCollider>()->m_IsRaycastHit;
 			if (m_pOwner->get<BoxCollider>()->m_IsRaycastHit)
 			{
 				// ¿Ü°û¼± Ã³¸®
 				if (InputM->GetKeyDown(Key::E))
 				{
-					m_pOwner->get<Interactive>()->m_IsInteract = !m_pOwner->get<Interactive>()->m_IsInteract;
+					m_pOwner->getWorld()->each<Interactive>([&](Entity* ent, ComponentHandle<Interactive> interactive)
+						{
+							if(interactive->m_DoorIndex == m_pOwner->get<Interactive>()->m_DoorIndex)
+								interactive->m_IsInteract = !m_pOwner->get<Interactive>()->m_IsInteract;
+						});
 				}
 			}
 		}
 
-
-		if (m_pOwner->get<Interactive>()->m_IsInteract)
+		if(m_pOwner->has<Interactive>())
 		{
-			if (m_pOwner->get<Transform>()->m_Position.GetZ() <= 150.f * m_pOwner->get<Interactive>()->m_OpeningDir)
+			if (m_pOwner->get<Interactive>()->m_IsInteract)
 			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(150.f * m_pOwner->get<Interactive>()->m_OpeningDir);
+				if (m_pOwner->get<Transform>()->m_Position.GetX() >= 150.f || m_pOwner->get<Transform>()->m_Position.GetX() <= -150.f)
+				{
+					m_pOwner->get<Transform>()->m_Position.SetX(150.f * m_pOwner->get<Interactive>()->m_OpeningDir);
+				}
+				else
+				{
+					m_pOwner->get<Transform>()->m_Position.AddX(m_pOwner->get<Interactive>()->m_OpeningDir * OBJECT_SPEED * deltaTime);
+				}
 			}
 			else
 			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() - OBJECT_SPEED * deltaTime);
+				if (m_pOwner->get<Transform>()->m_Position.GetX() <= 90.f || m_pOwner->get<Transform>()->m_Position.GetX() >= -90.f)
+				{
+					m_pOwner->get<Transform>()->m_Position.SetX(90.f * m_pOwner->get<Interactive>()->m_OpeningDir);
+				}
+				else
+				{
+					m_pOwner->get<Transform>()->m_Position.AddX(-m_pOwner->get<Interactive>()->m_OpeningDir * OBJECT_SPEED * deltaTime);
+				}
 			}
 		}
-		else
-		{
-			if (m_pOwner->get<Transform>()->m_Position.GetZ() >= 90.f * m_pOwner->get<Interactive>()->m_OpeningDir)
-			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(90.f * m_pOwner->get<Interactive>()->m_OpeningDir);
-			}
-			else
-			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(m_pOwner->get<Transform>()->m_Position.GetZ() + OBJECT_SPEED * deltaTime);
-			}
-		}
+		
 	}
 };
