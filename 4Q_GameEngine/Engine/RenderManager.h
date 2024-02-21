@@ -39,15 +39,19 @@ public:
 	void AddText(int entID, const std::string& text, const Vector3D& pos);
 	void AddSprite(int entID, const std::string& filePath, POINT pos, float layer);
 	void AddDynamicText(int entID, const std::vector<std::wstring>& textVector);
+	void CreateLight(int entID, Vector3 pos, Vector3D color, float intensity, float radius);
 
 	void EditText(int entID, const std::string& text, const Vector3D& pos);
 	void EditSprite(int entID, bool isRendered);
-	void EditDynamicText(int size, int index, bool enable);
+	void EditDynamicText(int entID, int index, bool enable);
+	void EditPointLight(int entID, Vector3 pos, Vector3D color, float intensity, float radius);
+	void EditDirectionalLight(Vector3 dir, Vector3 color);
 
 	Renderer* GetRender() { return m_Renderer; }
 	void DeleteText(int entID);
 	void DeleteSprite(int entID);
 	void DeleteDynamicText(int entID);
+	void DeletePointLight(int entID);
 
 private:
 	Renderer* m_Renderer;

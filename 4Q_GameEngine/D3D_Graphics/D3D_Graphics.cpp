@@ -70,7 +70,7 @@ void Renderer::AddColliderBox(Vector3 center, Vector3 extents, Math::Matrix worl
 	Math::Vector3 scale, pos;
 	Math::Quaternion rotation;
 	worldTM.Decompose(scale, rotation, pos);
-	m_colliderBox.push_back(ColliderBox(center , extents, rotation));
+	m_colliderBox.push_back(ColliderBox(center, extents, rotation));
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
@@ -114,6 +114,19 @@ void Renderer::AddDynamicTextInformation(int entId, const vector<std::wstring>& 
 	m_dynamicTexts.push_back({ entId, 0, false, vector });
 }
 
+void Renderer::CreatePointLight(int entID, Vector3 pos, Vector3D color, float intensity, float radius)
+{
+	PointLight newPointLight;
+	newPointLight.SetID(entID);
+	newPointLight.SetColor(color.ConvertToVector3());
+	newPointLight.SetIntensity(intensity);
+	newPointLight.SetRadius(radius);
+	newPointLight.SetPosition(pos);
+
+	m_pointLights.push_back(newPointLight);
+}
+
+
 void Renderer::EditTextInformation(int id, const std::string& text, const Vector3D& position)
 {
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
@@ -148,6 +161,30 @@ void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
 	it->mEnable = enable;
 }
 
+void Renderer::EditPointLight(int id, Vector3 pos, Vector3D color, float intensity, float radius)
+{
+	const auto it = std::find_if(m_pointLights.begin(), m_pointLights.end(), [=](PointLight& pointLight)
+		{
+			return id == pointLight.GetID();
+		});
+	if (it != m_pointLights.end())
+	{
+		it->SetColor(color.ConvertToVector3());
+		it->SetIntensity(intensity);
+		it->SetRadius(radius);
+		it->SetPosition(pos);
+	}
+}
+
+void Renderer::EditDirectionalLight(Vector3 dir, Vector3 color)
+{
+	m_lightCB.mDirection.x = dir.x;
+	m_lightCB.mDirection.y = dir.y;
+	m_lightCB.mDirection.z = dir.z;
+
+	m_lightCB.mDirectionalLightColor = color;
+}
+
 void Renderer::DeleteTextInformation(int id)
 {
 	m_texts.erase(std::find_if(m_texts.begin(), m_texts.end(), [id](const TextInformation& text)
@@ -169,6 +206,14 @@ void Renderer::DeleteDynamicTextInformation(int id)
 	m_dynamicTexts.erase(std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
 		{
 			return id == dynamicText.mEntityID;
+		}));
+}
+
+void Renderer::DeletePointLight(int id)
+{
+	m_pointLights.erase(std::find_if(m_pointLights.begin(), m_pointLights.end(), [id](PointLight& pointLight)
+		{
+			return id == pointLight.GetID();
 		}));
 }
 
@@ -269,11 +314,11 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.Texture2D.MipSlice = 0;
 	HR_T(m_pDevice->CreateDepthStencilView(m_pOutlineMap.Get(), &descDSV, m_pOutlineDepthStencilView.GetAddressOf()));
 	HR_T(m_pDevice->CreateDepthStencilView(m_pOriginMap.Get(), &descDSV, m_pOutlineOriginDSV.GetAddressOf()));
-	
+
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension= D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 
 	HR_T(m_pDevice->CreateShaderResourceView(m_pOutlineMap.Get(), &srvDesc, m_pOutlineMapSRV.GetAddressOf()));
@@ -298,7 +343,7 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
 
-	
+
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
@@ -598,22 +643,22 @@ void Renderer::Update()
 	}
 
 	// pointLight Frustum Culling
-	//for (int i = 0; i < m_pointLights.size(); i++)
-	//{
-	//	DirectX::BoundingBox pointLightBoundingBox;
-	//
-	//	// Calculate the extents of the bounding box based on the radius
-	//	Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
-	//
-	//	// Set the bounding box parameters
-	//	pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
-	//	pointLightBoundingBox.Extents = extents;
-	//
-	//	if (m_frustumCmaera.Intersects(pointLightBoundingBox))
-	//	{
-	//		m_pointLightInstance.push_back(m_pointLights[i]);
-	//	}
-	//}
+	for (int i = 0; i < m_pointLights.size(); i++)
+	{
+		DirectX::BoundingBox pointLightBoundingBox;
+
+		// Calculate the extents of the bounding box based on the radius
+		Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
+
+		// Set the bounding box parameters
+		pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
+		pointLightBoundingBox.Extents = extents;
+
+		if (m_frustumCmaera.Intersects(pointLightBoundingBox))
+		{
+			m_pointLightInstance.push_back(m_pointLights[i]);
+		}
+	}
 
 	//AddOutlineMesh(m_pStaticModels[1]);
 	RenderQueueSort();
@@ -630,25 +675,35 @@ void Renderer::RenderBegin()
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-	//assert(m_pointLightInstance.size() <= pointLightCount);
-	//for (int i = 0; i < m_pointLightInstance.size(); i++)
-	//{
-	//	m_pointLightCB.pointLights[i].mPos = m_pointLightInstance[i].GetPosition();
-	//	m_pointLightCB.pointLights[i].mRadius = m_pointLightInstance[i].GetRadius();
-	//	m_pointLightCB.pointLights[i].mLightColor = m_pointLightInstance[i].GetColor();
-	//	m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
-	//	m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
-	//}
+	if (m_pointLightInstance.size() > pointLightCount)
+	{
+		for (int i = 0; i < pointLightCount; i++)
+		{
+			m_pointLightCB.pointLights[i].mPos = m_pointLightInstance[i].GetPosition();
+			m_pointLightCB.pointLights[i].mRadius = m_pointLightInstance[i].GetRadius();
+			m_pointLightCB.pointLights[i].mLightColor = m_pointLightInstance[i].GetColor();
+			m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
+			m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
+		}
+	}
+	for (int i = 0; i < m_pointLightInstance.size(); i++)
+	{
+		m_pointLightCB.pointLights[i].mPos = m_pointLightInstance[i].GetPosition();
+		m_pointLightCB.pointLights[i].mRadius = m_pointLightInstance[i].GetRadius();
+		m_pointLightCB.pointLights[i].mLightColor = m_pointLightInstance[i].GetColor();
+		m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
+		m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
+	}
 
 	m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
-    m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-    m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-    Clear(0,1,0);
-    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
-    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
+	m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
+	Clear(0, 1, 0);
+	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Renderer::RenderText() const
@@ -745,7 +800,7 @@ void Renderer::GameAppRender()
 
 	//OutlineRender();
 	OutlineRender();
-	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get()); 
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 	MeshRender();
 	RenderDebugDraw();
 
@@ -803,14 +858,14 @@ void Renderer::EditorRender()
 
 
 	RenderDebugDraw();
-	
+
 
 
 	m_spriteBatch->Begin();
 	//RenderText();
 	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-	
+
 
 	//임구이 렌더
 	//RenderImgui();
@@ -977,7 +1032,7 @@ void Renderer::RenderImgui()
 		ImGui::SameLine();
 		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 10000.f);
 		m_pointLights[m_pointLightIndex].SetIntensity(pointLightIntensity);
-		if(m_pointLights[m_pointLightIndex].GetIntensity() < 100.f)
+		if (m_pointLights[m_pointLightIndex].GetIntensity() < 100.f)
 		{
 			auto test = 1;
 		}
@@ -1192,23 +1247,23 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pOutlineDSS.GetAddressOf()));
 
-    //래스터라이저 스테이트 초기화
-  D3D11_RASTERIZER_DESC rasterizerDesc = {};
-  rasterizerDesc.AntialiasedLineEnable = true;
-  rasterizerDesc.MultisampleEnable = true;
-  rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-  rasterizerDesc.CullMode = D3D11_CULL_NONE;
-  rasterizerDesc.FrontCounterClockwise = false;
-  rasterizerDesc.DepthClipEnable = true;
-  HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
-  
+	//래스터라이저 스테이트 초기화
+	D3D11_RASTERIZER_DESC rasterizerDesc = {};
+	rasterizerDesc.AntialiasedLineEnable = true;
+	rasterizerDesc.MultisampleEnable = true;
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	rasterizerDesc.FrontCounterClockwise = false;
+	rasterizerDesc.DepthClipEnable = true;
+	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
+
 	rasterizerDesc.FrontCounterClockwise = true;
 	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerStateCCW.GetAddressOf()));
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
 
-    m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), NULL);
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), NULL);
 
 
 	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
@@ -1221,7 +1276,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	pbd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&pbd, nullptr, m_pPointLightBuffer.GetAddressOf()));
-	
+
 	pbd = {};
 	pbd.Usage = D3D11_USAGE_DEFAULT;
 	pbd.ByteWidth = sizeof(cbBall);

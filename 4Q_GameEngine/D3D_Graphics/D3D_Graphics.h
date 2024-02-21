@@ -59,6 +59,8 @@ struct cbProjection
 struct cbLight
 {
 	Vector4 mDirection = {0.f, -1.f, 1.f, 1.f};
+	Vector3 mDirectionalLightColor = { 1.0f, 1.0f, 1.0f };
+	float mPad0;
 };
 
 struct cbBall
@@ -246,15 +248,20 @@ public:
 	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
 	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
+	void CreatePointLight(int entId, Vector3 pos, Vector3D color, float intensity, float radius);
+
 
 	// 디버그 정보 수정
 	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
 	void EditSpriteInformation(int id, bool isRendered);
 	void EditDynamicTextInformation(int id, int index, bool enable);
+	void EditPointLight(int id, Vector3 pos, Vector3D color, float intensity, float radius);
+	void EditDirectionalLight(Vector3 dir, Vector3 color);
 
 	void DeleteTextInformation(int id);
 	void DeleteSpriteInformation(int id);
 	void DeleteDynamicTextInformation(int entId);
+	void DeletePointLight(int id);
 
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(std::string filename);

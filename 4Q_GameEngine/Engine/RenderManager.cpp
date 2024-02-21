@@ -106,6 +106,16 @@ void RenderManager::EditDynamicText(int size, int index, bool enable)
 	Renderer::Instance->EditDynamicTextInformation(size, index, enable);
 }
 
+void RenderManager::EditPointLight(int entID, Vector3 pos, Vector3D color, float intensity, float radius)
+{
+	Renderer::Instance->EditPointLight(entID, pos, color, intensity, radius);
+}
+
+void RenderManager::EditDirectionalLight(Vector3 dir, Vector3 color)
+{
+	Renderer::Instance->EditDirectionalLight(dir, color);
+}
+
 void RenderManager::DeleteText(int entID)
 {
 	Renderer::Instance->DeleteTextInformation(entID);
@@ -119,6 +129,16 @@ void RenderManager::DeleteSprite(int entID)
 void RenderManager::DeleteDynamicText(int entID)
 {
 	Renderer::Instance->DeleteDynamicTextInformation(entID);
+}
+
+void RenderManager::DeletePointLight(int entID)
+{
+	Renderer::Instance->DeletePointLight(entID);
+}
+
+void RenderManager::CreateLight(int entId, Vector3 pos, Vector3D color, float intensity, float radius)
+{
+	Renderer::Instance->CreatePointLight(entId, pos, color, intensity, radius);
 }
 
 
