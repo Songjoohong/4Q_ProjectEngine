@@ -10,7 +10,9 @@ class NameManager;
 
 class Script;
 class FreeCameraScript;
-
+class Sprite2D;
+class BoxCollider;
+class Sprite2D;
 using json = nlohmann::json;
 
 class PrefabManager
@@ -83,42 +85,6 @@ inline void PrefabManager::SaveComponents(ECS::Entity* entity, json& prefabData)
     }
 }
 
-//template<>
-//inline void PrefabManager::SaveComponents<EntityIdentifier>(ECS::Entity* entity, json& prefabData)
-//{
-//    if (entity->has<EntityIdentifier>())
-//    {
-//        std::vector<EntityIdentifier> container;
-//        container.push_back(entity->get<EntityIdentifier>().get());
-//        auto serializedData = SerializeContainer(container);
-//
-//        // 컴포넌트 멤버 변수들 집어넣기
-//        json componentData;
-//        componentData[(entity->get<EntityIdentifier>().get()).m_ComponentName] = json::parse(serializedData);
-//
-//        std::string entityName = entity->get<EntityIdentifier>().get().m_EntityName;
-//
-//        // Check if the "Prefabs" key exists and create it if not
-//        // Check if the entity already exists in the JSON structure
-//        bool entityExists = false;
-//        for (auto& entityEntry : prefabData["Prefabs"]) {
-//            if (entityEntry.find(entityName) != entityEntry.end()) {
-//                // Add the component data to the existing entity entry
-//                entityEntry[entityName].push_back(componentData);
-//                entityExists = true;
-//                break;
-//            }
-//        }
-//
-//        // If the entity does not exist, create a new entry for it
-//        if (!entityExists) {
-//            json entityEntry;
-//            entityEntry[entityName].push_back(componentData);
-//            prefabData["Prefabs"].push_back(entityEntry);
-//        }
-//    }
-//}
-
 template<typename ComponentType>
 inline void PrefabManager::AssignComponents(ECS::Entity* entity, const json& componentData)
 {
@@ -134,6 +100,27 @@ inline void PrefabManager::AssignComponents(ECS::Entity* entity, const json& com
             entity->Assign<ComponentType>(entity);
             entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
         }
+    }
+    else if constexpr (std::is_same_v<Sprite2D, ComponentType>)
+    {
+        entity->Assign<ComponentType>(componentData["m_FileName"].get<std::string>());
+        auto& component = entity->get<ComponentType>().get();
+
+        component = componentData;
+    }
+    else if constexpr (std::is_same_v<BoxCollider, ComponentType>)
+    {
+        entity->Assign<ComponentType>(componentData["m_ColliderType"], componentData["m_CollisionType"], componentData["m_Size"]);
+        auto& component = entity->get<ComponentType>().get();
+
+        component = componentData;
+    }
+    else if constexpr (std::is_same_v<Sprite2D, ComponentType>)
+    {
+        entity->Assign<ComponentType>(componentData["m_FileName"].get<std::string>(), componentData["m_Layer"], componentData["m_Position"][0], componentData["m_Position"][1]);
+        auto& component = entity->get<ComponentType>().get();
+
+        component = componentData;
     }
     else
     {

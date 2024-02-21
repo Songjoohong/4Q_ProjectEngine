@@ -45,6 +45,14 @@ void RenderManager::RenderEnd()
 	Renderer::Instance->RenderEnd();
 }
 
+bool RenderManager::Culling(DirectX::BoundingBox boundingBox)
+{
+	DirectX::BoundingFrustum m_frustumCmaera;
+	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, Renderer::Instance->GetProjectionMatrix());
+	m_frustumCmaera.Transform(m_frustumCmaera, Renderer::Instance->GetViewMatrix().Invert());
+	return m_frustumCmaera.Intersects(boundingBox);
+}
+
 
 void RenderManager::AddStaticMesh(const std::string& fileName, Math::Matrix worldTM) const
 {
@@ -52,15 +60,20 @@ void RenderManager::AddStaticMesh(const std::string& fileName, Math::Matrix worl
 }
 
 
-void RenderManager::AddColliderBox(const Vector3D center, const Vector3D extents, DirectX::SimpleMath::Matrix worldTM)
+void RenderManager::AddColliderBox(const Vector3D center, const Vector3D extents, const Vector3D rotation)
 {
-	Renderer::Instance->AddColliderBox(Vector3(center.GetX(), center.GetY(), center.GetZ()), Vector3(extents.GetX(), extents.GetY(), extents.GetZ()),  worldTM);
+	Renderer::Instance->AddColliderBox(Vector3(center.GetX(), center.GetY(), center.GetZ()), Vector3(extents.GetX(), extents.GetY(), extents.GetZ()), Vector3(rotation.GetX(), rotation.GetY(), rotation.GetZ()));
+}
+
+void RenderManager::AddBoundingBox(DirectX::BoundingBox boundingBox)
+{
+	Renderer::Instance->AddBoundingBox(boundingBox);
 }
 
 
-void RenderManager::CreateModel(string filename)
+void RenderManager::CreateModel(string filename, DirectX::BoundingBox& boundingBox)
 {
-	Renderer::Instance->CreateModel(filename);
+	Renderer::Instance->CreateModel(filename,boundingBox);
 }
 
 void RenderManager::SetBasePath(std::string filePath)
@@ -80,9 +93,9 @@ void RenderManager::AddText(int entID, const std::string& text, const Vector3D& 
 	Renderer::Instance->AddTextInformation(entID, text, p);
 }
 
-void RenderManager::AddSprite(int entID, const std::string& filePath, POINT pos, float layer)
+void RenderManager::AddSprite(World* world, int entID, const std::string& filePath, POINT pos, float layer)
 {
-	Renderer::Instance->AddSpriteInformation(entID, filePath, DirectX::XMFLOAT2{static_cast<float>(pos.x), static_cast<float>(pos.y)}, layer);
+	Renderer::Instance->AddSpriteInformation(world, entID, filePath, DirectX::XMFLOAT2{static_cast<float>(pos.x), static_cast<float>(pos.y)}, layer);
 }
 
 void RenderManager::AddDynamicText(int entID, const vector<std::wstring>& textVector)
@@ -96,9 +109,9 @@ void RenderManager::EditText(int entID, const std::string& text, const Vector3D&
 	Renderer::Instance->EditTextInformation(entID, text, p);
 }
 
-void RenderManager::EditSprite(int entID, bool isRendered)
+void RenderManager::EditSprite(int entID, Sprite2D& sprite2D)
 {
-	Renderer::Instance->EditSpriteInformation(entID, isRendered);
+	Renderer::Instance->EditSpriteInformation(entID, sprite2D);
 }
 
 void RenderManager::EditDynamicText(int size, int index, bool enable)

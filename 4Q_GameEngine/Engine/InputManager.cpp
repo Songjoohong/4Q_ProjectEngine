@@ -11,6 +11,7 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	VK_LEFT,
 	VK_RIGHT,
 	VK_SPACE,
+	VK_RETURN,
 	'W',
 	'A',
 	'S',

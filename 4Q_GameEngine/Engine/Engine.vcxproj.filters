@@ -80,6 +80,9 @@
     <Filter Include="Component\Script">
       <UniqueIdentifier>{9c16fac9-2ef2-4a69-ac12-5f4a443cce73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="System\Event">
+      <UniqueIdentifier>{a33f5cd5-9e94-496e-a66a-699dfc0a66ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ISingleton.h">
@@ -224,11 +227,35 @@
     <ClInclude Include="Script.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
+    <ClInclude Include="DrawerScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
     <ClInclude Include="PhysicsManager.h">
       <Filter>Manager\PhysX</Filter>
     </ClInclude>
     <ClInclude Include="PlayerInformation.h">
       <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="OutroScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="EventSystem.h">
+      <Filter>System\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroCameraScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroDoorScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="DoorScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
+    <ClInclude Include="Interactive.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="IntroButtonScript.h">
+      <Filter>Component\Script</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -303,6 +330,9 @@
     </ClCompile>
     <ClCompile Include="DynamicTextScript.h">
       <Filter>Component\Script</Filter>
+    </ClCompile>
+    <ClCompile Include="EventSystem.cpp">
+      <Filter>System\Event</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

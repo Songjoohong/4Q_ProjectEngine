@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "PointLight.h"
+#include "../Engine/ECS.h"
 
 class RenderTextureClass;
 class StaticMeshResource;
@@ -9,9 +10,11 @@ class Material;
 class StaticMeshInstance;
 class Environment;
 
+class Sprite2D;
+
 struct ColliderBox
 {
-	ColliderBox(Vector3 center, Vector3 extents,Quaternion rotation) {
+	ColliderBox(Vector3 center, Vector3 extents, Quaternion rotation) {
 		colliderBox.Center = center;
 		colliderBox.Extents = extents;
 		colliderBox.Orientation = rotation;
@@ -29,7 +32,6 @@ struct cbPointLight
 	float mLinearTerm = 0.007f;
 	float mQuadraticTerm = 0.0002f;
 	float mPad0;
-
 	struct
 	{
 		Math::Vector3 mPos;
@@ -54,6 +56,8 @@ struct cbProjection
 {
 	Math::Matrix mProjection;
 	Math::Matrix mShadowProjection;
+	Math::Vector3 mCameraPos;
+	float pad;
 };
 
 struct cbLight
@@ -88,12 +92,15 @@ struct DynamicTextInformation
 };
 struct SpriteInformation
 {
+	ECS::World* world;
 	int mEntityID;
 	float mLayer;
 	bool IsRendered;
 	DirectX::XMFLOAT2 mPosition;
 	ComPtr<ID3D11ShaderResourceView> mSprite;
 };
+
+
 class Renderer
 {
 public:
@@ -124,6 +131,7 @@ public:
 	ComPtr<ID3D11Texture2D>m_pOutlineMap=nullptr;
 	ComPtr<ID3D11Texture2D>m_pOriginMap=nullptr;
 
+
 	ComPtr<ID3D11ShaderResourceView> m_pFirstMapSRV = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pOutlineMapSRV = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pOriginMapSRV = nullptr;
@@ -132,7 +140,6 @@ public:
 
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
 	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;			//샘플러(clamp)
-
 
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;
@@ -168,12 +175,15 @@ public:
 	ComPtr<ID3D11Buffer> m_pSphereBuffer = nullptr;
 
 	vector<ColliderBox> m_colliderBox;
+	vector<DirectX::BoundingBox> m_boundingBox;
 	
 	vector<StaticMeshInstance*> m_pOutlineMesh;		//아웃라인을 그릴 메쉬
 
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
 
 	list<StaticMeshInstance*>m_pMeshInstance;	//렌더링 할 메쉬 인스턴스 리스트
+
+	list<StaticMeshInstance*>m_pOpacityInstance;	
 
 	D3D11_VIEWPORT m_baseViewport;
 
@@ -183,6 +193,7 @@ public:
 	//spritefont 렌더용
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	vector<SpriteInformation> m_sprites;
 
 	//빛 테스트용
 	vector<PointLight> m_pointLightInstance;		// 컬링된 후의 포인트라이트 인스턴스
@@ -216,6 +227,7 @@ public:
 
 
 public:
+	DirectX::BoundingFrustum& GetCameraFrustum() { return m_frustumCmaera; }
 	//d3d객체 초기화
 	bool Initialize(HWND* Hwnd, UINT Width, UINT Height);
 
@@ -236,35 +248,37 @@ public:
 	void AddStaticModel(std::string filename, const Math::Matrix& worldTM);
 
 	//디버그용 콜라이더 박스
-
-	void AddColliderBox(Vector3 center, Vector3 extents, Math::Matrix worldTM);
-
+	void AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation);
+	void AddBoundingBox(DirectX::BoundingBox boundingBox);
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
 
 	void AddOutlineMesh(StaticModel* model);
+
 	//디버그 정보 추가
 	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
-	void AddSpriteInformation(int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
+	void AddSpriteInformation(ECS::World* world, int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
 	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
 	void CreatePointLight(int entId, Vector3 pos, Vector3D color, float intensity, float radius);
 
 
 	// 디버그 정보 수정
 	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
-	void EditSpriteInformation(int id, bool isRendered);
+	void EditSpriteInformation(int id, Sprite2D& sprite2D);
 	void EditDynamicTextInformation(int id, int index, bool enable);
 	void EditPointLight(int id, Vector3 pos, Vector3D color, float intensity, float radius);
 	void EditDirectionalLight(Vector3 dir, Vector3 color);
 
 	void DeleteTextInformation(int id);
 	void DeleteSpriteInformation(int id);
+	void DeleteSpriteInformationReverse(int id);
 	void DeleteDynamicTextInformation(int entId);
 	void DeletePointLight(int id);
 
+
 	//모델 만들어서 모델 리스트에 추가
-	void CreateModel(std::string filename);
+	void CreateModel(std::string filename,DirectX::BoundingBox& boundingBox);
 
 	void CreateScreenMesh();
 
@@ -301,6 +315,7 @@ public:
 
 	//메쉬 렌더큐에 들어온 메쉬 렌더
 	void MeshRender();
+	void OpacityMeshRender();
 	void ShadowRender();
 
 	//환경맵 세팅
@@ -340,6 +355,5 @@ public:
 		std::string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
 	vector<TextInformation> m_texts;
-	vector<SpriteInformation> m_sprites;
 	vector<DynamicTextInformation> m_dynamicTexts;
 };

@@ -17,14 +17,8 @@
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
-
-// Script Headers
-#include "../Engine/SampleScript.h"
-#include "../Engine/FreeCameraScript.h"
-#include "../Engine/PlayerScript.h"
-#include "../Engine/POVCameraScript.h"
-#include "../Engine/TestUIScript.h"
-#include "../Engine/DynamicTextScript.h"
+#include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -104,7 +98,6 @@ void SceneHierarchyPanel::RenderImGui()
 	if (io.KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_V) && isFileExists)
 	{
 		m_PrefabManager->LoadPrefab("../Resource/CopiedEntity/CopiedEntity.json");
-		m_PrefabManager->m_prefabContainer.clear();
 	}
 
 	ImGui::End();	/* Hierarchy End */
@@ -429,8 +422,6 @@ static void DrawComponent(const std::string& name, ECS::Entity* entity, UIFuncti
 	
 }
 
-
-
 void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 {
 	// Type Entity's Name
@@ -469,9 +460,15 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<UI>("UI");
 		DisplayAddComponentEntry<DynamicText>("DynamicText");
 		DisplayAddComponentEntry<Sound>("Sound");
+		DisplayAddComponentEntry<PlayerInformation>("PlayerInformation");
+		DisplayAddComponentEntry<Interactive>("Interactive");
 		ImGui::EndPopup();
 	}
-	ShowStaticModelDialog();
+
+	if (m_AssignStaticMesh)
+		ShowDialog<StaticMesh>();
+	else if (m_AssignSprite2D)
+		ShowDialog<Sprite2D>();
 
 	ImGui::PopItemWidth();
 
@@ -498,7 +495,6 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<StaticMesh>("StaticMesh", entity, [](auto component)
 	{
 		std::string temp = component->m_FileName;
-
 		ImGui::Text(temp.c_str());
 	});
 
@@ -597,6 +593,10 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			ImGui::EndCombo();
 		}
 
+		DrawVec3Control("Color", component->m_Color);
+		ImGui::AlignTextToFramePadding();
+		ImGui::DragFloat("Intensity", &component->m_Intensity);
+
 		// TODO: 조건 1. PointLight 일 때
 
 		// TODO: 조건 2. Directional Light 일 때
@@ -611,8 +611,15 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			, "SampleScript"
 			, "PlayerScript"
 			, "POVCameraScript"
-			, "TestUIScript" };
-
+			, "TestUIScript"
+			, "DynamicText"
+			, "IntroCameraScript"
+			, "OutroScript"
+			, "DrawerScript"
+			, "IntroDoorScript"
+			, "DoorScript"
+			, "IntroButtonScript"};
+		//요기
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
 
@@ -630,7 +637,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<Debug>("Debug", entity, [](auto component)
 	{
-
+		ImGui::Text("For Debug");
 	});
 
 	DrawComponent<Movement>("MoveMent", entity, [](auto component)
@@ -642,27 +649,40 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<RigidBody>("RigidBody", entity, [](auto component)
 	{
+		//float vellocity = component->m_MaxVellocity;
+		//char array[10];
+		//sprintf_s(array, "%f", vellocity);
 
+		//ImGui::Text("Max Vellocity :");
+		//ImGui::SameLine();
+		//ImGui::Text(array);
 	});
 
 	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
 	{
+		//static int a = 1;
+		//if (a == 1)
+		//{
+		//	component->m_Text.push_back(L"hello 안녕하세요");
+		//	wcout << component->m_Text.at(0) << endl;
+		//	a++;
+		//}
+
 		//int currentTextIndex = component->m_CurrentTextIndex;
 
 		//wstring wtext = component->m_Text.at(currentTextIndex);
 
-		//// Using std::wstring_convert
-		//using convert_typeX = std::codecvt_utf8<wchar_t>;
-		//std::wstring_convert<convert_typeX, wchar_t> converterX;
+		//string strTo;
 
-		//std::string utf8Text = converterX.to_bytes(wtext);
+		//// 방법 1
+		//{
+		//	int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), -1, NULL, 0, NULL, NULL);
+		//	std::string strTo(sizeNeeded, 0);
+		//	WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), -1, strTo.data(), sizeNeeded, NULL, NULL);
+		//}
 
-		//char buffer[256];
+		//ImGui::InputText("dynamic text", strTo.data(), sizeof(strTo));
 
-		//// Now you can use 'utf8Text' with ImGui::InputText
-		//strncpy_s(buffer, sizeof(buffer), utf8Text.c_str(), sizeof(buffer));
-		//ImGui::InputText("Prefab Name", buffer, sizeof(buffer));
-		//utf8Text = buffer;
 
 		//if (ImGui::Button("Increase Index"))
 		//{
@@ -671,11 +691,13 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		//ImGui::SameLine();
 
-		//if (ImGui::Button("Increase Index"))
+		//if (ImGui::Button("Decrease Index"))
 		//{
 		//	currentTextIndex--;
 		//}
 
+
+		ImGui::SliderFloat("Trigger Distance:", &component->m_TriggerDistance, 0.f, 1000.f);
 	});
 
 	DrawComponent<Space>("Space", entity, [](auto component)
@@ -684,39 +706,121 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		std::string PlayerExists = "PlayerExist : " + trueOrFalse;
 		ImGui::Text(PlayerExists.c_str());
 
-		ImGui::InputInt("SpaceIndex", &component->m_SpaceIndex);
-		
-		std::string spaceIdx = "SpaceIndex : " + std::to_string(component->m_SpaceIndex);
+		ImGui::SetNextItemWidth(75.f);
+		ImGui::InputInt("Space Index", &component->m_SpaceIndex);
+		std::string spaceIdx = "Space Index : " + std::to_string(component->m_SpaceIndex);
 		ImGui::Text(spaceIdx.c_str());
 
-		if (ImGui::Button("+"))
+		static int exitDirectionInput = 0;
+		static Vector3D distanceInput;
+		ImGui::SetNextItemWidth(75.f);
+		ImGui::InputInt("Exit Direction : ", &exitDirectionInput);
+
+		DrawVec3Control("Distance", distanceInput);
+
+		if (ImGui::Button("make ExitInfo"))
 		{
-			component->m_Exits.push_back(ExitInfo{ 0, Vector3D{0.0f, 0.0f, 0.0f} });
+			component->m_Exits.push_back(ExitInfo{ exitDirectionInput, Vector3D{distanceInput.m_X, distanceInput.m_Y, distanceInput.m_Z} });
 		}
 
 		for (size_t i = 0; i < component->m_Exits.size(); i++)
 		{
-			ImGui::Text("Exit &z", i);
+			ImGui::Text("Exit %d", i);
 			ImGui::Text("Direction : %d", component->m_Exits[i].m_ExitDirection);
-			ImGui::Text("Direction : %d", component->m_Exits[i].m_ExitDirection);
+			ImGui::Text("Distance : x: %.2f y: %.2f z: %.2f", component->m_Exits[i].m_Distance.m_X, component->m_Exits[i].m_Distance.m_Y, component->m_Exits[i].m_Distance.m_Z);
 		}
-
 
 	});
 
 	DrawComponent<UI>("UI", entity, [](auto component)
 	{
+			int x = component->m_Size[0];
+			int y = component->m_Size[1];
 
+			ImGui::Text("Interactive Size");
+			//ImGui::DragFloat("X", &x, 0.1f, 0.0f, 0.0f, "%.2f");
+			//ImGui::DragFloat("Y", &y, 0.1f, 0.0f, 0.0f, "%.2f");
+			ImGui::SetNextItemWidth(100.f);
+			ImGui::DragInt("X", &x, 0.1f, 0, 0, "%d");
+			ImGui::SetNextItemWidth(100.f);
+			ImGui::DragInt("Y", &y, 0.1f, 0, 0, "%d");
+
+			component->m_Size[0] = x;
+			component->m_Size[1] = y;
+
+			const char* uiTypeStrings[] = { "HOVER", "CLICK", "NONE" };
+			const char* currentUiTypeString = uiTypeStrings[(int)component->m_UIstate];
+
+			ImGui::Text("State :");
+			ImGui::SameLine();
+			ImGui::Text(currentUiTypeString);
 	});
 
 	DrawComponent<Sprite2D>("Sprite2D", entity, [](auto component)
 	{
+		std::string temp = component->m_FileName;
+		ImGui::Text(temp.c_str());
 
+		ImGui::DragFloat("Layer :", &component->m_Layer, 0.1f, 0.f, 1.f, "%.1f");
+
+		int posX = component->m_Position[0];
+		int posY = component->m_Position[1];
+		ImGui::SetNextItemWidth(100.f);
+		ImGui::DragInt("X", &posX, 0.1f, 0, 0, "%d");
+		ImGui::SetNextItemWidth(100.f);
+		ImGui::DragInt("Y", &posY, 0.1f, 0, 0, "%d");
+		component->m_Position[0] = posX;
+		component->m_Position[1] = posY;
+
+		const char* IsRendered[] = { "false", "true" };
+		const char* currentIsRendered = IsRendered[(int)component->m_IsRendered];
+		ImGui::SetNextItemWidth(150.f);
+
+		if (ImGui::BeginCombo("IsRendered", currentIsRendered))
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				bool isSelected = currentIsRendered == IsRendered[i];
+				if (ImGui::Selectable(IsRendered[i], isSelected))
+				{
+					currentIsRendered = IsRendered[i];
+
+					bool temp;
+					if (currentIsRendered == "true")
+					{
+						temp = true;
+					}
+					else
+					{
+						temp = false;
+					}
+
+					component->m_IsRendered = temp;
+				}
+
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
 	});
 
 	DrawComponent<Sound>("Sound", entity, [](auto component)
 	{
+		std::string temp = component->m_FileName;
+		ImGui::Text(temp.c_str());
+		ImGui::DragFloat("Volume", &component->m_Volume, 0.1f, 0.f, 0.f, "%.2f");
+	});
 
+	DrawComponent<PlayerInformation>("PlayerInformation", entity, [](auto component)
+	{
+
+	});
+
+	DrawComponent<Interactive>("Interactive", entity, [](auto component)
+	{
+		ImGui::InputInt("OpeningDir", &component->m_OpeningDir);
 	});
 }
 

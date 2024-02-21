@@ -3,6 +3,7 @@
 #include "Prefab.h"
 #include "d3d11.h"
 #include "../D3D_Graphics/D3D_Graphics.h"
+#include "NameManager.h"
 static const std::filesystem::path s_AssetsPath = "../Resource/prefab";
 
 ContentsBrowserPanel::ContentsBrowserPanel()
@@ -61,7 +62,6 @@ void ContentsBrowserPanel::RenderImGui()
 			}
 			
 			m_PrefabManager->LoadPrefab("../Resource/prefab/" + filenameString);
-			m_PrefabManager->m_prefabContainer.clear();
 		}
 		ImGui::Text(filenameString.c_str());
 
@@ -76,10 +76,11 @@ void ContentsBrowserPanel::RenderImGui()
 	ImGui::End();
 }
 
-void ContentsBrowserPanel::SetContext(ECS::World* world, std::shared_ptr<PrefabManager> prefabManager)
+void ContentsBrowserPanel::SetContext(ECS::World* world, std::shared_ptr<PrefabManager> prefabManager, std::shared_ptr<NameManager> NameManager)
 {
 	m_World = world;
 	m_PrefabManager = prefabManager;
 	m_PrefabManager->SetContext(world);
+	m_NameManager = NameManager;
 }
 

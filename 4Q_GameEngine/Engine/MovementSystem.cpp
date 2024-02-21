@@ -56,7 +56,7 @@ void MovementSystem::Tick(World* world, float deltaTime)
 			{
 				DynamicCollider* player = PhysicsManager::GetInstance()->GetPlayerCollider();
 				if (player != nullptr)
-					player->AddForce(moveVector);
+					player->AddForce({ moveVector.GetX(), 0.f, moveVector.GetZ()});
 			}
 			else
 			{

@@ -13,7 +13,7 @@ public:
 	ResourceManager();
 	~ResourceManager();
 
-    void CreateModel(string fileName);
+    void CreateModel(string fileName, DirectX::BoundingBox& boundingBox);
     void CreateEnvironment(string filename);
 
     std::map<std::string, shared_ptr<Model>> m_pOriginalModels;

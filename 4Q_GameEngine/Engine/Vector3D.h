@@ -74,6 +74,11 @@ public:
 		return (this->m_X != other.m_X || this->m_Y != other.m_Y || this->m_Z != other.m_Z);
 	}
 
+	bool operator==(const Vector3D& other) const
+	{
+		return (this->m_X == other.m_X && this->m_Y == other.m_Y && this->m_Z == other.m_Z);
+	}
+
 	Vector3D& operator=(const DirectX::SimpleMath::Vector3& vec) 
 	{
 		m_X = vec.x;
@@ -81,6 +86,7 @@ public:
 		m_Z = vec.z;
 		return *this;
 	}
+
 	Vector3D& operator=(const DirectX::XMFLOAT4& quaternion) {
 		m_X = quaternion.x;
 		m_Y = quaternion.y;
@@ -128,7 +134,10 @@ public:
 	void SetY(float y) { m_Y = y; }
 	void SetZ(float z) { m_Z = z; }
 
+	void AddX(float x) { m_X += x; }
 	void AddY(float y) { m_Y += y; }
+	void AddZ(float z) { m_Z += z; }
+
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Vector3D, m_X, m_Y, m_Z)
 };
 

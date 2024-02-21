@@ -2,6 +2,7 @@
 #include <directxtk/SimpleMath.h>
 
 #include "DynamicText.h"
+#include "Sprite2D.h"
 #include "ISingleton.h"
 #include "Vector3D.h"
 
@@ -18,6 +19,7 @@ public:
 	void Initialize(HWND* hwnd,UINT width,UINT height);
 	void UnInitialize();
 
+
 	void Update();
 
 	void RenderBegin();
@@ -25,25 +27,29 @@ public:
 	void EditorRender();
 	void RenderEnd();
 
-	void CreateModel(std::string filename);
+	bool Culling(DirectX::BoundingBox boundingBox);
+
+	void CreateModel(std::string filename, DirectX::BoundingBox& boundingBox);
 
 	void AddStaticMesh(const std::string& fileName, DirectX::SimpleMath::Matrix worldTM) const;
 
 
-	void AddColliderBox(const Vector3D center, const Vector3D extents, DirectX::SimpleMath::Matrix worldTM);
+	void AddColliderBox(const Vector3D center, const Vector3D extents, const Vector3D rotation);
+	void AddBoundingBox(DirectX::BoundingBox boundingBox);
+
 
 	void SetBasePath(std::string filePath);
 
 	void SetCamera(const DirectX::SimpleMath::Matrix matrix);
 	
 	void AddText(int entID, const std::string& text, const Vector3D& pos);
-	void AddSprite(int entID, const std::string& filePath, POINT pos, float layer);
+	void AddSprite(World* world, int entID, const std::string& filePath, POINT pos, float layer);
 	void AddDynamicText(int entID, const std::vector<std::wstring>& textVector);
 	void CreateLight(int entID, Vector3 pos, Vector3D color, float intensity, float radius);
 
 	void EditText(int entID, const std::string& text, const Vector3D& pos);
-	void EditSprite(int entID, bool isRendered);
-	void EditDynamicText(int entID, int index, bool enable);
+	void EditSprite(int entID, Sprite2D& sprite2D);
+	void EditDynamicText(int size, int index, bool enable);
 	void EditPointLight(int entID, Vector3 pos, Vector3D color, float intensity, float radius);
 	void EditDirectionalLight(Vector3 dir, Vector3 color);
 

@@ -18,13 +18,14 @@ ResourceManager::~ResourceManager()
 {
 }
 
-void ResourceManager::CreateModel(string fileName)
+void ResourceManager::CreateModel(string fileName,DirectX::BoundingBox& boundingBox)
 {
     auto it = m_pOriginalModels.find(fileName);
     if (it != m_pOriginalModels.end())
     {
         if (nullptr != it->second)
         {
+            boundingBox = dynamic_cast<StaticModel*>(it->second.get())->m_boundingBox;
             return;
         }
         else
@@ -35,7 +36,7 @@ void ResourceManager::CreateModel(string fileName)
     shared_ptr<Model> pModel = make_shared<StaticModel>();
     dynamic_cast<StaticModel*>(pModel.get())->Load(fileName);
     m_pOriginalModels[fileName] = pModel;
-
+    boundingBox = dynamic_cast<StaticModel*>(pModel.get())->m_boundingBox;
 }
 
 void ResourceManager::CreateEnvironment(string filename)

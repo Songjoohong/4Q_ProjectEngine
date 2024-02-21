@@ -9,7 +9,7 @@ bool Environment::ReadEnvironmentMeshFromFBX(std::string filePath)
     m_pSceneResource = ResourceManager::Instance->CreateEnvironmentMeshResource(filePath);
     if(nullptr == m_pSceneResource)
         return false;
-    m_worldTransform = Math::Matrix::CreateScale(1, 1, 1);
+    m_worldTransform = Math::Matrix::CreateScale(100, 100, 100);
     m_meshInstance.Create(&m_pSceneResource->m_meshes[0], m_worldTransform, nullptr);
     return true;
 }

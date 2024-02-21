@@ -32,7 +32,11 @@ public:
 	void InitFilterData();
 	void AddCollisionColliders(int entId);
 	void DeleteCollisionCollider(int entId);
+	void AddDynamicColliders(DynamicCollider* collider) { m_AddDynamicColliders.push_back(collider); }
+	void AddStaticColliders(StaticCollider* collider) { m_AddStaticColliders.push_back(collider); }
+	void AddCollidersIntoPxScene();
 
+	vector<pair<int, StaticCollider*>> GetCollisionObjects();
 	PxPhysics* GetPhysics() { return m_pPhysics; }
 	PxScene* GetPxScene() { return m_pPxScene; }
 	PxFilterData* GetFilterData(CollisionType type) { return m_pFilterDatas[type]; }
@@ -54,6 +58,8 @@ private:
 	vector<pair<int, DynamicCollider*>> m_pDynamicColliders;
 	vector<pair<int, StaticCollider*>> m_pStaticColliders;
 	vector<pair<int, StaticCollider*>> m_CollisionObjects;
+	vector<DynamicCollider*> m_AddDynamicColliders;
+	vector<StaticCollider*> m_AddStaticColliders;
 
 	// Player 일단 따로 저장 -> 시간되면 빼놓기
 	DynamicCollider* m_PlayerCollider;

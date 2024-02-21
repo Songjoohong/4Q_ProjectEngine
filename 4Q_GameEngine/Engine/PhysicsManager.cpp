@@ -29,16 +29,13 @@ void PhysicsManager::Initialize()
 {
 	m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, m_ErrorCallback);
 #ifdef _DEBUG
-	// PhysX Visual Debbugger 보기위한 세팅
 	m_pPvd = PxCreatePvd(*m_pFoundation);
+	// PhysX Visual Debbugger 보기위한 세팅
 	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
 	m_pPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
-
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
-
 #endif // _DEBUG
 	// 석영 : PxScene 생성
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
+	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
 	PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -98.1f, 0.0f);
 	m_pDispatcher = PxDefaultCpuDispatcherCreate(2);
@@ -60,7 +57,9 @@ void PhysicsManager::Initialize()
 }
 
 void PhysicsManager::Update(float deltatime)
-{
+{ 
+	AddCollidersIntoPxScene();
+	                    
 	if (!m_pStaticColliders.empty())
 	{
 		for (auto& collider : m_pStaticColliders)
@@ -108,6 +107,9 @@ void PhysicsManager::RayCast(PxVec3 raycastPoint, PxVec3 raycastDir)
 		UserData* data = static_cast<UserData*>(hit.block.actor->userData);
 		int id = data->m_EntityId;
 		cout << "Entity Id : " << id << endl;
+		cout << "Raycast Position x : " << raycastPoint.x << endl;
+		cout << "Raycast Position y : " << raycastPoint.y << endl;
+		cout << "Raycast Position z : " << raycastPoint.z << endl;
 
 		for (const auto& obj : m_pStaticColliders) {
 			int Id = obj.first;
@@ -180,6 +182,9 @@ void PhysicsManager::ChangeFilter(int entId)
 
 		if (obj.first == entId)
 		{
+			if (colliderPtr->m_pOwner->m_CollisionType == CollisionType::PLAYER)
+				m_PlayerCollider = colliderPtr;
+
 			colliderPtr->SetFilterData();
 			return;
 		}
@@ -216,6 +221,11 @@ void PhysicsManager::CreateCollider(BoxCollider* boxcollider, int entId)
 		UserData* user = new UserData;
 		user->m_CollisionType = boxcollider->m_CollisionType;
 		user->m_EntityId = entId;
+		if (entId == 75)
+		{
+			Vector3D ro=boxcollider->m_Rotation;
+			ro=boxcollider->m_Rotation;
+		}
 		user->m_State = CollisionState::NONE;
 
 		newStaticCollider->m_Rigid->userData = user;
@@ -292,13 +302,40 @@ void PhysicsManager::DeleteCollisionCollider(int entId)
 			auto it = std::remove_if(m_CollisionObjects.begin(), m_CollisionObjects.end(),
 				[entId](const std::pair<int, StaticCollider*>& element)
 				{
-					cout << "Enter Entity ID :" << entId << endl;
+					cout << "Exit Entity ID :" << entId << endl;
 					return element.first == entId;
 				});
 
 			m_CollisionObjects.erase(it);
 		}
 	}
+}
+
+void PhysicsManager::AddCollidersIntoPxScene()
+{
+	if (!m_AddDynamicColliders.empty())
+	{
+		for (const auto& collider : m_AddDynamicColliders)
+		{
+			m_pPxScene->addActor(*(collider->m_Rigid));
+		}
+	}
+
+	if (!m_AddStaticColliders.empty())
+	{
+		for (const auto& collider : m_AddStaticColliders)
+		{
+			m_pPxScene->addActor(*(collider->m_Rigid));
+		}
+	}
+
+	m_AddDynamicColliders.clear();
+	m_AddStaticColliders.clear();
+}
+
+vector<pair<int, StaticCollider*>> PhysicsManager::GetCollisionObjects()
+{
+	return m_CollisionObjects;
 }
 
 DynamicCollider* PhysicsManager::GetDynamicCollider(int entId)
@@ -392,7 +429,10 @@ void FilterCallback::onContact(const PxContactPairHeader& pairHeader, const PxCo
 			{
 				UserData* userData = static_cast<UserData*>(actor->userData);
 				userData->m_State = CollisionState::EXIT;
-				PhysicsManager::GetInstance()->DeleteCollisionCollider(userData->m_EntityId);
+				if (userData->m_CollisionType != CollisionType::PLAYER)
+				{
+					PhysicsManager::GetInstance()->DeleteCollisionCollider(userData->m_EntityId);
+				}
 			}
 		}
 

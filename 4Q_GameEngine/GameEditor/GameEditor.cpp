@@ -22,6 +22,8 @@
 #include "../Engine/UI.h"
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
+#include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -30,6 +32,12 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/DynamicTextScript.h"
+#include "../Engine/IntroCameraScript.h"
+#include "../Engine/OutroScript.h"
+#include "../Engine/DrawerScript.h"
+#include "../Engine/IntroDoorScript.h"
+#include "../Engine/DoorScript.h"
+#include "../Engine/IntroButtonScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -48,6 +56,7 @@
 #include "NameManager.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
 
+struct DoorScript;
 using json = nlohmann::json;
 
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -104,7 +113,7 @@ bool GameEditor::InitImGui()
 
 	ImFontConfig imguiFontConfig;
 	imguiFontConfig.MergeMode = false;
-	io.FontDefault = io.Fonts->AddFontFromFileTTF("../Resource/font/Roboto-SemiMedium.ttf", 15.0f, &imguiFontConfig, io.Fonts->GetGlyphRangesDefault());
+	io.FontDefault = io.Fonts->AddFontFromFileTTF("../Resource/font/Roboto-SemiMedium.ttf", 15.0f, &imguiFontConfig, io.Fonts->GetGlyphRangesKorean());
 	
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -227,6 +236,10 @@ void GameEditor::RenderImGui()
 				ImGui::EndMenu();
 			}
 
+			// Display Play & Pause Button 
+			PlayButton();
+
+
 			ImGui::EndMenuBar();
 		}
 
@@ -235,23 +248,13 @@ void GameEditor::RenderImGui()
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
 
-
-
 		ShowSceneDialog();
 		ShowSaveSceneAsPopup();
 
-		//ImGui::ShowDemoWindow();
+#ifdef _DEBUG
+		ImGui::ShowDemoWindow();
+#endif
 		ImGui::End();
-
-		// Game Play Buttons Test
-		{
-			ImGui::Begin("Play");
-			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
-
-			PlayButton();
-
-			ImGui::End();
-		}
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
@@ -515,10 +518,6 @@ void GameEditor::SaveWorld(const std::string& _filename)
 	json worldData;
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
-		/*if (entity->has<Script>() && entity->get<Script>()->m_IsFreeCamera == true)
-		{
-			continue;
-		}*/
 		SaveComponents<EntityIdentifier>(entity, worldData);
 		SaveComponents<Transform>(entity, worldData);
 		SaveComponents<StaticMesh>(entity, worldData);
@@ -534,6 +533,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<UI>(entity, worldData);
 		SaveComponents<Space>(entity, worldData);
 		SaveComponents<DynamicText>(entity, worldData);
+		SaveComponents<PlayerInformation>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -562,7 +562,12 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
+
+
 	Deserialize(m_EditorWorld, fileName);
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5); // TODO: TEST
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(4); // TODO: TEST
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5);	// TODO: 스프라이트 쌓인거 지우
 }
 
 void GameEditor::ShowSceneDialog()
@@ -582,7 +587,7 @@ void GameEditor::ShowSceneDialog()
 			// action
 
 			// 현재 에디터가 화면에 띄우고 있는 월드의 이름을 변경
-			LoadWorld("scene/" + fileName);
+			LoadWorld("scene/" + fileName);	// TODO : ??
 
 			// ".scene" 문자열을 찾습니다.
 			size_t found = fileName.find(".scene");
@@ -650,111 +655,156 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 	{
 		for (auto it = entity.begin(); it != entity.end(); ++it)
 		{
-			Entity* prefabEntity = currentWorld->create();
+			Entity* playEntity = currentWorld->create();
 			int oldID = 0;
 			for (const auto& component : it.value())
 			{
 				std::string componentName = component.begin().key();
 				if (componentName == "EntityIdentifier")
 				{
-					prefabEntity->Assign<EntityIdentifier>();
+					playEntity->Assign<EntityIdentifier>();
 					oldID = component["EntityIdentifier"][0]["m_EntityId"];
-					prefabEntity->get<EntityIdentifier>()->m_ComponentName = component["EntityIdentifier"][0]["m_ComponentName"];
-					prefabEntity->get<EntityIdentifier>()->m_EntityName = component["EntityIdentifier"][0]["m_EntityName"];
-					prefabEntity->get<EntityIdentifier>()->m_HasParent = component["EntityIdentifier"][0]["m_HasParent"];
-					prefabEntity->get<EntityIdentifier>()->m_ParentEntityId = component["EntityIdentifier"][0]["m_ParentEntityId"];
-					prefabEntity->get<EntityIdentifier>()->m_EntityId = prefabEntity->getEntityId();
+					playEntity->get<EntityIdentifier>()->m_ComponentName = component["EntityIdentifier"][0]["m_ComponentName"];
+					playEntity->get<EntityIdentifier>()->m_EntityName = component["EntityIdentifier"][0]["m_EntityName"];
+					playEntity->get<EntityIdentifier>()->m_HasParent = component["EntityIdentifier"][0]["m_HasParent"];
+					playEntity->get<EntityIdentifier>()->m_ParentEntityId = component["EntityIdentifier"][0]["m_ParentEntityId"];
+					playEntity->get<EntityIdentifier>()->m_EntityId = playEntity->getEntityId();
 				}
 				else if (componentName == "Transform")
 				{
-					m_PrefabManager->AssignComponents<Transform>(prefabEntity, component["Transform"][0]);
+					m_PrefabManager->AssignComponents<Transform>(playEntity, component["Transform"][0]);
 				}
 				else if (componentName == "BoxCollider")
 				{
-					m_PrefabManager->AssignComponents<BoxCollider>(prefabEntity, component["BoxCollider"][0]);
+					m_PrefabManager->AssignComponents<BoxCollider>(playEntity, component["BoxCollider"][0]);
 				}
 
 				else if (componentName == "Camera")
 				{
-					m_PrefabManager->AssignComponents<Camera>(prefabEntity, component["Camera"][0]);
+					m_PrefabManager->AssignComponents<Camera>(playEntity, component["Camera"][0]);
 				}
 
 				else if (componentName == "Light")
 				{
-					m_PrefabManager->AssignComponents<Light>(prefabEntity, component["Light"][0]);
+					m_PrefabManager->AssignComponents<Light>(playEntity, component["Light"][0]);
 				}
 
 				else if (componentName == "Movement")
 				{
-					m_PrefabManager->AssignComponents<Movement>(prefabEntity, component["Movement"][0]);
+					m_PrefabManager->AssignComponents<Movement>(playEntity, component["Movement"][0]);
 				}
 
 				else if (componentName == "StaticMesh")
 				{
 					std::string fileName = component["StaticMesh"][0]["m_FileName"];
-					prefabEntity->Assign<StaticMesh>(fileName);
-					prefabEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
-					prefabEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
-					prefabEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
+					playEntity->Assign<StaticMesh>(fileName);
+					playEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
+					playEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
+					playEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
 				}
 				else if (componentName == "Debug")
 				{
-					m_PrefabManager->AssignComponents<Debug>(prefabEntity, component["Debug"][0]);
+					m_PrefabManager->AssignComponents<Debug>(playEntity, component["Debug"][0]);
 				}
 				else if (componentName == "Sound")
 				{
-					m_PrefabManager->AssignComponents<Sound>(prefabEntity, component["Sound"][0]);
+					m_PrefabManager->AssignComponents<Sound>(playEntity, component["Sound"][0]);
 				}
 				else if (componentName == "RigidBody")
 				{
-					m_PrefabManager->AssignComponents<RigidBody>(prefabEntity, component["RigidBody"][0]);
+					m_PrefabManager->AssignComponents<RigidBody>(playEntity, component["RigidBody"][0]);
 				}
 				else if (componentName == "UI")
 				{
-					m_PrefabManager->AssignComponents<UI>(prefabEntity, component["UI"][0]);
+					m_PrefabManager->AssignComponents<UI>(playEntity, component["UI"][0]);
 				}
 				else if (componentName == "Space")
 				{
-					m_PrefabManager->AssignComponents<Space>(prefabEntity, component["Space"][0]);
+					m_PrefabManager->AssignComponents<Space>(playEntity, component["Space"][0]);
+				}
+				else if (componentName == "DynamicText")
+				{
+					m_PrefabManager->AssignComponents<DynamicText>(playEntity, component["DynamicText"][0]);
+				}
+				else if (componentName == "Sprite2D")
+				{
+					m_PrefabManager->AssignComponents<Sprite2D>(playEntity, component["Sprite2D"][0]);
+				}
+				else if (componentName == "PlayerInformation")
+				{
+					m_PrefabManager->AssignComponents<PlayerInformation>(playEntity, component["PlayerInformation"][0]);
+				}
+				else if (componentName == "Interactive")
+				{
+					m_PrefabManager->AssignComponents<Interactive>(playEntity, component["Interactive"][0]);
 				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
 					{
-						m_PrefabManager->AssignComponents<FreeCameraScript>(prefabEntity, component["Script"][0]);
+						m_PrefabManager->AssignComponents<FreeCameraScript>(playEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "SampleScript")
 					{
-						m_PrefabManager->AssignComponents<SampleScript>(prefabEntity, component["Script"][0]);
+						m_PrefabManager->AssignComponents<SampleScript>(playEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PlayerScript")
 					{
-						m_PrefabManager->AssignComponents<PlayerScript>(prefabEntity, component["Script"][0]);
+						m_PrefabManager->AssignComponents<PlayerScript>(playEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "POVCameraScript")
 					{
-						m_PrefabManager->AssignComponents<POVCameraScript>(prefabEntity, component["Script"][0]);
+						m_PrefabManager->AssignComponents<POVCameraScript>(playEntity, component["Script"][0]);
 					}
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "TestUIScript")
 					{
-						m_PrefabManager->AssignComponents<TestUIScript>(prefabEntity, component["Script"][0]);
+						m_PrefabManager->AssignComponents<TestUIScript>(playEntity, component["Script"][0]);
 					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DynamicTextScript")
+					{
+						m_PrefabManager->AssignComponents<DynamicTextScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroCameraScript")
+					{
+						m_PrefabManager->AssignComponents<IntroCameraScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "OutroScript")
+					{
+						m_PrefabManager->AssignComponents<OutroScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DrawerScript")
+					{
+						m_PrefabManager->AssignComponents<DrawerScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroDoorScript")
+					{
+						m_PrefabManager->AssignComponents<IntroDoorScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DoorScript")
+					{
+						m_PrefabManager->AssignComponents<DoorScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroButtonScript")
+					{
+						m_PrefabManager->AssignComponents<IntroButtonScript>(playEntity, component["Script"][0]);
+					}
+					//요기
 				}
 			}
-			m_PrefabManager->m_prefabContainer.push_back({ prefabEntity, oldID });
+			m_PrefabManager->m_prefabContainer.push_back({ playEntity, oldID });
 		}
 	}
 
 
-	for (const auto& prefabChild : m_PrefabManager->m_prefabContainer)
+	for (const auto& playChild : m_PrefabManager->m_prefabContainer)
 	{
-		for (const auto& prefabParent : m_PrefabManager->m_prefabContainer)
+		for (const auto& playParent : m_PrefabManager->m_prefabContainer)
 		{
-			if (prefabChild.first->get<EntityIdentifier>().get().m_HasParent == true)
+			if (playChild.first->get<EntityIdentifier>().get().m_HasParent == true)
 			{
-				if (prefabChild.first->get<EntityIdentifier>().get().m_ParentEntityId == prefabParent.second)
+				if (playChild.first->get<EntityIdentifier>().get().m_ParentEntityId == playParent.second)
 				{
-					SetParent(prefabChild.first, prefabParent.first);
+					SetParent(playChild.first, playParent.first);
 				}
 			}
 		}
@@ -764,6 +814,8 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 	{
 		m_NameManager->AddEntityName(prefab.first);
 	}
+
+	m_PrefabManager->m_prefabContainer.clear();
 }
 
 void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileName)
@@ -780,137 +832,163 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 	{
 		for (auto it = entity.begin(); it != entity.end(); ++it)
 		{
-			// Entity 생성 후 정보 push
-			Entity* myEntity = currentWorld->create();
-
-			for (auto component : it.value())
+			Entity* loadEntity = currentWorld->create();
+			int oldID = 0;
+			for (const auto& component : it.value())
 			{
 				std::string componentName = component.begin().key();
-
 				if (componentName == "EntityIdentifier")
 				{
-					AssignComponents<EntityIdentifier>(myEntity, component["EntityIdentifier"][0]);
-					//m_NameManager->AddEntityName(myEntity);
+					loadEntity->Assign<EntityIdentifier>();
+					oldID = component["EntityIdentifier"][0]["m_EntityId"];
+					loadEntity->get<EntityIdentifier>()->m_ComponentName = component["EntityIdentifier"][0]["m_ComponentName"];
+					loadEntity->get<EntityIdentifier>()->m_EntityName = component["EntityIdentifier"][0]["m_EntityName"];
+					loadEntity->get<EntityIdentifier>()->m_HasParent = component["EntityIdentifier"][0]["m_HasParent"];
+					loadEntity->get<EntityIdentifier>()->m_ParentEntityId = component["EntityIdentifier"][0]["m_ParentEntityId"];
+					loadEntity->get<EntityIdentifier>()->m_EntityId = loadEntity->getEntityId();
 				}
 				else if (componentName == "Transform")
 				{
-					AssignComponents<Transform>(myEntity, component["Transform"][0]);
+					AssignComponents<Transform>(loadEntity, component["Transform"][0]);
 				}
 				else if (componentName == "BoxCollider")
 				{
-					AssignComponents<BoxCollider>(myEntity, component["BoxCollider"][0]);
+					AssignComponents<BoxCollider>(loadEntity, component["BoxCollider"][0]);
 				}
 
 				else if (componentName == "Camera")
 				{
-					AssignComponents<Camera>(myEntity, component["Camera"][0]);
+					AssignComponents<Camera>(loadEntity, component["Camera"][0]);
 				}
 
 				else if (componentName == "Light")
 				{
-					AssignComponents<Light>(myEntity, component["Light"][0]);
+					AssignComponents<Light>(loadEntity, component["Light"][0]);
 				}
 
 				else if (componentName == "Movement")
 				{
-					AssignComponents<Movement>(myEntity, component["Movement"][0]);
+					AssignComponents<Movement>(loadEntity, component["Movement"][0]);
 				}
 
 				else if (componentName == "StaticMesh")
 				{
-					//AssignComponents<StaticMesh>(myEntity, component["StaticMesh"][0]);
 					std::string fileName = component["StaticMesh"][0]["m_FileName"];
-					myEntity->Assign<StaticMesh>(fileName);
-					myEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
-					myEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
-					myEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
+					loadEntity->Assign<StaticMesh>(fileName);
+					loadEntity->get<StaticMesh>().get().m_ComponentName = component["StaticMesh"][0]["m_ComponentName"];
+					loadEntity->get<StaticMesh>().get().m_FileName = component["StaticMesh"][0]["m_FileName"];
+					loadEntity->get<StaticMesh>().get().m_IsModelCreated = component["StaticMesh"][0]["m_IsModelCreated"];
 				}
 				else if (componentName == "Debug")
 				{
-					AssignComponents<Debug>(myEntity, component["Debug"][0]);
+					AssignComponents<Debug>(loadEntity, component["Debug"][0]);
 				}
 				else if (componentName == "Sound")
 				{
-					AssignComponents<Sound>(myEntity, component["Sound"][0]);
+					AssignComponents<Sound>(loadEntity, component["Sound"][0]);
 				}
 				else if (componentName == "RigidBody")
 				{
-					AssignComponents<RigidBody>(myEntity, component["RigidBody"][0]);
+					AssignComponents<RigidBody>(loadEntity, component["RigidBody"][0]);
 				}
 				else if (componentName == "UI")
 				{
-					AssignComponents<UI>(myEntity, component["UI"][0]);
+					AssignComponents<UI>(loadEntity, component["UI"][0]);
 				}
 				else if (componentName == "Space")
 				{
-					AssignComponents<Space>(myEntity, component["Space"][0]);
+					AssignComponents<Space>(loadEntity, component["Space"][0]);
 				}
 				else if (componentName == "DynamicText")
 				{
-					AssignComponents<DynamicText>(myEntity, component["DynamicText"][0]);
+					AssignComponents<DynamicText>(loadEntity, component["DynamicText"][0]);
 				}
 				else if (componentName == "Sprite2D")
 				{
-					AssignComponents<Sprite2D>(myEntity, component["Sprite2D"][0]);
+					AssignComponents<Sprite2D>(loadEntity, component["Sprite2D"][0]);
+				}
+				else if (componentName == "PlayerInformation")
+				{
+					AssignComponents<PlayerInformation>(loadEntity, component["PlayerInformation"][0]);
+				}
+				else if (componentName == "Interactive")
+				{
+					AssignComponents<Interactive>(loadEntity, component["Interactive"][0]);
 				}
 				else if (componentName == "Script")
 				{
-					AssignComponents<Script>(myEntity, component["Script"][0]);
+					AssignComponents<Script>(loadEntity, component["Script"][0]);
 				}
 			}
+			m_LoadEntityContainer.push_back({ loadEntity, oldID });
 		}
 	}
 
 
-	//부모자식 관계 설정
-	for (const auto& childEntity : currentWorld->GetEntities())
+	for (const auto& LoadEntityChild : m_LoadEntityContainer)
 	{
-		for (const auto& parentEntity : currentWorld->GetEntities())
+		for (const auto& LoadEntityParent : m_LoadEntityContainer)
 		{
-			if (childEntity->get<EntityIdentifier>().get().m_HasParent == true)
+			if (LoadEntityChild.first->get<EntityIdentifier>().get().m_HasParent == true)
 			{
-				if (childEntity->get<EntityIdentifier>().get().m_ParentEntityId == parentEntity->getEntityId())
+				if (LoadEntityChild.first->get<EntityIdentifier>().get().m_ParentEntityId == LoadEntityParent.second)
 				{
-					SetParent(childEntity, parentEntity);
+					SetParent(LoadEntityChild.first, LoadEntityParent.first);
 				}
 			}
 		}
 	}
 
-	for (const auto& entity : currentWorld->GetEntities())
+	for (const auto& prefab : m_LoadEntityContainer)
 	{
-		m_NameManager->AddEntityName(entity);
+		m_NameManager->AddEntityName(prefab.first);
 	}
 
+	m_LoadEntityContainer.clear();
 	// HierarchyPanel에 등록
 	m_SceneHierarchyPanel.SetContext(currentWorld, m_PrefabManager, m_NameManager);
-	m_ContentsBrowserPanel.SetContext(currentWorld, m_PrefabManager);
+	m_ContentsBrowserPanel.SetContext(currentWorld, m_PrefabManager, m_NameManager);
 }
 
 void GameEditor::PlayButton()
 {
+	// 중간에 버튼 하나를 배치할것이다.
+	ImGui::SameLine(ImGui::GetWindowWidth() / 2 - 63);
 	if (m_IsPlaying)
 	{
-		if (ImGui::Button("||", ImVec2(40.0f, 40.0f)))
+		if (ImGui::Button("Stop", ImVec2(60.0f, 0.0f)))
 		{
 			m_IsPlaying = false;
 
+			m_EditorWorld = World::CreateWorld("");
 			WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
 
+			// 시스템 등록
+			m_EditorWorld->registerSystem(new RenderSystem);
+			m_EditorWorld->registerSystem(new TransformSystem);
+			m_EditorWorld->registerSystem(new MovementSystem);
+			m_EditorWorld->registerSystem(new CameraSystem);
+			m_EditorWorld->registerSystem(new ScriptSystem);
+			m_EditorWorld->registerSystem(new CollisionSystem);
+			m_EditorWorld->registerSystem(new SpriteSystem);
+			m_EditorWorld->registerSystem(new DebugSystem);
+			m_EditorWorld->registerSystem(new class UISystem);
+			m_EditorWorld->registerSystem(new SpaceSystem);
+
 			m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
-			m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
+			m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
+
+			m_NameManager->ClearContainer();
+
+			Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
 
 			m_ActiveWorld->DestroyWorld();
-
-
-			//m_EditorWorld->ResetLastEntityId();
-
-			//Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
+			//RenderManager::GetInstance()->GetRender()->m_sprites.clear();
 		}
 	}
 	else
 	{
-		if (ImGui::Button(">", ImVec2(40.0f, 40.0f)))
+		if (ImGui::Button("Play", ImVec2(60.0f, 0.0f)))
 		{
 			m_IsPlaying = true;
 			PlayScene();
@@ -967,7 +1045,7 @@ void GameEditor::NewScene()
 
 	// Panel들 등록
 	m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
-	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager);
+	m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.Initialize();
 
 	Vector3D pos1 = { 1.0f, 3.0f, 5.0f };
@@ -984,8 +1062,6 @@ void GameEditor::NewScene()
 	player->Assign<Movement>();
 	player->Assign<RigidBody>();
 	player->Assign<BoxCollider>();
-	//player->Assign<PlayerScript>(player);
-	//player->get<Script>()->m_ComponentName = "PlayerScript";
 
 	// PlayerCamera
 	Entity* playerCamera = m_EditorWorld->create();
@@ -993,19 +1069,15 @@ void GameEditor::NewScene()
 	playerCamera->Assign<Transform>(posPlayer);
 	playerCamera->Assign<Camera>();
 	playerCamera->Assign<Movement>();
-	playerCamera->Assign<RigidBody>();
-	//playerCamera->Assign<POVCameraScript>(playerCamera);
-	//playerCamera->get<Script>()->m_ComponentName = "POVCameraScript";
 
 	SetParent(playerCamera, player);
 	SetParentTransform(playerCamera, player);
-
 
 	//Free Camera
 	Entity* ent = m_EditorWorld->create();
 	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Main Camera");
 	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
+	//ent->Assign<Debug>();
 	ent->Assign<Camera>();
 	ent->Assign<FreeCameraScript>(ent);
 	ent->get<Script>()->m_ComponentName = "FreeCameraScript";
@@ -1013,14 +1085,25 @@ void GameEditor::NewScene()
 	ent->Assign<Movement>();
 
 	// for test
-	//{
-	//	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//	ent2->Assign<EntityIdentifier>(ent->getEntityId(), "Test UI");
-	//	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//	ent2->Assign<UI>(100, 100);
-	//	ent2->Assign<Sprite2D>(ent2, "../Resource/UI/image.jpg", 0, 100, 100);
-	//	ent2->Assign<TestUIScript>(ent2);
-	//}
+#ifdef _DEBUG
+	{
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test UI");
+		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+		ent2->Assign<UI>(100, 100);
+		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
+		ent2->Assign<TestUIScript>(ent2);
+	// for test 2
+	{
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
+		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+		ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 0, 18);
+		ent2->Assign<OutroScript>(ent2);
+		ent2->get<Script>()->m_ComponentName = "OutroScript";
+	}
+	}
+#endif
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
@@ -1030,9 +1113,16 @@ void GameEditor::NewScene()
 
 void GameEditor::PlayScene()
 {
-
+	
 	m_ActiveWorld = ECS::World::CreateWorld("scene/" + m_SceneName + ".scene");
 	WorldManager::GetInstance()->ChangeWorld(m_ActiveWorld);
+
+	if (m_IsPlaying)
+	{
+		SaveWorld(m_SceneName);
+	}
+
+	m_EditorWorld->DestroyWorld();
 
 	// 시스템 등록
 	m_ActiveWorld->registerSystem(new RenderSystem);
@@ -1046,16 +1136,11 @@ void GameEditor::PlayScene()
 	m_ActiveWorld->registerSystem(new class UISystem);
 	m_ActiveWorld->registerSystem(new SpaceSystem);
 
-	if (m_IsPlaying)
-	{
-		SaveWorld(m_SceneName);
-	}
 
 	m_SceneHierarchyPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
-	m_ContentsBrowserPanel.SetContext(m_ActiveWorld, m_PrefabManager);
+	m_ContentsBrowserPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
 
 	m_NameManager->ClearContainer();
-	m_PrefabManager->m_prefabContainer.clear();
 
 	m_ActiveWorld->ResetLastEntityId();
 

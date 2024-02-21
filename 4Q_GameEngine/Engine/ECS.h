@@ -403,8 +403,8 @@ namespace ECS
 		{
 			ECS_DECLARE_TYPE
 
-			Entity* objectEntity;
-			Entity* subjectEntity;
+			int objectIndex;
+			int subjectIndex;
 			int objectExit;
 			int subjectExit;
 		};

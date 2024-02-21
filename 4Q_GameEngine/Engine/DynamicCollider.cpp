@@ -21,13 +21,16 @@ void DynamicCollider::Initialize()
 	// 석영 : Box만 사용중.
 	m_Rigid->setMaxLinearVelocity(150.f);
 	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
-	PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_Rigid);
+	//PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_Rigid);
 
+	PhysicsManager::GetInstance()->AddDynamicColliders(this);
+	
 	FreezeRotation(true, true, true);
 	SetDensity(75.f); // 석영 : 기본값으로 넣어주기.
 	SetFilterData();
 	UpdatePosition();
 }
+
 void DynamicCollider::UpdatePosition()
 {
 	PxVec3 boxCenter =
@@ -40,14 +43,20 @@ void DynamicCollider::UpdatePosition()
 	PxVec3 boxPos =
 	{
 		m_pOwner->m_WorldPosition.GetX(),
-		m_pOwner->m_WorldPosition.GetY(),
+		m_pOwner->m_WorldPosition.GetY() + m_Scale.GetY() / 2.f ,
 		m_pOwner->m_WorldPosition.GetZ()
 	};
 
-	m_Transform.p = boxPos + boxCenter;
-	m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
-	m_Rigid->setGlobalPose(m_Transform);
+	if (boxPos != m_Transform.p)
+	{
+		m_Transform.p = boxPos;
+		m_Transform.p.y += m_Scale.GetY() / 2.f;
+		m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
+		m_Rigid->setGlobalPose(m_Transform);
+	}
 }
+
+
 void DynamicCollider::UpdatePhysics()
 {
 	/*
@@ -61,6 +70,8 @@ void DynamicCollider::UpdatePhysics()
 		m_Transform.p.y,
 		m_Transform.p.z
 	};
+
+	m_Transform.p.y += m_Scale.GetY() / 2.f;
 }
 
 void DynamicCollider::SetDensity(float mass)
@@ -83,6 +94,7 @@ void DynamicCollider::AddForce(Vector3D dir)
 
 	if (m_CurrentDir != checkmove)
 	{
+		float mass = m_Rigid->getMass();
 		m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 2.f, PxForceMode::eIMPULSE, true);
 		m_bKeyUp = false;
 	}

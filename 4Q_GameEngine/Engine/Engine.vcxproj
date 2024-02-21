@@ -162,12 +162,20 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>PhysX_64_r.lib;PhysXCharacterKinematic_static_64_r.lib;PhysXCommon_64_r.lib;PhysXCooking_64_r.lib;PhysXExtensions_static_64_r.lib;PhysXFoundation_64_r.lib;PhysXPvdSDK_static_64_r.lib;PhysXTask_static_64_r.lib;PhysXVehicle_static_64_r.lib;PhysXVehicle2_static_64_r.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\Library;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>PhysX_64.lib;PhysXCharacterKinematic_static_64.lib;PhysXCommon_64.lib;PhysXCooking_64.lib;PhysXExtensions_static_64.lib;PhysXFoundation_64.lib;PhysXPvdSDK_static_64.lib;PhysXTask_static_64.lib;PhysXVehicle_static_64.lib;PhysXVehicle2_static_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\Library\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="IntroButtonScript.h" />
+    <ClInclude Include="Interactive.h" />
+    <ClInclude Include="DoorScript.h" />
+    <ClInclude Include="DrawerScript.h" />
     <ClInclude Include="DynamicText.h" />
+    <ClInclude Include="EventSystem.h" />
+    <ClInclude Include="IntroCameraScript.h" />
+    <ClInclude Include="IntroDoorScript.h" />
+    <ClInclude Include="OutroScript.h" />
     <ClInclude Include="PlayerInformation.h" />
     <ClInclude Include="POVCameraScript.h" />
     <ClInclude Include="FreeCameraScript.h" />
@@ -225,6 +233,7 @@
     <ClCompile Include="DebugSystem.cpp" />
     <ClCompile Include="DynamicTextScript.h" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="EventSystem.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="pch.cpp">

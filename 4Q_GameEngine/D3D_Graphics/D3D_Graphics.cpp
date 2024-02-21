@@ -10,6 +10,7 @@
 #include "../Engine/Debug.h"
 
 #include "../Engine/TimeManager.h"
+#include "../Engine/Sprite2D.h"
 
 #include "RenderTextureClass.h"
 
@@ -18,8 +19,10 @@
 #include <imgui_impl_dx11.h>
 
 #include "../Engine/InputManager.h"
+#include "../Engine/WorldManager.h"
 
-#define SHADOWMAP_SIZE 4096
+#define SHADOWMAP_SIZE 2048
+
 
 Renderer* Renderer::Instance = nullptr;
 
@@ -31,7 +34,7 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
-	UnInitImgui();
+	//UnInitImgui();
 }
 
 void Renderer::Clear(float r, float g, float b)
@@ -65,19 +68,24 @@ void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 }
 
 
-void Renderer::AddColliderBox(Vector3 center, Vector3 extents, Math::Matrix worldTM)
+void Renderer::AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation)
 {
-	Math::Vector3 scale, pos;
-	Math::Quaternion rotation;
-	worldTM.Decompose(scale, rotation, pos);
-	m_colliderBox.push_back(ColliderBox(center, extents, rotation));
+	Quaternion rot = Math::Quaternion::CreateFromYawPitchRoll(rotation.y, rotation.x, rotation.z);
+	m_colliderBox.push_back(ColliderBox(center, extents, rot));
+}
+void Renderer::AddBoundingBox(DirectX::BoundingBox boundingBox)
+{
+	m_boundingBox.push_back(boundingBox);
 }
 
 void Renderer::AddMeshInstance(StaticModel* model)
 {
 	for (auto& mesh : model->m_meshInstance)
 	{
-		m_pMeshInstance.push_back(&mesh);
+		if (mesh.m_pMaterial->m_pOpacityRV)
+			m_pOpacityInstance.push_back(&mesh);
+		else
+			m_pMeshInstance.push_back(&mesh);
 	}
 }
 
@@ -90,9 +98,7 @@ void Renderer::AddOutlineMesh(StaticModel* model)
 }
 
 void Renderer::AddTextInformation(const int id, const std::string& text, const Vector3D& position)
-
 {
-
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
@@ -101,12 +107,12 @@ void Renderer::AddTextInformation(const int id, const std::string& text, const V
 	m_texts.push_back(newText);
 }
 
-void Renderer::AddSpriteInformation(int id, const std::string& filePath, const XMFLOAT2 position, float layer)
+void Renderer::AddSpriteInformation(ECS::World* world, int id, const std::string& filePath, const XMFLOAT2 position, float layer)
 {
 	ComPtr<ID3D11ShaderResourceView> texture;
 	const wchar_t* filePathT = ConvertToWchar(filePath);
 	HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
-	m_sprites.push_back(SpriteInformation{ id, layer, true, position, texture });
+	m_sprites.push_back(SpriteInformation{world, id, layer, true, position, texture });
 }
 
 void Renderer::AddDynamicTextInformation(int entId, const vector<std::wstring>& vector)
@@ -142,13 +148,20 @@ void Renderer::EditTextInformation(int id, const std::string& text, const Vector
 	it->mText = text;
 }
 
-void Renderer::EditSpriteInformation(int id, bool isRendered)
+void Renderer::EditSpriteInformation(int id, Sprite2D& sprite2D)
 {
 	const auto it = std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
 		{
-			return id == sprite.mEntityID;
+			return id == sprite.mEntityID && WorldManager::GetInstance()->GetCurrentWorld() == sprite.world;
 		});
-	it->IsRendered = isRendered;
+	it->IsRendered = sprite2D.m_IsRendered;
+	it->mLayer = sprite2D.m_Layer;
+	it->mPosition = XMFLOAT2{ (float)sprite2D.m_Position[0], (float)sprite2D.m_Position[1] } ;
+
+	std::sort(m_sprites.begin(), m_sprites.end(), [&](const SpriteInformation& lhs, const SpriteInformation& rhs)
+		{
+			return lhs.mLayer > rhs.mLayer;
+		});
 }
 
 void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
@@ -201,6 +214,14 @@ void Renderer::DeleteSpriteInformation(int id)
 		}));
 }
 
+void Renderer::DeleteSpriteInformationReverse(int id)
+{
+	m_sprites.erase(std::find_if_not(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
+		{
+			return id == sprite.mEntityID;
+		}));
+}
+
 void Renderer::DeleteDynamicTextInformation(int id)
 {
 	m_dynamicTexts.erase(std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
@@ -208,6 +229,9 @@ void Renderer::DeleteDynamicTextInformation(int id)
 			return id == dynamicText.mEntityID;
 		}));
 }
+
+
+
 
 void Renderer::DeletePointLight(int id)
 {
@@ -217,9 +241,9 @@ void Renderer::DeletePointLight(int id)
 		}));
 }
 
-void Renderer::CreateModel(string filename)
+void Renderer::CreateModel(string filename, DirectX::BoundingBox& boundingBox)
 {
-	ResourceManager::Instance->CreateModel(filename);
+	ResourceManager::Instance->CreateModel(filename, boundingBox);
 	StaticModel* pModel = new StaticModel();
 	m_pStaticModels.push_back(pModel);
 }
@@ -276,7 +300,7 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDepth.Height = height;
 	descDepth.MipLevels = 1;
 	descDepth.ArraySize = 1;
-	descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	descDepth.Format = DXGI_FORMAT_D32_FLOAT;
 	descDepth.SampleDesc.Count = 1;
 	descDepth.SampleDesc.Quality = 0;
 	descDepth.Usage = D3D11_USAGE_DEFAULT;
@@ -521,6 +545,32 @@ void Renderer::MeshRender()
 		it->Render(Renderer::Instance->m_pDeviceContext.Get());
 	}
 }
+void  Renderer::OpacityMeshRender()
+{
+	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
+	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	Material* pPrevMaterial = nullptr;
+
+	for (auto it : m_pOpacityInstance)
+	{
+		string name = it->m_pMeshResource->m_meshName;
+		if (pPrevMaterial != it->m_pMaterial)
+		{
+			Renderer::Instance->m_pDeviceContext->VSSetShader(it->m_pMeshResource->m_vertexShader.m_pVertexShader.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetShader(it->m_pMaterial->m_pixelShader.m_pPixelShader.Get(), nullptr, 0);
+			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+
+			Renderer::Instance->ApplyMaterial(it->m_pMaterial);	// 머터리얼 적용
+			pPrevMaterial = it->m_pMaterial;
+		}
+		m_pDeviceContext->PSSetShaderResources(7, 1, m_pShadowMapSRV.GetAddressOf());
+		m_worldMatrixCB.mWorld = it->m_pNodeWorldTransform.Transpose();
+		m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
+		it->Render(Renderer::Instance->m_pDeviceContext.Get());
+	}
+}
 
 void Renderer::ShadowRender()
 {
@@ -572,10 +622,10 @@ void Renderer::RenderDebugDraw()
 	DebugDraw::g_Batch->Begin();
 
 #ifdef _DEBUG
-	for (auto& model : m_pStaticModels)
+	for (auto& model : m_boundingBox)
 	{
-		DebugDraw::Draw(DebugDraw::g_Batch.get(), model->m_boundingBox,
-			model->m_bIsCulled ? Colors::Red : Colors::Blue);
+		DebugDraw::Draw(DebugDraw::g_Batch.get(), model,
+			 Colors::Blue);
 	}
 #endif
 	for (auto& box : m_colliderBox)
@@ -588,6 +638,9 @@ void Renderer::RenderDebugDraw()
 
 void Renderer::RenderQueueSort()
 {
+	m_pOpacityInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
+		return lhs->m_pMaterial < rhs->m_pMaterial;
+		});
 	m_pMeshInstance.sort([](const StaticMeshInstance* lhs, const StaticMeshInstance* rhs) {
 		return lhs->m_pMaterial < rhs->m_pMaterial;
 		});
@@ -632,33 +685,41 @@ void Renderer::Update()
 
 	m_viewMatrixCB.mShadowView = shadowView.Transpose();
 	m_projectionMatrixCB.mShadowProjection = shadowProjection.Transpose();
+	m_projectionMatrixCB.mCameraPos = m_cameraPos;
 
 	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
 	m_frustumCmaera.Transform(m_frustumCmaera, m_viewMatrix.Invert());
-	for (auto& model : m_pStaticModels)
+	/*for (auto& model : m_pStaticModels)
 	{
 		if (model->GetSceneResource() == nullptr)
 			break;
 		FrustumCulling(model);
+	}*/
+	for (auto& model : m_pStaticModels)
+	{
+		AddMeshInstance(model);
 	}
 
 	// pointLight Frustum Culling
-	for (int i = 0; i < m_pointLights.size(); i++)
-	{
-		DirectX::BoundingBox pointLightBoundingBox;
 
-		// Calculate the extents of the bounding box based on the radius
-		Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
 
-		// Set the bounding box parameters
-		pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
-		pointLightBoundingBox.Extents = extents;
+	//for (int i = 0; i < m_pointLights.size(); i++)
+	//{
+	//	DirectX::BoundingBox pointLightBoundingBox;
 
-		if (m_frustumCmaera.Intersects(pointLightBoundingBox))
-		{
-			m_pointLightInstance.push_back(m_pointLights[i]);
-		}
-	}
+
+	//	// Calculate the extents of the bounding box based on the radius
+	//	Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
+
+	//	// Set the bounding box parameters
+	//	pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
+	//	pointLightBoundingBox.Extents = extents;
+
+	//	if (m_frustumCmaera.Intersects(pointLightBoundingBox))
+	//	{
+	//		m_pointLightInstance.push_back(m_pointLights[i]);
+	//	}
+	//}
 
 	//AddOutlineMesh(m_pStaticModels[1]);
 	RenderQueueSort();
@@ -674,6 +735,8 @@ void Renderer::RenderBegin()
 	m_pDeviceContext->PSSetConstantBuffers(0, 1, m_pProjectionBuffer.GetAddressOf());
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
+
+
 
 	if (m_pointLightInstance.size() > pointLightCount)
 	{
@@ -694,6 +757,7 @@ void Renderer::RenderBegin()
 		m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
 		m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
 	}
+
 
 	m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
@@ -755,7 +819,10 @@ void Renderer::RenderSprite() const
 
 	for (const auto& it : m_sprites)
 	{
-		m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0, 0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
+		if(WorldManager::GetInstance()->GetCurrentWorld() == it.world && it.IsRendered)
+		{
+			m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, Colors::White, 0.f, XMFLOAT2(0, 0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
+		}
 	}
 
 	m_spriteBatch->End();
@@ -800,18 +867,21 @@ void Renderer::GameAppRender()
 
 	//OutlineRender();
 	OutlineRender();
-	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	
 	MeshRender();
+
+	OpacityMeshRender();
+
 	RenderDebugDraw();
 
-
-	FinalRender();
-	m_spriteBatch->Begin();
+  m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	auto m_states = std::make_unique<CommonStates>(m_pDevice.Get());
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 	RenderText();
 	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
-
+  FinalRender();
 	//임구이 렌더
 	//RenderImgui();
 }
@@ -853,17 +923,19 @@ void Renderer::EditorRender()
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-	SphereRender();
+	//SphereRender();
 	MeshRender();
-
+	OpacityMeshRender();
 
 	RenderDebugDraw();
 
+	//m_pDeviceContext->OMSetBlendState(m_commonStates->AlphaBlend(), nullptr, 0xFFFFFFFF);
 
-
-	m_spriteBatch->Begin();
-	//RenderText();
+	auto m_states = std::make_unique<CommonStates>(m_pDevice.Get());
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 	RenderSprite();
+	//RenderText();
+
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 
@@ -887,11 +959,11 @@ void Renderer::RenderEnvironment()
 	m_pDeviceContext->OMSetDepthStencilState(m_pSkyboxDSS.Get(), 0);
 	m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
 
-	auto test = ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"];
-	m_worldMatrixCB.mWorld = ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_worldTransform.Transpose();
+	auto test = ResourceManager::Instance->m_pOriginalEnvironments["xiequ_yuan_4k"];
+	m_worldMatrixCB.mWorld = ResourceManager::Instance->m_pOriginalEnvironments["xiequ_yuan_4k"]->m_worldTransform.Transpose();
 	m_pDeviceContext->UpdateSubresource(m_pWorldBuffer.Get(), 0, nullptr, &m_worldMatrixCB, 0, 0);
-	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Initialize();
-	ResourceManager::Instance->m_pOriginalEnvironments["BakerSample"]->m_meshInstance.Render(m_pDeviceContext.Get());
+	ResourceManager::Instance->m_pOriginalEnvironments["xiequ_yuan_4k"]->m_meshInstance.Initialize();
+	ResourceManager::Instance->m_pOriginalEnvironments["xiequ_yuan_4k"]->m_meshInstance.Render(m_pDeviceContext.Get());
 
 }
 
@@ -919,8 +991,10 @@ void Renderer::RenderEnd()
 {
 	m_pSwapChain->Present(0, 0);
 	m_pMeshInstance.clear();
+	m_pOpacityInstance.clear();
 	m_pOutlineMesh.clear();
 	m_pointLightInstance.clear();
+	m_boundingBox.clear();
 	MakeModelEmpty();
 }
 
@@ -1011,6 +1085,7 @@ void Renderer::RenderImgui()
 		ImGui::SameLine();
 		ImGui::SliderFloat("##lpz", &m_lightCB.mDirection.z, -1.f, 1.f);
 
+
 		// Point Light
 		ImGui::Text("Point Light Index");
 		ImGui::SliderInt("##plIndex", &m_pointLightIndex, 0, pointLightCount - 1);
@@ -1033,22 +1108,24 @@ void Renderer::RenderImgui()
 		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 10000.f);
 		m_pointLights[m_pointLightIndex].SetIntensity(pointLightIntensity);
 		if (m_pointLights[m_pointLightIndex].GetIntensity() < 100.f)
+
 		{
-			auto test = 1;
+			bool useIBL = m_sphereCB.mUseIBL;
+			ImGui::Begin("IBL");
+			ImGui::Text("IBL");
+			ImGui::Text("Metalic");
+			ImGui::SameLine();
+			ImGui::SliderFloat("##lpx", &m_sphereCB.mMetalic, 0.f, 1.f);
+			ImGui::Text("Roughness");
+			ImGui::SameLine();
+			ImGui::SliderFloat("##lpy", &m_sphereCB.mRoughness, 0.f, 1.f);
+			ImGui::Text("Ambient");
+			ImGui::SameLine();
+			ImGui::SliderFloat("##lpz", &m_sphereCB.mAmbient, 0.f, 1.f);
+			ImGui::Checkbox("UseIBL", &useIBL);
+			m_sphereCB.mUseIBL = useIBL;
+			ImGui::End();
 		}
-
-		float pointLightRadius = m_pointLights[m_pointLightIndex].GetRadius();
-		ImGui::Text("Radius");
-		ImGui::SameLine();
-		ImGui::SliderFloat("##prad", &pointLightRadius, 0.f, 600.f);
-		m_pointLights[m_pointLightIndex].SetRadius(pointLightRadius);
-
-		float pointLightColor[3] = { m_pointLights[m_pointLightIndex].GetColor().x, m_pointLights[m_pointLightIndex].GetColor().y, m_pointLights[m_pointLightIndex].GetColor().z };
-		ImGui::Text("Color");
-		ImGui::SameLine();
-		ImGui::ColorEdit3("##plc", pointLightColor, 0);
-		m_pointLights[m_pointLightIndex].SetColor(pointLightColor[0], pointLightColor[1], pointLightColor[2]);
-
 		// Shadow
 		ImGui::Text("Shadow");
 		ImGui::Image(m_pShadowMapSRV.Get(), ImVec2(256, 256));
@@ -1193,7 +1270,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	bd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, &m_pProjectionBuffer));
-	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, width / (FLOAT)height, 0.1f, 100000.0f);
+	m_projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, width / (FLOAT)height, 10.f, 10000.0f);
 	m_projectionMatrixCB.mProjection = m_projectionMatrix.Transpose();
 
 	//라이트 상수버퍼
@@ -1252,7 +1329,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	rasterizerDesc.AntialiasedLineEnable = true;
 	rasterizerDesc.MultisampleEnable = true;
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	rasterizerDesc.CullMode = D3D11_CULL_NONE;
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
 	rasterizerDesc.FrontCounterClockwise = false;
 	rasterizerDesc.DepthClipEnable = true;
 	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
@@ -1284,20 +1361,10 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	pbd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
 
-	//포인트 라이트 테스트용
-	/*m_pointLights.resize(5);
-	for (int i = 0; i < 5; i++)
-	{
-		m_pointLights[i].SetPosition(Vector3(0, 0, 0));
-		m_pointLights[i].SetRadius(600.f);
-		m_pointLights[i].SetColor();
-		m_pointLights[i].SetIntensity(1000.f);
-	}*/
-
 	SetAlphaBlendState();
 
-	ResourceManager::Instance->CreateEnvironment("BakerSample");
-	SetEnvironment("BakerSample");
+	ResourceManager::Instance->CreateEnvironment("xiequ_yuan_4k");
+	SetEnvironment("xiequ_yuan_4k");
 	ComPtr < ID3DBlob> buffer;
 
 	buffer.Reset();
