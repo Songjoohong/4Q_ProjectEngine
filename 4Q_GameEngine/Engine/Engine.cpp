@@ -107,73 +107,73 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	PhysicsManager::GetInstance()->Initialize();
 	InputManager::GetInstance()->Initialize(m_ClientWidth, m_ClientHeight);
 
-	WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Test/TestScene1.json"));
-	EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
-	EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
-	EntitySystem* collisionSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CollisionSystem());
-	EntitySystem* transformSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new TransformSystem());
-	EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
-	EntitySystem* cameraSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CameraSystem());
-	EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
-	EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
-	EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
-	EntitySystem* spaceSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpaceSystem());
+	//WorldManager::GetInstance()->ChangeWorld(World::CreateWorld("../Test/TestScene1.json"));
+	//EntitySystem* scriptSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new ScriptSystem());
+	//EntitySystem* movementSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new MovementSystem());
+	//EntitySystem* collisionSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CollisionSystem());
+	//EntitySystem* transformSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new TransformSystem());
+	//EntitySystem* debugSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new DebugSystem());
+	//EntitySystem* cameraSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new CameraSystem());
+	//EntitySystem* renderSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new RenderSystem());
+	//EntitySystem* spriteSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpriteSystem());
+	//EntitySystem* UISystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new class UISystem);
+	//EntitySystem* spaceSystem = WorldManager::GetInstance()->GetCurrentWorld()->registerSystem(new SpaceSystem());
 
 
-	//Free Camera
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
-	ent->Assign<Camera>();
-	ent->Assign<FreeCameraScript>(ent);
-	ent->Assign<Movement>();
+	////Free Camera
+	//Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
+	//ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//ent->Assign<Debug>();
+	//ent->Assign<Camera>();
+	//ent->Assign<FreeCameraScript>(ent);
+	//ent->Assign<Movement>();
 
-	Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
-	ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
-	ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
+	//Entity* ent1 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent1->Assign<EntityIdentifier>(ent1->getEntityId(), "Ground");
+	//ent1->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
+	//ent1->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
 	//ent1->Assign<BoxCollider>(ColliderType::STATIC, CollisionMask::GROUND, Vector3D{ 1000.f,1.f,1000.f });
 
 
 
-	vector<ExitInfo> exit;
-	exit.push_back({ 1, Vector3D{ 100.f,100.f,100.f } });
-	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
-	ent2->Assign<Transform>(Vector3D(0.f, 100.f, 0.f));
-	
-	ent2->Assign<Space>(1, exit);
-	ent2->Assign<Debug>();
-	ent2->Assign<PlayerScript>(ent2);
-	ent2->Assign<RigidBody>();
-	ent2->Assign<Movement>();
+	//vector<ExitInfo> exit;
+	//exit.push_back({ 1, Vector3D{ 100.f,100.f,100.f } });
+	//Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Player");
+	//ent2->Assign<Transform>(Vector3D(0.f, 100.f, 0.f));
+	//
+	//ent2->Assign<Space>(1, exit);
+	//ent2->Assign<Debug>();
+	//ent2->Assign<PlayerScript>(ent2);
+	//ent2->Assign<RigidBody>();
+	//ent2->Assign<Movement>();
 
-	setlocale(LC_ALL, "Korean");
-	std::vector<std::wstring> wideStrings;
-	std::wstring text = L"안녕하세요";
-	std::wstring text1 = L"안녕히\n가세요";
+	//setlocale(LC_ALL, "Korean");
+	//std::vector<std::wstring> wideStrings;
+	//std::wstring text = L"안녕하세요";
+	//std::wstring text1 = L"안녕히\n가세요";
 
-	wideStrings.push_back(text);
-	wideStrings.push_back(text1);
+	//wideStrings.push_back(text);
+	//wideStrings.push_back(text1);
 
-	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 
-	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
-	ent3->Assign<DynamicText>(wideStrings);
-	ent3->Assign<DynamicTextScript>(ent3);
-	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f), Vector3D(70, 10, 10));
-	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/ridgepole_001.fbx");
-	
+	//ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
+	//ent3->Assign<DynamicText>(wideStrings);
+	//ent3->Assign<DynamicTextScript>(ent3);
+	//ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f), Vector3D(70, 10, 10));
+	//ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/ridgepole_001.fbx");
+	//
 
 
 
-	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
-	ent5->Assign<EntityIdentifier>(ent5->getEntityId(), "ui");
-	ent5->Assign<UI>(100, 100);
-	ent5->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
-	ent5->Assign<TestUIScript>(ent5);
+	//Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent5->Assign<Transform>(Vector3D(100.f, 100.f, 0.f));
+	//ent5->Assign<EntityIdentifier>(ent5->getEntityId(), "ui");
+	//ent5->Assign<UI>(100, 100);
+	//ent5->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
+	//ent5->Assign<TestUIScript>(ent5);
 	return true;
 }
 

@@ -661,44 +661,9 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
 	{
-		//static int a = 1;
-		//if (a == 1)
-		//{
-		//	component->m_Text.push_back(L"hello 안녕하세요");
-		//	wcout << component->m_Text.at(0) << endl;
-		//	a++;
-		//}
-
-		//int currentTextIndex = component->m_CurrentTextIndex;
-
-		//wstring wtext = component->m_Text.at(currentTextIndex);
-
-		//string strTo;
-
-		//// 방법 1
-		//{
-		//	int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), -1, NULL, 0, NULL, NULL);
-		//	std::string strTo(sizeNeeded, 0);
-		//	WideCharToMultiByte(CP_UTF8, 0, wtext.c_str(), -1, strTo.data(), sizeNeeded, NULL, NULL);
-		//}
-
-		//ImGui::InputText("dynamic text", strTo.data(), sizeof(strTo));
-
-
-		//if (ImGui::Button("Increase Index"))
-		//{
-		//	currentTextIndex++;
-		//}
-
-		//ImGui::SameLine();
-
-		//if (ImGui::Button("Decrease Index"))
-		//{
-		//	currentTextIndex--;
-		//}
-
-
-		ImGui::SliderFloat("Trigger Distance:", &component->m_TriggerDistance, 0.f, 1000.f);
+		ImGui::InputFloat("Trigger Distance:", &component->m_TriggerDistance, 0.f, 1000.f);
+		ImGui::InputInt("OpeningDir", &component->m_TextNum);
+		
 	});
 
 	DrawComponent<Space>("Space", entity, [](auto component)

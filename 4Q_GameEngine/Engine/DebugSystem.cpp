@@ -27,7 +27,7 @@ void DebugSystem::Receive(World* world, const Events::OnComponentAssigned<Debug>
 
 void DebugSystem::Receive(World* world, const Events::OnComponentAssigned<DynamicText>& event)
 {
-	RenderManager::GetInstance()->AddDynamicText(event.entity->getEntityId(), event.component->m_Text);
+	RenderManager::GetInstance()->AddDynamicText(event.entity->getEntityId(), event.component->m_Text[event.component->m_TextNum]);
 }
 
 void DebugSystem::Receive(World* world, const Events::DynamicTextChange& event)

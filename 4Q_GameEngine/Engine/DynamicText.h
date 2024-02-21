@@ -7,7 +7,7 @@ struct DynamicText
 {
 	ECS_DECLARE_TYPE
 
-		DynamicText() = default;
+		//DynamicText() = default;
 	explicit DynamicText(const float distance = 100.f)
 		: m_TriggerDistance(distance)
 	{}
@@ -129,6 +129,6 @@ struct DynamicText
 
 	std::string m_ComponentName = "DynamicText";
 
-	NLOHMANN_DEFINE_TYPE_INTRUSIVE(DynamicText, m_ComponentName, m_TriggerDistance, m_CurrentTextIndex, m_Text, m_IsTextShow)
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(DynamicText, m_ComponentName, m_TextNum, m_TriggerDistance, m_CurrentTextIndex, m_Text, m_IsTextShow)
 };
 ECS_DEFINE_TYPE(DynamicText)

@@ -6,6 +6,7 @@
 #include "Script.h"
 #include "BoxCollider.h"
 #include "PlayerInformation.h"
+#include "Transform.h"
 
 struct DynamicTextScript : public Script
 {
