@@ -67,6 +67,7 @@ void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 	}
 }
 
+
 void Renderer::AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation)
 {
 	Quaternion rot = Math::Quaternion::CreateFromYawPitchRoll(rotation.y, rotation.x, rotation.z);
@@ -97,9 +98,7 @@ void Renderer::AddOutlineMesh(StaticModel* model)
 }
 
 void Renderer::AddTextInformation(const int id, const std::string& text, const Vector3D& position)
-
 {
-
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
@@ -121,6 +120,19 @@ void Renderer::AddDynamicTextInformation(int entId, const vector<std::wstring>& 
 	m_dynamicTexts.push_back({ entId, 0, false, vector });
 }
 
+void Renderer::CreatePointLight(int entID, Vector3 pos, Vector3D color, float intensity, float radius)
+{
+	PointLight newPointLight;
+	newPointLight.SetID(entID);
+	newPointLight.SetColor(color.ConvertToVector3());
+	newPointLight.SetIntensity(intensity);
+	newPointLight.SetRadius(radius);
+	newPointLight.SetPosition(pos);
+
+	m_pointLights.push_back(newPointLight);
+}
+
+
 void Renderer::EditTextInformation(int id, const std::string& text, const Vector3D& position)
 {
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
@@ -140,11 +152,16 @@ void Renderer::EditSpriteInformation(int id, Sprite2D& sprite2D)
 {
 	const auto it = std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
 		{
-			return id == sprite.mEntityID;
+			return id == sprite.mEntityID && WorldManager::GetInstance()->GetCurrentWorld() == sprite.world;
 		});
 	it->IsRendered = sprite2D.m_IsRendered;
 	it->mLayer = sprite2D.m_Layer;
 	it->mPosition = XMFLOAT2{ (float)sprite2D.m_Position[0], (float)sprite2D.m_Position[1] } ;
+
+	std::sort(m_sprites.begin(), m_sprites.end(), [&](const SpriteInformation& lhs, const SpriteInformation& rhs)
+		{
+			return lhs.mLayer > rhs.mLayer;
+		});
 }
 
 void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
@@ -155,6 +172,30 @@ void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
 		});
 	it->mIndex = index;
 	it->mEnable = enable;
+}
+
+void Renderer::EditPointLight(int id, Vector3 pos, Vector3D color, float intensity, float radius)
+{
+	const auto it = std::find_if(m_pointLights.begin(), m_pointLights.end(), [=](PointLight& pointLight)
+		{
+			return id == pointLight.GetID();
+		});
+	if (it != m_pointLights.end())
+	{
+		it->SetColor(color.ConvertToVector3());
+		it->SetIntensity(intensity);
+		it->SetRadius(radius);
+		it->SetPosition(pos);
+	}
+}
+
+void Renderer::EditDirectionalLight(Vector3 dir, Vector3 color)
+{
+	m_lightCB.mDirection.x = dir.x;
+	m_lightCB.mDirection.y = dir.y;
+	m_lightCB.mDirection.z = dir.z;
+
+	m_lightCB.mDirectionalLightColor = color;
 }
 
 void Renderer::DeleteTextInformation(int id)
@@ -173,11 +214,30 @@ void Renderer::DeleteSpriteInformation(int id)
 		}));
 }
 
+void Renderer::DeleteSpriteInformationReverse(int id)
+{
+	m_sprites.erase(std::find_if_not(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
+		{
+			return id == sprite.mEntityID;
+		}));
+}
+
 void Renderer::DeleteDynamicTextInformation(int id)
 {
 	m_dynamicTexts.erase(std::find_if(m_dynamicTexts.begin(), m_dynamicTexts.end(), [id](const DynamicTextInformation& dynamicText)
 		{
 			return id == dynamicText.mEntityID;
+		}));
+}
+
+
+
+
+void Renderer::DeletePointLight(int id)
+{
+	m_pointLights.erase(std::find_if(m_pointLights.begin(), m_pointLights.end(), [id](PointLight& pointLight)
+		{
+			return id == pointLight.GetID();
 		}));
 }
 
@@ -278,11 +338,11 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.Texture2D.MipSlice = 0;
 	HR_T(m_pDevice->CreateDepthStencilView(m_pOutlineMap.Get(), &descDSV, m_pOutlineDepthStencilView.GetAddressOf()));
 	HR_T(m_pDevice->CreateDepthStencilView(m_pOriginMap.Get(), &descDSV, m_pOutlineOriginDSV.GetAddressOf()));
-	
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension= D3D11_SRV_DIMENSION_TEXTURE2D;
+
 	srvDesc.Texture2D.MipLevels = 1;
 
 	HR_T(m_pDevice->CreateShaderResourceView(m_pOutlineMap.Get(), &srvDesc, m_pOutlineMapSRV.GetAddressOf()));
@@ -307,7 +367,6 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
 
-	
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
@@ -448,6 +507,7 @@ void Renderer::OutlineRender()
 	m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pOutlineDepthStencilView.Get());
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->OMSetDepthStencilState(m_pOutlineDSS.Get(), 0);
+
 	for (auto it : m_pOutlineMesh)
 	{
 		m_pDeviceContext->VSSetShader(m_pOutlineVS.Get(), nullptr, 0);
@@ -463,7 +523,7 @@ void Renderer::MeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-	//m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	Material* pPrevMaterial = nullptr;
 
@@ -489,7 +549,7 @@ void  Renderer::OpacityMeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-	//m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	Material* pPrevMaterial = nullptr;
 
@@ -641,10 +701,11 @@ void Renderer::Update()
 	}
 
 	// pointLight Frustum Culling
+
 	//for (int i = 0; i < m_pointLights.size(); i++)
 	//{
 	//	DirectX::BoundingBox pointLightBoundingBox;
-	//
+
 	//	// Calculate the extents of the bounding box based on the radius
 	//	Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
 	//
@@ -673,15 +734,25 @@ void Renderer::RenderBegin()
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-	//assert(m_pointLightInstance.size() <= pointLightCount);
-	//for (int i = 0; i < m_pointLightInstance.size(); i++)
-	//{
-	//	m_pointLightCB.pointLights[i].mPos = m_pointLightInstance[i].GetPosition();
-	//	m_pointLightCB.pointLights[i].mRadius = m_pointLightInstance[i].GetRadius();
-	//	m_pointLightCB.pointLights[i].mLightColor = m_pointLightInstance[i].GetColor();
-	//	m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
-	//	m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
-	//}
+	if (m_pointLightInstance.size() > pointLightCount)
+	{
+		for (int i = 0; i < pointLightCount; i++)
+		{
+			m_pointLightCB.pointLights[i].mPos = m_pointLightInstance[i].GetPosition();
+			m_pointLightCB.pointLights[i].mRadius = m_pointLightInstance[i].GetRadius();
+			m_pointLightCB.pointLights[i].mLightColor = m_pointLightInstance[i].GetColor();
+			m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
+			m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
+		}
+	}
+	for (int i = 0; i < m_pointLightInstance.size(); i++)
+	{
+		m_pointLightCB.pointLights[i].mPos = m_pointLightInstance[i].GetPosition();
+		m_pointLightCB.pointLights[i].mRadius = m_pointLightInstance[i].GetRadius();
+		m_pointLightCB.pointLights[i].mLightColor = m_pointLightInstance[i].GetColor();
+		m_pointLightCB.pointLights[i].mIntensity = m_pointLightInstance[i].GetIntensity();
+		m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
+	}
 
 	m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
@@ -743,9 +814,9 @@ void Renderer::RenderSprite() const
 
 	for (const auto& it : m_sprites)
 	{
-		if(WorldManager::GetInstance()->GetCurrentWorld() == it.world)
+		if(WorldManager::GetInstance()->GetCurrentWorld() == it.world && it.IsRendered)
 		{
-			m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0, 0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
+			m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, Colors::White, 0.f, XMFLOAT2(0, 0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
 		}
 	}
 
@@ -791,21 +862,24 @@ void Renderer::GameAppRender()
 
 	//OutlineRender();
 	OutlineRender();
-	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get()); 
-	MeshRender();
-	OpacityMeshRender();
 
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get()); 
+
+	MeshRender();
+
+	OpacityMeshRender();
 
 	RenderDebugDraw();
 
 
-	FinalRender();
-	m_spriteBatch->Begin();
+  m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	auto m_states = std::make_unique<CommonStates>(m_pDevice.Get());
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 	RenderText();
 	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
-
+  FinalRender();
 	//임구이 렌더
 	//RenderImgui();
 }
@@ -849,15 +923,17 @@ void Renderer::EditorRender()
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	//SphereRender();
 	MeshRender();
-
+	OpacityMeshRender();
 
 	RenderDebugDraw();
-	
 
+	//m_pDeviceContext->OMSetBlendState(m_commonStates->AlphaBlend(), nullptr, 0xFFFFFFFF);
 
-	m_spriteBatch->Begin();
-	//RenderText();
+	auto m_states = std::make_unique<CommonStates>(m_pDevice.Get());
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 	RenderSprite();
+	//RenderText();
+
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	
 
@@ -1007,43 +1083,30 @@ void Renderer::RenderImgui()
 		ImGui::SameLine();
 		ImGui::SliderFloat("##lpz", &m_lightCB.mDirection.z, -1.f, 1.f);
 
-		//// Point Light
-		//ImGui::Text("Point Light Index");
-		//ImGui::SliderInt("##plIndex", &m_pointLightIndex, 0, pointLightCount - 1);
-		//ImGui::Text("Point Light Pos");
-		//Vector3 pointLightPos = m_pointLights[m_pointLightIndex].GetPosition();
-		//ImGui::Text("X");
-		//ImGui::SameLine();
-		//ImGui::SliderFloat("##plx", &pointLightPos.x, -1000.f, 1000.f);
-		//ImGui::Text("Y");
-		//ImGui::SameLine();
-		//ImGui::SliderFloat("##ply", &pointLightPos.y, -1000.f, 1000.f);
-		//ImGui::Text("Z");
-		//ImGui::SameLine();
-		//ImGui::SliderFloat("##plz", &pointLightPos.z, -1000.f, 1000.f);
-		//m_pointLights[m_pointLightIndex].SetPosition(pointLightPos);
 
-		//float pointLightIntensity = m_pointLights[m_pointLightIndex].GetIntensity();
-		//ImGui::Text("Intensity");
-		//ImGui::SameLine();
-		//ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 10000.f);
-		//m_pointLights[m_pointLightIndex].SetIntensity(pointLightIntensity);
-		//if(m_pointLights[m_pointLightIndex].GetIntensity() < 100.f)
-		//{
-		//	auto test = 1;
-		//}
+		// Point Light
+		ImGui::Text("Point Light Index");
+		ImGui::SliderInt("##plIndex", &m_pointLightIndex, 0, pointLightCount - 1);
+		ImGui::Text("Point Light Pos");
+		Vector3 pointLightPos = m_pointLights[m_pointLightIndex].GetPosition();
+		ImGui::Text("X");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##plx", &pointLightPos.x, -1000.f, 1000.f);
+		ImGui::Text("Y");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##ply", &pointLightPos.y, -1000.f, 1000.f);
+		ImGui::Text("Z");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##plz", &pointLightPos.z, -1000.f, 1000.f);
+		m_pointLights[m_pointLightIndex].SetPosition(pointLightPos);
 
-		//float pointLightRadius = m_pointLights[m_pointLightIndex].GetRadius();
-		//ImGui::Text("Radius");
-		//ImGui::SameLine();
-		//ImGui::SliderFloat("##prad", &pointLightRadius, 0.f, 600.f);
-		//m_pointLights[m_pointLightIndex].SetRadius(pointLightRadius);
+		float pointLightIntensity = m_pointLights[m_pointLightIndex].GetIntensity();
+		ImGui::Text("Intensity");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##pis", &pointLightIntensity, 0.f, 10000.f);
+		m_pointLights[m_pointLightIndex].SetIntensity(pointLightIntensity);
+		if (m_pointLights[m_pointLightIndex].GetIntensity() < 100.f)
 
-		//float pointLightColor[3] = { m_pointLights[m_pointLightIndex].GetColor().x, m_pointLights[m_pointLightIndex].GetColor().y, m_pointLights[m_pointLightIndex].GetColor().z };
-		//ImGui::Text("Color");
-		//ImGui::SameLine();
-		//ImGui::ColorEdit3("##plc", pointLightColor, 0);
-		//m_pointLights[m_pointLightIndex].SetColor(pointLightColor[0], pointLightColor[1], pointLightColor[2]);
 		{
 			bool useIBL = m_sphereCB.mUseIBL;
 			ImGui::Begin("IBL");
@@ -1259,6 +1322,8 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pOutlineDSS.GetAddressOf()));
 
+
+
     //래스터라이저 스테이트 초기화
   D3D11_RASTERIZER_DESC rasterizerDesc = {};
   rasterizerDesc.AntialiasedLineEnable = true;
@@ -1275,7 +1340,8 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
 
-    m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), NULL);
+  m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), NULL);
+
 
 
 	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
@@ -1288,7 +1354,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	pbd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&pbd, nullptr, m_pPointLightBuffer.GetAddressOf()));
-	
+
 	pbd = {};
 	pbd.Usage = D3D11_USAGE_DEFAULT;
 	pbd.ByteWidth = sizeof(cbBall);
@@ -1296,15 +1362,6 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	pbd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
 
-	//포인트 라이트 테스트용
-	/*m_pointLights.resize(5);
-	for (int i = 0; i < 5; i++)
-	{
-		m_pointLights[i].SetPosition(Vector3(0, 0, 0));
-		m_pointLights[i].SetRadius(600.f);
-		m_pointLights[i].SetColor();
-		m_pointLights[i].SetIntensity(1000.f);
-	}*/
 
 	SetAlphaBlendState();
 

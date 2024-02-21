@@ -30,7 +30,7 @@ public:
 
 	virtual void Update(float deltaTime) override
 	{
-		if (InputManager::GetInstance()->GetKeyDown(Key::SPACE) && !m_IsCameraMoving)
+		if (InputManager::GetInstance()->GetKeyDown(Key::Enter) && !m_IsCameraMoving)
 		{
 			m_IsCameraMoving = true;
 		}

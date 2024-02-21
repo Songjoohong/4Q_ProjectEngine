@@ -187,7 +187,7 @@ inline void GameEditor::AssignComponents(ECS::Entity* entity, const json& compon
 	}
 	else if constexpr (std::is_same_v<Sprite2D, ComponentType>)
 	{
-		entity->Assign<ComponentType>(componentData["m_FileName"].get<std::string>());
+		entity->Assign<ComponentType>(componentData["m_FileName"].get<std::string>(), componentData["m_Layer"], componentData["m_Position"][0], componentData["m_Position"][1]);
 		auto& component = entity->get<ComponentType>().get();
 
 		component = componentData;
