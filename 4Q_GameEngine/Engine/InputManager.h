@@ -72,7 +72,8 @@ private:
 	POINT m_PreviousCursorPos = { 0,0 };
 	UINT m_Width = 0;
 	UINT m_Height = 0;
-	Key m_DisableKey;
+	
+	std::vector<Key> m_DisabledKeys;
 public:
 	void Initialize(UINT width, UINT height);
 	void Update(float deltaTime);

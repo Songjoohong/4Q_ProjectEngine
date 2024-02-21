@@ -74,9 +74,8 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
-	m_GameWorld = DeserializeGame("scene/PauseScene.scene");
-	m_OutroWorld = DeserializeGame("scene/OutroScene.scene");
+	//m_IntroWorld = DeserializeGame("");
+	m_GameWorld = DeserializeGame("scene/Scene_Main.scene");
 
 	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 	//WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
