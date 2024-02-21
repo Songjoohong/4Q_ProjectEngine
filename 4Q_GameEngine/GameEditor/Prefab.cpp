@@ -19,16 +19,9 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
-// Script Headers
-#include "../Engine/CameraScript.h"
-#include "../Engine/PlayerScript.h"
-#include "../Engine/POVCameraScript.h"
-#include "../Engine/TestUIScript.h"
 #include "../Engine/FreeCameraScript.h"
-#include "../Engine/DynamicTextScript.h"
-#include "../Engine/IntroCameraScript.h"
-
 #include "NameManager.h"
 #include "ImGuizmo.h"
 #include <set>
@@ -150,6 +143,10 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<PlayerInformation>(prefabEntity, component["PlayerInformation"][0]);
 				}
+				else if (componentName == "Interactive")
+				{
+					AssignComponents<Interactive>(prefabEntity, component["Interactive"][0]);
+				}
 			}
 			m_prefabContainer.push_back({ prefabEntity, oldID });
 		}
@@ -233,6 +230,7 @@ void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabDat
 	SaveComponents<Space>(entity, prefabData);
 	SaveComponents<DynamicText>(entity, prefabData);
 	SaveComponents<PlayerInformation>(entity, prefabData);
+	SaveComponents<Interactive>(entity, prefabData);
 
 	if (!entity->m_children.empty())
 	{

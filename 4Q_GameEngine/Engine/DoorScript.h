@@ -1,21 +1,21 @@
 #pragma once
 #include "BoxCollider.h"
+#include "ECS.h"
 #include "InputManager.h"
 #include "Interactive.h"
 #include "Script.h"
 #include "Transform.h"
 
-struct DrawerScript : public Script
+struct DoorScript : public Script
 {
-	DrawerScript(Entity* ent)
+	DoorScript(Entity* ent)
 		:Script(ent)
-	{
-	}
-	virtual ~DrawerScript() override = default;
+	{}
+	virtual ~DoorScript() = default;
 
 	virtual void Update(float deltaTime) override
 	{
-		if(m_pOwner->has<BoxCollider>())
+		if (m_pOwner->has<BoxCollider>())
 		{
 			auto isRayCast = m_pOwner->get<BoxCollider>()->m_IsRaycastHit;
 			if (m_pOwner->get<BoxCollider>()->m_IsRaycastHit)
@@ -27,13 +27,13 @@ struct DrawerScript : public Script
 				}
 			}
 		}
-		
 
-		if(m_pOwner->get<Interactive>()->m_IsInteract)
+
+		if (m_pOwner->get<Interactive>()->m_IsInteract)
 		{
-			if(m_pOwner->get<Transform>()->m_Position.GetZ() <= -35.f)
+			if (m_pOwner->get<Transform>()->m_Position.GetZ() <= 150.f * m_pOwner->get<Interactive>()->m_OpeningDir)
 			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(-35.f);
+				m_pOwner->get<Transform>()->m_Position.SetZ(150.f * m_pOwner->get<Interactive>()->m_OpeningDir);
 			}
 			else
 			{
@@ -42,9 +42,9 @@ struct DrawerScript : public Script
 		}
 		else
 		{
-			if (m_pOwner->get<Transform>()->m_Position.GetZ() >= 0.f)
+			if (m_pOwner->get<Transform>()->m_Position.GetZ() >= 90.f * m_pOwner->get<Interactive>()->m_OpeningDir)
 			{
-				m_pOwner->get<Transform>()->m_Position.SetZ(0.f);
+				m_pOwner->get<Transform>()->m_Position.SetZ(90.f * m_pOwner->get<Interactive>()->m_OpeningDir);
 			}
 			else
 			{
@@ -52,5 +52,4 @@ struct DrawerScript : public Script
 			}
 		}
 	}
-
 };

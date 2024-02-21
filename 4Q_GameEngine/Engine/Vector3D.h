@@ -78,6 +78,7 @@ public:
 	{
 		return (this->m_X == other.m_X && this->m_Y == other.m_Y && this->m_Z == other.m_Z);
 	}
+
 	Vector3D& operator=(const DirectX::SimpleMath::Vector3& vec) 
 	{
 		m_X = vec.x;
@@ -85,6 +86,7 @@ public:
 		m_Z = vec.z;
 		return *this;
 	}
+
 	Vector3D& operator=(const DirectX::XMFLOAT4& quaternion) {
 		m_X = quaternion.x;
 		m_Y = quaternion.y;

@@ -23,6 +23,7 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -34,6 +35,8 @@
 #include "../Engine/IntroCameraScript.h"
 #include "../Engine/OutroScript.h"
 #include "../Engine/DrawerScript.h"
+#include "../Engine/IntroDoorScript.h"
+#include "../Engine/DoorScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -52,6 +55,7 @@
 #include "NameManager.h"
 #include "../D3D_Graphics/RenderTextureClass.h"
 
+struct DoorScript;
 using json = nlohmann::json;
 
 GameEditor::GameEditor(HINSTANCE hInstance)
@@ -77,7 +81,6 @@ bool GameEditor::Initialize(UINT width, UINT height)
 	//std::string pngPath = "../Resource/UI/play button.png";
 	//auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
 	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
-
 	if (!InitImGui())
 	{
 		return false;
@@ -234,12 +237,10 @@ void GameEditor::RenderImGui()
 
 				ImGui::EndMenu();
 			}
-			/*ImGui::SetCursorPos(ImVec2(1200.0f, 0.0f));
-			ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 100.0f, 100.0f });*/
 
+			// Display Play & Pause Button 
+			PlayButton();
 
-			//ImGui::SameLine(ImGui::GetWindowWidth() / 2 - 120);
-			//ImGui::ImageButton((void*)m_PlayButtonTexture, ImVec2{ 30.0f, 30.0f });
 
 			ImGui::EndMenuBar();
 		}
@@ -249,25 +250,13 @@ void GameEditor::RenderImGui()
 		m_SceneHierarchyPanel.RenderImGui();
 		m_ContentsBrowserPanel.RenderImGui();
 
-
-
 		ShowSceneDialog();
 		ShowSaveSceneAsPopup();
 
 #ifdef _DEBUG
-		//ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow();
 #endif
 		ImGui::End();
-
-		// Game Play Buttons Test
-		{
-			ImGui::Begin("Play");
-			ImGui::SetCursorPos(ImVec2(1200.0f, 35.0f));
-
-			PlayButton();
-
-			ImGui::End();
-		}
 
 		/* Viewport ------------------------------------------------------------------------ */
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });	// 패딩 제거
@@ -742,6 +731,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 				{
 					m_PrefabManager->AssignComponents<PlayerInformation>(playEntity, component["PlayerInformation"][0]);
 				}
+				else if (componentName == "Interactive")
+				{
+					m_PrefabManager->AssignComponents<Interactive>(playEntity, component["Interactive"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
@@ -780,6 +773,15 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					{
 						m_PrefabManager->AssignComponents<DrawerScript>(playEntity, component["Script"][0]);
 					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroDoorScript")
+					{
+						m_PrefabManager->AssignComponents<IntroDoorScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DoorScript")
+					{
+						m_PrefabManager->AssignComponents<DoorScript>(playEntity, component["Script"][0]);
+					}
+					//요기
 				}
 			}
 			m_PrefabManager->m_prefabContainer.push_back({ playEntity, oldID });
@@ -902,6 +904,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<PlayerInformation>(loadEntity, component["PlayerInformation"][0]);
 				}
+				else if (componentName == "Interactive")
+				{
+					AssignComponents<Interactive>(loadEntity, component["Interactive"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					AssignComponents<Script>(loadEntity, component["Script"][0]);
@@ -939,9 +945,11 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 
 void GameEditor::PlayButton()
 {
+	// 중간에 버튼 하나를 배치할것이다.
+	ImGui::SameLine(ImGui::GetWindowWidth() / 2 - 63);
 	if (m_IsPlaying)
 	{
-		if (ImGui::Button("||", ImVec2(40.0f, 40.0f)))
+		if (ImGui::Button("Stop", ImVec2(60.0f, 0.0f)))
 		{
 			m_IsPlaying = false;
 
@@ -955,7 +963,7 @@ void GameEditor::PlayButton()
 	}
 	else
 	{
-		if (ImGui::Button(">", ImVec2(40.0f, 40.0f)))
+		if (ImGui::Button("Play", ImVec2(60.0f, 0.0f)))
 		{
 			m_IsPlaying = true;
 			PlayScene();
@@ -1062,6 +1070,14 @@ void GameEditor::NewScene()
 		ent2->Assign<TestUIScript>(ent2);
 	}
 #endif
+	// for test 2
+	//Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
+	//ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 100, 100);
+	//ent2->Assign<OutroScript>(ent2);
+	//ent->get<Script>()->m_ComponentName = "OutroScript";
+
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{

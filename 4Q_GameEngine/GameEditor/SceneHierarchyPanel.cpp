@@ -18,6 +18,7 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -460,6 +461,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<DynamicText>("DynamicText");
 		DisplayAddComponentEntry<Sound>("Sound");
 		DisplayAddComponentEntry<PlayerInformation>("PlayerInformation");
+		DisplayAddComponentEntry<Interactive>("Interactive");
 		ImGui::EndPopup();
 	}
 
@@ -613,8 +615,10 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			, "DynamicText"
 			, "IntroCameraScript"
 			, "OutroScript"
-			, "DrawerScript"};
-
+			, "DrawerScript"
+			, "IntroDoorScript"
+			, "DoorScript"};
+		//¿ä±â
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
 
@@ -764,8 +768,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		ImGui::DragInt("X", &posX, 0.1f, 0, 0, "%d");
 		ImGui::SetNextItemWidth(100.f);
 		ImGui::DragInt("Y", &posY, 0.1f, 0, 0, "%d");
-		component->m_Position[0] = posX;
-		component->m_Position[1] = posY;
+		//component->m_Position[0] = posX;
+		//component->m_Position[1] = posY;
 
 	});
 
@@ -779,6 +783,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<PlayerInformation>("PlayerInformation", entity, [](auto component)
 	{
 
+	});
+
+	DrawComponent<Interactive>("Interactive", entity, [](auto component)
+	{
+		ImGui::InputInt("OpeningDir", &component->m_OpeningDir);
 	});
 }
 

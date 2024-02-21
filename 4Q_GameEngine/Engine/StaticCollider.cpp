@@ -37,12 +37,12 @@ void StaticCollider::Initialize()
 
 void StaticCollider::UpdatePosition()
 {
-	PxVec3 boxCenter =
-	{
-		m_pOwner->m_Center.GetX(),
-		m_pOwner->m_Center.GetY(),
-		m_pOwner->m_Center.GetZ()
-	};
+    PxVec3 boxCenter =
+    {
+        m_pOwner->m_Center.GetX(),
+        m_pOwner->m_Center.GetY(),
+        m_pOwner->m_Center.GetZ()
+    };
 
 	PxVec3 boxPos =
 	{

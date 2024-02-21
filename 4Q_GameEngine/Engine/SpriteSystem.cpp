@@ -31,6 +31,6 @@ void SpriteSystem::Tick(World* world, ECS::DefaultTickData data)
 {
 	world->each<Sprite2D>([&](Entity* ent, ComponentHandle<Sprite2D> sprite2D)->void
 		{
-			RenderManager::GetInstance()->EditSprite(ent->getEntityId(), sprite2D->m_IsRendered);
+			RenderManager::GetInstance()->EditSprite(ent->getEntityId(), sprite2D.get());
 		});
 }

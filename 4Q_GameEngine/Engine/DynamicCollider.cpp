@@ -30,6 +30,7 @@ void DynamicCollider::Initialize()
 	SetFilterData();
 	UpdatePosition();
 }
+
 void DynamicCollider::UpdatePosition()
 {
 	PxVec3 boxCenter =

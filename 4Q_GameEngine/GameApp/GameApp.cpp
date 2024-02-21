@@ -23,6 +23,7 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -31,6 +32,11 @@
 #include "../Engine/POVCameraScript.h"
 #include "../Engine/TestUIScript.h"
 #include "../Engine/DynamicTextScript.h"
+#include "../Engine/IntroCameraScript.h"
+#include "../Engine/OutroScript.h"
+#include "../Engine/DrawerScript.h"
+#include "../Engine/IntroDoorScript.h"
+#include "../Engine/DoorScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -42,9 +48,12 @@
 #include "../Engine/CollisionSystem.h"
 #include "../Engine/SpriteSystem.h"
 #include "../Engine/DebugSystem.h"
+#include "../Engine/DrawerScript.h"
 #include "../Engine/UISystem.h"
 #include "../Engine/SpaceSystem.h"
 #include "../Engine/EventSystem.h"
+
+
 
 GameApp::GameApp(HINSTANCE hInstance)
 	:Engine(hInstance)
@@ -63,11 +72,12 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	//m_IntroWorld = DeserializeGame("scene/FrameCheckScene.scene");
-	m_GameWorld = DeserializeGame("scene/Scene_Main.scene");
+	m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
+	//m_GameWorld = DeserializeGame("scene/TestGameScene.scene");
 	//m_OutroWorld = DeserializeGame("");
 
-	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+	WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
 	
 	return true;
 }
@@ -179,6 +189,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 				{
 					AssignComponents<PlayerInformation>(gameEntity, component["PlayerInformation"][0]);
 				}
+				else if (componentName == "Interactive")
+				{
+					AssignComponents<Interactive>(gameEntity, component["Interactive"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
@@ -204,6 +218,26 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DynamicTextScript")
 					{
 						AssignComponents<DynamicTextScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroCameraScript")
+					{
+						AssignComponents<IntroCameraScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "OutroScript")
+					{
+						AssignComponents<OutroScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DrawerScript")
+					{
+						AssignComponents<DrawerScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroDoorScript")
+					{
+						AssignComponents<IntroDoorScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DoorScript")
+					{
+						AssignComponents<DoorScript>(gameEntity, component["Script"][0]);
 					}
 				}
 			}
@@ -265,9 +299,18 @@ void GameApp::Update()
 {
 	__super::Update();
 
-	if (InputManager::GetInstance()->GetKeyDown(Key::F8))
+	for (const auto& introEntity : m_IntroWorld->GetEntities())
 	{
-		WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+		if (introEntity->get<EntityIdentifier>()->m_EntityName == "PlayerCamera")
+		{
+			if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
+			{
+				/*if (m_GameWorld != nullptr)
+				{
+					WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+				}*/
+			}
+		}
 	}
 
 	if (InputManager::GetInstance()->GetKeyDown(Key::F9))
