@@ -51,10 +51,11 @@ void DynamicCollider::UpdatePosition()
 	{
 		m_Transform.p = boxPos;
 		m_Transform.p.y += m_Scale.GetY() / 2.f;
-		m_pOwner->m_WorldPosition = { m_Transform.p.x, m_Transform.p.y, m_Transform.p.z };
+		m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
 		m_Rigid->setGlobalPose(m_Transform);
 	}
 }
+
 
 void DynamicCollider::UpdatePhysics()
 {
@@ -71,7 +72,6 @@ void DynamicCollider::UpdatePhysics()
 	};
 
 	m_Transform.p.y += m_Scale.GetY() / 2.f;
-
 }
 
 void DynamicCollider::SetDensity(float mass)

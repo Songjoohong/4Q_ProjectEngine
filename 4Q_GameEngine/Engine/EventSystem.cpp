@@ -15,9 +15,9 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 
 	if (info && player)
 	{
-		if (info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 2 )
+		if (CheckRoom(info, 2))
 		{
-			if ((info->m_LookingEntity == "room_02_floor_coll_04" || info->m_LookingEntity == "room_02_floor_coll_03" || info->m_LookingEntity == "room_02_floor_coll_02") && std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_02_triggercoll_01") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 1)
+			if ((IsLooking(info, "room_02_floor_coll_04") || IsLooking(info, "room_02_floor_coll_03") || IsLooking(info, "room_02_floor_coll_02")) && IsColliding(info, "room_02_triggercoll_01") && m_CurrentEventIndex != 1)
 			{
 				m_CurrentEventIndex = 1;
 				world->emit<Events::SpaceReturn>({ 1 });
@@ -28,9 +28,9 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 		}
 
-		if (info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 3)
+		if (CheckRoom(info, 3))
 		{
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_03_triggercoll_01") != info->m_CollidingEntities.end() && info->m_LookingEntity == "room_03_door_01" && m_CurrentEventIndex != 2)
+			if (IsColliding(info, "room_03_triggercoll_01") && IsLooking(info, "room_03_door_01") && m_CurrentEventIndex != 2)
 			{
 				m_CurrentEventIndex = 2;
 				world->emit<Events::SpaceReturn>({ 2 });
@@ -48,9 +48,9 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 		}
 
-		if (info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 6)
+		if (CheckRoom(info, 6))
 		{
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_06_triggercoll_01") != info->m_CollidingEntities.end() && info->m_LookingEntity == "room_03_door_01" && m_CurrentEventIndex != 4)
+			if (IsColliding(info, "room_06_triggercoll_01") && IsLooking(info, "room_03_door_01") && m_CurrentEventIndex != 4)
 			{
 				m_CurrentEventIndex = 4;
 				world->emit<Events::SpaceReturn>({ 3 });
@@ -58,15 +58,15 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 		}
 
-		if(info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 7)
+		if(CheckRoom(info, 7))
 		{
-			if(std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_07_triggercoll_01") != info->m_CollidingEntities.end() && info->m_LookingEntity == "room_07_wall_08" && m_CurrentEventIndex != 5)
+			if(IsColliding(info, "room_07_triggercoll_01") && IsLooking(info, "room_07_wall_08")  && m_CurrentEventIndex != 5)
 			{
 				m_CurrentEventIndex = 5;
 				world->emit<Events::SpaceAssemble>({ 7,8,1,0 });
 			}
 
-			if(std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_07_triggercoll_01") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 6)
+			if(IsColliding(info, "room_07_triggercoll_01") && m_CurrentEventIndex != 6)
 			{
 				m_CurrentEventIndex = 6;
 				world->emit<Events::SpaceAssemble>({ 7,19,3,0 });
@@ -79,15 +79,15 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 		}
 
-		if (info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 8)
+		if (CheckRoom(info, 8))
 		{
 			//이벤트 A
-			if(std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_01") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 8)
+			if(IsColliding(info, "room_08_triggercoll_01") && m_CurrentEventIndex != 8)
 			{
 				m_Trigger[0] = true;
 			}
 
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_02") != info->m_CollidingEntities.end() && m_Trigger[0] && m_CurrentEventIndex != 8)
+			if (IsColliding(info, "room_08_triggercoll_02") && m_Trigger[0] && m_CurrentEventIndex != 8)
 			{
 				m_CurrentEventIndex = 8;
 				m_Trigger[0] = false;
@@ -96,12 +96,12 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 
 			//이벤트 B
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_03") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 9)
+			if (IsColliding(info, "room_08_triggercoll_03") && m_CurrentEventIndex != 9)
 			{
 				m_Trigger[1] = true;
 			}
 
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_04") != info->m_CollidingEntities.end() && m_Trigger[1] && m_CurrentEventIndex != 9)
+			if (IsColliding(info, "room_08_triggercoll_04") && m_Trigger[1] && m_CurrentEventIndex != 9)
 			{
 				m_CurrentEventIndex = 9;
 				m_Trigger[1] = false;
@@ -110,7 +110,7 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 
 			//이벤트 C
-			if(std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_05") != info->m_CollidingEntities.end() && info->m_LookingEntity == "room_07_wall_05_wall" && m_CurrentEventIndex != 10)
+			if(IsColliding(info, "room_08_triggercoll_05") && IsLooking(info, "room_07_wall_05_wall") && m_CurrentEventIndex != 10)
 			{
 				m_CurrentEventIndex = 10;
 				world->emit<Events::SpaceReturn>({ 37 });
@@ -118,12 +118,12 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 
 			//이벤트 D
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_02") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 11)
+			if (IsColliding(info, "room_08_triggercoll_02") && m_CurrentEventIndex != 11)
 			{
 				m_Trigger[2] = true;
 			}
 
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_01") != info->m_CollidingEntities.end() && m_Trigger[2] && m_CurrentEventIndex != 11)
+			if (IsColliding(info, "room_08_triggercoll_01") && m_Trigger[2] && m_CurrentEventIndex != 11)
 			{
 				m_CurrentEventIndex = 11;
 				m_Trigger[2] = false;
@@ -133,12 +133,12 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 
 			//이벤트 E
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_04") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 12)
+			if (IsColliding(info, "room_08_triggercoll_04") && m_CurrentEventIndex != 12)
 			{
 				m_Trigger[3] = true;
 			}
 
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_08_triggercoll_03") != info->m_CollidingEntities.end() && m_Trigger[3] && m_CurrentEventIndex != 12)
+			if (IsColliding(info, "room_08_triggercoll_03") && m_Trigger[3] && m_CurrentEventIndex != 12)
 			{
 				m_CurrentEventIndex = 12;
 				m_Trigger[3] = false;
@@ -147,15 +147,15 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 		}
 
-		if (info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 9)
+		if (CheckRoom(info, 9))
 		{
 			//이벤트 A
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_01") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 8)
+			if (IsColliding(info, "room_09_triggercoll_01") && m_CurrentEventIndex != 8)
 			{
 				m_Trigger[4] = true;
 			}
 
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_02") != info->m_CollidingEntities.end() && m_Trigger[4] && m_CurrentEventIndex != 8)
+			if (IsColliding(info, "room_09_triggercoll_02") && m_Trigger[4] && m_CurrentEventIndex != 8)
 			{
 				m_CurrentEventIndex = 8;
 				m_Trigger[4] = false;
@@ -164,12 +164,12 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 
 			//이벤트 B
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_03") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 9)
+			if (IsColliding(info, "room_09_triggercoll_03") && m_CurrentEventIndex != 9)
 			{
 				m_Trigger[5] = true;
 			}
 
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_04") != info->m_CollidingEntities.end() && m_Trigger[5] && m_CurrentEventIndex != 9)
+			if (IsColliding(info, "room_09_triggercoll_04") && m_Trigger[5] && m_CurrentEventIndex != 9)
 			{
 				m_CurrentEventIndex = 9;
 				m_Trigger[5] = false;
@@ -178,7 +178,7 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 
 			//이벤트 C
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_05") != info->m_CollidingEntities.end() && info->m_LookingEntity == "room_07_wall_04_wall" && m_CurrentEventIndex != 10)
+			if (IsColliding(info, "room_09_triggercoll_05") && IsLooking(info, "room_07_wall_04_wall") && m_CurrentEventIndex != 10)
 			{
 				m_CurrentEventIndex = 10;
 				world->emit<Events::SpaceReturn>({ 37 });
@@ -186,12 +186,12 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 
 			//이벤트 D
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_02") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 11)
+			if (IsColliding(info, "room_09_triggercoll_02") && m_CurrentEventIndex != 11)
 			{
 				m_Trigger[6] = true;
 			}
 
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_01") != info->m_CollidingEntities.end() && m_Trigger[6] && m_CurrentEventIndex != 11)
+			if (IsColliding(info, "room_09_triggercoll_01") && m_Trigger[6] && m_CurrentEventIndex != 11)
 			{
 				m_CurrentEventIndex = 11;
 				m_Trigger[6] = false;
@@ -201,12 +201,12 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 
 			//이벤트 E
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_04") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 12)
+			if (IsColliding(info, "room_09_triggercoll_04") && m_CurrentEventIndex != 12)
 			{
 				m_Trigger[7] = true;
 			}
 
-			if (std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_09_triggercoll_03") != info->m_CollidingEntities.end() && m_Trigger[7] && m_CurrentEventIndex != 12)
+			if (IsColliding(info, "room_09_triggercoll_03") && m_Trigger[7] && m_CurrentEventIndex != 12)
 			{
 				m_CurrentEventIndex = 12;
 				m_Trigger[7] = false;
@@ -215,10 +215,10 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 			}
 		}
 
-		if (info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 10)
+		if (CheckRoom(info, 10))
 		{
 			//이벤트 A
-			if(std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_10_triggercoll_01") != info->m_CollidingEntities.end() && info->m_LookingEntity == "room_10-wall_07" && m_CurrentEventIndex != 13)
+			if(IsColliding(info, "room_10_triggercoll_01") && IsLooking(info, "room_10-wall_07") && m_CurrentEventIndex != 13)
 			{
 				m_CurrentEventIndex = 13;
 				world->emit<Events::SpaceReturn>({ 7 });
@@ -251,4 +251,19 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 
 	
 
+}
+
+bool EventSystem::CheckRoom(ComponentHandle<PlayerInformation> info, int spaceIndex)
+{
+	return info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == spaceIndex;
+}
+
+bool EventSystem::IsColliding(ComponentHandle<PlayerInformation> info, std::string entityName)
+{
+	return std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_10_triggercoll_01") != info->m_CollidingEntities.end();
+}
+
+bool EventSystem::IsLooking(ComponentHandle<PlayerInformation> info, std::string entityName)
+{
+	return info->m_LookingEntity == entityName;
 }

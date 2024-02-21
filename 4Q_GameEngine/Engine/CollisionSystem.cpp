@@ -16,9 +16,10 @@ void CollisionSystem::Deconfigure(World* world)
 }
 
 void CollisionSystem::Receive(World* world, const Events::OnComponentAssigned<BoxCollider>& event)
-{ 
+{
 	event.component->m_WorldPosition = event.entity->get<Transform>()->m_Position + event.component->m_Center;
 	event.component->m_Rotation = event.entity->get<Transform>()->m_Rotation; // rotation test
+	event.component->m_Size = event.entity->get<Transform>()->m_Scale;
 	PhysicsManager::GetInstance()->CreateCollider(event.component.component, event.entity->getEntityId());
 }
 
@@ -53,11 +54,13 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 	world->each<Transform, BoxCollider>([&](Entity* ent, ComponentHandle<Transform> transform, ComponentHandle<BoxCollider> collider)
 		{
 			collider->m_Rotation = transform->m_Rotation;
-			if(collider->m_IsRaycastHit)
+			//collider->m_Size = transform->m_Scale;
+
+			if (collider->m_IsRaycastHit)
 			{
-				if(player)
+				if (player)
 				{
-					if(player->has<PlayerInformation>())
+					if (player->has<PlayerInformation>())
 					{
 						info->m_LookingEntity = ent->get<EntityIdentifier>()->m_EntityName;
 						std::cout << info->m_LookingEntity << std::endl;
@@ -67,7 +70,7 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 			collider->m_WasRaycastHit = collider->m_IsRaycastHit;
 			collider->m_IsRaycastHit = false;
 
-			if(info)
+			if (info)
 			{
 				if (collider->m_State == CollisionState::ENTER)
 				{
@@ -78,23 +81,21 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 					info->m_CollidingEntities.erase(std::remove_if(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), [&](const string& str) { return str == ent->get<EntityIdentifier>()->m_EntityName; }), info->m_CollidingEntities.end());
 				}
 			}
-			
+
 
 			if (ent->get<EntityIdentifier>()->m_HasParent)
 			{
 				if (ent->m_parent->has<Transform>())
-					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix() * ent->getParent()->get<Transform>()->m_WorldMatrix.ConvertToMatrix()).Translation();
+					collider->m_Rotation += ent->getParent()->get<Transform>()->m_Rotation;
+			}
+
+			if (collider->m_CollisionType == CollisionType::PLAYER)
+			{
+				XMVECTOR determinant;
+				transform->m_Position = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_WorldPosition.ConvertToVector3()) * XMMatrixInverse(&determinant, DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()))).Translation();
 			}
 			else
-			{
-				if (collider->m_CollisionType == CollisionType::PLAYER)
-				{
-					XMVECTOR determinant;
-					transform->m_Position = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_WorldPosition.ConvertToVector3()) * XMMatrixInverse(&determinant, DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()))).Translation();
-				}
-				else
-					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix()).Translation();
-			}
+				collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_WorldMatrix.ConvertToMatrix()).Translation();
 
 		});
 }

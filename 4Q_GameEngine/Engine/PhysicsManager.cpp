@@ -29,16 +29,13 @@ void PhysicsManager::Initialize()
 {
 	m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, m_ErrorCallback);
 #ifdef _DEBUG
-	// PhysX Visual Debbugger 보기위한 세팅
 	m_pPvd = PxCreatePvd(*m_pFoundation);
+	// PhysX Visual Debbugger 보기위한 세팅
 	PxPvdTransport* transport = PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 10);
 	m_pPvd->connect(*transport, PxPvdInstrumentationFlag::eALL);
-
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
-
 #endif // _DEBUG
 	// 석영 : PxScene 생성
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, nullptr);
+	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), true, m_pPvd);
 	PxSceneDesc sceneDesc(m_pPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -98.1f, 0.0f);
 	m_pDispatcher = PxDefaultCpuDispatcherCreate(2);
@@ -68,7 +65,7 @@ void PhysicsManager::Update(float deltatime)
 		for (auto& collider : m_pStaticColliders)
 		{
 			PxVec3 tras = collider.second->m_Transform.p;
-			collider.second->UpdateScale(); 
+			collider.second->UpdateScale();
 			collider.second->UpdateRotation();
 			collider.second->UpdatePosition();
 		}
