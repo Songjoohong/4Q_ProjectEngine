@@ -534,6 +534,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<Space>(entity, worldData);
 		SaveComponents<DynamicText>(entity, worldData);
 		SaveComponents<PlayerInformation>(entity, worldData);
+		SaveComponents<Interactive>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;

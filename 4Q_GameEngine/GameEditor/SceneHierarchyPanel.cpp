@@ -821,6 +821,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<Interactive>("Interactive", entity, [](auto component)
 	{
 		ImGui::InputInt("OpeningDir", &component->m_OpeningDir);
+		ImGui::InputInt("DoorIndex", &component->m_DoorIndex);
 	});
 }
 
