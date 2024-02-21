@@ -758,14 +758,14 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 		ImGui::DragFloat("Layer :", &component->m_Layer, 0.1f, 0.f, 1.f, "%.1f");
 
-		static int posX = component->m_Position[0];
-		static int posY = component->m_Position[1];
+		int posX = component->m_Position[0];
+		int posY = component->m_Position[1];
 		ImGui::SetNextItemWidth(100.f);
 		ImGui::DragInt("X", &posX, 0.1f, 0, 0, "%d");
 		ImGui::SetNextItemWidth(100.f);
 		ImGui::DragInt("Y", &posY, 0.1f, 0, 0, "%d");
-		//component->m_Position[0] = posX;
-		//component->m_Position[1] = posY;
+		component->m_Position[0] = posX;
+		component->m_Position[1] = posY;
 
 	});
 

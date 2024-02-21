@@ -140,11 +140,16 @@ void Renderer::EditSpriteInformation(int id, Sprite2D& sprite2D)
 {
 	const auto it = std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
 		{
-			return id == sprite.mEntityID;
+			return id == sprite.mEntityID && WorldManager::GetInstance()->GetCurrentWorld() == sprite.world;
 		});
 	it->IsRendered = sprite2D.m_IsRendered;
 	it->mLayer = sprite2D.m_Layer;
 	it->mPosition = XMFLOAT2{ (float)sprite2D.m_Position[0], (float)sprite2D.m_Position[1] } ;
+
+	std::sort(m_sprites.begin(), m_sprites.end(), [&](const SpriteInformation& lhs, const SpriteInformation& rhs)
+		{
+			return lhs.mLayer > rhs.mLayer;
+		});
 }
 
 void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
@@ -168,6 +173,14 @@ void Renderer::DeleteTextInformation(int id)
 void Renderer::DeleteSpriteInformation(int id)
 {
 	m_sprites.erase(std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
+		{
+			return id == sprite.mEntityID;
+		}));
+}
+
+void Renderer::DeleteSpriteInformationReverse(int id)
+{
+	m_sprites.erase(std::find_if_not(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
 		{
 			return id == sprite.mEntityID;
 		}));
@@ -675,7 +688,7 @@ void Renderer::RenderSprite() const
 
 	for (const auto& it : m_sprites)
 	{
-		if(WorldManager::GetInstance()->GetCurrentWorld() == it.world)
+		if(WorldManager::GetInstance()->GetCurrentWorld() == it.world && it.IsRendered)
 		{
 			m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0, 0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
 		}

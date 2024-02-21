@@ -10,6 +10,7 @@ class NameManager;
 
 class Script;
 class FreeCameraScript;
+class Sprite2D;
 class BoxCollider;
 using json = nlohmann::json;
 
@@ -98,6 +99,13 @@ inline void PrefabManager::AssignComponents(ECS::Entity* entity, const json& com
             entity->Assign<ComponentType>(entity);
             entity->get<Script>()->m_ComponentName = componentData["m_ComponentName"].get<std::string>();
         }
+    }
+    else if constexpr (std::is_same_v<Sprite2D, ComponentType>)
+    {
+        entity->Assign<ComponentType>(componentData["m_FileName"].get<std::string>());
+        auto& component = entity->get<ComponentType>().get();
+
+        component = componentData;
     }
     else if constexpr (std::is_same_v<BoxCollider, ComponentType>)
     {
