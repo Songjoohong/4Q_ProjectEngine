@@ -136,10 +136,6 @@ public:
 	ComPtr<ID3D11ShaderResourceView> m_pOutlineMapSRV = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pOriginMapSRV = nullptr;
 
-	ComPtr<ID3D11ShaderResourceView> m_pFirstMapSRV = nullptr;
-	ComPtr<ID3D11ShaderResourceView> m_pOutlineMapSRV = nullptr;
-	ComPtr<ID3D11ShaderResourceView> m_pOriginMapSRV = nullptr;
-
 	ComPtr<ID3D11BlendState> m_pAlphaBlendState = nullptr;			//알파 블렌드 스테이트
 
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
