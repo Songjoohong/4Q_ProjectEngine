@@ -12,6 +12,7 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	VK_RIGHT,
 	VK_SPACE,
 	VK_RETURN,
+	VK_ESCAPE,
 	'W',
 	'A',
 	'S',
@@ -54,28 +55,28 @@ void InputManager::Update(float deltaTime)
 		GetCursorPos(&m_CurrentCursorPos);
 		ScreenToClient(hWnd, &m_CurrentCursorPos);
 
-		if(m_IsCursorCameraMode)
-		{
-			if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width - 100)
-			{
-				POINT clientPoint = { static_cast<long>(m_Width) / 2, m_CurrentCursorPos.y };
-				m_CurrentCursorPos = clientPoint;
-				m_PreviousCursorPos = m_CurrentCursorPos;
-				ClientToScreen(hWnd, &clientPoint);
-				SetCursorPos(clientPoint.x, clientPoint.y);
-			}
+		//if(m_IsCursorCameraMode)
+		//{
+		//	if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width - 100)
+		//	{
+		//		POINT clientPoint = { static_cast<long>(m_Width) / 2, m_CurrentCursorPos.y };
+		//		m_CurrentCursorPos = clientPoint;
+		//		m_PreviousCursorPos = m_CurrentCursorPos;
+		//		ClientToScreen(hWnd, &clientPoint);
+		//		SetCursorPos(clientPoint.x, clientPoint.y);
+		//	}
 
-			if (m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 100)
-			{
-				POINT clientPoint = { m_CurrentCursorPos.x, static_cast<long>(m_Height) / 2 };
-				m_CurrentCursorPos = clientPoint;
-				m_PreviousCursorPos = m_CurrentCursorPos;
-				ClientToScreen(hWnd, &clientPoint);
-				SetCursorPos(clientPoint.x, clientPoint.y);
-			}
+		//	if (m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 100)
+		//	{
+		//		POINT clientPoint = { m_CurrentCursorPos.x, static_cast<long>(m_Height) / 2 };
+		//		m_CurrentCursorPos = clientPoint;
+		//		m_PreviousCursorPos = m_CurrentCursorPos;
+		//		ClientToScreen(hWnd, &clientPoint);
+		//		SetCursorPos(clientPoint.x, clientPoint.y);
+		//	}
 
-			
-		}
+		//	
+		//}
 	}
 	
 
@@ -124,12 +125,13 @@ void InputManager::Update(float deltaTime)
 
 void InputManager::UnlockKey()
 {
-	m_DisableKey = Key::F12;
+	m_DisabledKeys.clear();
+	m_DisabledKeys.push_back(Key::F12);
 }
 
 void InputManager::LockKey(Key key)
 {
-	m_DisableKey = key;
+	m_DisabledKeys.push_back(key);
 }
 
 KeyInfo& InputManager::GetKeyState(const Key key)

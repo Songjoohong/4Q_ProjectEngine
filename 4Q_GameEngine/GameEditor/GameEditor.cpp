@@ -38,6 +38,7 @@
 #include "../Engine/IntroDoorScript.h"
 #include "../Engine/DoorScript.h"
 #include "../Engine/IntroButtonScript.h"
+#include "../Engine/PauseScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -563,8 +564,6 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
-
-
 	Deserialize(m_EditorWorld, fileName);
 	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5); // TODO: TEST
 	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(4); // TODO: TEST
@@ -788,6 +787,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroButtonScript")
 					{
 						m_PrefabManager->AssignComponents<IntroButtonScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PauseScript")
+					{
+						m_PrefabManager->AssignComponents<PauseScript>(playEntity, component["Script"][0]);
 					}
 					//요기
 				}
@@ -1087,23 +1090,23 @@ void GameEditor::NewScene()
 
 	// for test
 #ifdef _DEBUG
-	{
-		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test UI");
-		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-		ent2->Assign<UI>(100, 100);
-		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
-		ent2->Assign<TestUIScript>(ent2);
-	// for test 2
-	{
-		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
-		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-		ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 0, 18);
-		ent2->Assign<OutroScript>(ent2);
-		ent2->get<Script>()->m_ComponentName = "OutroScript";
-	}
-	}
+	//{
+	//	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test UI");
+	//	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//	ent2->Assign<UI>(100, 100);
+	//	ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
+	//	ent2->Assign<TestUIScript>(ent2);
+	//// for test 2
+	//{
+	//	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	//	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
+	//	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	//	ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 0, 18);
+	//	ent2->Assign<OutroScript>(ent2);
+	//	ent2->get<Script>()->m_ComponentName = "OutroScript";
+	//}
+	//}
 #endif
 
 	for (const auto& entity : m_EditorWorld->GetEntities())

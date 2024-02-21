@@ -890,7 +890,7 @@ void Renderer::GameAppRender()
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	FinalRender();
 
-  FinalRender();
+	//FinalRender();
 	//임구이 렌더
 	//RenderImgui();
 }
@@ -949,7 +949,7 @@ void Renderer::EditorRender()
 	//RenderText();
 
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-	
+	FinalRender();
 
 	//임구이 렌더
 	//RenderImgui();

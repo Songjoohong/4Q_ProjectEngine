@@ -14,6 +14,7 @@ enum Key
 	RIGHT,
 	SPACE,
 	Enter,
+	ESC,
 	W,
 	A,
 	S,

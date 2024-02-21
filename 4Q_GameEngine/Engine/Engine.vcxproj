@@ -176,6 +176,7 @@
     <ClInclude Include="IntroCameraScript.h" />
     <ClInclude Include="IntroDoorScript.h" />
     <ClInclude Include="OutroScript.h" />
+    <ClInclude Include="PauseScript.h" />
     <ClInclude Include="PlayerInformation.h" />
     <ClInclude Include="POVCameraScript.h" />
     <ClInclude Include="FreeCameraScript.h" />

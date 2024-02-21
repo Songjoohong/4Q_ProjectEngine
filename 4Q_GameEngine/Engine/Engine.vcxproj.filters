@@ -257,6 +257,9 @@
     <ClInclude Include="IntroButtonScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
+    <ClInclude Include="PauseScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
