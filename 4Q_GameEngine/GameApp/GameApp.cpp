@@ -74,10 +74,10 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	//m_IntroWorld = DeserializeGame("");
-	m_GameWorld = DeserializeGame("scene/TitleScene.scene");
+	m_IntroWorld = DeserializeGame("scene/TitleScene01.scene");
+	m_GameWorld = DeserializeGame("scene/PauseScene.scene");
 
-	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 	//WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
 	
 	return true;
@@ -87,15 +87,15 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 {
 	ECS::World* world = ECS::World::CreateWorld(filename);
 
-	world->registerSystem(new ScriptSystem());
 	world->registerSystem(new MovementSystem());
 	world->registerSystem(new CollisionSystem());
 	world->registerSystem(new TransformSystem());
 	world->registerSystem(new DebugSystem());
 	world->registerSystem(new CameraSystem());
-	world->registerSystem(new RenderSystem());
-	world->registerSystem(new SpriteSystem());
 	world->registerSystem(new class UISystem);
+	world->registerSystem(new SpriteSystem());
+	world->registerSystem(new ScriptSystem());
+	world->registerSystem(new RenderSystem());
 	world->registerSystem(new SpaceSystem());
 	world->registerSystem(new EventSystem());
 
@@ -332,6 +332,27 @@ void GameApp::Update()
 		}
 	}
 	
+	if (WorldManager::GetInstance()->GetCurrentWorld() == m_GameWorld)
+	{
+		for (const auto& gameEntity : m_GameWorld->GetEntities())
+		{
+			if (gameEntity->get<EntityIdentifier>()->m_EntityName == "YesSprite")
+			{
+				if (gameEntity->get<UI>()->m_EndGame)
+				{
+					gameEntity->get<UI>()->m_EndGame = false;
+					Close();
+				}
+				else if (gameEntity->get<UI>()->m_GoBackToLobby)
+				{
+					gameEntity->get<UI>()->m_GoBackToLobby = false;
+					m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
+					WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+				}
+			}
+		}
+	}
+
 
 	if (InputManager::GetInstance()->GetKeyDown(Key::F9))
 	{

@@ -123,7 +123,7 @@ void Renderer::AddSpriteInformation(ECS::World* world, int id, const std::string
 	ComPtr<ID3D11ShaderResourceView> texture;
 	const wchar_t* filePathT = ConvertToWchar(filePath);
 	HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
-	m_sprites.push_back(SpriteInformation{world, id, layer, true, position, texture });
+	m_sprites.push_back(SpriteInformation{ world, filePath, id, layer, true, position, texture });
 }
 
 void Renderer::AddDynamicTextInformation(int entId, const vector<std::wstring>& vector)
@@ -165,6 +165,13 @@ void Renderer::EditSpriteInformation(int id, Sprite2D& sprite2D)
 		{
 			return id == sprite.mEntityID && WorldManager::GetInstance()->GetCurrentWorld() == sprite.world;
 		});
+	if (it->mFilename != sprite2D.m_FileName)
+	{
+		ComPtr<ID3D11ShaderResourceView> texture;
+		const wchar_t* filePathT = ConvertToWchar(sprite2D.m_FileName);
+		HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
+		it->mSprite = texture;
+	}
 	it->IsRendered = sprite2D.m_IsRendered;
 	it->mLayer = sprite2D.m_Layer;
 	it->mPosition = XMFLOAT2{ (float)sprite2D.m_Position[0], (float)sprite2D.m_Position[1] } ;

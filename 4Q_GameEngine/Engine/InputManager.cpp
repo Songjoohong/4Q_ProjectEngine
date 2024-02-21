@@ -47,15 +47,20 @@ void InputManager::Update(float deltaTime)
 	{
 		for (int i = 0; i < Key::KEY_END; i++)
 		{
+			bool isDisalbed = false;
 			if (!m_DisabledKeys.empty())
 			{
 				for (const auto& disabledKey : m_DisabledKeys)
 				{
-					if (i != disabledKey)
-						m_IsPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
+					if (i == disabledKey)
+					{
+						isDisalbed = true;
+						break;
+					}
 				}
 			}
-			else
+
+			if(!isDisalbed)
 			{
 				m_IsPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
 			}
@@ -88,7 +93,6 @@ void InputManager::Update(float deltaTime)
 		//	
 		//}
 	}
-	
 
 	for (int i = 0; i < Key::KEY_END; i++)
 	{
@@ -136,7 +140,6 @@ void InputManager::Update(float deltaTime)
 void InputManager::UnlockKey()
 {
 	m_DisabledKeys.clear();
-	m_DisabledKeys.push_back(Key::F12);
 }
 
 void InputManager::LockKey(Key key)

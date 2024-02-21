@@ -95,6 +95,7 @@ struct DynamicTextInformation
 struct SpriteInformation
 {
 	ECS::World* world;
+	std::string mFilename;
 	int mEntityID;
 	float mLayer;
 	bool IsRendered;

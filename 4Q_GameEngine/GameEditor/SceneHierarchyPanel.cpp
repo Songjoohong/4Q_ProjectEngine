@@ -662,7 +662,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<DynamicText>("DynamicText", entity, [](auto component)
 	{
 		ImGui::InputFloat("Trigger Distance:", &component->m_TriggerDistance, 0.f, 1000.f);
-		ImGui::InputInt("OpeningDir", &component->m_TextNum);
+		ImGui::InputInt("TextIndex", &component->m_TextNum);
 		
 	});
 
@@ -726,7 +726,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	{
 		std::string temp = component->m_FileName;
 		ImGui::Text(temp.c_str());
-
+		ImGui::InputText("input FileName", &component->m_FileName);
 		ImGui::DragFloat("Layer :", &component->m_Layer, 0.1f, 0.f, 1.f, "%.1f");
 
 		int posX = component->m_Position[0];

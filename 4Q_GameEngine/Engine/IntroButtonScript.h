@@ -7,7 +7,6 @@
 #include "Sprite2D.h"
 static bool m_IsECButtonPressed = false;
 static bool m_IsEndingCreditClosed = false;
-static bool m_IsEndingCreditOpended = false;
 struct IntroButtonScript : public Script
 {
 	IntroButtonScript(Entity* ent)
@@ -17,7 +16,6 @@ struct IntroButtonScript : public Script
 
 	virtual void Update(float deltaTime) override
 	{
-		// EndingCredit화면일 때 키 입력막아야함...
 		if (InputManager::GetInstance()->GetKeyDown(Key::Enter))
 		{
 			m_pOwner->get<Sprite2D>()->m_IsRendered = false;
@@ -25,9 +23,22 @@ struct IntroButtonScript : public Script
 
 		if (m_pOwner->get<EntityIdentifier>()->m_EntityName == "EndingCreditButton")
 		{
-			if (m_pOwner->get<UI>()->m_UIstate == 1)
+			auto uiState = m_pOwner->get<UI>()->m_UIstate;
+
+			switch (uiState)
 			{
+			case CLICK:
 				m_IsECButtonPressed = true;
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/title_click_btn_developer.png";
+				break;
+			case UINONE:
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/title_btn_developer.png";
+				break;
+			case HOVER:
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/title_mouseup_btn_developer.png";
+				break;
+			default:
+				break;
 			}
 		}
 
@@ -57,15 +68,13 @@ struct IntroButtonScript : public Script
 			if (m_pOwner->get<UI>()->m_UIstate == 1)
 			{
 				m_IsEndingCreditClosed = true;
-				m_IsEndingCreditOpended = false;
 			}
+
 			if (m_IsEndingCreditClosed)
 			{
 				m_pOwner->get<Sprite2D>()->m_IsRendered = false;
 			}
 		}
 	}
-
-private:
 
 };
