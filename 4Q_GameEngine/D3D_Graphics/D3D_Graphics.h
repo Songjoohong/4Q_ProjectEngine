@@ -124,12 +124,10 @@ public:
 	ComPtr<ID3D11DepthStencilState> m_pSkyboxDSS = nullptr;
 	ComPtr<ID3D11DepthStencilState> m_pOutlineDSS = nullptr;
 
-
 	ComPtr<ID3D11BlendState> m_pAlphaBlendState = nullptr;			//알파 블렌드 스테이트
 
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
 	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;			//샘플러(clamp)
-
 
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;

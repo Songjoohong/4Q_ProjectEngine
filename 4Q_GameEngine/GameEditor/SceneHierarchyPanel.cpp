@@ -18,6 +18,7 @@
 #include "../Engine/Space.h"
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
+#include "../Engine/Interactive.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -460,6 +461,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<DynamicText>("DynamicText");
 		DisplayAddComponentEntry<Sound>("Sound");
 		DisplayAddComponentEntry<PlayerInformation>("PlayerInformation");
+		DisplayAddComponentEntry<Interactive>("Interactive");
 		ImGui::EndPopup();
 	}
 
@@ -613,7 +615,10 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			, "DynamicText"
 			, "IntroCameraScript"
 			, "OutroScript"
-			, "DrawerScript"};
+			, "DrawerScript"
+			, "IntroDoorScript"
+			, "DoorScript"
+			, "IntroButtonScript"};
 		//¿ä±â
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);
@@ -729,8 +734,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	DrawComponent<UI>("UI", entity, [](auto component)
 	{
-			static int x = component->m_Size[0];
-			static int y = component->m_Size[1];
+			int x = component->m_Size[0];
+			int y = component->m_Size[1];
 
 			ImGui::Text("Interactive Size");
 			//ImGui::DragFloat("X", &x, 0.1f, 0.0f, 0.0f, "%.2f");
@@ -767,6 +772,38 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		component->m_Position[0] = posX;
 		component->m_Position[1] = posY;
 
+		const char* IsRendered[] = { "false", "true" };
+		const char* currentIsRendered = IsRendered[(int)component->m_IsRendered];
+		ImGui::SetNextItemWidth(150.f);
+
+		if (ImGui::BeginCombo("IsRendered", currentIsRendered))
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				bool isSelected = currentIsRendered == IsRendered[i];
+				if (ImGui::Selectable(IsRendered[i], isSelected))
+				{
+					currentIsRendered = IsRendered[i];
+
+					bool temp;
+					if (currentIsRendered == "true")
+					{
+						temp = true;
+					}
+					else
+					{
+						temp = false;
+					}
+
+					component->m_IsRendered = temp;
+				}
+
+				if (isSelected)
+					ImGui::SetItemDefaultFocus();
+			}
+
+			ImGui::EndCombo();
+		}
 	});
 
 	DrawComponent<Sound>("Sound", entity, [](auto component)
@@ -779,6 +816,11 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 	DrawComponent<PlayerInformation>("PlayerInformation", entity, [](auto component)
 	{
 
+	});
+
+	DrawComponent<Interactive>("Interactive", entity, [](auto component)
+	{
+		ImGui::InputInt("OpeningDir", &component->m_OpeningDir);
 	});
 }
 

@@ -21,14 +21,16 @@ public:
 		if (m_pOwner->has<Transform>())
 			m_StartPosition = m_pOwner->get<Transform>()->m_Position;
 
-		m_TargetPosition = Vector3D{ 0.0f, 190.0f, -400.0f };
+		m_TargetPosition = Vector3D{ 0.0f, 190.0f, -550.0f };
 
-		m_AccelerationTime = 0.5f;
+		m_MoveDuration = 2.0f;
+		m_AccelerationTime = 1.0f;
+		m_CurrentTime = 0.0f;
 	}
 
 	virtual void Update(float deltaTime) override
 	{
-		if (InputManager::GetInstance()->GetKeyDown(Key::SPACE))
+		if (InputManager::GetInstance()->GetKeyDown(Key::Enter) && !m_IsCameraMoving)
 		{
 			m_IsCameraMoving = true;
 		}
@@ -36,34 +38,33 @@ public:
 		{
 			m_CurrentTime += deltaTime;
 
-			float t = min(m_CurrentTime / m_MoveDuration, 1.0f);
-
+			float t = 0.0f;
 			if (m_CurrentTime < m_AccelerationTime)
 			{
-				t = 0.5f * std::pow(t / m_AccelerationTime, 2);
+				t = 0.5f * std::pow(m_CurrentTime / m_AccelerationTime, 2);
 			}
 			else if (m_CurrentTime > m_MoveDuration - m_AccelerationTime)
 			{
 				float decelerationT = (m_CurrentTime - (m_MoveDuration - m_AccelerationTime)) / m_AccelerationTime;
 				t = 1.0f - 0.5f * std::pow(1.0f - decelerationT, 2);
 			}
+			else
+			{
+				t = (m_CurrentTime - m_AccelerationTime) / (m_MoveDuration - 2 * m_AccelerationTime) + 0.5f;
+			}
 
+			float speed = 5.0f;
 			Vector3D interpolatedPosition;
-			interpolatedPosition.SetX(DirectX::SimpleMath::Vector3::Lerp(m_StartPosition.ConvertToVector3(), m_TargetPosition.ConvertToVector3(), t).x);
-			interpolatedPosition.SetY(DirectX::SimpleMath::Vector3::Lerp(m_StartPosition.ConvertToVector3(), m_TargetPosition.ConvertToVector3(), t).y);
-			interpolatedPosition.SetZ(DirectX::SimpleMath::Vector3::Lerp(m_StartPosition.ConvertToVector3(), m_TargetPosition.ConvertToVector3(), t).z);
+			interpolatedPosition = DirectX::SimpleMath::Vector3::Lerp(m_StartPosition.ConvertToVector3(), m_TargetPosition.ConvertToVector3(), t);
 
 			m_pOwner->get<Transform>()->m_Position = interpolatedPosition;
 
-			if (t >= 1.0f)
+			if (m_CurrentTime >= m_MoveDuration)
 			{
-				m_CurrentTime = 0.0f;
+				m_IsCameraMoving = false;
+				m_CurrentTime = m_MoveDuration;
 			}
-		}
-
-		if (m_pOwner->get<Transform>()->m_Position == m_TargetPosition)
-		{
-			m_IsCameraMoving = false;
+			
 		}
 	}
 
