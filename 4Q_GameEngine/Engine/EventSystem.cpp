@@ -15,7 +15,7 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 
 	if (info && player)
 	{
-		if (info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 2 )
+    		if (info->m_VisitedRooms.size() && info->m_VisitedRooms.back() == 2 )
 		{
 			if ((info->m_LookingEntity == "room_02_floor_coll_04" || info->m_LookingEntity == "room_02_floor_coll_03" || info->m_LookingEntity == "room_02_floor_coll_02") && std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_02_triggercoll_01") != info->m_CollidingEntities.end() && m_CurrentEventIndex != 1)
 			{

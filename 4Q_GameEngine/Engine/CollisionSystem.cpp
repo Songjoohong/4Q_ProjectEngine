@@ -19,6 +19,7 @@ void CollisionSystem::Receive(World* world, const Events::OnComponentAssigned<Bo
 { 
 	event.component->m_WorldPosition = event.entity->get<Transform>()->m_Position + event.component->m_Center;
 	event.component->m_Rotation = event.entity->get<Transform>()->m_Rotation; // rotation test
+	event.component->m_Size = event.entity->get<Transform>()->m_Scale;
 	PhysicsManager::GetInstance()->CreateCollider(event.component.component, event.entity->getEntityId());
 }
 
@@ -53,6 +54,8 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 	world->each<Transform, BoxCollider>([&](Entity* ent, ComponentHandle<Transform> transform, ComponentHandle<BoxCollider> collider)
 		{
 			collider->m_Rotation = transform->m_Rotation;
+			//collider->m_Size = transform->m_Scale;
+
 			if(collider->m_IsRaycastHit)
 			{
 				if(player)
@@ -83,18 +86,16 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 			if (ent->get<EntityIdentifier>()->m_HasParent)
 			{
 				if (ent->m_parent->has<Transform>())
-					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix() * ent->getParent()->get<Transform>()->m_WorldMatrix.ConvertToMatrix()).Translation();
+					collider->m_Rotation += ent->getParent()->get<Transform>()->m_Rotation;
 			}
-			else
-			{
+			
 				if (collider->m_CollisionType == CollisionType::PLAYER)
 				{
 					XMVECTOR determinant;
 					transform->m_Position = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_WorldPosition.ConvertToVector3()) * XMMatrixInverse(&determinant, DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()))).Translation();
 				}
 				else
-					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_RelativeMatrix.ConvertToMatrix()).Translation();
-			}
+					collider->m_WorldPosition = (DirectX::SimpleMath::Matrix::CreateTranslation(collider->m_Center.ConvertToVector3()) * transform->m_WorldMatrix.ConvertToMatrix()).Translation();
 
 		});
 }

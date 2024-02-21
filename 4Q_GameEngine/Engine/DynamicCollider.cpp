@@ -42,17 +42,20 @@ void DynamicCollider::UpdatePosition()
 	PxVec3 boxPos =
 	{
 		m_pOwner->m_WorldPosition.GetX(),
-		m_pOwner->m_WorldPosition.GetY(),
+		m_pOwner->m_WorldPosition.GetY() + m_Scale.GetY() / 2.f ,
 		m_pOwner->m_WorldPosition.GetZ()
 	};
 
 	if (boxPos != m_Transform.p)
 	{
 		m_Transform.p = boxPos;
+		m_Transform.p.y += m_Scale.GetY() / 2.f;
 		m_pOwner->m_WorldPosition = { m_Transform.p.x,m_Transform.p.y,m_Transform.p.z };
 		m_Rigid->setGlobalPose(m_Transform);
 	}
 }
+
+
 void DynamicCollider::UpdatePhysics()
 {
 	/*
@@ -67,6 +70,7 @@ void DynamicCollider::UpdatePhysics()
 		m_Transform.p.z
 	};
 
+	m_Transform.p.y += m_Scale.GetY() / 2.f;
 }
 
 void DynamicCollider::SetDensity(float mass)
