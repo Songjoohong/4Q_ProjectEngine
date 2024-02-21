@@ -97,9 +97,7 @@ void Renderer::AddOutlineMesh(StaticModel* model)
 }
 
 void Renderer::AddTextInformation(const int id, const std::string& text, const Vector3D& position)
-
 {
-
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
@@ -145,6 +143,11 @@ void Renderer::EditSpriteInformation(int id, Sprite2D& sprite2D)
 	it->IsRendered = sprite2D.m_IsRendered;
 	it->mLayer = sprite2D.m_Layer;
 	it->mPosition = XMFLOAT2{ (float)sprite2D.m_Position[0], (float)sprite2D.m_Position[1] } ;
+
+	std::sort(m_sprites.begin(), m_sprites.end(), [&](const SpriteInformation& lhs, const SpriteInformation& rhs)
+		{
+			return lhs.mLayer > rhs.mLayer;
+		});
 }
 
 void Renderer::EditDynamicTextInformation(int id, int index, bool enable)
