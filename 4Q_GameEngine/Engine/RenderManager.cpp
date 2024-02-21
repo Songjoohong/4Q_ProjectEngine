@@ -60,6 +60,12 @@ void RenderManager::AddStaticMesh(const std::string& fileName, Math::Matrix worl
 }
 
 
+void RenderManager::AddOutlineModel(const std::string& fileName, DirectX::SimpleMath::Matrix worldTM) const
+{
+	Renderer::Instance->AddOutlineModel(fileName, worldTM);
+}
+
+
 void RenderManager::AddColliderBox(const Vector3D center, const Vector3D extents, const Vector3D rotation)
 {
 	Renderer::Instance->AddColliderBox(Vector3(center.GetX(), center.GetY(), center.GetZ()), Vector3(extents.GetX(), extents.GetY(), extents.GetZ()), Vector3(rotation.GetX(), rotation.GetY(), rotation.GetZ()));

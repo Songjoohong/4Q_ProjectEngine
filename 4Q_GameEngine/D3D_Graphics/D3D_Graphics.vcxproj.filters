@@ -217,12 +217,13 @@
     <FxCompile Include="..\Resource\PS_NoMetalOpacity.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Resource\Header.hlsli">
+    <FxCompile Include="..\Resource\PS_Leaf.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\VS_Screen.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\PS_Box.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
     <FxCompile Include="..\Resource\PS_Screen.hlsl">
@@ -231,9 +232,22 @@
     <FxCompile Include="..\Resource\VS_Box.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="..\Resource\PS_Box.hlsl">
+    <FxCompile Include="..\Resource\PS_OpacityEmissive.hlsl">
       <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="..\Resource\PS_OpaqueEmissive.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\PS_NoMetalEmissive.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Resource\PS_NoMetalNoOpacityEmissive.hlsl">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Resource\Header.hlsli">
+      <Filter>2.Pipeline\2.Shader\Hlsl</Filter>
     </None>
   </ItemGroup>
 </Project>
