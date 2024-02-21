@@ -319,6 +319,13 @@ void GameApp::Update()
 					}
 				}
 			}
+			else if (introEntity->get<EntityIdentifier>()->m_EntityName == "ExitButton")
+			{
+				if (introEntity->get<UI>()->m_UIstate == 1)
+				{
+					Close();
+				}
+			}
 		}
 	}
 	
@@ -334,10 +341,13 @@ void GameApp::Update()
 		{
 			if (entity->has<Script>())
 			{
-				if (entity->get<Sprite2D>()->m_Position[0] == 2024)
+				if (entity->has<Sprite2D>())
 				{
-					m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
-					WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+					if (entity->get<Sprite2D>()->m_Position[0] == 2024)
+					{
+						m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
+						WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+					}
 				}
 			}
 		}

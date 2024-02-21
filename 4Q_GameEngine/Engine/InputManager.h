@@ -71,10 +71,14 @@ private:
 	POINT m_PreviousCursorPos = { 0,0 };
 	UINT m_Width = 0;
 	UINT m_Height = 0;
+	Key m_DisableKey;
 public:
 	void Initialize(UINT width, UINT height);
 	void Update(float deltaTime);
 	void SetCameraMode(bool isCameraMode) { m_IsCursorCameraMode = isCameraMode; }
+
+	void UnlockKey();
+	void LockKey(Key key);
 	[[nodiscard]] KeyInfo& GetKeyState(Key key);
 	[[nodiscard]] bool GetKey(Key key) const;
 	[[nodiscard]] bool GetKeyDown(Key key) const;
