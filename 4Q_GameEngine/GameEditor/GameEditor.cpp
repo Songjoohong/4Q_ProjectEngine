@@ -1009,7 +1009,7 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new ScriptSystem);
 	m_EditorWorld->registerSystem(new CollisionSystem);
 	m_EditorWorld->registerSystem(new SpriteSystem);
-	//m_EditorWorld->registerSystem(new DebugSystem);
+	m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
@@ -1089,9 +1089,11 @@ void GameEditor::NewScene()
 
 void GameEditor::PlayScene()
 {
-
+	
 	m_ActiveWorld = ECS::World::CreateWorld("scene/" + m_SceneName + ".scene");
 	WorldManager::GetInstance()->ChangeWorld(m_ActiveWorld);
+
+	//m_EditorWorld->DestroyWorld();
 
 	// 시스템 등록
 	m_ActiveWorld->registerSystem(new RenderSystem);
