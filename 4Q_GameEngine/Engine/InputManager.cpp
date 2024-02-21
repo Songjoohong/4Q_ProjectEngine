@@ -47,8 +47,12 @@ void InputManager::Update(float deltaTime)
 	{
 		for (int i = 0; i < Key::KEY_END; i++)
 		{
-			if(i != m_DisableKey)
-				m_IsPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
+			for (const auto& disabledKey : m_DisabledKeys)
+			{
+				if (i != disabledKey)
+					m_IsPressed[i] = GetAsyncKeyState(VK_key[i]) & 0x8000;
+			}
+			
 		}
 
 		m_PreviousCursorPos = m_CurrentCursorPos;
