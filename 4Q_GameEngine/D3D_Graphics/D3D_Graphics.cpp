@@ -756,65 +756,65 @@ void Renderer::GameAppRender()
 	}
 
 	/// 2. Point Light Shadow
-	{
-		Vector3 pointLightDir[6] =
-		{
-			Vector3(1.0f, 0.0f, 0.0f),
-			Vector3(-1.0f, 0.0f, 0.0f),
-			Vector3(0.0f, 1.0f, 0.0f),
-			Vector3(0.0f, -1.0f, 0.0f),
-			Vector3(0.0f, 0.0f, 1.0f),
-			Vector3(0.0f, 0.0f, -1.0f)
-		};
+	//{
+	//	Vector3 pointLightDir[6] =
+	//	{
+	//		Vector3(1.0f, 0.0f, 0.0f),
+	//		Vector3(-1.0f, 0.0f, 0.0f),
+	//		Vector3(0.0f, 1.0f, 0.0f),
+	//		Vector3(0.0f, -1.0f, 0.0f),
+	//		Vector3(0.0f, 0.0f, 1.0f),
+	//		Vector3(0.0f, 0.0f, -1.0f)
+	//	};
 
-		Vector3 upDir[6] =
-		{
-			Vector3(0.0f, 1.0f, 0.0f),
-			Vector3(0.0f, 1.0f, 0.0f),
-			Vector3(0.0f, 0.0f, -1.0f),
-			Vector3(0.0f, 0.0f, 1.0f),
-			Vector3(0.0f, 1.0f, 0.0f),
-			Vector3(0.0f, 1.0f, 0.0f)
-		};
+	//	Vector3 upDir[6] =
+	//	{
+	//		Vector3(0.0f, 1.0f, 0.0f),
+	//		Vector3(0.0f, 1.0f, 0.0f),
+	//		Vector3(0.0f, 0.0f, -1.0f),
+	//		Vector3(0.0f, 0.0f, 1.0f),
+	//		Vector3(0.0f, 1.0f, 0.0f),
+	//		Vector3(0.0f, 1.0f, 0.0f)
+	//	};
 
-		ComPtr<ID3D11RenderTargetView> arrayRTV[6];
-		ComPtr<ID3D11DepthStencilView> arrayDSV[6];
+	//	ComPtr<ID3D11RenderTargetView> arrayRTV[6];
+	//	ComPtr<ID3D11DepthStencilView> arrayDSV[6];
 
-		for (int i = 0; i < m_pointLightInstance.size(); i++)
-		{
-			const float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	//	for (int i = 0; i < m_pointLightInstance.size(); i++)
+	//	{
+	//		const float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-			for (int j = 0; j < 6; j++)
-			{
-				UpdatePointLightProjection(pointLightDir[j], upDir[j], i, j);
+	//		for (int j = 0; j < 6; j++)
+	//		{
+	//			UpdatePointLightProjection(pointLightDir[j], upDir[j], i, j);
 
-				arrayRTV[j] = m_pPointLightShadowRTV[i][j];
-				arrayDSV[j] = m_pPointLightShadowDSV[i][j];
+	//			arrayRTV[j] = m_pPointLightShadowRTV[i][j];
+	//			arrayDSV[j] = m_pPointLightShadowDSV[i][j];
 
-				m_pDeviceContext->ClearRenderTargetView(arrayRTV[i].Get(), clearColor);
-			}
+	//			m_pDeviceContext->ClearRenderTargetView(arrayRTV[j].Get(), clearColor);
+	//		}
 
-			//그림자 맵 생성
-			m_pDeviceContext->RSSetViewports(1, &m_pointShadowViewport);
-			m_pDeviceContext->OMSetRenderTargets(6, arrayRTV[0].GetAddressOf(), NULL);
-			m_pDeviceContext->PSSetShader(NULL, NULL, 0);
+	//		//그림자 맵 생성
+	//		m_pDeviceContext->RSSetViewports(1, &m_pointShadowViewport);
+	//		m_pDeviceContext->OMSetRenderTargets(6, arrayRTV[0].GetAddressOf(), NULL);
+	//		m_pDeviceContext->PSSetShader(NULL, NULL, 0);
 
-			//포인트 라이트 그림자 프로젝션 행렬 업데이트
-			m_pointLightProjectionCB.mCurrentPointLightIndex = i;
-			m_pDeviceContext->UpdateSubresource(m_pPointLightProjectionBuffer.Get(), 0, nullptr, &m_pointLightProjectionCB, 0, 0);
-			m_pDeviceContext->GSSetConstantBuffers(6, 1, m_pPointLightProjectionBuffer.GetAddressOf());
+	//		//포인트 라이트 그림자 프로젝션 행렬 업데이트
+	//		m_pointLightProjectionCB.mCurrentPointLightIndex = i;
+	//		m_pDeviceContext->UpdateSubresource(m_pPointLightProjectionBuffer.Get(), 0, nullptr, &m_pointLightProjectionCB, 0, 0);
+	//		m_pDeviceContext->GSSetConstantBuffers(6, 1, m_pPointLightProjectionBuffer.GetAddressOf());
 
-			//그림자 렌더
-			Renderer::Instance->m_pDeviceContext->VSSetShader(m_pPointLightShadowVS.Get(), nullptr, 0);
-			Renderer::Instance->m_pDeviceContext->GSSetShader(m_pPointLightShadowGS.Get(), nullptr, 0);
-			Renderer::Instance->m_pDeviceContext->PSSetShader(m_pPointLightShadowPS.Get(), nullptr, 0);
-			Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
-			ShadowRender();
-		}
-	}
+	//		//그림자 렌더
+	//		Renderer::Instance->m_pDeviceContext->VSSetShader(m_pPointLightShadowVS.Get(), nullptr, 0);
+	//		Renderer::Instance->m_pDeviceContext->GSSetShader(m_pPointLightShadowGS.Get(), nullptr, 0);
+	//		Renderer::Instance->m_pDeviceContext->PSSetShader(m_pPointLightShadowPS.Get(), nullptr, 0);
+	//		Renderer::Instance->m_pDeviceContext->PSSetSamplers(0, 1, Renderer::Instance->m_pSampler.GetAddressOf());
+	//		ShadowRender();
+	//	}
+	//}
 
 	//기하 셰이더 해제
-	Renderer::Instance->m_pDeviceContext->GSSetShader(nullptr, nullptr, 0);
+	//Renderer::Instance->m_pDeviceContext->GSSetShader(nullptr, nullptr, 0);
 
 	//뷰포트와 뎁스 스텐실 뷰를 카메라 기준으로 변경
 	Clear();

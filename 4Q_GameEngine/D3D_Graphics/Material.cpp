@@ -118,10 +118,21 @@ void Material::Create(aiMaterial* material)
         std::wstring finalPath = folderPath + L"/" + path.filename().wstring();
         m_pAmbientOcclusionRV = ResourceManager::Instance->CreateMaterial(finalPath);
     }
-    if(m_pOpacityRV)
-        m_pixelShader.SetShader(L"../Resource/PixelShader");
+    if(m_pMetalicRV)
+    {
+        if (m_pOpacityRV)
+            m_pixelShader.SetShader(L"../Resource/PixelShader");
+        else
+            m_pixelShader.SetShader(L"OpaquePBR");
+    }
     else
-        m_pixelShader.SetShader(L"OpaquePBR");
+    {
+        if (m_pOpacityRV)
+            m_pixelShader.SetShader(L"PS_NoMetalOpacity");
+        else
+            m_pixelShader.SetShader(L"PS_NoMetalic");
+    }
+    
     //m_shadowPixelShader.SetShader(L"ShadowPixelShader");
 }
 

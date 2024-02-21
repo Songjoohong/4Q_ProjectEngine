@@ -145,15 +145,33 @@ bool Engine::Initialize(const UINT width, const UINT height)
 	ent2->Assign<RigidBody>();
 	ent2->Assign<Movement>();
 
-	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	/*Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "jangseung");
 	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/jangseung.fbx");
-	ent3->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
+	ent3->Assign<Transform>(Vector3D(0.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });*/
 
 	Entity* ent4 = WorldManager::GetInstance()->GetCurrentWorld()->create();
 	ent4->Assign<EntityIdentifier>(ent4->getEntityId(), "Ground1");
 	ent4->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
-	ent4->Assign<Transform>(Vector3D(200.f, 0.f, 0.f), Vector3D(90.f, 90.f, 0.f), Vector3D{ 5.f,1.f,5.f });
+	ent4->Assign<Transform>(Vector3D(200.f, 0.f, 0.f), Vector3D(90.f, 90.f, 0.f), Vector3D{ 10.f,1.f,10.f });
+
+	Entity* ent7 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent7->Assign<EntityIdentifier>(ent7->getEntityId(), "Ground2");
+	ent7->Assign<StaticMesh>("FBXLoad_Test/fbx/floor2_low.fbx");
+	ent7->Assign<Transform>(Vector3D(0.f, 500.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 5.f,1.f,5.f });
+
+	Entity* ent6 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent6->Assign<EntityIdentifier>(ent6->getEntityId(), "tree");
+	ent6->Assign<StaticMesh>("FBXLoad_Test/fbx/tree.fbx");
+	ent6->Assign<Transform>(Vector3D(-200.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
+
+
+	Entity* ent5 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent5->Assign<EntityIdentifier>(ent5->getEntityId(), "treeleaf");
+	ent5->Assign<StaticMesh>("FBXLoad_Test/fbx/treeleaf.fbx");
+	ent5->Assign<Transform>(Vector3D(-200.f, 0.f, 0.f), Vector3D(0.f, 0.f, 0.f), Vector3D{ 1.f,1.f,1.f });
+
+	
 
 	return true;
 }
