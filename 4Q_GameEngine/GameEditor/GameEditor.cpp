@@ -960,10 +960,27 @@ void GameEditor::PlayButton()
 		{
 			m_IsPlaying = false;
 
+			m_EditorWorld = World::CreateWorld("");
 			WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+
+			// 시스템 등록
+			m_EditorWorld->registerSystem(new RenderSystem);
+			m_EditorWorld->registerSystem(new TransformSystem);
+			m_EditorWorld->registerSystem(new MovementSystem);
+			m_EditorWorld->registerSystem(new CameraSystem);
+			m_EditorWorld->registerSystem(new ScriptSystem);
+			m_EditorWorld->registerSystem(new CollisionSystem);
+			m_EditorWorld->registerSystem(new SpriteSystem);
+			m_EditorWorld->registerSystem(new DebugSystem);
+			m_EditorWorld->registerSystem(new class UISystem);
+			m_EditorWorld->registerSystem(new SpaceSystem);
 
 			m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 			m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
+
+			m_NameManager->ClearContainer();
+
+			Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
 
 			m_ActiveWorld->DestroyWorld();
 			//RenderManager::GetInstance()->GetRender()->m_sprites.clear();
@@ -1100,7 +1117,12 @@ void GameEditor::PlayScene()
 	m_ActiveWorld = ECS::World::CreateWorld("scene/" + m_SceneName + ".scene");
 	WorldManager::GetInstance()->ChangeWorld(m_ActiveWorld);
 
-	//m_EditorWorld->DestroyWorld();
+	if (m_IsPlaying)
+	{
+		SaveWorld(m_SceneName);
+	}
+
+	m_EditorWorld->DestroyWorld();
 
 	// 시스템 등록
 	m_ActiveWorld->registerSystem(new RenderSystem);
@@ -1114,16 +1136,11 @@ void GameEditor::PlayScene()
 	m_ActiveWorld->registerSystem(new class UISystem);
 	m_ActiveWorld->registerSystem(new SpaceSystem);
 
-	if (m_IsPlaying)
-	{
-		SaveWorld(m_SceneName);
-	}
 
 	m_SceneHierarchyPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
 
 	m_NameManager->ClearContainer();
-
 
 	m_ActiveWorld->ResetLastEntityId();
 

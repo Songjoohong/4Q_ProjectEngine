@@ -82,7 +82,6 @@ void CollisionSystem::Tick(World* world, ECS::DefaultTickData data)
 				}
 			}
 
-
 			if (ent->get<EntityIdentifier>()->m_HasParent)
 			{
 				if (ent->m_parent->has<Transform>())

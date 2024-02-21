@@ -173,6 +173,9 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 		m_NameManager->AddEntityName(prefab.first);
 	}
 
+	m_prefabContainer[0].first->get<EntityIdentifier>()->m_HasParent = false;
+	m_prefabContainer[0].first->get<EntityIdentifier>()->m_ParentEntityId = 0;
+
 	m_prefabContainer.clear();
 
 	return nullptr;

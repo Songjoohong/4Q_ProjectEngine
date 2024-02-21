@@ -97,9 +97,7 @@ void Renderer::AddOutlineMesh(StaticModel* model)
 }
 
 void Renderer::AddTextInformation(const int id, const std::string& text, const Vector3D& position)
-
 {
-
 	const DirectX::XMFLOAT3 conversion = ConvertToNDC(position);
 	const DirectX::XMFLOAT2 pos = { conversion.x, conversion.y };
 	const float depth = conversion.z;
