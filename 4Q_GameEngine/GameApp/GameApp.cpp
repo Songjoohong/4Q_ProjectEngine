@@ -336,8 +336,8 @@ void GameApp::Update()
 			{
 				if (entity->get<Sprite2D>()->m_Position[0] == 2024)
 				{
-					m_GameWorld = DeserializeGame("scene/TitleScene.scene");
-					WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+					m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
+					WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 				}
 			}
 		}
