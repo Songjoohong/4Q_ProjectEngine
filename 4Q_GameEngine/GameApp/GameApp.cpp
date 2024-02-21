@@ -81,14 +81,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 
 	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
 	//WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
-	ent->Assign<Camera>();
-	ent->Assign<FreeCameraScript>(ent);
-	ent->Assign<Movement>();
-
+	
 	return true;
 }
 
