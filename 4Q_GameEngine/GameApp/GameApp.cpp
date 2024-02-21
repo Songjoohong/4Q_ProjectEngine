@@ -73,12 +73,27 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 		return result;
 
 	//m_IntroWorld = DeserializeGame("");
-	m_GameWorld = DeserializeGame("scene/ObjTest.scene");
+	m_GameWorld = DeserializeGame("scene/uiTest.scene");
 	//m_OutroWorld = DeserializeGame("");
 
 	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
-	WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
-	
+	//WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
+
+	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
+	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
+	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+	ent->Assign<Debug>();
+	ent->Assign<Camera>();
+	ent->Assign<FreeCameraScript>(ent);
+	ent->Assign<Movement>();
+
+	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+
+	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
+	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f), Vector3D(70, 10, 10));
+	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/lantern.fbx");
+
+
 	return true;
 }
 
@@ -298,20 +313,23 @@ void GameApp::SetParentTransform(ECS::Entity* child, ECS::Entity* parent)
 void GameApp::Update()
 {
 	__super::Update();
-
-	for (const auto& introEntity : m_IntroWorld->GetEntities())
+	if (WorldManager::GetInstance()->GetCurrentWorld() == m_IntroWorld)
 	{
-		if (introEntity->get<EntityIdentifier>()->m_EntityName == "PlayerCamera")
+		for (const auto& introEntity : m_IntroWorld->GetEntities())
 		{
-			if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
+			if (introEntity->get<EntityIdentifier>()->m_EntityName == "PlayerCamera")
 			{
-				/*if (m_GameWorld != nullptr)
+				if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
 				{
-					WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
-				}*/
+					/*if (m_GameWorld != nullptr)
+					{
+						WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+					}*/
+				}
 			}
 		}
 	}
+	
 
 	if (InputManager::GetInstance()->GetKeyDown(Key::F9))
 	{

@@ -33,6 +33,8 @@ public:
 
 	void AddStaticMesh(const std::string& fileName, DirectX::SimpleMath::Matrix worldTM) const;
 
+	void AddOutlineModel(const std::string& fileName, DirectX::SimpleMath::Matrix worldTM) const;
+
 	void AddColliderBox(const Vector3D center, const Vector3D extents, const Vector3D rotation);
 
 	void AddBoundingBox(DirectX::BoundingBox boundingBox);

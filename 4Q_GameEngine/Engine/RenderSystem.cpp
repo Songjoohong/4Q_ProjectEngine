@@ -23,6 +23,8 @@ void RenderSystem::Tick(ECS::World* world, ECS::DefaultTickData data)
 {
 	world->each<StaticMesh, Transform>([&](Entity* entity, const ComponentHandle<StaticMesh> staticMesh, ComponentHandle<Transform> transform)->void
 		{
+			if (staticMesh->m_FileName == "FBXLoad_Test/fbx/lantern.fbx")
+				RenderManager::GetInstance()->AddOutlineModel(staticMesh->m_FileName, transform->m_WorldMatrix.ConvertToMatrix());
 			if (staticMesh->m_FileName != "")
 			{
 				if (entity->get<EntityIdentifier>()->m_HasParent)

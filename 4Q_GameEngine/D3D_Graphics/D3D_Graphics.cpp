@@ -67,6 +67,17 @@ void Renderer::AddStaticModel(std::string filename, const Math::Matrix& worldTM)
 	}
 }
 
+void Renderer::AddOutlineModel(std::string filename, const Math::Matrix& worldTM)
+{
+	if (nullptr == m_pOutlineModel->GetSceneResource())
+	{
+		m_pOutlineModel->m_worldTransform = worldTM;
+
+		m_pOutlineModel->Load(filename);
+	}
+	AddOutlineMesh(m_pOutlineModel);
+}
+
 void Renderer::AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation)
 {
 	Quaternion rot = Math::Quaternion::CreateFromYawPitchRoll(rotation.y, rotation.x, rotation.z);
@@ -463,7 +474,7 @@ void Renderer::MeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-	//m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	Material* pPrevMaterial = nullptr;
 
@@ -489,7 +500,7 @@ void  Renderer::OpacityMeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-	//m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	Material* pPrevMaterial = nullptr;
 
@@ -787,9 +798,7 @@ void Renderer::GameAppRender()
 	//메쉬 렌더
 	RenderEnvironment();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-	SphereRender();
-
-	//OutlineRender();
+	
 	OutlineRender();
 	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get()); 
 	MeshRender();
@@ -798,12 +807,13 @@ void Renderer::GameAppRender()
 
 	RenderDebugDraw();
 
-
-	FinalRender();
-	m_spriteBatch->Begin();
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+	auto m_states = std::make_unique<CommonStates>(m_pDevice.Get());
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 	RenderText();
 	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
+	FinalRender();
 
 
 	//임구이 렌더
@@ -814,6 +824,9 @@ void Renderer::EditorRender()
 {
 	// 렌더링 대상을 렌더링에 맞게 설정합니다.
 	m_RenderTexture->SetRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get());
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());		// 실제 게임 렌더타겟에 렌더
+	m_pDeviceContext->ClearDepthStencilView(m_pOutlineDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	m_pDeviceContext->ClearDepthStencilView(m_pOutlineOriginDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	// 렌더링을 텍스처에 지웁니다.
 	m_RenderTexture->ClearRenderTarget(m_pDeviceContext.Get(), m_pDepthStencilView.Get(), 0.5f, 0.5f, 0.5f, 1.0f);
@@ -849,7 +862,7 @@ void Renderer::EditorRender()
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	//SphereRender();
 	MeshRender();
-
+	OpacityMeshRender();
 
 	RenderDebugDraw();
 	
@@ -911,6 +924,7 @@ void Renderer::FinalRender()
 
 void Renderer::RenderEnd()
 {
+	m_pOutlineModel->SetSceneResource(nullptr);
 	m_pSwapChain->Present(0, 0);
 	m_pMeshInstance.clear();
 	m_pOpacityInstance.clear();
@@ -1341,6 +1355,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	// 렌더링 텍스처 객체를 초기화한다.
 	m_RenderTexture->Initialize(m_pDevice.Get(), width, height);
 
+	m_pOutlineModel = new StaticModel();
 
 	Matrix cameraInitPos = Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(180.f), DirectX::XMConvertToRadians(0.f), DirectX::XMConvertToRadians(0.f)) * Matrix::CreateTranslation(0, 150, -250);
 	SetCamera(cameraInitPos);
@@ -1361,6 +1376,7 @@ void Renderer::UnInitialize()
 	}
 	m_pStaticModels.clear();
 	m_pStaticModels.shrink_to_fit();
+	delete m_pOutlineModel;
 }
 
 void Renderer::SetAlphaBlendState()
