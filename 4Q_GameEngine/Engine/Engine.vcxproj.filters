@@ -254,6 +254,9 @@
     <ClInclude Include="Interactive.h">
       <Filter>Component</Filter>
     </ClInclude>
+    <ClInclude Include="IntroButtonScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

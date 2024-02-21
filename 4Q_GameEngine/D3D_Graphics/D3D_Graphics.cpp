@@ -394,7 +394,7 @@ void Renderer::MeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-	//m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	Material* pPrevMaterial = nullptr;
 
@@ -420,7 +420,7 @@ void  Renderer::OpacityMeshRender()
 {
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
-	//m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
+	m_pDeviceContext->OMSetBlendState(m_pAlphaBlendState.Get(), nullptr, 0xffffffff);
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	Material* pPrevMaterial = nullptr;
 
@@ -675,9 +675,9 @@ void Renderer::RenderSprite() const
 
 	for (const auto& it : m_sprites)
 	{
-		if(WorldManager::GetInstance()->GetCurrentWorld() == it.world)
+		if(WorldManager::GetInstance()->GetCurrentWorld() == it.world && it.IsRendered)
 		{
-			m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, DirectX::Colors::White, 0.f, XMFLOAT2(0, 0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
+			m_spriteBatch->Draw(it.mSprite.Get(), it.mPosition, nullptr, Colors::White, 0.f, XMFLOAT2(0, 0), XMFLOAT2(1, 1), SpriteEffects_None, it.mLayer);
 		}
 	}
 
@@ -728,7 +728,8 @@ void Renderer::GameAppRender()
 	RenderDebugDraw();
 
 
-	m_spriteBatch->Begin();
+	auto m_states = std::make_unique<CommonStates>(m_pDevice.Get());
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 	RenderText();
 	RenderSprite();
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
@@ -777,15 +778,17 @@ void Renderer::EditorRender()
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 	//SphereRender();
 	MeshRender();
-
+	OpacityMeshRender();
 
 	RenderDebugDraw();
 
+	//m_pDeviceContext->OMSetBlendState(m_commonStates->AlphaBlend(), nullptr, 0xFFFFFFFF);
 
-
-	m_spriteBatch->Begin();
-	//RenderText();
+	auto m_states = std::make_unique<CommonStates>(m_pDevice.Get());
+	m_spriteBatch->Begin(SpriteSortMode_Deferred, m_states->NonPremultiplied());
 	RenderSprite();
+	//RenderText();
+
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
 
 

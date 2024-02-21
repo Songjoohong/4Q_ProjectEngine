@@ -21,4 +21,5 @@ void UISystem::Tick(World* world, ECS::DefaultTickData data)
 			if (ui->m_UIstate == UISTATE::HOVER && InputManager::GetInstance()->GetMouseButton(0))
 				ui->m_UIstate = UISTATE::CLICK;
 		});
+
 }

@@ -37,6 +37,7 @@
 #include "../Engine/DrawerScript.h"
 #include "../Engine/IntroDoorScript.h"
 #include "../Engine/DoorScript.h"
+#include "../Engine/IntroButtonScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -78,9 +79,6 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	NewScene();
 
-	//std::string pngPath = "../Resource/UI/play button.png";
-	//auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
-	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
 	if (!InitImGui())
 	{
 		return false;
@@ -780,6 +778,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "DoorScript")
 					{
 						m_PrefabManager->AssignComponents<DoorScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroButtonScript")
+					{
+						m_PrefabManager->AssignComponents<IntroButtonScript>(playEntity, component["Script"][0]);
 					}
 					//요기
 				}
