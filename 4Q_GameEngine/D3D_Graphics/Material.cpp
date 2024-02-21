@@ -121,16 +121,39 @@ void Material::Create(aiMaterial* material)
     if(m_pMetalicRV)
     {
         if (m_pOpacityRV)
-            m_pixelShader.SetShader(L"../Resource/PixelShader");
+        {
+            if (m_pEmissiveRV)
+                m_pixelShader.SetShader(L"PS_OpacityEmissive");
+            else
+                m_pixelShader.SetShader(L"../Resource/PixelShader");
+        }
         else
-            m_pixelShader.SetShader(L"OpaquePBR");
+        {
+            if (m_pEmissiveRV)
+                m_pixelShader.SetShader(L"PS_OpaqueEmissive");
+            else
+                m_pixelShader.SetShader(L"OpaquePBR");
+        }
     }
     else
     {
         if (m_pOpacityRV)
-            m_pixelShader.SetShader(L"PS_NoMetalOpacity");
+        {
+            if (m_pEmissiveRV)
+                m_pixelShader.SetShader(L"PS_NoMetalEmissive");
+            else
+                m_pixelShader.SetShader(L"PS_NoMetalOpacity");
+        }
         else
+        {
+            if (m_pEmissiveRV)
+                m_pixelShader.SetShader(L"PS_NoMetalEmissive");
+            else
+                m_pixelShader.SetShader(L"PS_NoMetalic");
+        }
             m_pixelShader.SetShader(L"PS_NoMetalic");
+        if (!m_pNormalRV)
+            m_pixelShader.SetShader(L"PS_Leaf");
     }
     //m_shadowPixelShader.SetShader(L"ShadowPixelShader");
 }

@@ -73,14 +73,15 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	if (!result)
 		return result;
 
-	m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
-	//m_GameWorld = DeserializeGame("scene/TestGameScene.scene");
-	m_OutroWorld = DeserializeGame("scene/OutroScene.scene");
+	//m_IntroWorld = DeserializeGame("");
 
-	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 
-//	WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
-	
+	m_GameWorld = DeserializeGame("scene/ObjTest.scene");
+	//m_OutroWorld = DeserializeGame("");
+
+	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
+	WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
+
 	return true;
 }
 
@@ -313,6 +314,7 @@ void GameApp::Update()
 			{
 				if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
 				{
+
 					if (m_GameWorld != nullptr)
 					{
 						WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
