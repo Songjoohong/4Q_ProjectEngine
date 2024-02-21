@@ -15,6 +15,7 @@ struct DoorScript : public Script
 
 	virtual void Update(float deltaTime) override
 	{
+		bool m_IsInteract = m_pOwner->get<Interactive>()->m_IsInteract;
 		if (m_pOwner->has<BoxCollider>())
 		{
 			if (m_pOwner->get<BoxCollider>()->m_IsRaycastHit)
@@ -25,7 +26,7 @@ struct DoorScript : public Script
 					m_pOwner->getWorld()->each<Interactive>([&](Entity* ent, ComponentHandle<Interactive> interactive)
 						{
 							if(interactive->m_DoorIndex == m_pOwner->get<Interactive>()->m_DoorIndex)
-								interactive->m_IsInteract = !m_pOwner->get<Interactive>()->m_IsInteract;
+								interactive->m_IsInteract = !m_IsInteract;
 						});
 				}
 			}
@@ -46,9 +47,9 @@ struct DoorScript : public Script
 			}
 			else
 			{
-				if (m_pOwner->get<Transform>()->m_Position.GetX() <= 90.f || m_pOwner->get<Transform>()->m_Position.GetX() >= -90.f)
+				if (m_pOwner->get<Transform>()->m_Position.GetX() <= 50.f && m_pOwner->get<Transform>()->m_Position.GetX() >= -50.f)
 				{
-					m_pOwner->get<Transform>()->m_Position.SetX(90.f * m_pOwner->get<Interactive>()->m_OpeningDir);
+					m_pOwner->get<Transform>()->m_Position.SetX(50.f * m_pOwner->get<Interactive>()->m_OpeningDir);
 				}
 				else
 				{
