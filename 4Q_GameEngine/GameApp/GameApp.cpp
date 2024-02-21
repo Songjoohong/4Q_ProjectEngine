@@ -75,6 +75,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 
 	//m_IntroWorld = DeserializeGame("");
 
+
 	m_GameWorld = DeserializeGame("scene/ObjTest.scene");
 	//m_OutroWorld = DeserializeGame("");
 
@@ -88,7 +89,6 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 	ent->Assign<FreeCameraScript>(ent);
 	ent->Assign<Movement>();
 
-	
 	return true;
 }
 
@@ -321,6 +321,7 @@ void GameApp::Update()
 			{
 				if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
 				{
+
 					if (m_GameWorld != nullptr)
 					{
 						WorldManager::GetInstance()->ChangeWorld(m_GameWorld);

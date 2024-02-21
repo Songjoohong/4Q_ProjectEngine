@@ -29,8 +29,11 @@ void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 				objectEntity = ent;
 			else if (space->m_SpaceIndex == event.subjectIndex)
 				subjectEntity = ent;
-
 		});
+
+	if (objectEntity->has<Space>() || subjectEntity->has<Space>())
+		return;
+
 	const auto object = objectEntity->get<Space>();
 	const auto subject = subjectEntity->get<Space>();
 	Vector3D& subjectDistance = subject->m_Exits[event.subjectExit].m_Distance;
