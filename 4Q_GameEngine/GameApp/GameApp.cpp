@@ -75,7 +75,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 
 	m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
 	//m_GameWorld = DeserializeGame("scene/TestGameScene.scene");
-	//m_OutroWorld = DeserializeGame("");
+	m_OutroWorld = DeserializeGame("scene/OutroScene.scene");
 
 	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 
@@ -327,6 +327,22 @@ void GameApp::Update()
 	{
 		WorldManager::GetInstance()->ChangeWorld(m_OutroWorld);
 	}
+
+	if ( WorldManager::GetInstance()->GetCurrentWorld() == m_OutroWorld)
+	{
+		for (auto& entity : m_OutroWorld->GetEntities())
+		{
+			if (entity->has<Script>())
+			{
+				if (entity->get<Sprite2D>()->m_Position[0] == 2024)
+				{
+					m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
+					WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+				}
+			}
+		}
+	}
+
 }
 
 void GameApp::Render()

@@ -138,7 +138,7 @@ void Renderer::EditSpriteInformation(int id, Sprite2D& sprite2D)
 {
 	const auto it = std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
 		{
-			return id == sprite.mEntityID;
+			return id == sprite.mEntityID && WorldManager::GetInstance()->GetCurrentWorld() == sprite.world;
 		});
 	it->IsRendered = sprite2D.m_IsRendered;
 	it->mLayer = sprite2D.m_Layer;
@@ -171,6 +171,14 @@ void Renderer::DeleteTextInformation(int id)
 void Renderer::DeleteSpriteInformation(int id)
 {
 	m_sprites.erase(std::find_if(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
+		{
+			return id == sprite.mEntityID;
+		}));
+}
+
+void Renderer::DeleteSpriteInformationReverse(int id)
+{
+	m_sprites.erase(std::find_if_not(m_sprites.begin(), m_sprites.end(), [id](const SpriteInformation& sprite)
 		{
 			return id == sprite.mEntityID;
 		}));

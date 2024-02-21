@@ -562,7 +562,12 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
+
+
 	Deserialize(m_EditorWorld, fileName);
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5); // TODO: TEST
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(4); // TODO: TEST
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5);	// TODO: 스프라이트 쌓인거 지우
 }
 
 void GameEditor::ShowSceneDialog()
@@ -978,6 +983,7 @@ void GameEditor::PlayButton()
 			Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
 
 			m_ActiveWorld->DestroyWorld();
+			//RenderManager::GetInstance()->GetRender()->m_sprites.clear();
 		}
 	}
 	else
@@ -1087,16 +1093,17 @@ void GameEditor::NewScene()
 		ent2->Assign<UI>(100, 100);
 		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
 		ent2->Assign<TestUIScript>(ent2);
+	// for test 2
+	{
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
+		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+		ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 0, 18);
+		ent2->Assign<OutroScript>(ent2);
+		ent2->get<Script>()->m_ComponentName = "OutroScript";
+	}
 	}
 #endif
-	// for test 2
-	//Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
-	//ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 100, 100);
-	//ent2->Assign<OutroScript>(ent2);
-	//ent->get<Script>()->m_ComponentName = "OutroScript";
-
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{

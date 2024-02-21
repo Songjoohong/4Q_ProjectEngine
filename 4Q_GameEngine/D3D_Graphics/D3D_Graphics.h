@@ -175,6 +175,7 @@ public:
 	//spritefont 렌더용
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	vector<SpriteInformation> m_sprites;
 
 	//빛 테스트용
 	vector<PointLight> m_pointLightInstance;		// 컬링된 후의 포인트라이트 인스턴스
@@ -249,7 +250,9 @@ public:
 
 	void DeleteTextInformation(int id);
 	void DeleteSpriteInformation(int id);
+	void DeleteSpriteInformationReverse(int id);
 	void DeleteDynamicTextInformation(int entId);
+	
 
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(std::string filename,DirectX::BoundingBox& boundingBox);
@@ -328,6 +331,5 @@ public:
 		std::string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
 	vector<TextInformation> m_texts;
-	vector<SpriteInformation> m_sprites;
 	vector<DynamicTextInformation> m_dynamicTexts;
 };
