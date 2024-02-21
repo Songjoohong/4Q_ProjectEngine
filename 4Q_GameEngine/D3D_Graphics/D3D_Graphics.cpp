@@ -782,12 +782,16 @@ void Renderer::GameAppRender()
 
 		for (int i = 0; i < m_pointLightInstance.size(); i++)
 		{
+			const float clearColor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 			for (int j = 0; j < 6; j++)
 			{
 				UpdatePointLightProjection(pointLightDir[j], upDir[j], i, j);
 
-				arrayRTV[i] = m_pPointLightShadowRTV[i][j];
-				arrayDSV[i] = m_pPointLightShadowDSV[i][j];
+				arrayRTV[j] = m_pPointLightShadowRTV[i][j];
+				arrayDSV[j] = m_pPointLightShadowDSV[i][j];
+
+				m_pDeviceContext->ClearRenderTargetView(arrayRTV[i].Get(), clearColor);
 			}
 
 			//그림자 맵 생성
