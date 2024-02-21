@@ -37,6 +37,7 @@
 #include "../Engine/DrawerScript.h"
 #include "../Engine/IntroDoorScript.h"
 #include "../Engine/DoorScript.h"
+#include "../Engine/IntroButtonScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -78,9 +79,6 @@ bool GameEditor::Initialize(UINT width, UINT height)
 
 	NewScene();
 
-	//std::string pngPath = "../Resource/UI/play button.png";
-	//auto filePath = Renderer::Instance->ConvertToWchar(pngPath);
-	//CreateTextureFromFile(Renderer::Instance->m_pDevice.Get(), filePath, &m_PlayButtonTexture);
 	if (!InitImGui())
 	{
 		return false;
@@ -564,7 +562,12 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
+
+
 	Deserialize(m_EditorWorld, fileName);
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5); // TODO: TEST
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(4); // TODO: TEST
+	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5);	// TODO: 스프라이트 쌓인거 지우
 }
 
 void GameEditor::ShowSceneDialog()
@@ -781,6 +784,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					{
 						m_PrefabManager->AssignComponents<DoorScript>(playEntity, component["Script"][0]);
 					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroButtonScript")
+					{
+						m_PrefabManager->AssignComponents<IntroButtonScript>(playEntity, component["Script"][0]);
+					}
 					//요기
 				}
 			}
@@ -953,12 +960,30 @@ void GameEditor::PlayButton()
 		{
 			m_IsPlaying = false;
 
+			m_EditorWorld = World::CreateWorld("");
 			WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
+
+			// 시스템 등록
+			m_EditorWorld->registerSystem(new RenderSystem);
+			m_EditorWorld->registerSystem(new TransformSystem);
+			m_EditorWorld->registerSystem(new MovementSystem);
+			m_EditorWorld->registerSystem(new CameraSystem);
+			m_EditorWorld->registerSystem(new ScriptSystem);
+			m_EditorWorld->registerSystem(new CollisionSystem);
+			m_EditorWorld->registerSystem(new SpriteSystem);
+			m_EditorWorld->registerSystem(new DebugSystem);
+			m_EditorWorld->registerSystem(new class UISystem);
+			m_EditorWorld->registerSystem(new SpaceSystem);
 
 			m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 			m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 
+			m_NameManager->ClearContainer();
+
+			Deserialize(m_EditorWorld, "scene/" + m_SceneName + ".scene");
+
 			m_ActiveWorld->DestroyWorld();
+			//RenderManager::GetInstance()->GetRender()->m_sprites.clear();
 		}
 	}
 	else
@@ -1007,7 +1032,7 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new ScriptSystem);
 	m_EditorWorld->registerSystem(new CollisionSystem);
 	m_EditorWorld->registerSystem(new SpriteSystem);
-	//m_EditorWorld->registerSystem(new DebugSystem);
+	m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
 
@@ -1068,16 +1093,17 @@ void GameEditor::NewScene()
 		ent2->Assign<UI>(100, 100);
 		ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
 		ent2->Assign<TestUIScript>(ent2);
+	// for test 2
+	{
+		Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
+		ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
+		ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
+		ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 0, 18);
+		ent2->Assign<OutroScript>(ent2);
+		ent2->get<Script>()->m_ComponentName = "OutroScript";
+	}
 	}
 #endif
-	// for test 2
-	//Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
-	//ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 100, 100);
-	//ent2->Assign<OutroScript>(ent2);
-	//ent->get<Script>()->m_ComponentName = "OutroScript";
-
 
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
@@ -1087,9 +1113,16 @@ void GameEditor::NewScene()
 
 void GameEditor::PlayScene()
 {
-
+	
 	m_ActiveWorld = ECS::World::CreateWorld("scene/" + m_SceneName + ".scene");
 	WorldManager::GetInstance()->ChangeWorld(m_ActiveWorld);
+
+	if (m_IsPlaying)
+	{
+		SaveWorld(m_SceneName);
+	}
+
+	m_EditorWorld->DestroyWorld();
 
 	// 시스템 등록
 	m_ActiveWorld->registerSystem(new RenderSystem);
@@ -1103,16 +1136,11 @@ void GameEditor::PlayScene()
 	m_ActiveWorld->registerSystem(new class UISystem);
 	m_ActiveWorld->registerSystem(new SpaceSystem);
 
-	if (m_IsPlaying)
-	{
-		SaveWorld(m_SceneName);
-	}
 
 	m_SceneHierarchyPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
 
 	m_NameManager->ClearContainer();
-
 
 	m_ActiveWorld->ResetLastEntityId();
 

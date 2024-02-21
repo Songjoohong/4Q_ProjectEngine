@@ -21,7 +21,7 @@ public:
 
 	virtual void Update(float deltaTime) override
 	{
-		if (InputManager::GetInstance()->GetKeyDown(Key::SPACE))
+		if (InputManager::GetInstance()->GetKeyDown(Key::Enter))
 		{
 			m_IsRotating = true;
 		}

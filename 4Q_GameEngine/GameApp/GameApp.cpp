@@ -37,6 +37,7 @@
 #include "../Engine/DrawerScript.h"
 #include "../Engine/IntroDoorScript.h"
 #include "../Engine/DoorScript.h"
+#include "../Engine/IntroButtonScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -73,26 +74,13 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 		return result;
 
 	//m_IntroWorld = DeserializeGame("");
-	m_GameWorld = DeserializeGame("scene/uiTest.scene");
+
+
+	m_GameWorld = DeserializeGame("scene/ObjTest.scene");
 	//m_OutroWorld = DeserializeGame("");
 
 	WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
-	//WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
-
-	Entity* ent = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	ent->Assign<EntityIdentifier>(ent->getEntityId(), "Camera");
-	ent->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	ent->Assign<Debug>();
-	ent->Assign<Camera>();
-	ent->Assign<FreeCameraScript>(ent);
-	ent->Assign<Movement>();
-
-	Entity* ent3 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-
-	ent3->Assign<EntityIdentifier>(ent3->getEntityId(), "Zelda");
-	ent3->Assign<Transform>(Vector3D(200.f, 100.f, 100.f), Vector3D(70, 10, 10));
-	ent3->Assign<StaticMesh>("FBXLoad_Test/fbx/lantern.fbx");
-
+	WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
 
 	return true;
 }
@@ -254,6 +242,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					{
 						AssignComponents<DoorScript>(gameEntity, component["Script"][0]);
 					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "IntroButtonScript")
+					{
+						AssignComponents<IntroButtonScript>(gameEntity, component["Script"][0]);
+					}
 				}
 			}
 			m_entityContainer.push_back({ gameEntity, oldID });
@@ -313,6 +305,7 @@ void GameApp::SetParentTransform(ECS::Entity* child, ECS::Entity* parent)
 void GameApp::Update()
 {
 	__super::Update();
+
 	if (WorldManager::GetInstance()->GetCurrentWorld() == m_IntroWorld)
 	{
 		for (const auto& introEntity : m_IntroWorld->GetEntities())
@@ -321,10 +314,11 @@ void GameApp::Update()
 			{
 				if (introEntity->get<Transform>()->m_Position.GetZ() > -555.0f && introEntity->get<Transform>()->m_Position.GetZ() < -550.0f)
 				{
-					/*if (m_GameWorld != nullptr)
+
+					if (m_GameWorld != nullptr)
 					{
 						WorldManager::GetInstance()->ChangeWorld(m_GameWorld);
-					}*/
+					}
 				}
 			}
 		}
@@ -335,6 +329,22 @@ void GameApp::Update()
 	{
 		WorldManager::GetInstance()->ChangeWorld(m_OutroWorld);
 	}
+
+	if ( WorldManager::GetInstance()->GetCurrentWorld() == m_OutroWorld)
+	{
+		for (auto& entity : m_OutroWorld->GetEntities())
+		{
+			if (entity->has<Script>())
+			{
+				if (entity->get<Sprite2D>()->m_Position[0] == 2024)
+				{
+					m_IntroWorld = DeserializeGame("scene/TitleScene.scene");
+					WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
+				}
+			}
+		}
+	}
+
 }
 
 void GameApp::Render()

@@ -20,7 +20,6 @@ struct ColliderBox
 		colliderBox.Orientation = rotation;
 	}
 	DirectX::BoundingOrientedBox colliderBox;
-
 };
 
 const size_t BUFFER_SIZE = 2;
@@ -29,12 +28,11 @@ static const int pointLightCount = 5;
 
 struct cbPointLight
 {
-	float mQuadraticTerm = 0.0002f;
 	float mConstantTerm = 0.0f;
 	float mLinearTerm = 0.007f;
+	float mQuadraticTerm = 0.0002f;
 	float mpad1;
 	Math::Vector4 mPad0;
-	
 
 	struct
 	{
@@ -67,6 +65,8 @@ struct cbProjection
 struct cbLight
 {
 	Vector4 mDirection = {0.f, -1.f, 1.f, 1.f};
+	Vector3 mDirectionalLightColor = { 1.0f, 1.0f, 1.0f };
+	float mPad0;
 };
 
 struct cbBall
@@ -137,11 +137,14 @@ public:
 	ComPtr<ID3D11ShaderResourceView> m_pOutlineMapSRV = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pOriginMapSRV = nullptr;
 
+	ComPtr<ID3D11ShaderResourceView> m_pFirstMapSRV = nullptr;
+	ComPtr<ID3D11ShaderResourceView> m_pOutlineMapSRV = nullptr;
+	ComPtr<ID3D11ShaderResourceView> m_pOriginMapSRV = nullptr;
+
 	ComPtr<ID3D11BlendState> m_pAlphaBlendState = nullptr;			//알파 블렌드 스테이트
 
 	ComPtr<ID3D11SamplerState> m_pSampler = nullptr;				//샘플러(linear)
 	ComPtr<ID3D11SamplerState> m_pSamplerClamp = nullptr;			//샘플러(clamp)
-
 
 	ComPtr<ID3D11RasterizerState> m_pRasterizerState = nullptr;
 	ComPtr<ID3D11RasterizerState> m_pRasterizerStateCCW = nullptr;
@@ -197,6 +200,7 @@ public:
 	//spritefont 렌더용
 	std::unique_ptr<DirectX::SpriteFont> m_spriteFont;
 	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	vector<SpriteInformation> m_sprites;
 
 	//빛 테스트용
 	vector<PointLight> m_pointLightInstance;		// 컬링된 후의 포인트라이트 인스턴스
@@ -268,15 +272,22 @@ public:
 	void AddTextInformation(int id, const std::string& text, const Vector3D& position);
 	void AddSpriteInformation(ECS::World* world, int id, const std::string& filePath, const DirectX::XMFLOAT2 position, float layer);
 	void AddDynamicTextInformation(int entId, const vector<std::wstring>& vector);
+	void CreatePointLight(int entId, Vector3 pos, Vector3D color, float intensity, float radius);
+
 
 	// 디버그 정보 수정
 	void EditTextInformation(int id, const std::string& text, const Vector3D& position);
 	void EditSpriteInformation(int id, Sprite2D& sprite2D);
 	void EditDynamicTextInformation(int id, int index, bool enable);
+	void EditPointLight(int id, Vector3 pos, Vector3D color, float intensity, float radius);
+	void EditDirectionalLight(Vector3 dir, Vector3 color);
 
 	void DeleteTextInformation(int id);
 	void DeleteSpriteInformation(int id);
+	void DeleteSpriteInformationReverse(int id);
 	void DeleteDynamicTextInformation(int entId);
+	void DeletePointLight(int id);
+
 
 	//모델 만들어서 모델 리스트에 추가
 	void CreateModel(std::string filename,DirectX::BoundingBox& boundingBox);
@@ -356,6 +367,5 @@ public:
 		std::string BasePath = "../Resource/";
 	const wchar_t* m_fontFilePath = L"../Resource/font/myfile.spritefont";
 	vector<TextInformation> m_texts;
-	vector<SpriteInformation> m_sprites;
 	vector<DynamicTextInformation> m_dynamicTexts;
 };
