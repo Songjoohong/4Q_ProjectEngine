@@ -339,10 +339,10 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	HR_T(m_pDevice->CreateDepthStencilView(m_pOutlineMap.Get(), &descDSV, m_pOutlineDepthStencilView.GetAddressOf()));
 	HR_T(m_pDevice->CreateDepthStencilView(m_pOriginMap.Get(), &descDSV, m_pOutlineOriginDSV.GetAddressOf()));
 
-
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.ViewDimension= D3D11_SRV_DIMENSION_TEXTURE2D;
+
 	srvDesc.Texture2D.MipLevels = 1;
 
 	HR_T(m_pDevice->CreateShaderResourceView(m_pOutlineMap.Get(), &srvDesc, m_pOutlineMapSRV.GetAddressOf()));
@@ -366,7 +366,6 @@ void Renderer::CreateDepthStencilView(UINT width, UINT height)
 	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
 	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	HR_T(m_pDevice->CreateDepthStencilView(m_pShadowMap.Get(), &descDSV, m_pShadowMapDSV.GetAddressOf()));
-
 
 	srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -508,6 +507,7 @@ void Renderer::OutlineRender()
 	m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pOutlineDepthStencilView.Get());
 	m_pDeviceContext->VSSetConstantBuffers(2, 1, m_pWorldBuffer.GetAddressOf());
 	m_pDeviceContext->OMSetDepthStencilState(m_pOutlineDSS.Get(), 0);
+
 	for (auto it : m_pOutlineMesh)
 	{
 		m_pDeviceContext->VSSetShader(m_pOutlineVS.Get(), nullptr, 0);
@@ -702,19 +702,17 @@ void Renderer::Update()
 
 	// pointLight Frustum Culling
 
-
 	//for (int i = 0; i < m_pointLights.size(); i++)
 	//{
 	//	DirectX::BoundingBox pointLightBoundingBox;
 
-
 	//	// Calculate the extents of the bounding box based on the radius
 	//	Vector3 extents(m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius(), m_pointLights[i].GetRadius());
-
+	//
 	//	// Set the bounding box parameters
 	//	pointLightBoundingBox.Center = m_pointLights[i].GetPosition();
 	//	pointLightBoundingBox.Extents = extents;
-
+	//
 	//	if (m_frustumCmaera.Intersects(pointLightBoundingBox))
 	//	{
 	//		m_pointLightInstance.push_back(m_pointLights[i]);
@@ -736,8 +734,6 @@ void Renderer::RenderBegin()
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
-
-
 	if (m_pointLightInstance.size() > pointLightCount)
 	{
 		for (int i = 0; i < pointLightCount; i++)
@@ -758,16 +754,15 @@ void Renderer::RenderBegin()
 		m_pointLightCB.mConstantTerm = m_pointLightInstance[i].GetConstantTerm();
 	}
 
-
 	m_pDeviceContext->UpdateSubresource(m_pPointLightBuffer.Get(), 0, nullptr, &m_pointLightCB, 0, 0);
 
-	m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-	m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
-	Clear(0, 1, 0);
-	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-	m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
-	m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
-	m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pDeviceContext->VSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
+    m_pDeviceContext->PSSetConstantBuffers(4, 1, m_pPointLightBuffer.GetAddressOf());
+    Clear(0,1,0);
+    m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_pDeviceContext->OMSetRenderTargets(1, m_pRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
+    m_pDeviceContext->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+    m_pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Renderer::RenderText() const
@@ -867,12 +862,15 @@ void Renderer::GameAppRender()
 
 	//OutlineRender();
 	OutlineRender();
-	
+
+	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get()); 
+
 	MeshRender();
 
 	OpacityMeshRender();
 
 	RenderDebugDraw();
+
 
   m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
 	auto m_states = std::make_unique<CommonStates>(m_pDevice.Get());
@@ -937,7 +935,7 @@ void Renderer::EditorRender()
 	//RenderText();
 
 	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStencilState.Get(), 0);
-
+	
 
 	//임구이 렌더
 	//RenderImgui();
@@ -1324,23 +1322,26 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 
 	HR_T(m_pDevice->CreateDepthStencilState(&dsd, m_pOutlineDSS.GetAddressOf()));
 
-	//래스터라이저 스테이트 초기화
-	D3D11_RASTERIZER_DESC rasterizerDesc = {};
-	rasterizerDesc.AntialiasedLineEnable = true;
-	rasterizerDesc.MultisampleEnable = true;
-	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	rasterizerDesc.CullMode = D3D11_CULL_BACK;
-	rasterizerDesc.FrontCounterClockwise = false;
-	rasterizerDesc.DepthClipEnable = true;
-	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
 
+
+    //래스터라이저 스테이트 초기화
+  D3D11_RASTERIZER_DESC rasterizerDesc = {};
+  rasterizerDesc.AntialiasedLineEnable = true;
+  rasterizerDesc.MultisampleEnable = true;
+  rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+  rasterizerDesc.CullMode = D3D11_CULL_NONE;
+  rasterizerDesc.FrontCounterClockwise = false;
+  rasterizerDesc.DepthClipEnable = true;
+  HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerState.GetAddressOf()));
+  
 	rasterizerDesc.FrontCounterClockwise = true;
 	HR_T(m_pDevice->CreateRasterizerState(&rasterizerDesc, m_pRasterizerStateCCW.GetAddressOf()));
 
 	m_pDeviceContext->RSSetState(m_pRasterizerState.Get());
 
 
-	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), NULL);
+  m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), NULL);
+
 
 
 	DirectX::BoundingFrustum::CreateFromMatrix(m_frustumCmaera, m_projectionMatrix);
@@ -1360,6 +1361,7 @@ bool Renderer::Initialize(HWND* hWnd, UINT width, UINT height)
 	pbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	pbd.CPUAccessFlags = 0;
 	HR_T(m_pDevice->CreateBuffer(&bd, nullptr, m_pSphereBuffer.GetAddressOf()));
+
 
 	SetAlphaBlendState();
 

@@ -30,8 +30,9 @@ struct cbPointLight
 {
 	float mConstantTerm = 0.0f;
 	float mLinearTerm = 0.007f;
-	float mQuadraticTerm = 0.0002f;
-	float mPad0;
+  float mQuadraticTerm = 0.0002f;
+	float mpad1;
+	Math::Vector4 mPad0;
 	struct
 	{
 		Math::Vector3 mPos;
@@ -131,6 +132,9 @@ public:
 	ComPtr<ID3D11Texture2D>m_pOutlineMap=nullptr;
 	ComPtr<ID3D11Texture2D>m_pOriginMap=nullptr;
 
+	ComPtr<ID3D11ShaderResourceView> m_pFirstMapSRV = nullptr;
+	ComPtr<ID3D11ShaderResourceView> m_pOutlineMapSRV = nullptr;
+	ComPtr<ID3D11ShaderResourceView> m_pOriginMapSRV = nullptr;
 
 	ComPtr<ID3D11ShaderResourceView> m_pFirstMapSRV = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pOutlineMapSRV = nullptr;
@@ -250,6 +254,9 @@ public:
 	//디버그용 콜라이더 박스
 	void AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation);
 	void AddBoundingBox(DirectX::BoundingBox boundingBox);
+
+	void AddColliderBox(Vector3 center, Vector3 extents, Math::Matrix worldTM);
+
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);
