@@ -31,7 +31,9 @@ struct cbPointLight
 	float mConstantTerm = 0.0f;
 	float mLinearTerm = 0.007f;
 	float mQuadraticTerm = 0.0002f;
-	float mPad0;
+	float mpad1;
+	Math::Vector4 mPad0;
+
 	struct
 	{
 		Math::Vector3 mPos;
@@ -131,7 +133,6 @@ public:
 	ComPtr<ID3D11Texture2D>m_pOutlineMap=nullptr;
 	ComPtr<ID3D11Texture2D>m_pOriginMap=nullptr;
 
-
 	ComPtr<ID3D11ShaderResourceView> m_pFirstMapSRV = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pOutlineMapSRV = nullptr;
 	ComPtr<ID3D11ShaderResourceView> m_pOriginMapSRV = nullptr;
@@ -176,7 +177,9 @@ public:
 
 	vector<ColliderBox> m_colliderBox;
 	vector<DirectX::BoundingBox> m_boundingBox;
-	
+
+
+	StaticModel* m_pOutlineModel;
 	vector<StaticMeshInstance*> m_pOutlineMesh;		//아웃라인을 그릴 메쉬
 
 	vector<StaticModel*> m_pStaticModels;			//렌더링 할 스태틱 모델 리스트
@@ -246,10 +249,15 @@ public:
 
 	//빈 모델에 정보 입력
 	void AddStaticModel(std::string filename, const Math::Matrix& worldTM);
+	void AddOutlineModel(std::string filename, const Math::Matrix& worldTM);
+
 
 	//디버그용 콜라이더 박스
 	void AddColliderBox(Vector3 center, Vector3 extents, Vector3 rotation);
 	void AddBoundingBox(DirectX::BoundingBox boundingBox);
+
+	void AddColliderBox(Vector3 center, Vector3 extents, Math::Matrix worldTM);
+
 
 	//메쉬 인스턴스 렌더큐에 추가
 	void AddMeshInstance(StaticModel* model);

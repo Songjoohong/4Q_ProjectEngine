@@ -22,8 +22,10 @@ void StaticModel::SetSceneResource(shared_ptr<StaticSceneResource> sceneResource
 		Material* material = m_pStaticSceneResource->GetMeshMaterial(i);
 		m_meshInstance[i].Create(meshResource, m_worldTransform, material);
 	}
+
 	Math::Vector4 aabbMi = Math::Vector4(sceneResource->m_AABBmin.x, sceneResource->m_AABBmin.y, sceneResource->m_AABBmin.z, 1.0f);
 	Math::Vector4 aabbMa = Math::Vector4(sceneResource->m_AABBmax.x, sceneResource->m_AABBmax.y, sceneResource->m_AABBmax.z, 1.0f);
+	
 	Math::Vector3 aabbMin = m_pStaticSceneResource->m_BoundingBoxMin;
 	Math::Vector3 aabbMax = m_pStaticSceneResource->m_BoundingBoxMax;
 
