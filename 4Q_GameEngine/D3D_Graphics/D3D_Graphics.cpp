@@ -885,7 +885,6 @@ void Renderer::GameAppRender()
 
 	OpacityMeshRender();
 
-	RenderDebugDraw();
 
 
 	m_pDeviceContext->OMSetRenderTargets(1, m_pFirstRenderTargetView.GetAddressOf(), m_pDepthStencilView.Get());
@@ -946,7 +945,7 @@ void Renderer::EditorRender()
 	MeshRender();
 	OpacityMeshRender();
 
-	RenderDebugDraw();
+	//RenderDebugDraw();
 
 	//m_pDeviceContext->OMSetBlendState(m_commonStates->AlphaBlend(), nullptr, 0xFFFFFFFF);
 

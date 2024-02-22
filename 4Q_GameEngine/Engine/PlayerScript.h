@@ -49,7 +49,38 @@ public:
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
 		}
-
+		if (InputM->GetKey(Key::F1))
+		{
+			m_pOwner->getWorld()->each<Space>([&](Entity* ent, ComponentHandle<Space> space)
+				{
+					if (space->m_SpaceIndex == 13)
+						ent->get<Transform>()->m_Position = Vector3D{ 0.f,0.f,0.f };
+				});
+		}
+		if (InputM->GetKey(Key::F2))
+		{
+			m_pOwner->getWorld()->each<Space>([&](Entity* ent, ComponentHandle<Space> space)
+				{
+					if (space->m_SpaceIndex == 13)
+						ent->get<Transform>()->m_Position = Vector3D{ 0.f,0.f,0.f };
+				});
+		}
+		if (InputM->GetKey(Key::F3))
+		{
+			m_pOwner->getWorld()->each<Space>([&](Entity* ent, ComponentHandle<Space> space)
+				{
+					if (space->m_SpaceIndex == 13)
+						ent->get<Transform>()->m_Position = Vector3D{ 0.f,0.f,0.f };
+				});
+		}
+		if (InputM->GetKey(Key::F4))
+		{
+			m_pOwner->getWorld()->each<Space>([&](Entity* ent, ComponentHandle<Space> space)
+				{
+					if (space->m_SpaceIndex == 13)
+						ent->get<Transform>()->m_Position = Vector3D{ 0.f,0.f,0.f };
+				}); m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
+		}
 		
 		m_pOwner->get<Movement>()->m_CurrentRotation[0] = InputM->GetMouseMove().x;
 	}

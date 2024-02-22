@@ -1023,7 +1023,7 @@ void GameEditor::HandleShortcuts()
 
 void GameEditor::NewScene()
 {
-	m_SceneName = "NewScene";	// 씬 이름 기본 설정
+	m_SceneName = "editor";	// 씬 이름 기본 설정
 
 	m_EditorWorld = World::CreateWorld("../Resource/scene/" + m_SceneName + ".scene");
 	WorldManager::GetInstance()->ChangeWorld(m_EditorWorld);
@@ -1059,23 +1059,23 @@ void GameEditor::NewScene()
 	Vector3D pos3 = { 100.0f, 300.0f, 500.0f };
 	Vector3D posPlayer = { 1.0f, 1.0f, 1.0f };
 
-	// Player
-	Entity* player = m_EditorWorld->create();
-	player->Assign<EntityIdentifier>(player->getEntityId(), "Player");
-	player->Assign<Transform>(posPlayer);
-	player->Assign<Movement>();
-	player->Assign<RigidBody>();
-	player->Assign<BoxCollider>();
+	//// Player
+	//Entity* player = m_EditorWorld->create();
+	//player->Assign<EntityIdentifier>(player->getEntityId(), "Player");
+	//player->Assign<Transform>(posPlayer);
+	//player->Assign<Movement>();
+	//player->Assign<RigidBody>();
+	//player->Assign<BoxCollider>();
 
-	// PlayerCamera
-	Entity* playerCamera = m_EditorWorld->create();
-	playerCamera->Assign<EntityIdentifier>(playerCamera->getEntityId(), "PlayerCamera");
-	playerCamera->Assign<Transform>(posPlayer);
-	playerCamera->Assign<Camera>();
-	playerCamera->Assign<Movement>();
+	//// PlayerCamera
+	//Entity* playerCamera = m_EditorWorld->create();
+	//playerCamera->Assign<EntityIdentifier>(playerCamera->getEntityId(), "PlayerCamera");
+	//playerCamera->Assign<Transform>(posPlayer);
+	//playerCamera->Assign<Camera>();
+	//playerCamera->Assign<Movement>();
 
-	SetParent(playerCamera, player);
-	SetParentTransform(playerCamera, player);
+	//SetParent(playerCamera, player);
+	//SetParentTransform(playerCamera, player);
 
 	//Free Camera
 	Entity* ent = m_EditorWorld->create();

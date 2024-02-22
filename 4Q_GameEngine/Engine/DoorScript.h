@@ -25,6 +25,10 @@ struct DoorScript : public Script
 				{
 					m_pOwner->getWorld()->each<Interactive>([&](Entity* ent, ComponentHandle<Interactive> interactive)
 						{
+							m_pOwner->getWorld()->each<PlayerInformation>([&](Entity* ent, ComponentHandle<PlayerInformation> info)
+								{
+									info->m_InteractingCount++;
+								});
 							if(interactive->m_DoorIndex == m_pOwner->get<Interactive>()->m_DoorIndex)
 								interactive->m_IsInteract = !m_IsInteract;
 						});

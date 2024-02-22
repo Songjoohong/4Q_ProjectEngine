@@ -31,9 +31,6 @@ void SpaceSystem::Receive(World* world, const Events::SpaceAssemble& event)
 				subjectEntity = ent;
 		});
 
-	if (objectEntity->has<Space>() || subjectEntity->has<Space>())
-		return;
-
 	const auto object = objectEntity->get<Space>();
 	const auto subject = subjectEntity->get<Space>();
 	Vector3D& subjectDistance = subject->m_Exits[event.subjectExit].m_Distance;
@@ -94,24 +91,36 @@ void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 	}
 
 	std::vector<Entity*> _entity;
-	world->each<Space, BoxCollider>([&](Entity* ent, ComponentHandle<Space> space, ComponentHandle<BoxCollider> collider)->void
+	world->each<BoxCollider>([&](Entity* ent, ComponentHandle<BoxCollider> collider)->void
 		{
+			ComponentHandle<Space> space;
+			if(ent->getParent())
+			{
+				if(ent->getParent()->get<Space>())
+				{
+					space = ent->getParent()->get<Space>();
+				}
+			}
 			if (collider->m_State == CollisionState::ENTER)
 			{
-				if (space->m_IsPlayerExist == true)
+				if (space)
 				{
-					space->m_IsPlayerExist = false;
-					_entity.push_back(ent);
-				}
-				else
-				{
-					collider->m_State = CollisionState::EXIT;
-					space->m_IsPlayerExist = true;
+					if (space->m_IsPlayerExist == true)
+					{
+						space->m_IsPlayerExist = false;
+						_entity.push_back(ent->getParent());
+					}
+					else
+					{
+						collider->m_State = CollisionState::EXIT;
+						space->m_IsPlayerExist = true;
+					}
 				}
 			}
 			else if (collider->m_State == CollisionState::EXIT)
 			{
-				space->m_IsPlayerExist = true;
+				if(space)
+					space->m_IsPlayerExist = true;
 			}
 		});
 
@@ -121,10 +130,15 @@ void SpaceSystem::Tick(World* world, ECS::DefaultTickData data)
 			{
 				for (auto& ent : _entity)
 				{
-					component->m_VisitedRooms.push(ent->get<Space>()->m_SpaceIndex);
-					std::cout << "Player visit Room : " << ent->get<Space>()->m_SpaceIndex << std::endl;
+					
+						if (ent->has<Space>())
+						{
+							component->m_VisitedRooms.push(ent->get<Space>()->m_SpaceIndex);
+							std::cout << "Player visit Room : " << ent->get<Space>()->m_SpaceIndex << std::endl;
+						}
 				}
 			}
+			
 
 		});
 

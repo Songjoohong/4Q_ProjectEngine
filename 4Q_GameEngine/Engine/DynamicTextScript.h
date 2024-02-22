@@ -16,7 +16,10 @@ struct DynamicTextScript : public Script
 	virtual ~DynamicTextScript() override = default;
 	virtual void Awake() override
 	{
-		m_Size = m_pOwner->get<DynamicText>()->m_Text.size();
+		if(m_pOwner->has<DynamicText>())
+		{
+			m_Size = m_pOwner->get<DynamicText>()->m_Text.size();			
+		}
 		m_pOwner->getWorld()->each<PlayerInformation>([&](Entity* ent, ComponentHandle<PlayerInformation> info)
 			{
 				m_Player = ent;

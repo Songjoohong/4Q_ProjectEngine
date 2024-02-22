@@ -17,7 +17,7 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 	{
 		if (CheckRoom(info, 2))
 		{
-			if ((IsLooking(info, "room_02_floor_coll_04") || IsLooking(info, "room_02_floor_coll_03") || IsLooking(info, "room_02_floor_coll_02")) && IsColliding(info, "room_02_triggercoll_01") && m_CurrentEventIndex != 1)
+			if (IsColliding(info, "room_02_triggercoll_01") && m_CurrentEventIndex != 1)
 			{
 				m_CurrentEventIndex = 1;
 				world->emit<Events::SpaceReturn>({ 1 });
@@ -38,13 +38,13 @@ void EventSystem::Tick(World* world, ECS::DefaultTickData data)
 				world->emit<Events::SpaceAssemble>({ 4,2,1,0 });
 			}
 
-			if (info->m_InteractingCount == 2 && m_CurrentEventIndex != 3)
+			if (info->m_InteractingCount >= 3 && m_CurrentEventIndex != 3)
 			{
 				m_CurrentEventIndex = 3;
 				info->m_InteractingCount = 0;
 				world->emit<Events::SpaceReturn>({ 6 });
-				world->emit<Events::SpaceAssemble>({ 3,5,1,0 });
-				world->emit<Events::SpaceAssemble>({ 5,3,0,0 });
+				world->emit<Events::SpaceAssemble>({ 3,5,0,0 });
+				/*world->emit<Events::SpaceAssemble>({ 5,3,0,0 });*/
 			}
 		}
 
@@ -643,7 +643,7 @@ bool EventSystem::CheckRoom(ComponentHandle<PlayerInformation> info, int spaceIn
 
 bool EventSystem::IsColliding(ComponentHandle<PlayerInformation> info, std::string entityName)
 {
-	return std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), "room_10_triggercoll_01") != info->m_CollidingEntities.end();
+	return std::find(info->m_CollidingEntities.begin(), info->m_CollidingEntities.end(), entityName) != info->m_CollidingEntities.end();
 }
 
 bool EventSystem::IsLooking(ComponentHandle<PlayerInformation> info, std::string entityName)
