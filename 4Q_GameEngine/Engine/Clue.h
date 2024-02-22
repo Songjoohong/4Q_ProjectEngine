@@ -15,5 +15,7 @@ struct Clue
 	int m_Page;
 	int m_Index;
 	std::string m_FilePath;
+
+	NLOHMANN_DEFINE_TYPE_INTRUSIVE(Clue, m_Page, m_Index, m_FilePath)
 };
 ECS_DEFINE_TYPE(Clue)

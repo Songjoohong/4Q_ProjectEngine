@@ -20,6 +20,7 @@
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
 #include "../Engine/Interactive.h"
+#include "../Engine/Clue.h"
 
 #include "../Engine/FreeCameraScript.h"
 #include "NameManager.h"
