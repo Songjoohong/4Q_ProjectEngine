@@ -264,6 +264,9 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="ClueSystem.h" />
+    <ClInclude Include="ClueSpriteScript.h">
+      <Filter>Component\Script</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

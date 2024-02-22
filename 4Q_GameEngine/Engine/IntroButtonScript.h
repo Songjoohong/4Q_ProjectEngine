@@ -75,6 +75,27 @@ struct IntroButtonScript : public Script
 				m_pOwner->get<Sprite2D>()->m_IsRendered = false;
 			}
 		}
+
+		if (m_pOwner->get<EntityIdentifier>()->m_EntityName == "ExitButton")
+		{
+			auto uiState = m_pOwner->get<UI>()->m_UIstate;
+
+			switch (uiState)
+			{
+			case CLICK:
+				m_IsECButtonPressed = true;
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/title_click_btn_end.png";
+				break;
+			case UINONE:
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/title_btn_end.png";
+				break;
+			case HOVER:
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/title_mouseup_btn_end.png";
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
 };

@@ -168,6 +168,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Clue.h" />
+    <ClInclude Include="ClueSpriteScript.h" />
     <ClInclude Include="ClueSystem.h" />
     <ClInclude Include="IntroButtonScript.h" />
     <ClInclude Include="Interactive.h" />

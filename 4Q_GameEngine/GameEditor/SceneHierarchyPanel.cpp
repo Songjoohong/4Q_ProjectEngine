@@ -616,14 +616,15 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 			, "PlayerScript"
 			, "POVCameraScript"
 			, "TestUIScript"
-			, "DynamicText"
+			, "DynamicTextScript"
 			, "IntroCameraScript"
 			, "OutroScript"
 			, "DrawerScript"
 			, "IntroDoorScript"
 			, "DoorScript"
 			, "IntroButtonScript"
-			, "PauseScript"};
+			, "PauseScript"
+			, "ClueSpriteScript"};
 		//¿ä±â
 		static int item_current = 1;
 		ImGui::ListBox("ScriptList", &item_current, scripts, IM_ARRAYSIZE(scripts), 4);

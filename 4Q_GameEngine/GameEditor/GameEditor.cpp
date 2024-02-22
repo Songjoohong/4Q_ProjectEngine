@@ -40,6 +40,7 @@
 #include "../Engine/DoorScript.h"
 #include "../Engine/IntroButtonScript.h"
 #include "../Engine/PauseScript.h"
+#include "../Engine/ClueSpriteScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -800,6 +801,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PauseScript")
 					{
 						m_PrefabManager->AssignComponents<PauseScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "ClueSpriteScript")
+					{
+						m_PrefabManager->AssignComponents<ClueSpriteScript>(playEntity, component["Script"][0]);
 					}
 					//요기
 				}

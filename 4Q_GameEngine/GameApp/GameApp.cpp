@@ -40,6 +40,7 @@
 #include "../Engine/DoorScript.h"
 #include "../Engine/IntroButtonScript.h"
 #include "../Engine/PauseScript.h"
+#include "../Engine/ClueSpriteScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -77,6 +78,7 @@ bool GameApp::Initialize(UINT Width, UINT Height)
 
 	m_IntroWorld = DeserializeGame("scene/TitleScene01.scene");
 	m_GameWorld = DeserializeGame("scene/PauseScene.scene");
+	m_OutroWorld = DeserializeGame("scene/ClueScene.scene");
 
 	WorldManager::GetInstance()->ChangeWorld(m_IntroWorld);
 	//WorldManager::GetInstance()->GetCurrentWorld()->emit<Events::SpaceAssemble>({ 1,2,0,0 });
@@ -248,6 +250,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PauseScript")
 					{
 						AssignComponents<PauseScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "ClueSpriteScript")
+					{
+						AssignComponents<ClueSpriteScript>(gameEntity, component["Script"][0]);
 					}
 				}
 			}
