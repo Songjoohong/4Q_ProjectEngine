@@ -54,6 +54,7 @@
 #include "../Engine/UISystem.h"
 #include "../Engine/SpaceSystem.h"
 #include "../Engine/ClueSystem.h"
+#include "../Engine/EventSystem.h"
 
 #include "Prefab.h"
 #include "NameManager.h"
@@ -562,10 +563,11 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new ScriptSystem);
 	m_EditorWorld->registerSystem(new CollisionSystem);
 	m_EditorWorld->registerSystem(new SpriteSystem);
-
 	m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
+	m_EditorWorld->registerSystem(new ClueSystem);
+	m_EditorWorld->registerSystem(new EventSystem);
 
 	Deserialize(m_EditorWorld, fileName);
 	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5); // TODO: TEST
@@ -989,6 +991,8 @@ void GameEditor::PlayButton()
 			m_EditorWorld->registerSystem(new DebugSystem);
 			m_EditorWorld->registerSystem(new class UISystem);
 			m_EditorWorld->registerSystem(new SpaceSystem);
+			m_EditorWorld->registerSystem(new ClueSystem);
+			m_EditorWorld->registerSystem(new EventSystem);
 
 			m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 			m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
@@ -1050,6 +1054,8 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
+	m_EditorWorld->registerSystem(new ClueSystem);
+	m_EditorWorld->registerSystem(new EventSystem);
 
 	// Scene 새로 불러올 때 원래 이름값들 초기화
 
@@ -1130,7 +1136,7 @@ void GameEditor::PlayScene()
 	m_ActiveWorld->registerSystem(new class UISystem);
 	m_ActiveWorld->registerSystem(new SpaceSystem);
 	m_ActiveWorld->registerSystem(new ClueSystem);
-
+	m_ActiveWorld->registerSystem(new EventSystem);
 
 	m_SceneHierarchyPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);

@@ -19,6 +19,7 @@
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
 #include "../Engine/Interactive.h"
+#include "../Engine/Clue.h"
 
 #include "../Engine/PhysicsManager.h"
 
@@ -462,6 +463,7 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		DisplayAddComponentEntry<Sound>("Sound");
 		DisplayAddComponentEntry<PlayerInformation>("PlayerInformation");
 		DisplayAddComponentEntry<Interactive>("Interactive");
+		DisplayAddComponentEntry <Clue>("Clue");
 		ImGui::EndPopup();
 	}
 
@@ -469,6 +471,8 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 		ShowDialog<StaticMesh>();
 	else if (m_AssignSprite2D)
 		ShowDialog<Sprite2D>();
+	else if (m_ShowPngDialong)
+		PngDialong();
 
 	ImGui::PopItemWidth();
 
@@ -784,6 +788,13 @@ void SceneHierarchyPanel::DrawComponents(ECS::Entity* entity)
 
 	});
 
+	DrawComponent<Clue>("PlayerInformation", entity, [](auto component)
+		{
+			ImGui::InputInt("Page", &component->m_Page);
+			ImGui::InputInt("Index", &component->m_Index);
+
+		});
+
 	DrawComponent<Interactive>("Interactive", entity, [](auto component)
 	{
 		ImGui::InputInt("OpeningDir", &component->m_OpeningDir);
@@ -812,6 +823,35 @@ void SceneHierarchyPanel::ShowStaticModelDialog()
 			// action
 
 			m_SelectionContext->Assign<StaticMesh>("fbx/" + fileName);
+		}
+
+		// close
+		ImGuiFileDialog::Instance()->Close();
+		m_IsDialogOpen = false;
+	}
+}
+
+void SceneHierarchyPanel::PngDialong()
+{
+	std::string fileName;
+	std::string filePathName;
+	std::string filePath;
+
+	if (m_IsDialogOpen)
+	{
+		IGFD::FileDialogConfig config; config.path = "../Resource/UI";
+		ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".png", config);
+	}
+
+	// display
+	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey")) {
+		if (ImGuiFileDialog::Instance()->IsOk()) { // action if OK
+			fileName = ImGuiFileDialog::Instance()->GetCurrentFileName();
+			filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+			filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+			// action
+
+			m_SelectionContext->Assign<Sprite2D>("../Resource/UI/" + fileName);
 		}
 
 		// close

@@ -24,6 +24,7 @@
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
 #include "../Engine/Interactive.h"
+#include "../Engine/Clue.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
