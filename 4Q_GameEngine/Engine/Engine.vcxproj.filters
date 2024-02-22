@@ -260,6 +260,10 @@
     <ClInclude Include="PauseScript.h">
       <Filter>Component\Script</Filter>
     </ClInclude>
+    <ClInclude Include="Clue.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ClueSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">
@@ -337,5 +341,6 @@
     <ClCompile Include="EventSystem.cpp">
       <Filter>System\Event</Filter>
     </ClCompile>
+    <ClCompile Include="ClueSystem.cpp" />
   </ItemGroup>
 </Project>
