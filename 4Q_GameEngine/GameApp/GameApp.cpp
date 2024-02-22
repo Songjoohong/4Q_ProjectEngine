@@ -93,8 +93,8 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 	world->registerSystem(new DebugSystem());
 	world->registerSystem(new CameraSystem());
 	world->registerSystem(new class UISystem);
-	world->registerSystem(new SpriteSystem());
 	world->registerSystem(new ScriptSystem());
+	world->registerSystem(new SpriteSystem());
 	world->registerSystem(new RenderSystem());
 	world->registerSystem(new SpaceSystem());
 	world->registerSystem(new EventSystem());
