@@ -20,6 +20,7 @@
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
 #include "../Engine/Interactive.h"
+#include "../Engine/Clue.h"
 
 #include "../Engine/FreeCameraScript.h"
 #include "NameManager.h"
@@ -147,6 +148,10 @@ ECS::Entity* PrefabManager::LoadPrefab(const std::string& _filename)
 				{
 					AssignComponents<Interactive>(prefabEntity, component["Interactive"][0]);
 				}
+				else if (componentName == "Clue")
+				{
+					AssignComponents<Clue>(prefabEntity, component["Clue"][0]);
+				}
 			}
 			m_prefabContainer.push_back({ prefabEntity, oldID });
 		}
@@ -234,6 +239,7 @@ void PrefabManager::RecursiveSaveComponents(ECS::Entity* entity, json& prefabDat
 	SaveComponents<DynamicText>(entity, prefabData);
 	SaveComponents<PlayerInformation>(entity, prefabData);
 	SaveComponents<Interactive>(entity, prefabData);
+	SaveComponents<Clue>(entity, prefabData);
 
 	if (!entity->m_children.empty())
 	{

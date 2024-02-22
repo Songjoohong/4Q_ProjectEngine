@@ -24,6 +24,7 @@
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
 #include "../Engine/Interactive.h"
+#include "../Engine/Clue.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -39,6 +40,7 @@
 #include "../Engine/DoorScript.h"
 #include "../Engine/IntroButtonScript.h"
 #include "../Engine/PauseScript.h"
+#include "../Engine/ClueSpriteScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -94,8 +96,8 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 	world->registerSystem(new DebugSystem());
 	world->registerSystem(new CameraSystem());
 	world->registerSystem(new class UISystem);
-	world->registerSystem(new SpriteSystem());
 	world->registerSystem(new ScriptSystem());
+	world->registerSystem(new SpriteSystem());
 	world->registerSystem(new RenderSystem());
 	world->registerSystem(new SpaceSystem());
 	world->registerSystem(new EventSystem());
@@ -248,6 +250,10 @@ ECS::World* GameApp::DeserializeGame(const std::string filename)
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PauseScript")
 					{
 						AssignComponents<PauseScript>(gameEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "ClueSpriteScript")
+					{
+						AssignComponents<ClueSpriteScript>(gameEntity, component["Script"][0]);
 					}
 				}
 			}

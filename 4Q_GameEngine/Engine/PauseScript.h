@@ -128,6 +128,24 @@ public:
 				m_IsShutDownPressed = false;
 				m_pOwner->get<UI>()->m_EndGame = true;
 			}
+
+			auto uiState = m_pOwner->get<UI>()->m_UIstate;
+
+			switch (uiState)
+			{
+			case CLICK:
+				m_IsECButtonPressed = true;
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/popup_click_btn_yes.png";
+				break;
+			case UINONE:
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/popup_btn_yes.png";
+				break;
+			case HOVER:
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/popup_mouseup_btn_yes.png";
+				break;
+			default:
+				break;
+			}
 		}
 		else if (m_pOwner->get<EntityIdentifier>()->m_EntityName == "NoSprite")
 		{
@@ -150,6 +168,24 @@ public:
 			{
 				m_ShowPauseSprties = true;
 				m_IsShutDownPressed = false;
+			}
+
+			auto uiState = m_pOwner->get<UI>()->m_UIstate;
+
+			switch (uiState)
+			{
+			case CLICK:
+				m_IsECButtonPressed = true;
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/popup_click_btn_no.png";
+				break;
+			case UINONE:
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/popup_btn_no.png";
+				break;
+			case HOVER:
+				m_pOwner->get<Sprite2D>()->m_FileName = "../Resource/UI/popup_mouseup_btn_no.png";
+				break;
+			default:
+				break;
 			}
 		}
 		else if (m_pOwner->get<EntityIdentifier>()->m_EntityName == "ReallyBackToLobbySprite")

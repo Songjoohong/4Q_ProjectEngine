@@ -171,6 +171,7 @@ void Renderer::EditSpriteInformation(int id, Sprite2D& sprite2D)
 		const wchar_t* filePathT = ConvertToWchar(sprite2D.m_FileName);
 		HR_T(CreateTextureFromFile(m_pDevice.Get(), filePathT, &texture));
 		it->mSprite = texture;
+		it->mFilename = sprite2D.m_FileName;
 	}
 	it->IsRendered = sprite2D.m_IsRendered;
 	it->mLayer = sprite2D.m_Layer;

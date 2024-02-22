@@ -6,6 +6,7 @@
 #include "../Engine/ECS.h"
 #include "../Engine/Sprite2D.h"
 #include "../Engine/StaticMesh.h"
+#include "../Engine/Clue.h"
 
 struct Sprite2D;
 struct BoxCollider;
@@ -40,10 +41,15 @@ private:
 	template <>
 	inline void DisplayAddComponentEntry<Sprite2D>(const std::string& entryName);
 
+	template<>
+	inline void DisplayAddComponentEntry<Clue>(const std::string& entryName);
+
 	void DrawEntityNode(ECS::Entity* entity);
 	void DrawComponents(ECS::Entity* entity);
 
 	void ShowStaticModelDialog();
+	void PngDialong();
+
 	template <typename T>
 	void ShowDialog();	// TODO: ShowStaticModelDialog 함수를 템플릿화할 것이다.
 
@@ -53,6 +59,8 @@ private:
 	bool m_IsDialogOpen = false;
 	bool m_AssignStaticMesh = false;
 	bool m_AssignSprite2D = false;
+
+	bool m_ShowPngDialong = false;
 
 private:
 	ECS::World* m_Context;
@@ -93,6 +101,7 @@ void SceneHierarchyPanel::DisplayAddComponentEntry<StaticMesh>(const std::string
 			// 불러올 fbx 파일 선택하는 다이얼로그를 나타내는 트리거 on
 			m_IsDialogOpen = true;
 			m_AssignStaticMesh = true;
+
 			ImGui::CloseCurrentPopup();
 		}
 	}
@@ -109,6 +118,22 @@ inline void SceneHierarchyPanel::DisplayAddComponentEntry<Sprite2D>(const std::s
 			// 불러올 ui 파일 선택하는 다이얼로그를 나타내는 트리거 on
 			m_IsDialogOpen = true;
 			m_AssignSprite2D = true;
+			ImGui::CloseCurrentPopup();
+		}
+	}
+}
+
+template <>
+inline void SceneHierarchyPanel::DisplayAddComponentEntry<Clue>(const std::string& entryName)
+{
+	// 이미 있다면 추가하지 않음
+	if (!m_SelectionContext->has<Clue>())
+	{
+		if (ImGui::MenuItem(entryName.c_str()))
+		{
+			// 불러올 ui 파일 선택하는 다이얼로그를 나타내는 트리거 on
+			m_IsDialogOpen = true;
+			m_ShowPngDialong = true;
 			ImGui::CloseCurrentPopup();
 		}
 	}

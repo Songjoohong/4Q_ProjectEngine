@@ -24,6 +24,7 @@
 #include "../Engine/DynamicText.h"
 #include "../Engine/PlayerInformation.h"
 #include "../Engine/Interactive.h"
+#include "../Engine/Clue.h"
 
 // Script Headers
 #include "../Engine/SampleScript.h"
@@ -39,6 +40,7 @@
 #include "../Engine/DoorScript.h"
 #include "../Engine/IntroButtonScript.h"
 #include "../Engine/PauseScript.h"
+#include "../Engine/ClueSpriteScript.h"
 
 // system Headers
 #include "../Engine/MovementSystem.h"
@@ -52,6 +54,8 @@
 #include "../Engine/DebugSystem.h"
 #include "../Engine/UISystem.h"
 #include "../Engine/SpaceSystem.h"
+#include "../Engine/ClueSystem.h"
+#include "../Engine/EventSystem.h"
 
 #include "Prefab.h"
 #include "NameManager.h"
@@ -536,6 +540,7 @@ void GameEditor::SaveWorld(const std::string& _filename)
 		SaveComponents<DynamicText>(entity, worldData);
 		SaveComponents<PlayerInformation>(entity, worldData);
 		SaveComponents<Interactive>(entity, worldData);
+		SaveComponents<Clue>(entity, worldData);
 	}
 
 	outputFile << std::setw(4) << worldData << std::endl;
@@ -559,10 +564,11 @@ void GameEditor::LoadWorld(const std::string& fileName)
 	m_EditorWorld->registerSystem(new ScriptSystem);
 	m_EditorWorld->registerSystem(new CollisionSystem);
 	m_EditorWorld->registerSystem(new SpriteSystem);
-
 	m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
+	m_EditorWorld->registerSystem(new ClueSystem);
+	m_EditorWorld->registerSystem(new EventSystem);
 
 	Deserialize(m_EditorWorld, fileName);
 	//RenderManager::GetInstance()->GetRender()->DeleteSpriteInformationReverse(5); // TODO: TEST
@@ -738,6 +744,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 				{
 					m_PrefabManager->AssignComponents<Interactive>(playEntity, component["Interactive"][0]);
 				}
+				else if (componentName == "Clue")
+				{
+					m_PrefabManager->AssignComponents<Clue>(playEntity, component["Clue"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					if (component["Script"][0]["m_ComponentName"].get<std::string>() == "FreeCameraScript")
@@ -791,6 +801,10 @@ void GameEditor::PlayDeserialize(ECS::World* currentWorld, const std::string& _f
 					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "PauseScript")
 					{
 						m_PrefabManager->AssignComponents<PauseScript>(playEntity, component["Script"][0]);
+					}
+					else if (component["Script"][0]["m_ComponentName"].get<std::string>() == "ClueSpriteScript")
+					{
+						m_PrefabManager->AssignComponents<ClueSpriteScript>(playEntity, component["Script"][0]);
 					}
 					//요기
 				}
@@ -919,6 +933,10 @@ void GameEditor::Deserialize(ECS::World* currentWorld, const std::string& fileNa
 				{
 					AssignComponents<Interactive>(loadEntity, component["Interactive"][0]);
 				}
+				else if (componentName == "Clue")
+				{
+					AssignComponents<Clue>(loadEntity, component["Clue"][0]);
+				}
 				else if (componentName == "Script")
 				{
 					AssignComponents<Script>(loadEntity, component["Script"][0]);
@@ -978,6 +996,8 @@ void GameEditor::PlayButton()
 			m_EditorWorld->registerSystem(new DebugSystem);
 			m_EditorWorld->registerSystem(new class UISystem);
 			m_EditorWorld->registerSystem(new SpaceSystem);
+			m_EditorWorld->registerSystem(new ClueSystem);
+			m_EditorWorld->registerSystem(new EventSystem);
 
 			m_SceneHierarchyPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
 			m_ContentsBrowserPanel.SetContext(m_EditorWorld, m_PrefabManager, m_NameManager);
@@ -1039,6 +1059,8 @@ void GameEditor::NewScene()
 	m_EditorWorld->registerSystem(new DebugSystem);
 	m_EditorWorld->registerSystem(new class UISystem);
 	m_EditorWorld->registerSystem(new SpaceSystem);
+	m_EditorWorld->registerSystem(new ClueSystem);
+	m_EditorWorld->registerSystem(new EventSystem);
 
 	// Scene 새로 불러올 때 원래 이름값들 초기화
 
@@ -1088,27 +1110,6 @@ void GameEditor::NewScene()
 	ent->get<Script>()->m_IsFreeCamera = true;
 	ent->Assign<Movement>();
 
-	// for test
-#ifdef _DEBUG
-	//{
-	//	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test UI");
-	//	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//	ent2->Assign<UI>(100, 100);
-	//	ent2->Assign<Sprite2D>("../Resource/UI/image.jpg", 0, 100, 100);
-	//	ent2->Assign<TestUIScript>(ent2);
-	//// for test 2
-	//{
-	//	Entity* ent2 = WorldManager::GetInstance()->GetCurrentWorld()->create();
-	//	ent2->Assign<EntityIdentifier>(ent2->getEntityId(), "Test Outro");
-	//	ent2->Assign<Transform>(Vector3D(0.f, 10.f, 0.f), Vector3D{ 0.f,0.f,0.f });
-	//	ent2->Assign<Sprite2D>("../Resource/UI/cutscene_long.jpg", 0, 0, 18);
-	//	ent2->Assign<OutroScript>(ent2);
-	//	ent2->get<Script>()->m_ComponentName = "OutroScript";
-	//}
-	//}
-#endif
-
 	for (const auto& entity : m_EditorWorld->GetEntities())
 	{
 		m_NameManager->AddEntityName(entity);
@@ -1139,7 +1140,8 @@ void GameEditor::PlayScene()
 	m_ActiveWorld->registerSystem(new DebugSystem);
 	m_ActiveWorld->registerSystem(new class UISystem);
 	m_ActiveWorld->registerSystem(new SpaceSystem);
-
+	m_ActiveWorld->registerSystem(new ClueSystem);
+	m_ActiveWorld->registerSystem(new EventSystem);
 
 	m_SceneHierarchyPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
 	m_ContentsBrowserPanel.SetContext(m_ActiveWorld, m_PrefabManager, m_NameManager);
