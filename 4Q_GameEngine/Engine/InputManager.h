@@ -34,6 +34,7 @@ enum Key
 	F10,
 	F11,
 	F12,
+	TAB,
 	KEY_END,
 
 };

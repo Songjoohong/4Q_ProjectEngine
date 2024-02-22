@@ -423,7 +423,20 @@ namespace ECS
 			Entity* entity;
 		};
 
+		struct CluePageChange
+		{
+			ECS_DECLARE_TYPE
 
+				int page;
+		};
+
+		struct ClueFound
+		{
+			ECS_DECLARE_TYPE
+
+				int page;
+			int index;
+		};
 #ifdef ECS_NO_RTTI
 		template<typename T>
 		ECS_DEFINE_TYPE(ECS::Events::OnComponentAssigned<T>);

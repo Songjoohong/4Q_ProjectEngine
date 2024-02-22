@@ -32,6 +32,7 @@ int VK_key[static_cast<int>(Key::KEY_END)] =
 	VK_F10,
 	VK_F11,
 	VK_F12,
+	VK_TAB
 };
 
 void InputManager::Initialize(UINT width, UINT height)

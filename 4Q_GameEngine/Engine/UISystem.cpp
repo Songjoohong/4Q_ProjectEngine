@@ -9,6 +9,7 @@ void UISystem::Tick(World* world, ECS::DefaultTickData data)
 {
 	world->each<UI, Sprite2D>([&](Entity* ent, ComponentHandle<UI> ui, ComponentHandle<Sprite2D> sprite)
 		{
+			sprite->m_IsRendered = ui->m_IsShow;
 			const int mousePos[2] = { InputManager::GetInstance()->GetMousePos().x, InputManager::GetInstance()->GetMousePos().y };
 			
 			if (sprite->m_IsRendered)

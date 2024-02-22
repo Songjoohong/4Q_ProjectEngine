@@ -20,9 +20,11 @@ struct UI
 	long m_Size[2] = { 0,0 };
 	UISTATE m_UIstate = UISTATE::UINONE;
 	std::string m_ComponentName = "UI";
+	bool m_IsShow;
 
 	bool m_GoBackToLobby = false;
 	bool m_EndGame = false;
+
 
 	NLOHMANN_DEFINE_TYPE_INTRUSIVE(UI, m_ComponentName, m_Size, m_UIstate)
 };
