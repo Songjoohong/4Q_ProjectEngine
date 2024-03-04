@@ -33,19 +33,19 @@ public:
 
 	virtual void Update(float deltaTime) override
 	{
-		if(InputM->GetKey(Key::UP))
+		if(InputM->GetKey(Key::W))
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::FRONT;
 		}
-		if (InputM->GetKey(Key::LEFT))
+		if (InputM->GetKey(Key::A))
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::LEFTWARD;
 		}
-		if (InputM->GetKey(Key::RIGHT))
+		if (InputM->GetKey(Key::D))
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::RIGHTWARD;
 		}
-		if (InputM->GetKey(Key::DOWN))
+		if (InputM->GetKey(Key::S))
 		{
 			m_pOwner->get<Movement>()->m_CurrentMoveState += MoveState::BACK;
 		}

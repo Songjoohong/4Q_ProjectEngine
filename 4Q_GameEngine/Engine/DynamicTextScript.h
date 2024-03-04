@@ -30,8 +30,8 @@ struct DynamicTextScript : public Script
 	{
 		if (InputM->GetKeyDown(Key::SPACE))
 		{
-			m_pOwner->get<DynamicText>()->m_CurrentTextIndex += 1;
 			m_pOwner->get<DynamicText>()->m_CurrentTextIndex %= m_Size;
+			m_pOwner->get<DynamicText>()->m_CurrentTextIndex += 1;
 			m_pOwner->getWorld()->emit<Events::DynamicTextChange>({ m_pOwner });
 		}
 

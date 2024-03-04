@@ -19,7 +19,7 @@ void DynamicCollider::Initialize()
 
 	m_Rigid = PhysicsManager::GetInstance()->GetPhysics()->createRigidDynamic(PxTransform(m_Transform.p));
 	// 석영 : Box만 사용중.
-	m_Rigid->setMaxLinearVelocity(150.f);
+	m_Rigid->setMaxLinearVelocity(200.f);
 	m_pShape = PxRigidActorExt::createExclusiveShape(*m_Rigid, m_BoxGeometry, *m_pMaterial);
 	//PhysicsManager::GetInstance()->GetPxScene()->addActor(*m_Rigid);
 
@@ -95,13 +95,13 @@ void DynamicCollider::AddForce(Vector3D dir)
 	if (m_CurrentDir != checkmove)
 	{
 		float mass = m_Rigid->getMass();
-		m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 2.f, PxForceMode::eIMPULSE, true);
+		m_Rigid->addForce(m_CurrentDir * m_Rigid->getMass() * 3.f, PxForceMode::eIMPULSE, true);
 		m_bKeyUp = false;
 	}
 	else if (m_CurrentDir == checkmove && m_bKeyUp == false)
 	{
 		m_bKeyUp = true;
-		m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass() * 150.f, PxForceMode::eIMPULSE, true);
+		m_Rigid->addForce(PxVec3(0.f, -1.f, 0.f) * m_Rigid->getMass() * 250.f, PxForceMode::eIMPULSE, true);
 	}
 
 	m_PrevDir = m_CurrentDir;

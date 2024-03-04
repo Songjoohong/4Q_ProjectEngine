@@ -71,28 +71,28 @@ void InputManager::Update(float deltaTime)
 		GetCursorPos(&m_CurrentCursorPos);
 		ScreenToClient(hWnd, &m_CurrentCursorPos);
 
-		//if(m_IsCursorCameraMode)
-		//{
-		//	if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width - 100)
-		//	{
-		//		POINT clientPoint = { static_cast<long>(m_Width) / 2, m_CurrentCursorPos.y };
-		//		m_CurrentCursorPos = clientPoint;
-		//		m_PreviousCursorPos = m_CurrentCursorPos;
-		//		ClientToScreen(hWnd, &clientPoint);
-		//		SetCursorPos(clientPoint.x, clientPoint.y);
-		//	}
+		if(m_IsCursorCameraMode)
+		{
+			if (m_CurrentCursorPos.x <= 0 || m_CurrentCursorPos.x >= m_Width - 100)
+			{
+				POINT clientPoint = { static_cast<long>(m_Width) / 2, m_CurrentCursorPos.y };
+				m_CurrentCursorPos = clientPoint;
+				m_PreviousCursorPos = m_CurrentCursorPos;
+				ClientToScreen(hWnd, &clientPoint);
+				SetCursorPos(clientPoint.x, clientPoint.y);
+			}
 
-		//	if (m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 100)
-		//	{
-		//		POINT clientPoint = { m_CurrentCursorPos.x, static_cast<long>(m_Height) / 2 };
-		//		m_CurrentCursorPos = clientPoint;
-		//		m_PreviousCursorPos = m_CurrentCursorPos;
-		//		ClientToScreen(hWnd, &clientPoint);
-		//		SetCursorPos(clientPoint.x, clientPoint.y);
-		//	}
+			if (m_CurrentCursorPos.y <= 0 || m_CurrentCursorPos.y >= m_Height - 100)
+			{
+				POINT clientPoint = { m_CurrentCursorPos.x, static_cast<long>(m_Height) / 2 };
+				m_CurrentCursorPos = clientPoint;
+				m_PreviousCursorPos = m_CurrentCursorPos;
+				ClientToScreen(hWnd, &clientPoint);
+				SetCursorPos(clientPoint.x, clientPoint.y);
+			}
 
-		//	
-		//}
+			
+		}
 	}
 
 	for (int i = 0; i < Key::KEY_END; i++)

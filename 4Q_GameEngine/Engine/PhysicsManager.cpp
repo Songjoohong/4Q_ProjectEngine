@@ -306,6 +306,7 @@ void PhysicsManager::DeleteCollisionCollider(int entId)
 					return element.first == entId;
 				});
 
+			if(it != m_CollisionObjects.end())
 			m_CollisionObjects.erase(it);
 		}
 	}
